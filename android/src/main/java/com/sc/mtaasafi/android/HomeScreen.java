@@ -38,7 +38,7 @@ public class HomeScreen extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
-        new HttpAsyncTask().execute("http://192.168.0.102/facebook-page-sample.json");
+        new HttpAsyncTask().execute("http://54.86.130.202:8080/");
     }
 
 
