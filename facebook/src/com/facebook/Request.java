@@ -127,8 +127,11 @@ public class Request {
 
     /**
      * Constructs a request without a session, graph path, or any other parameters.
+     * @param s
+     * @param params
+     * @param post
      */
-    public Request() {
+    public Request(String s, Bundle params, String post) {
         this(null, null, null, null, null);
     }
 
