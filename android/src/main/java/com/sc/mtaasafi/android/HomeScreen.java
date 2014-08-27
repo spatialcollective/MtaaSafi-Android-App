@@ -48,7 +48,7 @@ public class HomeScreen extends FragmentActivity {
                     .findFragmentById(android.R.id.content);
         }
 
-        new HttpAsyncTask().execute("http://54.86.130.202:8081/get_posts");
+        new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
     }
 
     public static String GET(String url){
