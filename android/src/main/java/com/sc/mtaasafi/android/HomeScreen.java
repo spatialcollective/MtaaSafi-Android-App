@@ -48,7 +48,7 @@ public class HomeScreen extends FragmentActivity {
                     .findFragmentById(android.R.id.content);
         }
 
-        new HttpAsyncTask().execute("http://54.86.130.202:8080/");
+        new HttpAsyncTask().execute("http://54.86.130.202:8081/get_posts");
     }
 
     public static String GET(String url){
@@ -94,17 +94,17 @@ public class HomeScreen extends FragmentActivity {
         @Override
         protected void onPostExecute(String result){
             try{
-                JSONObject jsonObject = new JSONObject(result);
-                JSONArray jsonArray = jsonObject.getJSONArray("data");
+                JSONArray jsonArray = new JSONArray(result);
+
                 int len = jsonArray.length();
 
                 final List<String> listContent = new ArrayList<String>(len);
                 for(int i = 0; i<len; i++){
                     try{
-                        String message = jsonArray.getJSONObject(i).getString("message");
+                        String message = jsonArray.getJSONObject(i).getString("content");
                         listContent.add(message);
                     }catch(Exception e){
-                        Log.d("message", e.getLocalizedMessage());
+                        Log.d("content", e.getLocalizedMessage());
                     }
 
                 }
@@ -113,7 +113,7 @@ public class HomeScreen extends FragmentActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         Intent intent = new Intent(HomeScreen.this, PostView.class);
-                        intent.putExtra("message", listContent.get(i));
+                        intent.putExtra("content", listContent.get(i));
                         startActivity(intent);
                     }
                 });
