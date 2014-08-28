@@ -16,6 +16,6 @@ public class PostView extends ActionBarActivity {
         setContentView(R.layout.activity_post_view);
         TextView textView = (TextView) findViewById(R.id.textView);
         Intent intent = getIntent();
-        textView.setText(intent.getExtras().getString("message"));
+        textView.setText(intent.getExtras().getString("content"));
     }
 }
