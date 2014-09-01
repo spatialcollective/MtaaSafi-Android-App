@@ -16,6 +16,7 @@ import com.facebook.HttpMethod;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
+import com.facebook.SessionLoginBehavior;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphObject;
@@ -30,7 +31,6 @@ import java.util.Arrays;
  */
 public class MainFragment extends Fragment {
 
-    private static final String TAG = "MainFragment";
     private UiLifecycleHelper uiHelper;
     private Button newPostButton;
     public MainFragment() {
@@ -50,6 +50,7 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_main, container, false);
         LoginButton loginButton = (LoginButton) view.findViewById(R.id.authButton);
+        loginButton.setLoginBehavior(SessionLoginBehavior.SSO_WITH_FALLBACK);
         loginButton.setFragment(this);
         loginButton.setPublishPermissions(Arrays.asList("publish_actions"));
 
