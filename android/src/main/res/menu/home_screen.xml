@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sc.mtaasafi.android.HomeScreen" >
     
-    <item android:id="@+id/login"
-        android:title="@string/login"
-        android:orderInCategory="100"
+    <item android:id="@+id/accounts_menu"
+        android:title="@string/accounts"
         app:showAsAction="never" />
 </menu>

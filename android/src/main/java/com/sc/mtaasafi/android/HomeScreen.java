@@ -8,7 +8,11 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,22 +37,55 @@ import java.util.List;
 
 public class HomeScreen extends FragmentActivity {
     private MainFragment mainFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.news_feed);
 
-        if (savedInstanceState == null){
-            mainFragment = new MainFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(android.R.id.content, mainFragment)
-                    .commit();
-        } else {
-            mainFragment = (MainFragment) getSupportFragmentManager()
-                    .findFragmentById(android.R.id.content);
+        if (findViewById(R.id.fragment_container) != null) {
+            if (savedInstanceState != null) {
+                return;
+            }
+            NewsFeedFragment firstFragment = new NewsFeedFragment();
+
+            // Add the fragment to the 'fragment_container' FrameLayout
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, firstFragment).commit();
+
+//        if (savedInstanceState == null){
+//            mainFragment = new MainFragment();
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .add(android.R.id.content, mainFragment)
+//                    .commit();
+//        } else {
+//            mainFragment = (MainFragment) getSupportFragmentManager()
+//                    .findFragmentById(android.R.id.content);
+//        }
+//        getSupportFragmentManager()
+//            .findFragmentById(R.id.accounts).getView().setVisibility(View.GONE);
+            new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
         }
+    }
 
-        new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_screen, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.accounts_menu:
+                showLogins();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public static String GET(String url){
@@ -79,7 +116,7 @@ public class HomeScreen extends FragmentActivity {
         return result;
     }
 
-    private boolean isConnected(){
+    private boolean isConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
@@ -125,5 +162,18 @@ public class HomeScreen extends FragmentActivity {
 
             Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
         }
+    }
+
+    public void showLogins() {
+        AccountsFragment newFragment = new AccountsFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        transaction.replace(R.id.fragment_container, newFragment);
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
     }
 }
