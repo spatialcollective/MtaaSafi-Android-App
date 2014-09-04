@@ -5,13 +5,21 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyBInHMS_WYhfKtvX3k6i-iZFc4Kxk2C3iw" />
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
+        <meta-data android:name="com.google.android.gms.version" android:value="5089000" />
+
         <activity
             android:name=".HomeScreen"
             android:label="@string/app_name" >
@@ -28,7 +36,6 @@
         <activity
             android:name="com.facebook.LoginActivity"
             />
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
-    </application>
+</application>
 
 </manifest>
