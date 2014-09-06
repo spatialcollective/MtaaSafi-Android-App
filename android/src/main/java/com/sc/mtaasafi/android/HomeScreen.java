@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.support.v4.app.DialogFragment;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,6 +21,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -87,6 +92,16 @@ public class HomeScreen extends FragmentActivity {
         }
     }
 
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        String line;
+        String result = "";
+        while((line = bufferedReader.readLine()) != null)
+            result += line;
+        inputStream.close();
+        return result;
+    }
+
     public static String GET(String url){
         InputStream inputStream;
         String result = "";
@@ -102,16 +117,6 @@ public class HomeScreen extends FragmentActivity {
         }catch (Exception e){
             Log.d("InputStream", e.getLocalizedMessage());
         }
-        return result;
-    }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-        inputStream.close();
         return result;
     }
 
@@ -164,10 +169,13 @@ public class HomeScreen extends FragmentActivity {
     }
 
     public void showLogins() {
-        ViewStub stub = (ViewStub) findViewById(R.id.accounts_stub);
-        View accounts_view = stub.inflate();
-        ObjectAnimator anim = ObjectAnimator.ofFloat(accounts_view, "translationY", 100f, 1f);
+//        ViewStub stub = (ViewStub) findViewById(R.id.accounts_stub);
+//        View accounts_view = stub.inflate();
+//        ObjectAnimator anim = ObjectAnimator.ofFloat(accounts_view, "translationY", 100f, 1f);
 //        anim.setDuration(2000);
-        anim.start();
+//        anim.start();
+
+        DialogFragment newFragment = new AccountsFragment();
+        newFragment.show(getSupportFragmentManager(), "accounts");
     }
 }

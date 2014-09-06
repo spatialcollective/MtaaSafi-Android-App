@@ -7,7 +7,6 @@
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:layout_alignParentLeft="true"
-    android:background="#af42ff"
     android:padding="@dimen/activity_horizontal_margin"
     android:gravity="bottom">
 
