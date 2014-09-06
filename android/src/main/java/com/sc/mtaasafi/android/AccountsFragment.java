@@ -20,6 +20,10 @@ public class AccountsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.accounts, container, false);
+        LoginButton loginButton = (LoginButton) view.findViewById(R.id.authButton);
+        loginButton = (LoginButton) view.findViewById(R.id.authButton);
+        loginButton.setFragment(this);
+        loginButton.setPublishPermissions(Arrays.asList("publish_actions"));
         return view;
     }
 }

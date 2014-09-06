@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_container2"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/accounts_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="bottom" >
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#af42ff"
-        android:gravity="bottom" >
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentLeft="true"
+    android:background="#af42ff"
+    android:padding="@dimen/activity_horizontal_margin"
+    android:gravity="bottom">
 
         <com.facebook.widget.LoginButton
             android:id="@+id/authButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom"/>
-
-    </LinearLayout>
-</FrameLayout>
+</LinearLayout>

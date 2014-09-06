@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -36,37 +38,34 @@ import java.util.List;
 
 
 public class HomeScreen extends FragmentActivity {
-    private MainFragment mainFragment;
+    private NewsFeedFragment newsfeedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.news_feed);
 
-        if (findViewById(R.id.fragment_container) != null) {
-            if (savedInstanceState != null) {
-                return;
-            }
-            NewsFeedFragment firstFragment = new NewsFeedFragment();
+        setContentView(R.layout.activity_main);
+//        if (findViewById(R.id.fragment_container) != null) {
+//            if (savedInstanceState != null) {
+//                return;
+//            }
+//            NewsFeedFragment firstFragment = new NewsFeedFragment();
+//
+//            // Add the fragment to the 'fragment_container' FrameLayout
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.fragment_container, firstFragment).commit();
 
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
-
-//        if (savedInstanceState == null){
-//            mainFragment = new MainFragment();
+        if (savedInstanceState != null) {
+//            newsfeedFragment = new NewsFeedFragment();
 //            getSupportFragmentManager()
 //                    .beginTransaction()
-//                    .add(android.R.id.content, mainFragment)
+//                    .add(android.R.id.content, newsfeedFragment)
 //                    .commit();
 //        } else {
-//            mainFragment = (MainFragment) getSupportFragmentManager()
-//                    .findFragmentById(android.R.id.content);
-//        }
-//        getSupportFragmentManager()
-//            .findFragmentById(R.id.accounts).getView().setVisibility(View.GONE);
-            new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
+            newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager()
+                    .findFragmentById(android.R.id.content);
         }
+        new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
     }
 
     @Override
@@ -130,17 +129,17 @@ public class HomeScreen extends FragmentActivity {
 
         @Override
         protected void onPostExecute(String result){
-            try{
+            try {
                 JSONArray jsonArray = new JSONArray(result);
 
                 int len = jsonArray.length();
 
                 final List<String> listContent = new ArrayList<String>(len);
-                for(int i = 0; i<len; i++){
-                    try{
+                for (int i = 0; i<len; i++) {
+                    try {
                         String message = jsonArray.getJSONObject(i).getString("content");
                         listContent.add(message);
-                    }catch(Exception e){
+                    } catch(Exception e) {
                         Log.d("content", e.getLocalizedMessage());
                     }
 
@@ -156,7 +155,7 @@ public class HomeScreen extends FragmentActivity {
                 });
                 listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_expandable_list_item_1, listContent));
 
-            }catch (JSONException e){
+            } catch (JSONException e) {
                 Log.d("JSONObject", e.getLocalizedMessage());
             }
 
@@ -165,15 +164,10 @@ public class HomeScreen extends FragmentActivity {
     }
 
     public void showLogins() {
-        AccountsFragment newFragment = new AccountsFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-        // Replace whatever is in the fragment_container view with this fragment,
-        // and add the transaction to the back stack so the user can navigate back
-        transaction.replace(R.id.fragment_container, newFragment);
-        transaction.addToBackStack(null);
-
-        // Commit the transaction
-        transaction.commit();
+        ViewStub stub = (ViewStub) findViewById(R.id.accounts_stub);
+        View accounts_view = stub.inflate();
+        ObjectAnimator anim = ObjectAnimator.ofFloat(accounts_view, "translationY", 100f, 1f);
+//        anim.setDuration(2000);
+        anim.start();
     }
 }
