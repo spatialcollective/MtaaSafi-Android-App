@@ -1,8 +1,7 @@
 package com.sc.mtaasafi.android;
 
-
-import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -10,21 +9,18 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
+import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -43,53 +39,14 @@ import java.util.List;
 
 
 public class HomeScreen extends FragmentActivity {
-    private NewsFeedFragment newsfeedFragment;
+//    private NewsFeedFragment newsfeedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-//        if (findViewById(R.id.fragment_container) != null) {
-//            if (savedInstanceState != null) {
-//                return;
-//            }
-//            NewsFeedFragment firstFragment = new NewsFeedFragment();
-//
-//            // Add the fragment to the 'fragment_container' FrameLayout
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.fragment_container, firstFragment).commit();
 
-        if (savedInstanceState != null) {
-//            newsfeedFragment = new NewsFeedFragment();
-//            getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .add(android.R.id.content, newsfeedFragment)
-//                    .commit();
-//        } else {
-            newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager()
-                    .findFragmentById(android.R.id.content);
-        }
         new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.home_screen, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.accounts_menu:
-                showLogins();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
@@ -149,7 +106,7 @@ public class HomeScreen extends FragmentActivity {
                     }
 
                 }
-                ListView listView = (ListView) findViewById(R.id.listView);
+                ListView listView = (ListView) findViewById(R.id.feed_view);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -158,7 +115,21 @@ public class HomeScreen extends FragmentActivity {
                         startActivity(intent);
                     }
                 });
-                listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_expandable_list_item_1, listContent));
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        getApplicationContext(), android.R.layout.simple_list_item_1, listContent) {
+
+                    @Override
+                    public View getView(int position, View convertView, ViewGroup parent) {
+                        View view = super.getView(position, convertView, parent);
+                        TextView textView=(TextView) view.findViewById(android.R.id.text1);
+                        textView.setTextColor(Color.parseColor("#626262"));
+                        textView.setMaxLines(2);
+                        textView.setMinimumHeight(8);
+                        return view;
+                    }
+                };
+                listView.setAdapter(adapter);
 
             } catch (JSONException e) {
                 Log.d("JSONObject", e.getLocalizedMessage());
@@ -168,14 +139,27 @@ public class HomeScreen extends FragmentActivity {
         }
     }
 
-    public void showLogins() {
-//        ViewStub stub = (ViewStub) findViewById(R.id.accounts_stub);
-//        View accounts_view = stub.inflate();
-//        ObjectAnimator anim = ObjectAnimator.ofFloat(accounts_view, "translationY", 100f, 1f);
-//        anim.setDuration(2000);
-//        anim.start();
-
+    public void showAccountsDialog() {
         DialogFragment newFragment = new AccountsFragment();
         newFragment.show(getSupportFragmentManager(), "accounts");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_screen, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.accounts_menu:
+                showAccountsDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
