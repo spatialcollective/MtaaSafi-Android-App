@@ -6,7 +6,11 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_post_view">Post Details</string>
     <string name="login">Login to Facebook</string>
+    <string name="accounts">Accounts</string>
     <string name="title_activity_login">Login</string>
+    <string name="accounts_header">Add or Remove Accounts</string>
+    <string name="done">Done</string>
+    <string name="cancel">Cancel</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="app_id">903751569639797</string>
     <string name="new_post">New Post</string>

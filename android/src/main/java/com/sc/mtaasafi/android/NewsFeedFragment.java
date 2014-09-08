@@ -1,0 +1,131 @@
+package com.sc.mtaasafi.android;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.facebook.FacebookRequestError;
+import com.facebook.HttpMethod;
+import com.facebook.Request;
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
+import com.facebook.model.GraphObject;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
+public class NewsFeedFragment extends Fragment {
+    private Button newPostButton;
+    public NewsFeedFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.news_feed, container, false);
+        newPostButton = (Button) view.findViewById(R.id.newPostButton);
+        newPostButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                newPost();
+            }
+        });
+        return view;
+    }
+
+    private interface GraphObjectWithId extends GraphObject {
+        String getId();
+    }
+
+    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+        if (state.isOpened()) {
+            newPostButton.setVisibility(View.VISIBLE);
+        } else if (state.isClosed()) {
+            newPostButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Session session = Session.getActiveSession();
+        if (session != null && (session.isOpened() || session.isClosed())){
+            onSessionStateChange(session, session.getState(), null);
+        }
+    }
+
+    private void newPost(){
+        final Bundle params = new Bundle();
+        final EditText input = new EditText(getActivity());
+        input.setSingleLine(false);
+        params.putString("display", "page");
+        new AlertDialog.Builder(getActivity())
+                .setTitle("New Post")
+                .setView(input)
+                .setPositiveButton("Post", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        params.putString("message", String.valueOf(input.getText()));
+                        sendPost(params);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+
+    }
+
+    private void sendPost(Bundle params){
+        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
+            @Override
+            public void onCompleted(Response response) {
+                FacebookRequestError error = response.getError();
+                if(error == null){
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Success")
+                            .setMessage(response.getGraphObject().cast(GraphObjectWithId.class).getId())
+                            .setPositiveButton("Ok", null)
+                            .show();
+                }else{
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Error")
+                            .setMessage(error.getErrorMessage())
+                            .setPositiveButton("Ok", null)
+                            .show();
+                }
+            }
+        });
+        request.executeAsync();
+    }
+}
