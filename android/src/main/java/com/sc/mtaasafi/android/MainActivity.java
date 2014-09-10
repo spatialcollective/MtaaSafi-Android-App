@@ -8,16 +8,11 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,29 +20,21 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 
-public class HomeScreen extends FragmentActivity implements
+public class MainActivity extends FragmentActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener {
-    private MainFragment mainFragment;
+        GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks {
+    private FeedFragment feedFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
+    private ServerCommunicater sc;
 
+    @Override
+    public void updateFeed(List<FeedItem> newPosts) {
+        feedFragment.updateFeed(newPosts);
+    }
 
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
@@ -181,47 +168,19 @@ public class HomeScreen extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        sc = new ServerCommunicater(this);
         if (savedInstanceState == null){
-            mainFragment = new MainFragment();
+            feedFragment = new FeedFragment(this);
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, mainFragment)
+                    .add(android.R.id.content, feedFragment)
                     .commit();
         } else {
-            mainFragment = (MainFragment) getSupportFragmentManager()
+            feedFragment = (FeedFragment) getSupportFragmentManager()
                     .findFragmentById(android.R.id.content);
         }
+        sc.getPosts();
         mLocationClient = new LocationClient(this, this, this);
-        new HttpAsyncTask().execute("http://mtaasafi.spatialcollective.com/get_posts");
-    }
-
-    public static String GET(String url){
-        InputStream inputStream;
-        String result = "";
-        try{
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-            inputStream = httpResponse.getEntity().getContent();
-
-            if(inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work";
-        }catch (Exception e){
-            Log.d("InputStream", e.getLocalizedMessage());
-        }
-        return result;
-    }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        String line;
-        String result = "";
-        while((line = bufferedReader.readLine()) != null)
-            result += line;
-        inputStream.close();
-        return result;
     }
 
     private boolean isConnected(){
@@ -250,50 +209,5 @@ public class HomeScreen extends FragmentActivity implements
         // Disconnecting the client invalidates it.
         mLocationClient.disconnect();
         super.onStop();
-    }
-
-
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls){
-            return GET(urls[0]);
-        }
-
-        @Override
-        protected void onPostExecute(String result){
-            try{
-                JSONArray jsonArray = new JSONArray(result);
-
-                int len = jsonArray.length();
-
-                final List<String> listContent = new ArrayList<String>(len);
-                Log.d("onPostExecute", "retrieved content list of length: " + len);
-                for(int i = 0; i<len; i++){
-                    try{
-                        String message = jsonArray.getJSONObject(i).getString("content");
-                        listContent.add(message);
-                    }catch(Exception e){
-                        Log.d("content", e.getLocalizedMessage());
-                    }
-
-                }
-                ListView listView = (ListView) findViewById(R.id.listView);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        Intent intent = new Intent(HomeScreen.this, PostView.class);
-                        intent.putExtra("content", listContent.get(i));
-                        startActivity(intent);
-                    }
-                });
-                Log.d("onPostExecute","Set listView listener");
-                listView.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_expandable_list_item_1, listContent));
-
-            }catch (JSONException e){
-                Log.d("JSONObject", e.getLocalizedMessage());
-            }
-
-            Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
-        }
     }
 }

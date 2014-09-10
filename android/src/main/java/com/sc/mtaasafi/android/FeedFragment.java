@@ -1,15 +1,20 @@
 package com.sc.mtaasafi.android;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
@@ -23,32 +28,50 @@ import com.facebook.model.GraphObject;
 import com.facebook.widget.LoginButton;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.zip.Inflater;
 
 
 /**
  * A simple {@link Fragment} subclass.
  *
  */
-public class MainFragment extends Fragment {
+public class FeedFragment extends ListFragment {
 
     private UiLifecycleHelper uiHelper;
     private Button newPostButton;
-    public MainFragment() {
-        // Required empty public constructor
-    }
+    private Context context;
+    private FeedAdapter fa;
 
+    public FeedFragment(Context context) {
+        super();
+        this.context = context;
+        fa = new FeedAdapter(context);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         uiHelper = new UiLifecycleHelper(getActivity(), callback);
         uiHelper.onCreate(savedInstanceState);
+        Inflater inflater = new Inflater();
+        setListAdapter(fa);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_main, container, false);
+//        ListView listView = (ListView) view.findViewById(R.id.list);
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                Intent intent = new Intent(context, PostView.class);
+//                intent.putExtra("content", (String) fa.getItem(i));
+//                startActivity(intent);
+//            }
+//        });
+        Log.d("onPostExecute", "Set listView listener");
         LoginButton loginButton = (LoginButton) view.findViewById(R.id.authButton);
         loginButton.setLoginBehavior(SessionLoginBehavior.SSO_WITH_FALLBACK);
         loginButton.setFragment(this);
@@ -98,6 +121,10 @@ public class MainFragment extends Fragment {
         uiHelper.onSaveInstanceState(outState);
     }
 
+    public void updateFeed(List<FeedItem> newPosts){
+        fa.updateFeed(newPosts);
+    }
+
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
             newPostButton.setVisibility(View.VISIBLE);
@@ -117,6 +144,7 @@ public class MainFragment extends Fragment {
         String getId();
     }
 
+    // TODO: Rework this interaction
     private void newPost(){
         final Bundle params = new Bundle();
         final EditText input = new EditText(getActivity());
