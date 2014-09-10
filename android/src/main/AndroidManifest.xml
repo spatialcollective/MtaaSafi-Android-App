@@ -32,9 +32,8 @@
             android:name=".PostView"
             android:label="Post Details" >
         </activity>
-        <activity
-            android:name="com.facebook.LoginActivity"
-            />
-</application>
+        <activity android:name="com.facebook.LoginActivity" />
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
+    </application>
 
 </manifest>

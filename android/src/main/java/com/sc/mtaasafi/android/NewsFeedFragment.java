@@ -1,77 +1,60 @@
 package com.sc.mtaasafi.android;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
-import com.facebook.SessionLoginBehavior;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphObject;
-import com.facebook.widget.LoginButton;
 
-import java.util.Arrays;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
-
-/**
- * A simple {@link Fragment} subclass.
- *
- */
-public class FeedFragment extends ListFragment {
-
+public class NewsFeedFragment extends Fragment {
     private Button newPostButton;
-    private Context context;
-    private FeedAdapter fa;
-
-    public FeedFragment(Context context) {
-        super();
-        this.context = context;
-        fa = new FeedAdapter(context);
+    public NewsFeedFragment() {
+        // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setListAdapter(fa);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_main, container, false);
-//        ListView listView = (ListView) view.findViewById(R.id.list);
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                Intent intent = new Intent(context, PostView.class);
-//                intent.putExtra("content", (String) fa.getItem(i));
-//                startActivity(intent);
-//            }
-//        });
-        Log.d("onPostExecute", "Set listView listener");
-        LoginButton loginButton = (LoginButton) view.findViewById(R.id.authButton);
-        loginButton.setLoginBehavior(SessionLoginBehavior.SSO_WITH_FALLBACK);
-        loginButton.setFragment(this);
-        loginButton.setPublishPermissions(Arrays.asList("publish_actions"));
-
+        View view = inflater.inflate(R.layout.news_feed, container, false);
         newPostButton = (Button) view.findViewById(R.id.newPostButton);
         newPostButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -82,42 +65,8 @@ public class FeedFragment extends ListFragment {
         return view;
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        Session session = Session.getActiveSession();
-        if (session != null && (session.isOpened() || session.isClosed())){
-            onSessionStateChange(session, session.getState(), null);
-        }
-        uiHelper.onResume();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        uiHelper.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        uiHelper.onPause();
-    }
-
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        uiHelper.onDestroy();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        uiHelper.onSaveInstanceState(outState);
-    }
-
-    public void updateFeed(List<FeedItem> newPosts){
-        fa.updateFeed(newPosts);
+    private interface GraphObjectWithId extends GraphObject {
+        String getId();
     }
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
@@ -128,18 +77,15 @@ public class FeedFragment extends ListFragment {
         }
     }
 
-    private Session.StatusCallback callback = new Session.StatusCallback() {
-        @Override
-        public void call(Session session, SessionState state, Exception exception) {
-            onSessionStateChange(session, state, exception);
+    @Override
+    public void onResume(){
+        super.onResume();
+        Session session = Session.getActiveSession();
+        if (session != null && (session.isOpened() || session.isClosed())){
+            onSessionStateChange(session, session.getState(), null);
         }
-    };
-
-    private interface GraphObjectWithId extends GraphObject {
-        String getId();
     }
 
-    // TODO: Rework this interaction
     private void newPost(){
         final Bundle params = new Bundle();
         final EditText input = new EditText(getActivity());
