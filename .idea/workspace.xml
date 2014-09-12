@@ -32,50 +32,23 @@
     </layouts>
   </component>
   <component name="AndroidLogFilters">
-    <option name="TOOL_WINDOW_LOG_LEVEL" value="DEBUG" />
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="ERROR" />
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: com.sc.mtaasafi.android" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="96f00bcd-70f0-4576-9d56-6acd736cec39" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/AccountsFragment.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/layout/accounts.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/layout/feed_list_item.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\compiler.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\copyright\profiles_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\encodings.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\gradle.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\inspectionProfiles\Project_Default.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\inspectionProfiles\profiles_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\appcompat_v7_20_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\bolts.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\gridlayout_v7_20_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\play_services_5_0_89.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\support_annotations_20_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\support_v4_19_1_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\libraries\support_v4_20_0_0.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\scopes\scope_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\.idea\vcs.xml" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\android\android.iml" afterPath="" />
-      <change type="MOVED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\MtaaSafi-Android-App.iml" afterPath="$PROJECT_DIR$/Android.iml" />
-      <change type="MOVED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\android\src\main\java\com\sc\mtaasafi\android\FeedFragment.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="DELETED" beforePath="C:\Users\lenovo\AndroidStudioProjects\MtaaSafi-Android-App\android\src\main\res\layout\feed_list_item.xml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/android/src/main/AndroidManifest.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/LogTags.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/LogTags.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/layout/activity_main.xml" afterPath="$PROJECT_DIR$/android/src/main/res/layout/activity_main.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/build.gradle" afterPath="$PROJECT_DIR$/android/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/values/dimens.xml" afterPath="$PROJECT_DIR$/android/src/main/res/values/dimens.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/facebook/facebook.iml" afterPath="$PROJECT_DIR$/facebook/facebook.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml" afterPath="$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/menu/home_screen.xml" afterPath="$PROJECT_DIR$/android/src/main/res/menu/home_screen.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/values/strings.xml" afterPath="$PROJECT_DIR$/android/src/main/res/values/strings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml" afterPath="$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="MtaaSafi.iws" />
@@ -142,31 +115,18 @@
       <file leaf-file-name="build.gradle" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="218" max-vertical-offset="578">
+            <state vertical-scroll-proportion="0.0" vertical-offset="101" max-vertical-offset="578">
               <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NewsFeedFragment.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="NewsFeedFragment.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.29955947" vertical-offset="1139" max-vertical-offset="1768">
-              <caret line="126" column="26" selection-start-line="126" selection-start-column="26" selection-end-line="126" selection-end-column="26" />
-              <folding>
-                <element signature="e#3430#3747#0" expanded="true" />
-                <element signature="e#3728#3729#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="FeedAdapter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="473" max-vertical-offset="1020">
-              <caret line="48" column="27" selection-start-line="48" selection-start-column="27" selection-end-line="48" selection-end-column="27" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1109" max-vertical-offset="1717">
+              <caret line="126" column="35" selection-start-line="126" selection-start-column="35" selection-end-line="126" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -175,7 +135,7 @@
       <file leaf-file-name="FeedItem.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="265" max-vertical-offset="765">
+            <state vertical-scroll-proportion="0.0" vertical-offset="507" max-vertical-offset="765">
               <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
               <folding />
             </state>
@@ -185,10 +145,50 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="102" max-vertical-offset="3349">
+            <state vertical-scroll-proportion="0.0" vertical-offset="255" max-vertical-offset="3349">
               <caret line="34" column="55" selection-start-line="34" selection-start-column="55" selection-end-line="34" selection-end-column="55" />
               <folding />
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ServerCommunicater.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="1.6207951" vertical-offset="1085" max-vertical-offset="2975">
+              <caret line="95" column="49" selection-start-line="95" selection-start-column="49" selection-end-line="95" selection-end-column="49" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#2017#2018#0" expanded="true" />
+                <element signature="e#2056#2057#0" expanded="true" />
+                <element signature="e#4916#4917#0" expanded="true" />
+                <element signature="e#4959#4960#0" expanded="true" />
+                <element signature="e#5221#5231#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FeedAdapter.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="808" max-vertical-offset="1105">
+              <caret line="21" column="9" selection-start-line="21" selection-start-column="9" selection-end-line="21" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="feed_item.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.0" vertical-offset="68" max-vertical-offset="374">
+              <caret line="4" column="39" selection-start-line="4" selection-start-column="39" selection-end-line="4" selection-end-column="39" />
+              <folding />
+            </state>
+          </provider>
+          <provider editor-type-id="android-designer">
+            <state />
           </provider>
         </entry>
       </file>
@@ -268,6 +268,11 @@
               <ExternalTaskPojo>
                 <option name="linkedExternalProjectPath" value="$PROJECT_DIR$" />
                 <option name="name" value="preReleaseBuild" />
+              </ExternalTaskPojo>
+              <ExternalTaskPojo>
+                <option name="description" value="Prepare com.google.android.gms:play-services:5.0.89" />
+                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$" />
+                <option name="name" value="prepareComGoogleAndroidGmsPlayServices5089Library" />
               </ExternalTaskPojo>
               <ExternalTaskPojo>
                 <option name="description" value="Prepare com.android.support:appcompat-v7:19.1.0" />
@@ -387,11 +392,6 @@
               <ExternalTaskPojo>
                 <option name="linkedExternalProjectPath" value="$PROJECT_DIR$" />
                 <option name="name" value="compileDebugTestNdk" />
-              </ExternalTaskPojo>
-              <ExternalTaskPojo>
-                <option name="description" value="Prepare com.google.android.gms:play-services:5.2.08" />
-                <option name="linkedExternalProjectPath" value="$PROJECT_DIR$" />
-                <option name="name" value="prepareComGoogleAndroidGmsPlayServices5208Library" />
               </ExternalTaskPojo>
               <ExternalTaskPojo>
                 <option name="linkedExternalProjectPath" value="$PROJECT_DIR$" />
@@ -1512,7 +1512,7 @@
     </option>
     <option name="modificationStamps">
       <map>
-        <entry key="$PROJECT_DIR$" value="5640111508656" />
+        <entry key="$PROJECT_DIR$" value="5640125426087" />
       </map>
     </option>
     <option name="projectBuildClasspath">
@@ -1881,12 +1881,12 @@
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java" />
         <option value="$PROJECT_DIR$/android/build.gradle" />
         <option value="$PROJECT_DIR$/android/src/main/AndroidManifest.xml" />
-        <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java" />
         <option value="$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml" />
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/LogTags.java" />
-        <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" />
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java" />
+        <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" />
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" />
+        <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java" />
       </list>
     </option>
   </component>
@@ -1922,16 +1922,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="MtaaSafi" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
       <pane id="Scope">
         <subPane subId="Project Files">
           <PATH>
@@ -2134,6 +2124,16 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="android" />
               <option name="myItemType" value="com.android.tools.idea.gradle.projectView.AndroidPsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="MtaaSafi" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -2424,7 +2424,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="148" y="-8" width="1226" height="784" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -2439,7 +2439,7 @@
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32896176" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32969433" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.40307692" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23846154" sideWeight="0.5" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Android" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.45384616" sideWeight="0.5" order="13" side_tool="true" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32896176" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -2503,7 +2503,8 @@
     </option>
     <MESSAGE value="Added Google Play Services, implemented location  services" />
     <MESSAGE value="Cleaned up objects into their own classes." />
-    <option name="LAST_COMMIT_MESSAGE" value="Cleaned up objects into their own classes." />
+    <MESSAGE value="Made adapter fully functional. Implemented timestamp, fixed order for JSON attributes." />
+    <option name="LAST_COMMIT_MESSAGE" value="Made adapter fully functional. Implemented timestamp, fixed order for JSON attributes." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2511,6 +2512,14 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="578" max-vertical-offset="3774">
+          <caret line="34" column="55" selection-start-line="34" selection-start-column="55" selection-end-line="34" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostView.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="480" max-vertical-offset="735">
@@ -2519,13 +2528,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/activity_post_view.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
           <caret line="0" column="5" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
         </state>
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/values/strings.xml">
@@ -2540,9 +2549,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="345" max-vertical-offset="510">
           <caret line="23" column="39" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
-          <folding>
-            <marker date="1410429762137" expanded="true" signature="-1:-1" placeholder="&quot;903751569639797&quot;" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2562,13 +2569,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/activity_post_view.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="390">
           <caret line="0" column="5" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
         </state>
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/values/strings.xml">
@@ -2583,9 +2590,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="345" max-vertical-offset="510">
           <caret line="23" column="39" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
-          <folding>
-            <marker date="1410429762137" expanded="true" signature="-1:-1" placeholder="&quot;903751569639797&quot;" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2601,9 +2606,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="420">
           <caret line="4" column="78" selection-start-line="4" selection-start-column="78" selection-end-line="4" selection-end-column="78" />
-          <folding>
-            <marker date="1410429762137" expanded="true" signature="-1:-1" placeholder="&quot;903751569639797&quot;" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2619,9 +2622,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="420">
           <caret line="4" column="78" selection-start-line="4" selection-start-column="78" selection-end-line="4" selection-end-column="78" />
-          <folding>
-            <marker date="1410429762137" expanded="true" signature="-1:-1" placeholder="&quot;903751569639797&quot;" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2722,13 +2723,13 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/activity_post_view.xml">
-      <provider selected="true" editor-type-id="android-designer">
-        <state />
-      </provider>
       <provider editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="468">
           <caret line="4" column="28" selection-start-line="4" selection-start-column="28" selection-end-line="4" selection-end-column="28" />
         </state>
+      </provider>
+      <provider selected="true" editor-type-id="android-designer">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/values/styles.xml">
@@ -2800,33 +2801,25 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/activity_main.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="85" max-vertical-offset="357">
           <caret line="7" column="9" selection-start-line="7" selection-start-column="9" selection-end-line="7" selection-end-column="9" />
           <folding />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml">
       <provider editor-type-id="android-designer">
         <state />
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="51" max-vertical-offset="510">
           <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
           <folding />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/android.iml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1309">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
+      <provider editor-type-id="android-designer">
+        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/build.gradle">
@@ -2848,57 +2841,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="697">
           <caret line="8" column="64" selection-start-line="8" selection-start-column="64" selection-end-line="8" selection-end-column="64" />
-          <folding>
-            <marker date="1410429762137" expanded="true" signature="-1:-1" placeholder="&quot;903751569639797&quot;" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="102" max-vertical-offset="3349">
-          <caret line="34" column="55" selection-start-line="34" selection-start-column="55" selection-end-line="34" selection-end-column="55" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/feed_list_item.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.6666665" vertical-offset="0" max-vertical-offset="374">
-          <caret line="9" column="35" selection-start-line="9" selection-start-column="35" selection-end-line="9" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml">
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.5185184" vertical-offset="0" max-vertical-offset="374">
-          <caret line="4" column="39" selection-start-line="4" selection-start-column="39" selection-end-line="4" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2308" max-vertical-offset="2856">
-          <caret line="150" column="24" selection-start-line="150" selection-start-column="24" selection-end-line="150" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#4960#4970#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="265" max-vertical-offset="765">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -2911,21 +2853,60 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="265" max-vertical-offset="765">
+          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="68" max-vertical-offset="374">
+          <caret line="4" column="39" selection-start-line="4" selection-start-column="39" selection-end-line="4" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="102" max-vertical-offset="3349">
+          <caret line="34" column="55" selection-start-line="34" selection-start-column="55" selection-end-line="34" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="473" max-vertical-offset="1020">
-          <caret line="48" column="27" selection-start-line="48" selection-start-column="27" selection-end-line="48" selection-end-column="27" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="808" max-vertical-offset="1105">
+          <caret line="21" column="9" selection-start-line="21" selection-start-column="9" selection-end-line="21" selection-end-column="9" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.29955947" vertical-offset="1139" max-vertical-offset="1768">
-          <caret line="126" column="26" selection-start-line="126" selection-start-column="26" selection-end-line="126" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1109" max-vertical-offset="1717">
+          <caret line="126" column="35" selection-start-line="126" selection-start-column="35" selection-end-line="126" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.6207951" vertical-offset="1085" max-vertical-offset="2975">
+          <caret line="95" column="49" selection-start-line="95" selection-start-column="49" selection-end-line="95" selection-end-column="49" />
           <folding>
-            <element signature="e#3430#3747#0" expanded="true" />
-            <element signature="e#3728#3729#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#2017#2018#0" expanded="true" />
+            <element signature="e#2056#2057#0" expanded="true" />
+            <element signature="e#4916#4917#0" expanded="true" />
+            <element signature="e#4959#4960#0" expanded="true" />
+            <element signature="e#5221#5231#0" expanded="true" />
           </folding>
         </state>
       </provider>

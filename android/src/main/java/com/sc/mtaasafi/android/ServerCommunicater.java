@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -42,13 +43,13 @@ public class ServerCommunicater {
     private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
 
     ServerCommunicater(ServerCommCallbacks activity){
+        this.activity = activity;
 
     }
     // Asynchronously push the post to the server
-    public void post(PostData postData, ServerCommCallbacks mainActivity){
+    public void post(PostData postData){
         WritePost writePost = new WritePost(postData);
         writePost.execute(writeURL);
-        this.activity = activity;
     }
 
     private class WritePost extends AsyncTask<String, Void, String>{
@@ -78,7 +79,11 @@ public class ServerCommunicater {
 
         StringEntity entity = new StringEntity(toJSON(postData).toString());
         httpPost.setEntity(entity);
-        httpclient.execute(httpPost);
+        HttpResponse httpResponse = httpclient.execute(httpPost);
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        String result = convertInputStreamToString(inputStream);
+        //Log.e(LogTags.BACKEND_W, result);
+
     }
 
     // Convert POJO PostData to JSON
@@ -86,8 +91,9 @@ public class ServerCommunicater {
         try {
             JSONObject json = new JSONObject();
             json.put(userName, postData.user);
-            json.put(contentName, postData.content);
             json.put(timestampName, postData.timestamp);
+            json.put(contentName, postData.content);
+            Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();

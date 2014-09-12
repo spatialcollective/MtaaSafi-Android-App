@@ -14,7 +14,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
-
+import com.sc.mtaasafi.android.NewsFeedFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -25,15 +25,18 @@ import java.util.List;
 
 public class MainActivity extends FragmentActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks {
-    private FeedFragment feedFragment;
+        GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks{
+    private NewsFeedFragment feedFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private ServerCommunicater sc;
 
     @Override
-    public void updateFeed(List<FeedItem> newPosts) {
-        feedFragment.updateFeed(newPosts);
+    public void updateFeed(List<FeedItem> newPosts) { feedFragment.updateFeed(newPosts); }
+
+    // takes a post written by the user from the feed fragment, pushes it to server
+    public void beamItUp(PostData postData){
+        sc.post(postData);
     }
 
     public static class ErrorDialogFragment extends DialogFragment {
@@ -168,19 +171,19 @@ public class MainActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         if (savedInstanceState == null){
-            feedFragment = new FeedFragment(this);
+            feedFragment = new NewsFeedFragment(this);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(android.R.id.content, feedFragment)
                     .commit();
         } else {
-            feedFragment = (FeedFragment) getSupportFragmentManager()
+            feedFragment = (NewsFeedFragment) getSupportFragmentManager()
                     .findFragmentById(android.R.id.content);
         }
         sc.getPosts();
-        mLocationClient = new LocationClient(this, this, this);
     }
 
     private boolean isConnected(){

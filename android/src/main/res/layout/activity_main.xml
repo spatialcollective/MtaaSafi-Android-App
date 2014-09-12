@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context="com.sc.mtaasafi.android.MainFragment">
 
-    <fragment android:id="@+id/newsFeed"
+    <listfragment android:id="@+id/newsFeed"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"

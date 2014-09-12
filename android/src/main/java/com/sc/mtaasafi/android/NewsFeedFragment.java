@@ -1,11 +1,13 @@
 package com.sc.mtaasafi.android;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,13 +40,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewsFeedFragment extends Fragment {
+public class NewsFeedFragment extends ListFragment {
     private Button newPostButton;
-    public NewsFeedFragment() {
+    private final String MESSAGE = "message";
+    FeedAdapter fa;
+
+    MainActivity mActivity;
+
+    public NewsFeedFragment(Context context) {
+        super();
+        fa = new FeedAdapter(context);
         // Required empty public constructor
+        setListAdapter(fa);
+        mActivity = (MainActivity) context;
     }
 
     @Override
@@ -97,35 +109,41 @@ public class NewsFeedFragment extends Fragment {
                 .setPositiveButton("Post", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        params.putString("message", String.valueOf(input.getText()));
+                        params.putString(MESSAGE, String.valueOf(input.getText()));
                         sendPost(params);
                     }
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
 
+    public void updateFeed(List<FeedItem> posts){
+        fa.updateFeed(posts);
     }
 
     private void sendPost(Bundle params){
-        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
-            @Override
-            public void onCompleted(Response response) {
-                FacebookRequestError error = response.getError();
-                if(error == null){
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Success")
-                            .setMessage(response.getGraphObject().cast(GraphObjectWithId.class).getId())
-                            .setPositiveButton("Ok", null)
-                            .show();
-                }else{
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Error")
-                            .setMessage(error.getErrorMessage())
-                            .setPositiveButton("Ok", null)
-                            .show();
-                }
-            }
-        });
-        request.executeAsync();
+        String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ssZ")
+                .format(new java.util.Date (System.currentTimeMillis()));
+        mActivity.beamItUp(new PostData("1", timestamp, (String) params.get(MESSAGE)));
+//        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
+//            @Override
+//            public void onCompleted(Response response) {
+//                FacebookRequestError error = response.getError();
+//                if(error == null){
+//                    new AlertDialog.Builder(getActivity())
+//                            .setTitle("Success")
+//                            .setMessage(response.getGraphObject().cast(GraphObjectWithId.class).getId())
+//                            .setPositiveButton("Ok", null)
+//                            .show();
+//                }else{
+//                    new AlertDialog.Builder(getActivity())
+//                            .setTitle("Error")
+//                            .setMessage(error.getErrorMessage())
+//                            .setPositiveButton("Ok", null)
+//                            .show();
+//                }
+//            }
+//        });
+//        request.executeAsync();
     }
 }

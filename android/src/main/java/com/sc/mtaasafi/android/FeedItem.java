@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -21,15 +22,24 @@ public class FeedItem extends RelativeLayout {
     public FeedItem(Context context, String content) {
         super(context);
         this.content = content;
+        setUp();
     }
 
     public void setContent(String content){
         this.content = content;
+        textView.setText(content);
     }
+
     private void setUp(){
         inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.feed_item, this, true);
         textView = (TextView) findViewById(R.id.feedText);
-
+        textView.setText(content);
+        Log.d(LogTags.FEEDITEM, "Created! Contents: " + content);
     }
+
+    public String content(){
+        return content;
+    }
+
 }
