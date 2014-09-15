@@ -28,3 +28,6 @@ proguard/
 *~
 .idea/workspace.xml
 .DS_Store
+
+android/android.iml
+facebook/facebook.iml
