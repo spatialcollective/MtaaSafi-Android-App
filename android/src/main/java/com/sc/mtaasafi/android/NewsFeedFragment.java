@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -124,7 +125,10 @@ public class NewsFeedFragment extends ListFragment {
     private void sendPost(Bundle params){
         String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ssZ")
                 .format(new java.util.Date (System.currentTimeMillis()));
-        mActivity.beamItUp(new PostData("1", timestamp, (String) params.get(MESSAGE)));
+        Location location = mActivity.getLocation();
+        String content = (String) params.get(MESSAGE);
+        mActivity.beamItUp(new PostData("1", timestamp, location.getLatitude (),
+                location.getLongitude(), content));
 //        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
 //            @Override
 //            public void onCompleted(Response response) {

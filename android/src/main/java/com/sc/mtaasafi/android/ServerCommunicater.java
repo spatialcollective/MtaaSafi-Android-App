@@ -39,6 +39,8 @@ public class ServerCommunicater {
     public final static String contentName = "content";
     public final static String userName = "user";
     public final static String timestampName = "created_time";
+    public final static String latName = "latitude";
+    public final static String lonName = "longitude";
     public final static String writeURL = "http://mtaasafi.spatialcollective.com/add_post";
     private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
 
@@ -92,6 +94,8 @@ public class ServerCommunicater {
             JSONObject json = new JSONObject();
             json.put(userName, postData.user);
             json.put(timestampName, postData.timestamp);
+            json.put(latName, postData.latitude);
+            json.put(lonName, postData.longitude);
             json.put(contentName, postData.content);
             Log.e(LogTags.JSON, json.toString());
             return json;

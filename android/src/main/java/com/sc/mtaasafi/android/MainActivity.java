@@ -36,6 +36,10 @@ public class MainActivity extends FragmentActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
+        String toastContent = postData.content + " " + postData.timestamp + " Lat: " + postData.latitude
+                + " Lon:" + postData.longitude;
+        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
+        toast.show();
         sc.post(postData);
     }
 
@@ -127,6 +131,10 @@ public class MainActivity extends FragmentActivity implements
         }
     }
 
+    public Location getLocation(){
+        mCurrentLocation = mLocationClient.getLastLocation();
+        return mCurrentLocation;
+    }
     private boolean servicesConnected() {
         // Check that Google Play services is available
         int resultCode =
