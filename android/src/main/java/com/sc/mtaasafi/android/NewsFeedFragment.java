@@ -119,7 +119,7 @@ public class NewsFeedFragment extends ListFragment {
     }
 
     private void sendPost(Bundle params){
-        String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ssZ")
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss")
                 .format(new java.util.Date (System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         String content = (String) params.get(MESSAGE);
