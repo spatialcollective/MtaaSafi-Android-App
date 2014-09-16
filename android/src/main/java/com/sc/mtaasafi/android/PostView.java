@@ -12,7 +12,7 @@ public class PostView extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_view);
-        TextView textView = (TextView) findViewById(R.id.textView);
+        TextView textView = (TextView) findViewById(R.id.userName);
         Intent intent = getIntent();
         textView.setText(intent.getExtras().getString("content"));
     }

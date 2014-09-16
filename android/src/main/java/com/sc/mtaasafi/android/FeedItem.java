@@ -33,7 +33,7 @@ public class FeedItem extends RelativeLayout {
     private void setUp(){
         inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.feed_item, this, true);
-        textView = (TextView) findViewById(R.id.feedText);
+        textView = (TextView) findViewById(R.id.postText);
         textView.setText(content);
         Log.d(LogTags.FEEDITEM, "Created! Contents: " + content);
     }

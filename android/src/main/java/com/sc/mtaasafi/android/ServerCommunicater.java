@@ -2,6 +2,7 @@ package com.sc.mtaasafi.android;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ public class ServerCommunicater {
     public final static String timestampName = "created_time";
     public final static String latName = "latitude";
     public final static String lonName = "longitude";
+    public final static String mediaName = "media";
     public final static String writeURL = "http://mtaasafi.spatialcollective.com/add_post";
     private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
 
@@ -92,11 +94,15 @@ public class ServerCommunicater {
     private static JSONObject toJSON(PostData postData){
         try {
             JSONObject json = new JSONObject();
-            json.put(userName, postData.user);
+            json.put(userName, postData.userName);
             json.put(timestampName, postData.timestamp);
             json.put(latName, postData.latitude);
             json.put(lonName, postData.longitude);
             json.put(contentName, postData.content);
+            if(postData.picture != null){
+                String encodedImage = Base64.encodeToString(postData.picture, Base64.DEFAULT);
+                json.put(mediaName, encodedImage);
+            }
             Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {

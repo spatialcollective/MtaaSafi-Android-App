@@ -1,17 +1,92 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.sc.mtaasafi.android.MainActivity"
+    android:id="@+id/feed_item">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/feedText"
-        android:textSize="25dp"
-        android:textIsSelectable="true"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="4dp" />
-</LinearLayout>
+        android:text="User Name"
+        android:id="@+id/userName"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/proPic"
+        android:textColor="#666666"
+        android:paddingLeft="10dp"
+        android:textSize="14dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/proPic"
+        android:background="#666666" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
+        android:id="@+id/postText"
+        android:layout_below="@+id/userName"
+        android:layout_toRightOf="@+id/proPic"
+        android:paddingLeft="10dp"
+        android:paddingRight="5dp"
+        android:textSize="18dp"
+        android:layout_toLeftOf="@+id/time_since_posted" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5h"
+        android:id="@+id/time_since_posted"
+        android:textColor="#666666"
+        android:paddingLeft="10dp"
+        android:textSize="14dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/picAttachedIcon"
+        android:src="@drawable/pic_attached"
+        android:padding="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/time_since_posted"
+        android:layout_above="@+id/postText" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/postText"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/linearLayout"
+        android:paddingBottom="15dp">
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:id="@+id/shared_icon"
+        android:src="@drawable/feed_shared_icon"
+        android:layout_alignBottom="@+id/postText"
+        android:layout_toRightOf="@+id/postText" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/bottomLine"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="#999999" />
+
+</RelativeLayout>

@@ -127,7 +127,7 @@ public class NewsFeedFragment extends ListFragment {
                 .format(new java.util.Date (System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         String content = (String) params.get(MESSAGE);
-        mActivity.beamItUp(new PostData("1", timestamp, location.getLatitude (),
+        mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
                 location.getLongitude(), content));
 //        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
 //            @Override

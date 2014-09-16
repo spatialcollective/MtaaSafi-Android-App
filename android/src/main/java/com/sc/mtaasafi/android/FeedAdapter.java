@@ -1,10 +1,10 @@
 package com.sc.mtaasafi.android;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,9 +19,31 @@ public class FeedAdapter extends BaseAdapter {
     private class PostHolder{
 //        String content;
         TextView contentTV;
-        PostHolder(View convertView, String content){
-            contentTV = (TextView) convertView.findViewById(R.id.feedText);
+        TextView userNameTV;
+        TextView timeSinceTV;
+        ImageView picsAttachedIcon;
+        ImageView bottomLine;
+        ImageView userPic;
+        ImageView sharedIcon;
+        PostHolder(View convertView, String content, String username,
+                   boolean picsAttached, boolean shared){
+            contentTV = (TextView) convertView.findViewById(R.id.postText);
             contentTV.setText(content);
+
+            userNameTV = (TextView) convertView.findViewById(R.id.userName);
+            userNameTV.setText(username);
+
+            timeSinceTV = (TextView) convertView.findViewById(R.id.time_since_posted);
+            timeSinceTV.setText("5h");
+
+            picsAttachedIcon = (ImageView) convertView.findViewById(R.id.picAttachedIcon);
+            sharedIcon = (ImageView) convertView.findViewById(R.id.shared_icon);
+            if(!picsAttached){
+                picsAttachedIcon.setVisibility(View.INVISIBLE);
+            }
+            if(!shared){
+                sharedIcon.setVisibility(View.INVISIBLE);
+            }
         }
     }
     FeedAdapter(Context context){
@@ -51,7 +73,11 @@ public class FeedAdapter extends BaseAdapter {
         FeedItem item = (FeedItem) getItem(i);
         if(convertView == null){
             convertView = new FeedItem(context, item.content());
-            postHolder = new PostHolder(convertView, item.content());
+            postHolder = new PostHolder(convertView,
+                                        item.content(),
+                                        "Agree",
+                                        false,
+                                        false);
             convertView.setTag(postHolder);
         }
         else{
