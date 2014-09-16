@@ -37,20 +37,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="96f00bcd-70f0-4576-9d56-6acd736cec39" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/drawable-mdpi/fb_icon_grey.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/drawable-mdpi/feed_shared_icon.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/drawable-mdpi/pic_attached.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/drawable-mdpi/pic_placeholder.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android/src/main/res/drawable-mdpi/whatsapp_icon_grey.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostData.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostData.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostView.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java" afterPath="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/ServerCommunicater.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/layout/activity_post_view.xml" afterPath="$PROJECT_DIR$/android/src/main/res/layout/activity_post_view.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml" afterPath="$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml" afterPath="$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="MtaaSafi.iws" />
@@ -127,11 +114,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NewsFeedFragment.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="NewsFeedFragment.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1147" max-vertical-offset="1768">
-              <caret line="129" column="0" selection-start-line="129" selection-start-column="0" selection-end-line="129" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.27107063" vertical-offset="0" max-vertical-offset="1734">
+              <caret line="50" column="19" selection-start-line="50" selection-start-column="19" selection-end-line="50" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -157,15 +144,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="news_feed.xml" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="news_feed.xml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml">
           <provider editor-type-id="android-designer">
             <state />
           </provider>
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.1525424" vertical-offset="0" max-vertical-offset="561">
+            <state vertical-scroll-proportion="-10.074074" vertical-offset="0" max-vertical-offset="561">
               <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="e#807#842#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -1886,9 +1875,9 @@
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedAdapter.java" />
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/FeedItem.java" />
         <option value="$PROJECT_DIR$/android/src/main/res/layout/feed_item.xml" />
-        <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" />
         <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostData.java" />
         <option value="$PROJECT_DIR$/android/src/main/res/layout/news_feed.xml" />
+        <option value="$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java" />
       </list>
     </option>
   </component>
@@ -2415,7 +2404,11 @@
       <created>1410768700319</created>
       <updated>1410768700319</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Updated the post view layout and implemented the changes in the FeedAdapter">
+      <created>1410853387351</created>
+      <updated>1410853387351</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2455,7 +2448,7 @@
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32896176" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32969433" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.40286624" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5366242" sideWeight="0.5" order="13" side_tool="true" content_ui="tabs" />
+      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2356688" sideWeight="0.5" order="13" side_tool="true" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32896176" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24962178" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -2491,7 +2484,8 @@
     <MESSAGE value="Cleaned up objects into their own classes." />
     <MESSAGE value="Made adapter fully functional. Implemented timestamp, fixed order for JSON attributes." />
     <MESSAGE value="Added location to posts pushed to server." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added location to posts pushed to server." />
+    <MESSAGE value="Updated the post view layout and implemented the changes in the FeedAdapter" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated the post view layout and implemented the changes in the FeedAdapter" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2854,14 +2848,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1147" max-vertical-offset="1768">
-          <caret line="129" column="0" selection-start-line="129" selection-start-column="0" selection-end-line="129" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/PostData.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="364" max-vertical-offset="918">
@@ -2883,8 +2869,18 @@
         <state />
       </provider>
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.1525424" vertical-offset="0" max-vertical-offset="561">
+        <state vertical-scroll-proportion="-10.074074" vertical-offset="0" max-vertical-offset="561">
           <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding>
+            <element signature="e#807#842#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android/src/main/java/com/sc/mtaasafi/android/NewsFeedFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.27107063" vertical-offset="0" max-vertical-offset="1734">
+          <caret line="50" column="19" selection-start-line="50" selection-start-column="19" selection-end-line="50" selection-end-column="19" />
           <folding />
         </state>
       </provider>

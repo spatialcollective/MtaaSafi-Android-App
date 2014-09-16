@@ -49,20 +49,16 @@ public class NewsFeedFragment extends ListFragment {
     private Button newPostButton;
     private final String MESSAGE = "message";
     FeedAdapter fa;
-
     MainActivity mActivity;
-
-    public NewsFeedFragment(Context context) {
-        super();
-        fa = new FeedAdapter(context);
-        // Required empty public constructor
-        setListAdapter(fa);
-        mActivity = (MainActivity) context;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        mActivity = (MainActivity) getActivity();
+        fa = new FeedAdapter(mActivity);
+        // Required empty public constructor
+        setListAdapter(fa);
+
     }
 
     @Override
