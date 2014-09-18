@@ -1,12 +1,18 @@
 package com.sc.mtaasafi.android;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -38,16 +44,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
+    static final int REQUEST_IMAGE_CAPTURE = 1;
     private Button newPostButton;
+    private Button newPhotoButton;
+    String currentPhotoPath;
     private final String MESSAGE = "message";
+    private final String PHOTO = "source";
     FeedAdapter fa;
     MainActivity mActivity;
 
@@ -71,6 +84,15 @@ public class NewsFeedFragment extends ListFragment {
                 newPost();
             }
         });
+
+        newPhotoButton = (Button) view.findViewById(R.id.newPhotoButton);
+        newPhotoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                        takePicture();
+                    }
+            });
+
         return view;
     }
 
@@ -123,8 +145,9 @@ public class NewsFeedFragment extends ListFragment {
                 .format(new java.util.Date (System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         String content = (String) params.get(MESSAGE);
-        mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
-                location.getLongitude(), content));
+        byte[] photo = (byte[]) params.get(PHOTO);
+        mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude(),
+                location.getLongitude(), content, photo));
 //        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
 //            @Override
 //            public void onCompleted(Response response) {
@@ -145,5 +168,68 @@ public class NewsFeedFragment extends ListFragment {
 //            }
 //        });
 //        request.executeAsync();
+    }
+
+    private void takePicture(){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null){
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex){
+                Toast.makeText(getActivity(), "Couldn't create file", Toast.LENGTH_SHORT).show();
+            }
+
+            if (photoFile != null){
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            final Bundle params = new Bundle();
+            final EditText input = new EditText(getActivity());
+            Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
+            ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+            Log.e("BYTEARRAY", bytearrayoutputstream.toString());
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
+            final byte[] bytearray = bytearrayoutputstream.toByteArray();
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("New Post")
+                    .setView(input)
+                    .setPositiveButton("Post", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            params.putString(MESSAGE, String.valueOf(input.getText()));
+                            params.putByteArray(PHOTO, bytearray);
+                            sendPost(params);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+
+            params.putString("message", "Photo from the app");
+
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES
+        );
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 }

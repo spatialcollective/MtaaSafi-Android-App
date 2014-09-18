@@ -11,6 +11,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -116,6 +117,10 @@ public class MainActivity extends FragmentActivity implements
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            fragment.onActivityResult(requestCode, resultCode, data);
+        }
         // If activity launched was trying to resolve the connection
         Log.w("SERVICES", "Activity result called");
         switch (requestCode) {
@@ -182,7 +187,7 @@ public class MainActivity extends FragmentActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         if (savedInstanceState == null){
-            feedFragment = new NewsFeedFragment(this);
+            feedFragment = new NewsFeedFragment();
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(android.R.id.content, feedFragment)

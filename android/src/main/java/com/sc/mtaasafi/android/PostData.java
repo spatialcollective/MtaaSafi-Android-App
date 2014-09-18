@@ -45,6 +45,17 @@ public class PostData {
         longitude = lon;
     }
 
+    PostData(String usn, String timestamp, double lat, double lon,
+             String content, byte[] picture){
+        this.userName = usn;
+        this.userPicURL = userPicURL;
+        this.timestamp = timestamp;
+        this.content = content;
+        latitude = lat;
+        longitude = lon;
+        this.picture = picture;
+    }
+
     public void setPic(byte[] pic){
         picture = pic;
     }
