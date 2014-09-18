@@ -25,4 +25,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.google.android.gms:play-services:5.0.89'
+    compile files('libs/android-query-full.0.26.8.jar')
 }

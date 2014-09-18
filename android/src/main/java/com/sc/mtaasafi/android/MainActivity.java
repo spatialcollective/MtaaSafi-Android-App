@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
@@ -11,8 +12,10 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 import com.sc.mtaasafi.android.NewsFeedFragment;
 import com.google.android.gms.common.ConnectionResult;
@@ -23,16 +26,41 @@ import com.google.android.gms.location.LocationClient;
 import java.util.List;
 
 
-public class MainActivity extends FragmentActivity implements
+public class MainActivity extends android.support.v4.app.FragmentActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks{
     private NewsFeedFragment feedFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
+    private FrameLayout fragmentContainer;
     private ServerCommunicater sc;
+    public final static String USERNAME = "username";
+    public final static String TIMESTAMP = "timestamp";
+    public final static String NETWORKS_SHARED = "networks_shared";
+    public final static String PROFILE_PIC = "profile_pic";
+    public final static String CONTENT = "content";
+    public final static String MEDIA = "media";
+    public final static String LAT = "latitude";
+    public final static String LONG = "longitude";
+    private PostData detailPostData;
 
     @Override
-    public void updateFeed(List<FeedItem> newPosts) { feedFragment.updateFeed(newPosts); }
+    public void updateFeed(List<PostData> newPosts) { feedFragment.updateFeed(newPosts); }
+
+    public void goToDetailView(PostData postData){
+        detailPostData = postData;
+        PostView pv = new PostView();
+        android.support.v4.app.FragmentTransaction transaction =
+                getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragmentContainer, pv);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
+    // Called by fragment PostView to get the data to populate the layout.
+    public PostData getDetailPostData(){
+        return detailPostData;
+    }
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
@@ -179,17 +207,19 @@ public class MainActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
-        if (savedInstanceState == null){
-            feedFragment = new NewsFeedFragment(this);
+        if (savedInstanceState == null) {
+            feedFragment = new NewsFeedFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, feedFragment)
+                    .add(R.id.fragmentContainer, feedFragment, "feedFragment")
                     .commit();
-        } else {
+        }
+        else {
             feedFragment = (NewsFeedFragment) getSupportFragmentManager()
-                    .findFragmentById(android.R.id.content);
+                    .findFragmentByTag("feedFragment");
         }
         sc.getPosts();
     }

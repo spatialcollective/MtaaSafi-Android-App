@@ -34,15 +34,16 @@ import java.util.List;
 public class ServerCommunicater {
 
     public interface ServerCommCallbacks{
-        void updateFeed(List<FeedItem> posts);
+        void updateFeed(List<PostData> posts);
     }
     public ServerCommCallbacks activity;
     public final static String contentName = "content";
     public final static String userName = "user";
-    public final static String timestampName = "created_time";
+    public final static String timestampName = "timestamp";
     public final static String latName = "latitude";
     public final static String lonName = "longitude";
     public final static String mediaName = "media";
+    public final static String profilePicURL = "userPicURL";
     public final static String writeURL = "http://mtaasafi.spatialcollective.com/add_post";
     private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
 
@@ -156,12 +157,27 @@ public class ServerCommunicater {
             try{
                 JSONArray jsonArray = new JSONArray(result);
                 int len = jsonArray.length();
-                final List<FeedItem> listContent = new ArrayList<FeedItem>(len);
+                final List<PostData> listContent = new ArrayList<PostData>(len);
                 Log.e("onPostExecute", "retrieved content list of length: " + len);
                 for(int i = 0; i<len; i++){
                     try{
-                        String message = jsonArray.getJSONObject(i).getString("content");
-                        listContent.add(new FeedItem((Context) activity, message));
+                        JSONObject json = jsonArray.getJSONObject(i);
+                        try {
+                            String content = json.getString(contentName);
+                            String timeCreated = json.getString(timestampName);
+                            String userPicURL = json.getString(profilePicURL);
+                            PostData pd = new PostData("Agree",
+                                                        userPicURL,
+                                                        timeCreated,
+                                                        0,0,
+                                                        content,
+                                                        "",
+                                                        null
+                                                        );
+                            listContent.add(pd);
+                            } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }catch(Exception e){
                         Log.d("content", "JSON error");
                     }
