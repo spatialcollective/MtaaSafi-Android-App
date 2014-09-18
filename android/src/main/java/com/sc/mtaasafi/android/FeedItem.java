@@ -36,7 +36,7 @@ public class FeedItem extends RelativeLayout {
         super(context);
         setUp();
 
-        if(pd.proPicURL != null && !proPicURL.equals(""))
+        if(pd.proPicURL != null)
             proPicURL = pd.proPicURL;
         if(pd.mediaURL == null)
             picsAttachedIcon.setVisibility(View.INVISIBLE);

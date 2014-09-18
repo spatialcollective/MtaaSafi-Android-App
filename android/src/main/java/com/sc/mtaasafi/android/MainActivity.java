@@ -30,9 +30,10 @@ public class MainActivity extends FragmentActivity implements
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private ServerCommunicater sc;
+    private PostData detailPostData;
 
     @Override
-    public void updateFeed(List<FeedItem> newPosts) { feedFragment.updateFeed(newPosts); }
+    public void updateFeed(List<PostData> newPosts) { feedFragment.updateFeed(newPosts); }
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
@@ -42,7 +43,19 @@ public class MainActivity extends FragmentActivity implements
         toast.show();
         sc.post(postData);
     }
+    public void goToDetailView(PostData pd){
+        detailPostData = pd;
+        PostView postView = new PostView();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, postView, "postView")
+                .addToBackStack(null)
+                .commit();
+    }
 
+    public PostData getDetailPostData(){
+        return detailPostData;
+    }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
         public ErrorDialogFragment(){
@@ -179,17 +192,18 @@ public class MainActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         if (savedInstanceState == null){
-            feedFragment = new NewsFeedFragment(this);
+            feedFragment = new NewsFeedFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(android.R.id.content, feedFragment)
+                    .add(R.id.fragmentContainer, feedFragment, "feedFragment")
                     .commit();
         } else {
             feedFragment = (NewsFeedFragment) getSupportFragmentManager()
-                    .findFragmentById(android.R.id.content);
+                    .findFragmentByTag("feedFragment");
         }
         sc.getPosts();
     }

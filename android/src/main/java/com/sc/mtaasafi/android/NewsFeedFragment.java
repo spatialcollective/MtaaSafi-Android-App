@@ -1,26 +1,16 @@
 package com.sc.mtaasafi.android;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
@@ -30,22 +20,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphObject;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
@@ -117,12 +92,12 @@ public class NewsFeedFragment extends ListFragment {
                 .show();
     }
 
-    public void updateFeed(List<FeedItem> posts){
+    public void updateFeed(List<PostData> posts){
         fa.updateFeed(posts);
     }
 
     private void sendPost(Bundle params){
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss")
+        String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ss")
                 .format(new java.util.Date (System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         String content = (String) params.get(MESSAGE);

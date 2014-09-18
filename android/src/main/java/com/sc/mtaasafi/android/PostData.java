@@ -28,7 +28,7 @@ public class PostData {
         latitude = longitude = 0;
     }
 
-    // Constructor of PostData objects created with data sent from the server
+    // for PostData objects created with data sent from the server
     PostData(String usn, String userPicURL, String timestamp, double lat, double lon,
              String content, String mediaURL, List<String> networksShared){
         this.userName = usn;
@@ -42,7 +42,7 @@ public class PostData {
         this.mediaURL = mediaURL;
     }
 
-    // Constructor PostData objects created by the user to send to server
+    // for PostData objects created by the user to send to server
     PostData(String usn, String timestamp, double lat, double lon,
              String content){
         this.userName = usn;
@@ -51,11 +51,10 @@ public class PostData {
         latitude = lat;
         longitude = lon;
     }
-
+    // for PostData objects created by the user *with pictures* to send to the server
     PostData(String usn, String timestamp, double lat, double lon,
              String content, byte[] picture){
         this.userName = usn;
-        this.userPicURL = userPicURL;
         this.timestamp = timestamp;
         this.content = content;
         latitude = lat;
