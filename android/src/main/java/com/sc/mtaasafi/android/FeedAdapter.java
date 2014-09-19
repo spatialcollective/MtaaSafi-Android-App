@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
+import com.androidquery.callback.ImageOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,10 @@ public class FeedAdapter extends BaseAdapter {
     List<FeedItem> posts;
     Context context;
     AQuery aq;
+    ListView mListView;
+    int index;
+    int top;
+    NewsFeedFragment mFragment;
     private class PostHolder{
 //        String content;
         RelativeLayout view;
@@ -42,6 +48,7 @@ public class FeedAdapter extends BaseAdapter {
                     MainActivity mA = (MainActivity) context;
                     FeedItem fi = (FeedItem)getItem(position);
                     Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
+                    mFragment.saveListPosition();
                     mA.goToDetailView(fi.toPostData());
                 }
             });
@@ -56,8 +63,8 @@ public class FeedAdapter extends BaseAdapter {
 
             picsAttachedIcon = (ImageView) fi.findViewById(R.id.picAttachedIcon);
             sharedIcon = (ImageView) fi.findViewById(R.id.sharedIcon);
-
-            if(fi.mediaURL == null || fi.mediaURL.equals(""))
+            proPic = (ImageView) fi.findViewById(R.id.proPic);
+            if(fi.mediaURL == null || fi.mediaURL.equals("") || fi.mediaURL.equals("null"))
                 picsAttachedIcon.setVisibility(View.INVISIBLE);
 
             if(fi.networksShared == null)
@@ -67,7 +74,8 @@ public class FeedAdapter extends BaseAdapter {
                 aq.id(proPic).image(fi.proPicURL);
         }
     }
-    FeedAdapter(Context context){
+    FeedAdapter(Context context, NewsFeedFragment mFragment){
+        this.mFragment = mFragment;
         posts = new ArrayList<FeedItem>();
         this.context = context;
         aq = new AQuery(context);
@@ -104,7 +112,14 @@ public class FeedAdapter extends BaseAdapter {
         // set the dynamic data for each feed item.
         postHolder.contentTV.setText(item.content);
         postHolder.timeSinceTV.setText(item.timeSincePost);
+        ImageOptions options = new ImageOptions();
+//        options.round = 20;
         aq.id(postHolder.proPic).image(item.proPicURL);
+        if(item.mediaURL == null || item.mediaURL.equals("") || item.mediaURL.equals("null"))
+            postHolder.picsAttachedIcon.setVisibility(View.INVISIBLE);
+        else
+            postHolder.picsAttachedIcon.setVisibility(View.VISIBLE);
+        postHolder.position = i;
         convertView.setTag(postHolder);
         return (FeedItem) convertView;
     }

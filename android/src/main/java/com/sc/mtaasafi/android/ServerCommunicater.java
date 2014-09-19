@@ -42,7 +42,7 @@ public class ServerCommunicater {
     public final static String timestampName = "timestamp";
     public final static String latName = "latitude";
     public final static String lonName = "longitude";
-    public final static String mediaName = "media";
+    public final static String mediaName = "mediaURL";
     public final static String profilePicURL = "userPicURL";
     public final static String writeURL = "http://mtaasafi.spatialcollective.com/add_post";
     private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
@@ -166,12 +166,13 @@ public class ServerCommunicater {
                             String content = json.getString(contentName);
                             String timeCreated = json.getString(timestampName);
                             String userPicURL = json.getString(profilePicURL);
+                            String mediaURL = json.getString(mediaName);
                             PostData pd = new PostData("Agree",
                                                         userPicURL,
                                                         timeCreated,
                                                         0,0,
                                                         content,
-                                                        "",
+                                                        mediaURL,
                                                         null
                                                         );
                             listContent.add(pd);

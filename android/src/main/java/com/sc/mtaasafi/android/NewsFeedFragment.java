@@ -28,20 +28,25 @@ public class NewsFeedFragment extends ListFragment {
     private final String MESSAGE = "message";
     FeedAdapter fa;
     MainActivity mActivity;
-
+    int index;
+    int top;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        fa = new FeedAdapter(mActivity);
+        fa = new FeedAdapter(mActivity, this);
         // Required empty public constructor
         setListAdapter(fa);
-
+        index = top = 0;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.news_feed, container, false);
+        if(savedInstanceState !=null){
+            index = savedInstanceState.getInt("index");
+            top = savedInstanceState.getInt("top");
+        }
         newPostButton = (Button) view.findViewById(R.id.newPostButton);
         newPostButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -67,6 +72,7 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public void onResume(){
         super.onResume();
+        restoreListPosition();
         Session session = Session.getActiveSession();
         if (session != null && (session.isOpened() || session.isClosed())){
             onSessionStateChange(session, session.getState(), null);
@@ -94,6 +100,23 @@ public class NewsFeedFragment extends ListFragment {
 
     public void updateFeed(List<PostData> posts){
         fa.updateFeed(posts);
+    }
+
+    public void saveListPosition(){
+        index = getListView().getFirstVisiblePosition();
+        View v = getListView().getChildAt(0);
+        top = (v == null) ? 0 : v.getTop();
+        Bundle bundle = new Bundle();
+        bundle.putInt("index", index);
+        bundle.putInt("top", top);
+        onSaveInstanceState(bundle);
+    }
+    public void restoreListPosition(){
+        getListView().setSelectionFromTop(index, top);
+    }
+    public void onPause(){
+        super.onPause();
+        saveListPosition();
     }
 
     private void sendPost(Bundle params){

@@ -56,6 +56,7 @@ public class MainActivity extends FragmentActivity implements
     public PostData getDetailPostData(){
         return detailPostData;
     }
+
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
         public ErrorDialogFragment(){
