@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.androidquery.callback.ImageOptions;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -50,8 +51,10 @@ public class PostView extends android.support.v4.app.Fragment {
         media = (ImageView) view.findViewById(R.id.attachedPic);
         return view;
     }
-    public void onStart(){
-        super.onStart();
+
+    @Override
+    public void onResume(){
+        super.onResume();
         if(mActivity.getDetailPostData() !=null){
             pd = mActivity.getDetailPostData();
         }
@@ -62,8 +65,9 @@ public class PostView extends android.support.v4.app.Fragment {
         options.round = 20;
         aq.id(R.id.proPic).image(pd.proPicURL, options);
 
-        if(pd.mediaURL != null && !pd.mediaURL.equals("") && !pd.mediaURL.equals("null"))
-            aq.id(media).image(pd.mediaURL);
+        if(pd.mediaURL != null && !pd.mediaURL.equals("") && !pd.mediaURL.equals("null")){
+            aq.id(media).progress(R.id.imageViewProgressBar).image(pd.mediaURL);
+        }
         else {
             imageAttachedIcon.setVisibility(View.INVISIBLE);
             media.setVisibility(View.INVISIBLE);
@@ -72,17 +76,19 @@ public class PostView extends android.support.v4.app.Fragment {
     @Override
     public void onPause(){
         super.onPause();
-        if(pd != null){
-            Bundle bundle = new Bundle();
-            bundle.putString("userName", pd.userName);
-            bundle.putString("proPicURL", pd.proPicURL);
-            bundle.putString("mediaURL", pd.mediaURL);
-            bundle.putString("timestamp", pd.timestamp);
-            bundle.putString("content", pd.content);
-            bundle.putDouble("lat", pd.latitude);
-            bundle.putDouble("lon", pd.longitude);
-            bundle.putStringArrayList("networksShared", (ArrayList<String>) pd.networksShared);
-            onSaveInstanceState(bundle);
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        if(pd !=null){
+            outState.putString("userName", pd.userName);
+            outState.putString("proPicURL", pd.proPicURL);
+            outState.putString("mediaURL", pd.mediaURL);
+            outState.putString("timestamp", pd.timestamp);
+            outState.putString("content", pd.content);
+            outState.putDouble("lat", pd.latitude);
+            outState.putDouble("lon", pd.longitude);
+            outState.putStringArrayList("networksShared", (ArrayList<String>) pd.networksShared);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -27,6 +29,7 @@ public class NewsFeedFragment extends ListFragment {
     private Button newPostButton;
     private final String MESSAGE = "message";
     FeedAdapter fa;
+    EditText et;
     MainActivity mActivity;
     int index;
     int top;
@@ -47,13 +50,17 @@ public class NewsFeedFragment extends ListFragment {
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
-        newPostButton = (Button) view.findViewById(R.id.newPostButton);
-        newPostButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                newPost();
-            }
-        });
+        et = (EditText) view.findViewById(R.id.newPostText);
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+//        newPostButton = (Button) view.findViewById(R.id.newPostButton);
+//        newPostButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v){
+//                newPost();
+//            }
+//        });
         return view;
     }
 
@@ -117,6 +124,10 @@ public class NewsFeedFragment extends ListFragment {
     public void onPause(){
         super.onPause();
         saveListPosition();
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+
     }
 
     private void sendPost(Bundle params){
