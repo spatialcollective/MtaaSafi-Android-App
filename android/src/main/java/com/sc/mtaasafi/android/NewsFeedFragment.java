@@ -13,6 +13,9 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.MultiAutoCompleteTextView;
+import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
@@ -26,11 +29,12 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
-    private Button newPostButton;
+    private ImageButton sendPost, attachPic;
     private final String MESSAGE = "message";
     FeedAdapter fa;
-    EditText et;
+    MultiAutoCompleteTextView et;
     MainActivity mActivity;
+    byte[] mPic;
     int index;
     int top;
     @Override
@@ -50,17 +54,24 @@ public class NewsFeedFragment extends ListFragment {
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
-        et = (EditText) view.findViewById(R.id.newPostText);
+        et = (MultiAutoCompleteTextView) view.findViewById(R.id.newPostText);
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-//        newPostButton = (Button) view.findViewById(R.id.newPostButton);
-//        newPostButton.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v){
-//                newPost();
-//            }
-//        });
+        attachPic = (ImageButton) view.findViewById(R.id.attachPic);
+        attachPic.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                attachPic();
+            }
+        });
+        sendPost = (ImageButton) view.findViewById(R.id.sendPost);
+        sendPost.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                sendPost();
+            }
+        });
         return view;
     }
 
@@ -70,9 +81,9 @@ public class NewsFeedFragment extends ListFragment {
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
-            newPostButton.setVisibility(View.VISIBLE);
+            sendPost.setClickable(true);
         } else if (state.isClosed()) {
-            newPostButton.setVisibility(View.INVISIBLE);
+            sendPost.setClickable(false);
         }
     }
 
@@ -87,22 +98,22 @@ public class NewsFeedFragment extends ListFragment {
     }
 
     private void newPost(){
-        final Bundle params = new Bundle();
-        final EditText input = new EditText(getActivity());
-        input.setSingleLine(false);
-        params.putString("display", "page");
-        new AlertDialog.Builder(getActivity())
-                .setTitle("New Post")
-                .setView(input)
-                .setPositiveButton("Post", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        params.putString(MESSAGE, String.valueOf(input.getText()));
-                        sendPost(params);
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+//        final Bundle params = new Bundle();
+//        final EditText input = new EditText(getActivity());
+//        input.setSingleLine(false);
+//        params.putString("display", "page");
+//        new AlertDialog.Builder(getActivity())
+//                .setTitle("New Post")
+//                .setView(input)
+//                .setPositiveButton("Post", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        params.putString(MESSAGE, String.valueOf(input.getText()));
+//                        sendPost(params);
+//                    }
+//                })
+//                .setNegativeButton("Cancel", null)
+//                .show();
     }
 
     public void updateFeed(List<PostData> posts){
@@ -129,14 +140,27 @@ public class NewsFeedFragment extends ListFragment {
         imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
 
     }
+    private void attachPic(){
+        
+    }
+    private void sendPost(){
+        // get contents from edit text
+        // check if there is a pic to attach.
+        // put those together in the bundle I guess?
+        if(et.getText() == null || et.getText().equals("")){
+            Toast toast = Toast.makeText(mActivity, "Enter text for your post", Toast.LENGTH_SHORT);
+        }
+        else{
+            String content = et.getText().toString();
+            String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ss")
+                    .format(new java.util.Date(System.currentTimeMillis()));
+            Location location = mActivity.getLocation();
+            if(mPic != null) {
+            }
+            mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
+                    location.getLongitude(), content));
 
-    private void sendPost(Bundle params){
-        String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ss")
-                .format(new java.util.Date (System.currentTimeMillis()));
-        Location location = mActivity.getLocation();
-        String content = (String) params.get(MESSAGE);
-        mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
-                location.getLongitude(), content));
+        }
 //        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
 //            @Override
 //            public void onCompleted(Response response) {
