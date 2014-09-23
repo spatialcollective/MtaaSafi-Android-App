@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
@@ -27,7 +28,9 @@ import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
     private Button newPostButton;
+    private ImageButton newPhotoButton;
     private final String MESSAGE = "message";
+    private final String PHOTO = "photo";
     FeedAdapter fa;
     EditText et;
     MainActivity mActivity;
@@ -46,6 +49,7 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.news_feed, container, false);
+
         if(savedInstanceState !=null){
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
@@ -61,6 +65,14 @@ public class NewsFeedFragment extends ListFragment {
 //                newPost();
 //            }
 //        });
+
+        newPhotoButton = (ImageButton) view.findViewById(R.id.newPhotoButton);
+        newPhotoButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                        mActivity.takePicture();
+                    }
+            });
         return view;
     }
 
@@ -130,32 +142,40 @@ public class NewsFeedFragment extends ListFragment {
 
     }
 
+    //params.get(PHOTO) != null
     private void sendPost(Bundle params){
-        String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ss")
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss")
                 .format(new java.util.Date (System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         String content = (String) params.get(MESSAGE);
-        mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
-                location.getLongitude(), content));
-//        Request request = new Request(Session.getActiveSession(), "mtaasafi/feed", params, HttpMethod.POST, new Request.Callback() {
-//            @Override
-//            public void onCompleted(Response response) {
-//                FacebookRequestError error = response.getError();
-//                if(error == null){
-//                    new AlertDialog.Builder(getActivity())
-//                            .setTitle("Success")
-//                            .setMessage(response.getGraphObject().cast(GraphObjectWithId.class).getId())
-//                            .setPositiveButton("Ok", null)
-//                            .show();
-//                }else{
-//                    new AlertDialog.Builder(getActivity())
-//                            .setTitle("Error")
-//                            .setMessage(error.getErrorMessage())
-//                            .setPositiveButton("Ok", null)
-//                            .show();
-//                }
-//            }
-//        });
-//        request.executeAsync();
+        if (params.getByteArray(PHOTO) != null){
+            byte [] picture = params.getByteArray(PHOTO);
+            mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
+                    location.getLongitude(), content, picture));
+        }else{
+            mActivity.beamItUp(new PostData("Agree", timestamp, location.getLatitude (),
+                    location.getLongitude(), content));
+        }
+
     }
+
+
+    public void newPhotoPost(final byte[] bytearray){
+        final Bundle params = new Bundle();
+        final EditText input = new EditText(getActivity());
+        new AlertDialog.Builder(getActivity())
+                .setTitle("New Post")
+                .setView(input)
+                .setPositiveButton("Post", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        params.putString(MESSAGE, String.valueOf(input.getText()));
+                        params.putByteArray(PHOTO, bytearray);
+                        sendPost(params);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
 }

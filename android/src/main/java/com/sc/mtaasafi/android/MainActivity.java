@@ -2,17 +2,25 @@ package com.sc.mtaasafi.android;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.Toast;
 import com.sc.mtaasafi.android.NewsFeedFragment;
 import com.google.android.gms.common.ConnectionResult;
@@ -20,6 +28,11 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -31,6 +44,9 @@ public class MainActivity extends FragmentActivity implements
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private PostData detailPostData;
+    public String mCurrentPhotoPath;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+
 
     @Override
     public void updateFeed(List<PostData> newPosts) { feedFragment.updateFeed(newPosts); }
@@ -142,6 +158,16 @@ public class MainActivity extends FragmentActivity implements
                 else{
                     Log.w("SERVICES", "Activity result was NOT okay");
                 }
+            case REQUEST_IMAGE_CAPTURE :
+                if (resultCode == Activity.RESULT_OK){
+                    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+                    ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
+                    final byte[] bytearray = bytearrayoutputstream.toByteArray();
+                    feedFragment.newPhotoPost(bytearray);
+                }else {
+                    Log.w("CAMERA", "Activity result was NOT okay");
+                }
         }
     }
 
@@ -235,5 +261,40 @@ public class MainActivity extends FragmentActivity implements
         // Disconnecting the client invalidates it.
         mLocationClient.disconnect();
         super.onStop();
+    }
+
+
+    public void takePicture(){
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex){
+                Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
+            }
+
+            if (photoFile != null){
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES
+        );
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 }
