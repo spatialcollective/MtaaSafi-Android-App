@@ -164,7 +164,7 @@ public class MainActivity extends FragmentActivity implements
                     ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
                     final byte[] bytearray = bytearrayoutputstream.toByteArray();
-                    feedFragment.newPhotoPost(bytearray);
+                    feedFragment.onPhotoTaken(bytearray);
                 }else {
                     Log.w("CAMERA", "Activity result was NOT okay");
                 }
