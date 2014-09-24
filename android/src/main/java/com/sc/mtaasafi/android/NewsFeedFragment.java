@@ -1,30 +1,22 @@
 package com.sc.mtaasafi.android;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
-import com.facebook.FacebookRequestError;
-import com.facebook.HttpMethod;
-import com.facebook.Request;
-import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphObject;
+import com.sc.mtaasafi.android.adapter.FeedAdapter;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -63,7 +55,11 @@ public class NewsFeedFragment extends ListFragment {
         attachPic.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                if(picture == null)
                 mActivity.takePicture();
+                else{
+                    //
+                }
             }
         });
         sendPost = (ImageButton) view.findViewById(R.id.sendPost);
@@ -71,6 +67,7 @@ public class NewsFeedFragment extends ListFragment {
             @Override
             public void onClick(View v){
                 sendPost();
+
             }
         });
         return view;
@@ -99,7 +96,7 @@ public class NewsFeedFragment extends ListFragment {
     }
 
 
-    public void updateFeed(List<PostData> posts){
+    public void onFeedUpate(List<PostData> posts){
         fa.updateFeed(posts);
     }
 

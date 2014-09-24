@@ -1,7 +1,6 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.adapter;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,12 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.ImageOptions;
+import com.sc.mtaasafi.android.listitem.FeedItem;
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.MainActivity;
+import com.sc.mtaasafi.android.NewsFeedFragment;
+import com.sc.mtaasafi.android.PostData;
+import com.sc.mtaasafi.android.R;
 
 import java.util.ArrayList;
 import java.util.List;

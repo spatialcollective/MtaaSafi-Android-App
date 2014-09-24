@@ -13,23 +13,18 @@ import java.util.List;
  * Data class for passing data about posts
  */
 public class PostData {
-    String content;
-    String timestamp;
-    String userName;
-    String proPicURL;
-    String mediaURL;
-    List<String> networksShared;
-    double latitude;
-    double longitude;
-    byte[] picture;
+    public String content, timestamp, userName, proPicURL, mediaURL;
+    public List<String> networksShared;
+    public double latitude, longitude;
+    public byte[] picture;
 
-    PostData(){
+    public PostData(){
         content = timestamp = userName = proPicURL = mediaURL = "";
         latitude = longitude = 0;
     }
 
     // for PostData objects created with data sent from the server
-    PostData(String usn, String userPicURL, String timestamp, double lat, double lon,
+    public PostData(String usn, String userPicURL, String timestamp, double lat, double lon,
              String content, String mediaURL, List<String> networksShared){
         this.userName = usn;
         this.proPicURL = userPicURL;
@@ -43,7 +38,7 @@ public class PostData {
     }
 
     // for PostData objects created by the user to send to server
-    PostData(String usn, String timestamp, double lat, double lon,
+    public PostData(String usn, String timestamp, double lat, double lon,
              String content){
         this.userName = usn;
         this.timestamp = timestamp;
@@ -52,7 +47,7 @@ public class PostData {
         longitude = lon;
     }
     // for PostData objects created by the user *with pictures* to send to the server
-    PostData(String usn, String timestamp, double lat, double lon,
+    public PostData(String usn, String timestamp, double lat, double lon,
              String content, byte[] picture){
         this.userName = usn;
         this.timestamp = timestamp;
@@ -67,7 +62,7 @@ public class PostData {
     }
 
     // takes a timestamp in format "yyyy-MM-dd'T'H:mm:ss"
-    static String timeSincePosted(String timestamp) {
+    public static String timeSincePosted(String timestamp) {
         Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
         long second = 1000;
         long minute = 60 * second;

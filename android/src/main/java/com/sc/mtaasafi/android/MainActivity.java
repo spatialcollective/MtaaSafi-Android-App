@@ -47,10 +47,11 @@ public class MainActivity extends FragmentActivity implements
     public String mCurrentPhotoPath;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-
     @Override
-    public void updateFeed(List<PostData> newPosts) { feedFragment.updateFeed(newPosts); }
-
+    public void onFeedUpdate(List<PostData> newPosts) { feedFragment.onFeedUpate(newPosts); }
+    public void updateFeed(){
+        sc.getPosts();
+    }
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
         String toastContent = postData.content + " " + postData.timestamp + " Lat: " + postData.latitude
@@ -58,6 +59,7 @@ public class MainActivity extends FragmentActivity implements
         Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
         toast.show();
         sc.post(postData);
+        sc.getPosts();
     }
     public void goToDetailView(PostData pd){
         detailPostData = pd;
@@ -273,11 +275,13 @@ public class MainActivity extends FragmentActivity implements
             } catch (IOException ex){
                 Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
-
             if (photoFile != null){
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
+        }
+        else{
+            Toast.makeText(this, "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
 
         }
     }

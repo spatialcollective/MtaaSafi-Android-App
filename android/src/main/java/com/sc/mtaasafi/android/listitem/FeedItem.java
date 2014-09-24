@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.listitem;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.PostData;
+import com.sc.mtaasafi.android.R;
 
 import java.util.List;
 
@@ -17,13 +21,8 @@ public class FeedItem extends RelativeLayout {
     private LayoutInflater inflater;
     private TextView contentTV, userNameTV, timeSincePostTV;
     ImageView profilePic, sharedIcon, picsAttachedIcon;
-    String content;
-    String proPicURL;
-    String mediaURL;
-    String userName;
-    String timeSincePost; // epoch time
-    String timeStamp;
-    List<String> networksShared;
+    public String content, proPicURL, mediaURL, userName, timeSincePost, timeStamp;
+    public List<String> networksShared;
 
     double lat, lon;
 

@@ -34,7 +34,7 @@ import java.util.List;
 public class ServerCommunicater {
 
     public interface ServerCommCallbacks{
-        void updateFeed(List<PostData> posts);
+        void onFeedUpdate(List<PostData> posts);
     }
     public ServerCommCallbacks activity;
     public final static String contentName = "content";
@@ -184,7 +184,7 @@ public class ServerCommunicater {
                     }
 
                 }
-                activity.updateFeed(listContent);
+                activity.onFeedUpdate(listContent);
             }catch (JSONException e){
                 Log.d("JSONObject", e.getLocalizedMessage());
             }
