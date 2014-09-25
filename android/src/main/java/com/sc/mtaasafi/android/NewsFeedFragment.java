@@ -42,34 +42,34 @@ public class NewsFeedFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.news_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
         if(savedInstanceState !=null){
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
-        et = (MultiAutoCompleteTextView) view.findViewById(R.id.newPostText);
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-        attachPic = (ImageButton) view.findViewById(R.id.attachPic);
-        attachPic.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                if(picture == null)
-                mActivity.takePicture();
-                else{
-                    //
-                }
-            }
-        });
-        sendPost = (ImageButton) view.findViewById(R.id.sendPost);
-        sendPost.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                sendPost();
-
-            }
-        });
+//        et = (MultiAutoCompleteTextView) view.findViewById(R.id.newPostText);
+//        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+//                Context.INPUT_METHOD_SERVICE);
+//        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+//        attachPic = (ImageButton) view.findViewById(R.id.attachPic);
+//        attachPic.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v){
+//                if(picture == null)
+//                mActivity.takePicture();
+//                else{
+//                    //
+//                }
+//            }
+//        });
+//        sendPost = (ImageButton) view.findViewById(R.id.sendPost);
+//        sendPost.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v){
+//                sendPost();
+//
+//            }
+//        });
         return view;
     }
 
@@ -79,9 +79,9 @@ public class NewsFeedFragment extends ListFragment {
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         if (state.isOpened()) {
-            sendPost.setClickable(true);
+//            sendPost.setClickable(true);
         } else if (state.isClosed()) {
-            sendPost.setClickable(false);
+//            sendPost.setClickable(false);
         }
     }
 
@@ -95,11 +95,12 @@ public class NewsFeedFragment extends ListFragment {
         }
     }
 
-
-    public void onFeedUpate(List<PostData> posts){
+    public void onFeedUpdate(List<PostData> posts){
         fa.updateFeed(posts);
     }
-
+    public void alertFeedUpdate(){
+        fa.notifyDataSetChanged();
+    }
     public void saveListPosition(){
         index = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
@@ -115,9 +116,9 @@ public class NewsFeedFragment extends ListFragment {
     public void onPause(){
         super.onPause();
         saveListPosition();
-        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
+//        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+//                Context.INPUT_METHOD_SERVICE);
+//        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
 
     }
     public void onPhotoTaken(byte[] photo){

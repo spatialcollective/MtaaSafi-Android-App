@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 public class PostView extends android.support.v4.app.Fragment {
     TextView contentTV, timestampTV, userNameTV;
     ImageView profilePic, imageAttachedIcon, media, networkSharedIcon1, networkSharedIcon2;
+    ProgressBar progress;
     MainActivity mActivity;
     AQuery aq;
     PostData pd;
@@ -49,6 +51,7 @@ public class PostView extends android.support.v4.app.Fragment {
         profilePic = (ImageView) view.findViewById(R.id.proPic);
         imageAttachedIcon = (ImageView) view.findViewById(R.id.picAttachedIcon);
         media = (ImageView) view.findViewById(R.id.attachedPic);
+        progress = (ProgressBar) view.findViewById(R.id.progressBar);
         return view;
     }
 
@@ -66,11 +69,12 @@ public class PostView extends android.support.v4.app.Fragment {
         aq.id(R.id.proPic).image(pd.proPicURL, options);
 
         if(pd.mediaURL != null && !pd.mediaURL.equals("") && !pd.mediaURL.equals("null")){
-            aq.id(media).progress(R.id.imageViewProgressBar).image(pd.mediaURL);
+            aq.id(media).progress(R.id.progressBar).image(pd.mediaURL);
         }
         else {
             imageAttachedIcon.setVisibility(View.INVISIBLE);
             media.setVisibility(View.INVISIBLE);
+            progress.setVisibility(View.INVISIBLE);
         }
     }
     @Override
