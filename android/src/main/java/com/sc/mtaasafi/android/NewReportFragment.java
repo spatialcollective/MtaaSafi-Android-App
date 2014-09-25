@@ -118,11 +118,11 @@ public class NewReportFragment extends Fragment {
        report.setClickable(!isTitleEmpty && !isDetailEmpty);
        if(!isTitleEmpty && !isDetailEmpty){
            report.setClickable(true);
-           report.setBackgroundResource(getResources().getColor(R.color.report_button_clickable));
+           report.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
        }
        else{
            report.setClickable(false);
-           report.setBackgroundResource(getResources().getColor(R.color.report_button_unclickable));
+           report.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
        }
     }
 }

@@ -357,17 +357,16 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragmentContainer, newReport, "newReport")
                 .addToBackStack(null)
                 .commit();
-        getActionBar().hide();
+        getSupportActionBar().hide();
     }
-//    public void goToDetailView(PostData pd){
-//        detailPostData = pd;
-//        PostView postView = new PostView();
-//        getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.fragmentContainer, postView, "postView")
-//                .addToBackStack(null)
-//                .commit();
-//    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(getSupportFragmentManager().findFragmentByTag("newReport") == null){
+            getSupportActionBar().show();
+        }
+    }
 
     public void showLogins() {
         DialogFragment newFragment = new AccountsFragment();

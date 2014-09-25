@@ -20,7 +20,7 @@
     <string name="report_button_text">Report</string>
     <integer name="google_play_services_version">5208000</integer>
     <color name="report_button_unclickable">#A4C8FF</color>
-    <color name="report_button_clickable">#006666</color>
+    <color name="report_button_clickable">#0099FF</color>
     <color name="white">#FFFFFF</color>
     <color name="yellow">#FFFF00</color>
     <color name="fuchsia">#FF00FF</color>
