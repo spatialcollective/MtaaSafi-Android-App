@@ -1,13 +1,9 @@
 package com.sc.mtaasafi.android;
 
-import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,12 +11,11 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.androidquery.callback.ImageOptions;
 
-import java.io.File;
 import java.util.ArrayList;
 
 
 public class PostView extends android.support.v4.app.Fragment {
-    TextView contentTV, timestampTV, userNameTV;
+    TextView titleTV, detailsTV, timestampTV, userNameTV;
     ImageView profilePic, imageAttachedIcon, media, networkSharedIcon1, networkSharedIcon2;
     ProgressBar progress;
     MainActivity mActivity;
@@ -41,11 +36,13 @@ public class PostView extends android.support.v4.app.Fragment {
                     savedState.getString("proPicURL"),
                     savedState.getString("timestamp"),
                     savedState.getDouble("lat"), savedState.getDouble("lon"),
-                    savedState.getString("content"),
+                    savedState.getString("title"),
+                    savedState.getString("details"),
                     savedState.getString("mediaURL"),
                     savedState.getStringArrayList("networksShared"));
         }
-        contentTV = (TextView) view.findViewById(R.id.postText);
+        titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
+        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
         timestampTV = (TextView) view.findViewById(R.id.timestamp);
         userNameTV = (TextView) view.findViewById(R.id.userName);
         profilePic = (ImageView) view.findViewById(R.id.proPic);
@@ -61,7 +58,8 @@ public class PostView extends android.support.v4.app.Fragment {
         if(mActivity.getDetailPostData() !=null){
             pd = mActivity.getDetailPostData();
         }
-        contentTV.setText(pd.content);
+        titleTV.setText(pd.title);
+        detailsTV.setText(pd.details);
         // TODO: get this formatted pretty-like.
         timestampTV.setText(pd.timestamp);
         ImageOptions options = new ImageOptions();
@@ -89,7 +87,8 @@ public class PostView extends android.support.v4.app.Fragment {
             outState.putString("proPicURL", pd.proPicURL);
             outState.putString("mediaURL", pd.mediaURL);
             outState.putString("timestamp", pd.timestamp);
-            outState.putString("content", pd.content);
+            outState.putString("title", pd.title);
+            outState.putString("details", pd.details);
             outState.putDouble("lat", pd.latitude);
             outState.putDouble("lon", pd.longitude);
             outState.putStringArrayList("networksShared", (ArrayList<String>) pd.networksShared);

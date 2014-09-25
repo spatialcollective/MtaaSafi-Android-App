@@ -37,7 +37,7 @@ public class ServerCommunicater {
         void onFeedUpdate(List<PostData> posts);
     }
     public ServerCommCallbacks activity;
-    public final static String contentName = "content";
+    public final static String titleName = "content";
     public final static String userName = "user";
     public final static String timestampName = "timestamp";
     public final static String latName = "latitude";
@@ -99,7 +99,7 @@ public class ServerCommunicater {
             json.put(timestampName, postData.timestamp);
             json.put(latName, postData.latitude);
             json.put(lonName, postData.longitude);
-            json.put(contentName, postData.content);
+            json.put(titleName, postData.title);
             if(postData.picture != null){
                 String encodedImage = Base64.encodeToString(postData.picture, Base64.DEFAULT);
                 json.put(mediaName, encodedImage);
@@ -163,15 +163,17 @@ public class ServerCommunicater {
                     try{
                         JSONObject json = jsonArray.getJSONObject(i);
                         try {
-                            String content = json.getString(contentName);
+                            String title = json.getString(titleName);
                             String timeCreated = json.getString(timestampName);
                             String userPicURL = json.getString(profilePicURL);
                             String mediaURL = json.getString(mediaName);
-                            PostData pd = new PostData("Agree",
+                            String usn = json.getString(userName);
+                            PostData pd = new PostData(usn,
                                                         userPicURL,
                                                         timeCreated,
                                                         0,0,
-                                                        content,
+                                                        title,
+                                                        "",
                                                         mediaURL,
                                                         null
                                                         );

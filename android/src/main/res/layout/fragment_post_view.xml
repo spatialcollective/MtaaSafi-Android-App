@@ -13,29 +13,34 @@
         android:layout_height="wrap_content"
         android:text="User Name"
         android:id="@+id/userName"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/proPic"
         android:textColor="#666666"
         android:paddingLeft="10dp"
-        android:textSize="14dp" />
+        android:textSize="14dp"
+        android:layout_alignTop="@+id/proPic"
+        android:layout_alignLeft="@+id/reportViewTitle"
+        android:layout_alignStart="@+id/reportViewTitle" />
 
     <ImageView
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:id="@+id/proPic"
-        android:background="#666666" />
+        android:background="#666666"
+        android:layout_below="@+id/picAttachedIcon"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
-        android:id="@+id/postText"
-        android:layout_below="@+id/userName"
-        android:layout_toRightOf="@+id/proPic"
+        android:id="@+id/reportViewDetails"
         android:paddingLeft="10dp"
         android:paddingRight="5dp"
         android:textSize="18dp"
-        android:paddingBottom="15dp" />
+        android:paddingBottom="15dp"
+        android:layout_below="@+id/reportViewTitle"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -57,14 +62,14 @@
         android:padding="0dp"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/timestamp"
-        android:layout_above="@+id/postText" />
+        android:layout_alignBottom="@+id/timestamp" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/attachedPic"
         android:src="@drawable/pic_placeholder"
-        android:layout_below="@+id/linearLayout"
+        android:layout_below="@+id/reportViewDetails"
         android:layout_centerHorizontal="true" />
     <ProgressBar
         style="?android:attr/progressBarStyleLarge"
@@ -74,20 +79,14 @@
         android:layout_below="@+id/attachedPic"
         android:layout_centerHorizontal="true" />
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/postText"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/linearLayout"
-        android:paddingBottom="15dp">
+        android:text="Report Title"
+        android:id="@+id/reportViewTitle"
+        android:textSize="30dp"
+        android:layout_below="@+id/userName"
+        android:layout_alignRight="@+id/progressBar"
+        android:layout_alignEnd="@+id/progressBar" />
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:id="@+id/imageView2"
-            android:src="@drawable/fb_icon_grey" />
-    </LinearLayout>
 </RelativeLayout>

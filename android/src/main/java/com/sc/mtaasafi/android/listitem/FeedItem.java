@@ -49,7 +49,7 @@ public class FeedItem extends RelativeLayout {
         timeSincePost = PostData.timeSincePosted(pd.timestamp);
         timeSincePostTV.setText(timeSincePost);
 
-        content = pd.content;
+        content = pd.title;
         contentTV.setText(content);
 
         lat = pd.latitude;
@@ -59,7 +59,7 @@ public class FeedItem extends RelativeLayout {
     public PostData toPostData(){
         return new PostData(userName, proPicURL,
                             timeStamp, lat, lon,
-                            content, mediaURL,
+                            content, "", mediaURL,
                             networksShared);
     }
     public void setContent(String content){
@@ -73,7 +73,7 @@ public class FeedItem extends RelativeLayout {
 
         userNameTV = (TextView) findViewById(R.id.userName);
         timeSincePostTV = (TextView) findViewById(R.id.timestamp);
-        contentTV = (TextView) findViewById(R.id.postText);
+        contentTV = (TextView) findViewById(R.id.newReportDetails);
 
         profilePic = (ImageView) findViewById(R.id.proPic);
         sharedIcon = (ImageView) findViewById(R.id.sharedIcon);

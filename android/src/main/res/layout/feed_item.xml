@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
-        android:id="@+id/postText"
+        android:id="@+id/reportViewDetails"
         android:layout_below="@+id/userName"
         android:layout_toRightOf="@+id/proPic"
         android:paddingLeft="10dp"
@@ -58,13 +58,13 @@
         android:padding="0dp"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/timestamp"
-        android:layout_above="@+id/postText" />
+        android:layout_above="@+id/reportViewDetails" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/postText"
+        android:layout_below="@+id/reportViewDetails"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:id="@+id/linearLayout"
@@ -77,8 +77,8 @@
         android:layout_height="24dp"
         android:id="@+id/sharedIcon"
         android:src="@drawable/feed_shared_icon"
-        android:layout_alignBottom="@+id/postText"
-        android:layout_toRightOf="@+id/postText" />
+        android:layout_alignBottom="@+id/reportViewDetails"
+        android:layout_toRightOf="@+id/reportViewDetails" />
 
     <ImageView
         android:layout_width="match_parent"

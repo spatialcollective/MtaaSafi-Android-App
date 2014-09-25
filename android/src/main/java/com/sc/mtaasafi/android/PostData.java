@@ -13,23 +13,24 @@ import java.util.List;
  * Data class for passing data about posts
  */
 public class PostData {
-    public String content, timestamp, userName, proPicURL, mediaURL;
+    public String title, details, timestamp, userName, proPicURL, mediaURL;
     public List<String> networksShared;
     public double latitude, longitude;
     public byte[] picture;
 
     public PostData(){
-        content = timestamp = userName = proPicURL = mediaURL = "";
+        title = details = timestamp = userName = proPicURL = mediaURL = "";
         latitude = longitude = 0;
     }
 
     // for PostData objects created with data sent from the server
-    public PostData(String usn, String userPicURL, String timestamp, double lat, double lon,
-             String content, String mediaURL, List<String> networksShared){
+    public PostData(String usn, String userPicURL, String timestamp, double lat, double lon, String title,
+             String details, String mediaURL, List<String> networksShared){
         this.userName = usn;
         this.proPicURL = userPicURL;
         this.timestamp = timestamp;
-        this.content = content;
+        this.title = title;
+        this.details = details;
         latitude = lat;
         longitude = lon;
         if(networksShared != null)
@@ -39,26 +40,24 @@ public class PostData {
 
     // for PostData objects created by the user to send to server
     public PostData(String usn, String timestamp, double lat, double lon,
-             String content){
+             String title, String details){
         this.userName = usn;
         this.timestamp = timestamp;
-        this.content = content;
+        this.title = title;
+        this.details = details;
         latitude = lat;
         longitude = lon;
     }
     // for PostData objects created by the user *with pictures* to send to the server
     public PostData(String usn, String timestamp, double lat, double lon,
-             String content, byte[] picture){
+             String title, String details, byte[] picture){
         this.userName = usn;
         this.timestamp = timestamp;
-        this.content = content;
+        this.title = title;
+        this.details = details;
         latitude = lat;
         longitude = lon;
         this.picture = picture;
-    }
-
-    public void setPic(byte[] pic){
-        picture = pic;
     }
 
     // takes a timestamp in format "yyyy-MM-dd'T'H:mm:ss"

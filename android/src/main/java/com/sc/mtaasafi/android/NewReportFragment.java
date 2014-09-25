@@ -1,6 +1,6 @@
 package com.sc.mtaasafi.android;
 
-import android.app.Activity;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -12,10 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
 
 
 /**
@@ -26,13 +23,12 @@ public class NewReportFragment extends Fragment {
     EditText title, details;
     Button report, picFromGallery, picFromCamera;
     GridView gv;
-    HashMap pics;
+    byte[] pic;
     boolean isTitleEmpty, isDetailEmpty;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        pics = new HashMap();
         isTitleEmpty = isDetailEmpty = true;
     }
 
@@ -41,7 +37,16 @@ public class NewReportFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-        title = (EditText) view.findViewById(R.id.reportTitle);
+        report = (Button) view.findViewById(R.id.reportButton);
+        report.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendReport();
+            }
+        });
+        report.setClickable(false);
+
+        title = (EditText) view.findViewById(R.id.newReportTitle);
         title.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
@@ -65,9 +70,7 @@ public class NewReportFragment extends Fragment {
             }
         });
 
-        details = (EditText) view.findViewById(R.id.reportDetails);
-        report = (Button) view.findViewById(R.id.reportButton);
-        report.setClickable(false);
+        details = (EditText) view.findViewById(R.id.newReportDetails);
         details.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -94,7 +97,7 @@ public class NewReportFragment extends Fragment {
         picFromGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //
+                sendReport();
             }
         });
         picFromCamera = (Button) view.findViewById(R.id.picFromCam);
@@ -106,11 +109,21 @@ public class NewReportFragment extends Fragment {
         });
         return view;
     }
-    public void addPic(int id, byte[] pic){
-        pics.put(id, pic);
-    }
-    public void removePic(int id){
-        pics.remove(id);
+
+    public void sendReport(){
+        String reportTitle = title.getText().toString();
+        String reportDetails = details.getText().toString();
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss")
+                .format(new java.util.Date(System.currentTimeMillis()));
+        Location location = mActivity.getLocation();
+        if (pic != null) {
+            mActivity.beamItUp(new PostData(mActivity.mEmail, timestamp, location.getLatitude(),
+                    location.getLongitude(), reportTitle, reportDetails, pic));
+        } else {
+            mActivity.beamItUp(new PostData(mActivity.mEmail, timestamp, location.getLatitude(),
+                    location.getLongitude(), reportTitle, reportDetails));
+        }
+        mActivity.goToFeed();
     }
 
     // called when the edit texts' listeners detect a change in their texts

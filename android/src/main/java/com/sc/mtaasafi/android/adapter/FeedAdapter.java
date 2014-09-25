@@ -57,7 +57,7 @@ public class FeedAdapter extends BaseAdapter {
                     mA.goToDetailView(fi.toPostData());
                 }
             });
-            contentTV = (TextView) fi.findViewById(R.id.postText);
+            contentTV = (TextView) fi.findViewById(R.id.reportViewDetails);
             contentTV.setText(fi.content);
 
             userNameTV = (TextView) fi.findViewById(R.id.userName);

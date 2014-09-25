@@ -25,14 +25,14 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/reportTitle"
+            android:id="@+id/newReportTitle"
             android:hint="@string/report_title_hint"
             android:singleLine="true" />
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/reportDetails"
+            android:id="@+id/newReportDetails"
             android:hint="@string/report_detail_hint"
             android:background="@null"
             android:singleLine="true"

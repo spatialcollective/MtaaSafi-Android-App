@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,6 +28,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.gms.common.AccountPicker;
 import com.sc.mtaasafi.android.NewsFeedFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -49,9 +52,9 @@ public class MainActivity extends ActionBarActivity implements
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private PostData detailPostData;
-    private MenuItem reportButton;
+    public String mEmail;
     public String mCurrentPhotoPath;
-
+    static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     // ======================Client-Server Communications:======================
@@ -76,7 +79,7 @@ public class MainActivity extends ActionBarActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
-        String toastContent = postData.content + " " + postData.timestamp + " Lat: " + postData.latitude
+        String toastContent = postData.title + " " + postData.timestamp + " Lat: " + postData.latitude
                 + " Lon:" + postData.longitude;
         Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
         toast.show();
@@ -116,7 +119,27 @@ public class MainActivity extends ActionBarActivity implements
             return mDialog;
         }
     }
+    // ======================Fragment Navigation:======================
+    public void goToFeed(){
+        NewsFeedFragment fragment = new NewsFeedFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, fragment, "newsfeed")
+                .addToBackStack(null)
+                .commit();
+        getSupportActionBar().hide();
+    }
 
+
+    public void goToNewReport(){
+        NewReportFragment newReport = new NewReportFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, newReport, "newReport")
+                .addToBackStack(null)
+                .commit();
+        getSupportActionBar().hide();
+    }
     // ======================Google Play Services Setup:======================
     private final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
@@ -194,8 +217,21 @@ public class MainActivity extends ActionBarActivity implements
                 }else {
                     Log.w("CAMERA", "Activity result was NOT okay");
                 }
+            case REQUEST_CODE_PICK_ACCOUNT:
+                if (resultCode == Activity.RESULT_OK) {
+                    mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    Toast.makeText(this, mEmail,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (resultCode == RESULT_CANCELED) {
+                    // The account picker dialog closed without selecting an account.
+                    // Notify users that they must pick an account to proceed.
+                    Toast.makeText(this, "You must pick an account to proceed",
+                        Toast.LENGTH_SHORT).show();
+                    }
+
+                }
         }
-    }
 
     public Location getLocation(){
         mCurrentLocation = mLocationClient.getLastLocation();
@@ -287,11 +323,7 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         if (savedInstanceState == null){
-            feedFragment = new NewsFeedFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragmentContainer, feedFragment, "feedFragment")
-                    .commit();
+            goToFeed();
         } else {
             feedFragment = (NewsFeedFragment) getSupportFragmentManager()
                     .findFragmentByTag("feedFragment");
@@ -315,6 +347,7 @@ public class MainActivity extends ActionBarActivity implements
             // If they say yes, send them to Location Settings
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
+        pickUserAccount();
             // Connect the client.
         mLocationClient.connect();
     }
@@ -331,7 +364,6 @@ public class MainActivity extends ActionBarActivity implements
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.action_bar, menu);
-        reportButton = menu.getItem(0);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -350,16 +382,6 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void goToNewReport(){
-        NewReportFragment newReport = new NewReportFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, newReport, "newReport")
-                .addToBackStack(null)
-                .commit();
-        getSupportActionBar().hide();
-    }
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -371,6 +393,13 @@ public class MainActivity extends ActionBarActivity implements
     public void showLogins() {
         DialogFragment newFragment = new AccountsFragment();
         newFragment.show(getSupportFragmentManager(), "accounts");
+    }
+
+    private void pickUserAccount() {
+        String[] accountTypes = new String[]{"com.google"};
+        Intent intent = AccountPicker.newChooseAccountIntent(null, null,
+                accountTypes, false, null, null, null, null);
+        startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
 
 }
