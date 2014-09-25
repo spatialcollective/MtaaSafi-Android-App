@@ -19,11 +19,11 @@
         android:background="#FFFFFF"
         />
 
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/new_post_bar"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+    <!--<include-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--layout="@layout/new_post_bar"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_centerHorizontal="true" />-->
 
 </LinearLayout>

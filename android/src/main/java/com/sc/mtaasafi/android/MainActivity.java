@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
@@ -19,8 +20,11 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.widget.EditText;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 import com.sc.mtaasafi.android.NewsFeedFragment;
 import com.google.android.gms.common.ConnectionResult;
@@ -36,7 +40,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class MainActivity extends FragmentActivity implements
+public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks{
     private NewsFeedFragment feedFragment;
@@ -47,11 +51,26 @@ public class MainActivity extends FragmentActivity implements
     public String mCurrentPhotoPath;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
+    // ======================Client-Server Communications:======================
+
+    // Called by the server communicator to add new posts to the feed fragment
     @Override
-    public void onFeedUpdate(List<PostData> newPosts) { feedFragment.onFeedUpate(newPosts); }
+    public void onFeedUpdate(List<PostData> newPosts) {
+        feedFragment.onFeedUpdate(newPosts);
+        // on the UI thread, tell the feed fragment that its list has been updated.
+        runOnUiThread(new Runnable() {
+            public void run() {
+                feedFragment.alertFeedUpdate();
+            }
+        });
+    }
+
+    // called by the fragment to update the fragment's feed w new posts.
+    // When the server communicator gets the new posts, it will call onFeedUpdate above.
     public void updateFeed(){
         sc.getPosts();
     }
+
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
         String toastContent = postData.content + " " + postData.timestamp + " Lat: " + postData.latitude
@@ -59,8 +78,11 @@ public class MainActivity extends FragmentActivity implements
         Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
         toast.show();
         sc.post(postData);
-        sc.getPosts();
+        updateFeed();
     }
+
+    // ======================Post View Fragment:======================
+
     public void goToDetailView(PostData pd){
         detailPostData = pd;
         PostView postView = new PostView();
@@ -70,7 +92,7 @@ public class MainActivity extends FragmentActivity implements
                 .addToBackStack(null)
                 .commit();
     }
-
+    // Called by postView fragment to retrieve the contents of the post it should be displaying.
     public PostData getDetailPostData(){
         return detailPostData;
     }
@@ -92,7 +114,7 @@ public class MainActivity extends FragmentActivity implements
         }
     }
 
-    // Google Play Services Setup:
+    // ======================Google Play Services Setup:======================
     private final static int
             CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
@@ -111,7 +133,6 @@ public class MainActivity extends FragmentActivity implements
                 Toast.LENGTH_SHORT).show();
 
     }
-
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         /*
@@ -217,55 +238,8 @@ public class MainActivity extends FragmentActivity implements
                 "Location Updates");
 
     }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mLocationClient = new LocationClient(this, this, this);
-        sc = new ServerCommunicater(this);
-        if (savedInstanceState == null){
-            feedFragment = new NewsFeedFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragmentContainer, feedFragment, "feedFragment")
-                    .commit();
-        } else {
-            feedFragment = (NewsFeedFragment) getSupportFragmentManager()
-                    .findFragmentByTag("feedFragment");
-        }
-        sc.getPosts();
-    }
-
-    private boolean isConnected(){
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Connect the client.
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals("")) {
-            // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
-            // If they say yes, send them to Location Settings
-            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-
-        }
-            // Connect the client.
-        mLocationClient.connect();
-    }
-
-    @Override
-    protected void onStop(){
-        // Disconnecting the client invalidates it.
-        mLocationClient.disconnect();
-        super.onStop();
-    }
-
-
+    // ======================Picture-taking Logic:======================
+    // Called by the new report fragment to launch a take picture activity.
     public void takePicture(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
@@ -301,4 +275,91 @@ public class MainActivity extends FragmentActivity implements
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
+
+    // ======================Activity Setup:======================
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mLocationClient = new LocationClient(this, this, this);
+        sc = new ServerCommunicater(this);
+        if (savedInstanceState == null){
+            feedFragment = new NewsFeedFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragmentContainer, feedFragment, "feedFragment")
+                    .commit();
+        } else {
+            feedFragment = (NewsFeedFragment) getSupportFragmentManager()
+                    .findFragmentByTag("feedFragment");
+        }
+        sc.getPosts();
+    }
+
+    private boolean isConnected(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if (locationProviders == null || locationProviders.equals("")) {
+            // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
+            // If they say yes, send them to Location Settings
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        }
+            // Connect the client.
+        mLocationClient.connect();
+    }
+
+    @Override
+    protected void onStop(){
+        // Disconnecting the client invalidates it.
+        mLocationClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_bar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.new_post:
+                goToNewReport();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void goToNewReport(){
+        NewReportFragment newReport = new NewReportFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, newReport, "newReport")
+                .addToBackStack(null)
+                .commit();
+    }
+
+//    public void goToDetailView(PostData pd){
+//        detailPostData = pd;
+//        PostView postView = new PostView();
+//        getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.fragmentContainer, postView, "postView")
+//                .addToBackStack(null)
+//                .commit();
+//    }
+
 }
