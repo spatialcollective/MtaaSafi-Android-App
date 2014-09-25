@@ -14,4 +14,11 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="app_id">903751569639797</string>
     <string name="new_post">New Post</string>
+    <string name="new_photo">New Photo</string>
+    <string name="new_post_hint">new post...</string>
+    <string name="report_detail_hint">Details about the problem...</string>
+    <string name="report_title_hint">Report title</string>
+    <string name="report_button_text">Report</string>
+    <integer name="google_play_services_version">5208000</integer>
+    <color name="new_post_bar">#E6CCCCCC</color>
 </resources>

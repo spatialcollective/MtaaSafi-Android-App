@@ -1,0 +1,93 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:id="@+id/postView"
+    android:paddingBottom="@dimen/activity_vertical_margin">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Name"
+        android:id="@+id/userName"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/proPic"
+        android:textColor="#666666"
+        android:paddingLeft="10dp"
+        android:textSize="14dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/proPic"
+        android:background="#666666" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
+        android:id="@+id/postText"
+        android:layout_below="@+id/userName"
+        android:layout_toRightOf="@+id/proPic"
+        android:paddingLeft="10dp"
+        android:paddingRight="5dp"
+        android:textSize="18dp"
+        android:paddingBottom="15dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5h"
+        android:id="@+id/timestamp"
+        android:textColor="#666666"
+        android:paddingLeft="10dp"
+        android:textSize="14dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/picAttachedIcon"
+        android:src="@drawable/pic_attached"
+        android:padding="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/timestamp"
+        android:layout_above="@+id/postText" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/attachedPic"
+        android:src="@drawable/pic_placeholder"
+        android:layout_below="@+id/linearLayout"
+        android:layout_centerHorizontal="true" />
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageViewProgressBar"
+        android:layout_below="@+id/attachedPic"
+        android:layout_centerHorizontal="true" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/postText"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/linearLayout"
+        android:paddingBottom="15dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:id="@+id/imageView2"
+            android:src="@drawable/fb_icon_grey" />
+    </LinearLayout>
+</RelativeLayout>
