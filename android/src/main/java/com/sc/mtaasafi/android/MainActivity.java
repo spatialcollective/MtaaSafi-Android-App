@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 import com.sc.mtaasafi.android.NewsFeedFragment;
 import com.google.android.gms.common.ConnectionResult;
@@ -341,6 +342,9 @@ public class MainActivity extends ActionBarActivity implements
             case R.id._action_report:
                     goToNewReport();
                 return true;
+            case R.id.accounts_menu:
+                showLogins();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -364,5 +368,10 @@ public class MainActivity extends ActionBarActivity implements
 //                .addToBackStack(null)
 //                .commit();
 //    }
+
+    public void showLogins() {
+        DialogFragment newFragment = new AccountsFragment();
+        newFragment.show(getSupportFragmentManager(), "accounts");
+    }
 
 }

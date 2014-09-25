@@ -4,7 +4,10 @@
     tools:context="com.sc.mtaasafi.android.HomeScreen" >
 
     <item android:id="@+id/_action_report"
-        android:title="@string/accounts"
+        android:title="@string/new_post"
         android:icon="@drawable/pencil_icon_white"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/accounts_menu"
+        android:title="@string/accounts"
+        app:showAsAction="never" />
 </menu>
