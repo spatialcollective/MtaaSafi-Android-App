@@ -48,7 +48,9 @@ public class MainActivity extends ActionBarActivity implements
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private PostData detailPostData;
+    private MenuItem reportButton;
     public String mCurrentPhotoPath;
+
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     // ======================Client-Server Communications:======================
@@ -328,6 +330,7 @@ public class MainActivity extends ActionBarActivity implements
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.action_bar, menu);
+        reportButton = menu.getItem(0);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -335,8 +338,8 @@ public class MainActivity extends ActionBarActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
-            case R.id.new_post:
-                goToNewReport();
+            case R.id._action_report:
+                    goToNewReport();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -350,8 +353,8 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragmentContainer, newReport, "newReport")
                 .addToBackStack(null)
                 .commit();
+        getActionBar().hide();
     }
-
 //    public void goToDetailView(PostData pd){
 //        detailPostData = pd;
 //        PostView postView = new PostView();
