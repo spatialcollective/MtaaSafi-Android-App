@@ -79,7 +79,7 @@ public class FeedAdapter extends BaseAdapter {
                 aq.id(proPic).image(fi.proPicURL);
         }
     }
-    FeedAdapter(Context context, NewsFeedFragment mFragment){
+    public FeedAdapter(Context context, NewsFeedFragment mFragment){
         this.mFragment = mFragment;
         posts = new ArrayList<FeedItem>();
         this.context = context;
