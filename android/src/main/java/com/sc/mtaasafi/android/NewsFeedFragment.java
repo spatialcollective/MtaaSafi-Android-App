@@ -129,11 +129,11 @@ public class NewsFeedFragment extends ListFragment {
         // check if there is a pic to attach.
         // put those together in the bundle I guess?
         if(et.getText() == null || et.getText().equals("")){
-            Toast toast = Toast.makeText(mActivity, "Enter text for your post", Toast.LENGTH_SHORT);
+            Toast.makeText(mActivity, "Enter text for your post", Toast.LENGTH_SHORT).show();
         }
         else {
             String content = et.getText().toString();
-            String timestamp = new SimpleDateFormat("yyyy-MM-DD'T'H:mm:ss")
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss")
                     .format(new java.util.Date(System.currentTimeMillis()));
             Location location = mActivity.getLocation();
             if (picture != null) {

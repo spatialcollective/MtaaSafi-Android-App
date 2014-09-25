@@ -20,6 +20,9 @@ import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.sc.mtaasafi.android.NewsFeedFragment;
@@ -46,6 +49,24 @@ public class MainActivity extends FragmentActivity implements
     private PostData detailPostData;
     public String mCurrentPhotoPath;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home_screen, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.accounts_menu:
+              showLogins();
+              return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     public void onFeedUpdate(List<PostData> newPosts) { feedFragment.onFeedUpate(newPosts); }
@@ -300,5 +321,10 @@ public class MainActivity extends FragmentActivity implements
 
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+    public void showLogins() {
+        DialogFragment newFragment = new AccountsFragment();
+        newFragment.show(getSupportFragmentManager(), "accounts");
     }
 }
