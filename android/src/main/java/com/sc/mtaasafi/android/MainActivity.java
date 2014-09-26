@@ -83,19 +83,19 @@ public class MainActivity extends ActionBarActivity implements
         Toast.makeText(this, "Failed to update feed", Toast.LENGTH_SHORT).show();
         AlertDialogFragment adf = new AlertDialogFragment();
         adf.show(getSupportFragmentManager(), "Update_failed_dialog");
-        List<PostData> posts = new ArrayList<PostData>();
-        for(int i = 0; i < 15; i++){
-            PostData pd = new PostData(mUsername,
-                    "",
-                    0,0,
-                    "this is"+i, "my song" + i,
-                    null,
-                    null);
-            posts.add(pd);
-            }
-        if(feedFragment!=null){
-            onFeedUpdate(posts);
-        }
+//        List<PostData> posts = new ArrayList<PostData>();
+//        for(int i = 0; i < 15; i++){
+//            PostData pd = new PostData(mUsername,
+//                    "",
+//                    0,0,
+//                    "this is"+i, "my song" + i,
+//                    null,
+//                    null);
+//            posts.add(pd);
+//            }
+//        if(feedFragment!=null){
+//            onFeedUpdate(posts);
+//        }
     }
 
     // called by the fragment to update the fragment's feed w new posts.

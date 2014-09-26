@@ -100,13 +100,13 @@ public class NewReportFragment extends Fragment {
             }
         });
 
-        picFromGallery = (Button) view.findViewById(R.id.picFromGallery);
-        picFromGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sendReport();
-            }
-        });
+//        picFromGallery = (Button) view.findViewById(R.id.picFromGallery);
+//        picFromGallery.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                sendReport();
+//            }
+//        });
         picFromCamera = (Button) view.findViewById(R.id.picFromCam);
         picFromCamera.setOnClickListener(new View.OnClickListener() {
             @Override

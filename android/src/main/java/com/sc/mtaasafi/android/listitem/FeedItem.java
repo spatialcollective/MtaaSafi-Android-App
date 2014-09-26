@@ -60,8 +60,8 @@ public class FeedItem extends RelativeLayout {
         title = pd.title;
         titleTV.setText(title);
 
-//        timeSincePost = PostData.timeSincePosted(pd.timestamp);
-//        timeSincePostTV.setText(timeSincePost);
+        timeSincePost = PostData.timeSincePosted(pd.timestamp);
+        timeSincePostTV.setText(timeSincePost);
 
         details = pd.details;
         detailsTV.setText(briefDetails());
