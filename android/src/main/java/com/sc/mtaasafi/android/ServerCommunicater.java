@@ -61,8 +61,8 @@ public class ServerCommunicater {
     public final static String mediaName = "mediaURL";
     public final static String profilePicURL = "userPicURL";
     public final static String errorName = "error";
-    public final static String writeURL = "http://mtaasafi.spatialcollective.com/add_post";
-    private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
+    public final static String writeURL = "http://app.spatialcollective.com/add_post";
+    private final static String readURL = "http://app.spatialcollective.com/get_posts";
 
     ServerCommunicater(ServerCommCallbacks activity){
         this.activity = activity;
