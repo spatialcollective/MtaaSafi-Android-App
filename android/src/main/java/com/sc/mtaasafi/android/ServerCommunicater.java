@@ -188,13 +188,11 @@ public class ServerCommunicater {
                             String title = json.getString(titleName);
                             String detail = json.getString(detailName);
                             String timeCreated = json.getString(timestampName);
-                            String userPicURL = json.getString(profilePicURL);
                             String mediaURL = json.getString(mediaName);
                             String usn = json.getString(userName);
                             double lat = json.getLong(latName);
                             double lon = json.getLong(lonName);
                             PostData pd = new PostData(usn,
-                                                        userPicURL,
                                                         timeCreated,
                                                         lat, lon,
                                                         title,

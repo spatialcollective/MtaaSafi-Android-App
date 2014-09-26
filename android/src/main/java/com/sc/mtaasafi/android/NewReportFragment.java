@@ -124,10 +124,10 @@ public class NewReportFragment extends Fragment {
                 .format(new java.util.Date(System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         if (pic != null) {
-            mActivity.beamItUp(new PostData(mActivity.mEmail, timestamp, location.getLatitude(),
+            mActivity.beamItUp(new PostData(mActivity.mUsername, timestamp, location.getLatitude(),
                     location.getLongitude(), reportTitle, reportDetails, pic));
         } else {
-            mActivity.beamItUp(new PostData(mActivity.mEmail, timestamp, location.getLatitude(),
+            mActivity.beamItUp(new PostData(mActivity.mUsername, timestamp, location.getLatitude(),
                     location.getLongitude(), reportTitle, reportDetails));
         }
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(

@@ -37,7 +37,7 @@ public class FeedAdapter extends BaseAdapter {
 //        String content;
         RelativeLayout view;
         TextView detailsTV, titleTV, timeSinceTV;
-        ImageView picsAttachedIcon, proPic, sharedIcon;
+        ImageView picsAttachedIcon, proPic;
         int position;
         PostHolder(FeedItem fi, int pos){
             position = pos;
@@ -63,12 +63,6 @@ public class FeedAdapter extends BaseAdapter {
             picsAttachedIcon = (ImageView) fi.findViewById(R.id.picAttachedIcon);
             if(fi.mediaURL == null || fi.mediaURL.equals("") || fi.mediaURL.equals("null"))
                 picsAttachedIcon.setVisibility(View.INVISIBLE);
-
-            if(fi.networksShared == null)
-                sharedIcon.setVisibility(View.INVISIBLE);
-
-            if(fi.proPicURL != null && !fi.proPicURL.equals(""))
-                aq.id(proPic).image(fi.proPicURL);
 
         }
     }
@@ -108,6 +102,7 @@ public class FeedAdapter extends BaseAdapter {
             postHolder = (PostHolder) convertView.getTag();
         }
         // set the dynamic data for each feed item.
+        postHolder.titleTV.setText(item.title);
         postHolder.detailsTV.setText(item.briefDetails());
         postHolder.timeSinceTV.setText(item.timeSincePost);
         ImageOptions options = new ImageOptions();

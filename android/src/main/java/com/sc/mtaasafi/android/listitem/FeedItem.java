@@ -20,7 +20,7 @@ import java.util.List;
 public class FeedItem extends RelativeLayout {
     private LayoutInflater inflater;
     private TextView detailsTV, titleTV, timeSincePostTV;
-    ImageView profilePic, picsAttachedIcon;
+    ImageView picsAttachedIcon;
     public String title, details, proPicURL, mediaURL, userName, timeSincePost, timeStamp;
     public List<String> networksShared;
 
@@ -31,10 +31,11 @@ public class FeedItem extends RelativeLayout {
         inflate();
         setFields(pd);
     }
+
     public PostData toPostData(){
-        return new PostData(userName, proPicURL,
+        return new PostData(userName,
                             timeStamp, lat, lon,
-                            details, "", mediaURL,
+                            title, details, mediaURL,
                             networksShared);
     }
 
@@ -44,7 +45,6 @@ public class FeedItem extends RelativeLayout {
         titleTV = (TextView) findViewById(R.id.itemTitle);
         timeSincePostTV = (TextView) findViewById(R.id.timestamp);
         detailsTV = (TextView) findViewById(R.id.itemDetails);
-        profilePic = (ImageView) findViewById(R.id.proPic);
         picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
         Log.d(LogTags.FEEDITEM, "Created! Contents: " + details);
     }
@@ -60,8 +60,8 @@ public class FeedItem extends RelativeLayout {
         title = pd.title;
         titleTV.setText(title);
 
-        timeSincePost = PostData.timeSincePosted(pd.timestamp);
-        timeSincePostTV.setText(timeSincePost);
+//        timeSincePost = PostData.timeSincePosted(pd.timestamp);
+//        timeSincePostTV.setText(timeSincePost);
 
         details = pd.details;
         detailsTV.setText(briefDetails());

@@ -33,7 +33,6 @@ public class PostView extends android.support.v4.app.Fragment {
         aq = new AQuery(view);
         if(pd == null && savedState != null){
             pd = new PostData  (savedState.getString("userName"),
-                    savedState.getString("proPicURL"),
                     savedState.getString("timestamp"),
                     savedState.getDouble("lat"), savedState.getDouble("lon"),
                     savedState.getString("title"),
@@ -59,12 +58,9 @@ public class PostView extends android.support.v4.app.Fragment {
         }
         titleTV.setText(pd.title);
         detailsTV.setText(pd.details);
+        userNameTV.setText(mActivity.mUsername);
         // TODO: get this formatted pretty-like.
-        timestampTV.setText(pd.timestamp);
-        ImageOptions options = new ImageOptions();
-        options.round = 20;
-        aq.id(R.id.proPic).image(pd.proPicURL, options);
-
+//        timestampTV.setText(pd.timestamp);
         if(pd.mediaURL != null && !pd.mediaURL.equals("") && !pd.mediaURL.equals("null")){
             aq.id(media).progress(R.id.progressBar).image(pd.mediaURL);
         }
@@ -83,7 +79,6 @@ public class PostView extends android.support.v4.app.Fragment {
         super.onSaveInstanceState(outState);
         if(pd !=null){
             outState.putString("userName", pd.userName);
-            outState.putString("proPicURL", pd.proPicURL);
             outState.putString("mediaURL", pd.mediaURL);
             outState.putString("timestamp", pd.timestamp);
             outState.putString("title", pd.title);

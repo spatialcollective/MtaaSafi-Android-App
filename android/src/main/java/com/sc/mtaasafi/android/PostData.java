@@ -24,10 +24,9 @@ public class PostData {
     }
 
     // for PostData objects created with data sent from the server
-    public PostData(String usn, String userPicURL, String timestamp, double lat, double lon, String title,
+    public PostData(String usn, String timestamp, double lat, double lon, String title,
              String details, String mediaURL, List<String> networksShared){
         this.userName = usn;
-        this.proPicURL = userPicURL;
         this.timestamp = timestamp;
         this.title = title;
         this.details = details;

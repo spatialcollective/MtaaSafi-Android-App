@@ -79,9 +79,9 @@
         android:text="Report Title"
         android:id="@+id/reportViewTitle"
         android:textSize="30dp"
-        android:layout_below="@+id/picAttachedIcon"
+        android:paddingLeft="10dp"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:paddingLeft="10dp" />
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

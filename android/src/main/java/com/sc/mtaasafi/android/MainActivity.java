@@ -5,7 +5,9 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -40,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,10 +56,13 @@ public class MainActivity extends ActionBarActivity implements
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private PostData detailPostData;
-    public String mEmail;
+    private SharedPreferences sharedPref;
+    public String mUsername;
     public String mCurrentPhotoPath;
+    static final String PREF_USERNAME = "username";
     static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_PICK_IMAGE = 100;
 
     // ======================Client-Server Communications:======================
 
@@ -77,6 +83,17 @@ public class MainActivity extends ActionBarActivity implements
         Toast.makeText(this, "Failed to update feed", Toast.LENGTH_SHORT).show();
         AlertDialogFragment adf = new AlertDialogFragment();
         adf.show(getSupportFragmentManager(), "Update_failed_dialog");
+        List<PostData> posts = new ArrayList<PostData>();
+        for(int i = 0; i < 15; i++){
+            PostData pd = new PostData(mUsername,
+                    "",
+                    0,0,
+                    "this is"+i, "my song" + i,
+                    null,
+                    null);
+            posts.add(pd);
+            }
+        onFeedUpdate(posts);
     }
 
     // called by the fragment to update the fragment's feed w new posts.
@@ -227,9 +244,14 @@ public class MainActivity extends ActionBarActivity implements
                 }
             case REQUEST_CODE_PICK_ACCOUNT:
                 if (resultCode == Activity.RESULT_OK) {
-                    mEmail = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-                    Toast.makeText(this, mEmail,
+                    String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                    Toast.makeText(this, "Retrieved: " + retrievedUserName,
                             Toast.LENGTH_SHORT).show();
+                    mUsername = retrievedUserName;
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(PREF_USERNAME, retrievedUserName);
+                    editor.commit();
+
                 }
                 else if (resultCode == RESULT_CANCELED) {
                     // The account picker dialog closed without selecting an account.
@@ -329,13 +351,14 @@ public class MainActivity extends ActionBarActivity implements
         setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        determineUsername();
         if (savedInstanceState == null){
             goToFeed();
         } else {
             feedFragment = (NewsFeedFragment) getSupportFragmentManager()
                     .findFragmentByTag("feedFragment");
         }
-        sc.getPosts();
     }
 
     private boolean isConnected(){
@@ -354,9 +377,9 @@ public class MainActivity extends ActionBarActivity implements
             // If they say yes, send them to Location Settings
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
-        pickUserAccount();
             // Connect the client.
         mLocationClient.connect();
+        sc.getPosts();
     }
 
     @Override
@@ -399,6 +422,18 @@ public class MainActivity extends ActionBarActivity implements
     public void showLogins() {
         DialogFragment newFragment = new AccountsFragment();
         newFragment.show(getSupportFragmentManager(), "accounts");
+    }
+
+    private void determineUsername(){
+        String savedUserName = sharedPref.getString(PREF_USERNAME, "");
+        if(savedUserName.equals("")){
+            pickUserAccount();
+        }
+        else{
+            mUsername = savedUserName;
+            Toast.makeText(this, "Saved: " + mUsername,
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void pickUserAccount() {
