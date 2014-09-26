@@ -93,7 +93,9 @@ public class MainActivity extends ActionBarActivity implements
                     null);
             posts.add(pd);
             }
-        onFeedUpdate(posts);
+        if(feedFragment!=null){
+            onFeedUpdate(posts);
+        }
     }
 
     // called by the fragment to update the fragment's feed w new posts.
@@ -157,10 +159,10 @@ public class MainActivity extends ActionBarActivity implements
 
 
     public void goToNewReport(){
-        NewReportFragment newReport = new NewReportFragment();
+        newReportFragment = new NewReportFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, newReport, "newReport")
+                .replace(R.id.fragmentContainer, newReportFragment, "newReport")
                 .addToBackStack(null)
                 .commit();
         getSupportActionBar().hide();
@@ -220,6 +222,8 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onActivityResult(
             int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         // If activity launched was trying to resolve the connection
         Log.w("SERVICES", "Activity result called");
         switch (requestCode) {
@@ -234,7 +238,11 @@ public class MainActivity extends ActionBarActivity implements
                 }
             case REQUEST_IMAGE_CAPTURE :
                 if (resultCode == Activity.RESULT_OK){
-                    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+                    Log.e(LogTags.FEEDADAPTER, "Activity result" + mCurrentPhotoPath);
+                    Bundle extras = data.getExtras();
+                    // Get the returned image from extra
+                    Bitmap bitmap = (Bitmap) extras.get("data");
+//                    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
                     ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
                     final byte[] bytearray = bytearrayoutputstream.toByteArray();
@@ -319,7 +327,8 @@ public class MainActivity extends ActionBarActivity implements
                 Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
             if (photoFile != null){
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoPath);
+                Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile).toString());
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -442,5 +451,4 @@ public class MainActivity extends ActionBarActivity implements
                 accountTypes, false, null, null, null, null);
         startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
-
 }

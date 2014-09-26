@@ -150,6 +150,7 @@ public class NewReportFragment extends Fragment {
        }
     }
     public void onPhotoTaken(byte[] pic){
+        this.pic = pic;
         Bitmap bmp = BitmapFactory.decodeByteArray(pic, 0, pic.length);
         AQuery aq = new AQuery(getActivity());
         aq.id(picPreview).image(bmp);
