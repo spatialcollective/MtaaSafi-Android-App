@@ -18,6 +18,9 @@
     <string name="report_detail_hint">Details about the problem...</string>
     <string name="report_title_hint">Report title</string>
     <string name="report_button_text">Report</string>
+    <string name="dialog_update_failed">Failed to update feed</string>
+    <string name="dialog_update_failed_ok">Ok</string>
+    <string name="dialog_update_failed_retry">Retry</string>
     <integer name="google_play_services_version">5208000</integer>
     <color name="report_button_unclickable">#A4C8FF</color>
     <color name="report_button_clickable">#0099FF</color>

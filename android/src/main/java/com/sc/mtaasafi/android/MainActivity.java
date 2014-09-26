@@ -75,6 +75,8 @@ public class MainActivity extends ActionBarActivity implements
     // for any reason.
     public void onUpdateFailed(){
         Toast.makeText(this, "Failed to update feed", Toast.LENGTH_SHORT).show();
+        AlertDialogFragment adf = new AlertDialogFragment();
+        adf.show(getSupportFragmentManager(), "Update_failed_dialog");
     }
 
     // called by the fragment to update the fragment's feed w new posts.

@@ -212,7 +212,6 @@ public class ServerCommunicater {
                         Log.d("content", "JSON error");
                         activity.onUpdateFailed();
                     }
-
                 }
                 activity.onFeedUpdate(listContent);
             }catch (JSONException e){
