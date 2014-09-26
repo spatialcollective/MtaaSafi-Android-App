@@ -1,5 +1,7 @@
 package com.sc.mtaasafi.android;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,9 +10,13 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageView;
+
+import com.androidquery.AQuery;
 
 import java.text.SimpleDateFormat;
 
@@ -22,7 +28,7 @@ public class NewReportFragment extends Fragment {
     MainActivity mActivity;
     EditText title, details;
     Button report, picFromGallery, picFromCamera;
-    GridView gv;
+    ImageView picPreview;
     byte[] pic;
     boolean isTitleEmpty, isDetailEmpty;
     @Override
@@ -45,6 +51,7 @@ public class NewReportFragment extends Fragment {
             }
         });
         report.setClickable(false);
+        picPreview = (ImageView) view.findViewById(R.id.picturePreview);
 
         title = (EditText) view.findViewById(R.id.newReportTitle);
         title.addTextChangedListener(new TextWatcher() {
@@ -123,6 +130,10 @@ public class NewReportFragment extends Fragment {
             mActivity.beamItUp(new PostData(mActivity.mEmail, timestamp, location.getLatitude(),
                     location.getLongitude(), reportTitle, reportDetails));
         }
+        InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
+                mActivity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(title.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
         mActivity.goToFeed();
     }
 
@@ -137,5 +148,10 @@ public class NewReportFragment extends Fragment {
            report.setClickable(false);
            report.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
        }
+    }
+    public void onPhotoTaken(byte[] pic){
+        Bitmap bmp = BitmapFactory.decodeByteArray(pic, 0, pic.length);
+        AQuery aq = new AQuery(getActivity());
+        aq.id(picPreview).image(bmp);
     }
 }

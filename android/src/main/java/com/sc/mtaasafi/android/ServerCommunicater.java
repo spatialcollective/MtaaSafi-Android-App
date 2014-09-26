@@ -1,6 +1,5 @@
 package com.sc.mtaasafi.android;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
@@ -35,21 +34,38 @@ public class ServerCommunicater {
 
     public interface ServerCommCallbacks{
         void onFeedUpdate(List<PostData> posts);
+        void onUpdateFailed();
     }
+    /*
+    {
+"unique_id": String,
+"title":String,
+"details": String,
+"timestamp":String,
+"username": String,
+"latitude": Float,
+"longitude": Float,
+"type": String,
+"mediaURL": String,
+"userPicURL": String,
+}
+    */
+
     public ServerCommCallbacks activity;
-    public final static String titleName = "content";
+    public final static String titleName = "title";
+    public final static String detailName = "details";
     public final static String userName = "user";
     public final static String timestampName = "timestamp";
     public final static String latName = "latitude";
     public final static String lonName = "longitude";
     public final static String mediaName = "mediaURL";
     public final static String profilePicURL = "userPicURL";
+    public final static String errorName = "error";
     public final static String writeURL = "http://mtaasafi.spatialcollective.com/add_post";
     private final static String readURL = "http://mtaasafi.spatialcollective.com/get_posts";
 
     ServerCommunicater(ServerCommCallbacks activity){
         this.activity = activity;
-
     }
     // Asynchronously push the post to the server
     public void post(PostData postData){
@@ -87,8 +103,7 @@ public class ServerCommunicater {
         HttpResponse httpResponse = httpclient.execute(httpPost);
         InputStream inputStream = httpResponse.getEntity().getContent();
         String result = convertInputStreamToString(inputStream);
-        //Log.e(LogTags.BACKEND_W, result);
-
+        Log.e(LogTags.BACKEND_W, result);
     }
 
     // Convert POJO PostData to JSON
@@ -100,6 +115,7 @@ public class ServerCommunicater {
             json.put(latName, postData.latitude);
             json.put(lonName, postData.longitude);
             json.put(titleName, postData.title);
+            json.put(detailName, postData.details);
             if(postData.picture != null){
                 String encodedImage = Base64.encodeToString(postData.picture, Base64.DEFAULT);
                 json.put(mediaName, encodedImage);
@@ -132,6 +148,7 @@ public class ServerCommunicater {
                 result = "Did not work";
         }catch (Exception e){
             Log.d("InputStream", e.getLocalizedMessage());
+            activity.onUpdateFailed();
         }
         return result;
     }
@@ -157,42 +174,52 @@ public class ServerCommunicater {
             try{
                 JSONArray jsonArray = new JSONArray(result);
                 int len = jsonArray.length();
-                final List<PostData> listContent = new ArrayList<PostData>(len);
+                List<PostData> listContent = new ArrayList<PostData>(len);
                 Log.e("onPostExecute", "retrieved content list of length: " + len);
+                JSONObject firstJSON = jsonArray.getJSONObject(0);
+                if(listContent.size() == 1 && firstJSON.getString(errorName) != null){
+                    activity.onUpdateFailed();
+                    return;
+                }
                 for(int i = 0; i<len; i++){
                     try{
                         JSONObject json = jsonArray.getJSONObject(i);
                         try {
                             String title = json.getString(titleName);
+                            String detail = json.getString(detailName);
                             String timeCreated = json.getString(timestampName);
                             String userPicURL = json.getString(profilePicURL);
                             String mediaURL = json.getString(mediaName);
                             String usn = json.getString(userName);
+                            double lat = json.getLong(latName);
+                            double lon = json.getLong(lonName);
                             PostData pd = new PostData(usn,
                                                         userPicURL,
                                                         timeCreated,
-                                                        0,0,
+                                                        lat, lon,
                                                         title,
-                                                        "",
+                                                        detail,
                                                         mediaURL,
                                                         null
                                                         );
+                            Log.e(LogTags.BACKEND_R, pd.title + " " + pd.details);
                             listContent.add(pd);
                             } catch (JSONException e) {
                             e.printStackTrace();
+                            activity.onUpdateFailed();
                         }
                     }catch(Exception e){
                         Log.d("content", "JSON error");
+                        activity.onUpdateFailed();
                     }
 
                 }
                 activity.onFeedUpdate(listContent);
             }catch (JSONException e){
                 Log.d("JSONObject", e.getLocalizedMessage());
+                activity.onUpdateFailed();
             }
 
         }
     }
-
-
 }

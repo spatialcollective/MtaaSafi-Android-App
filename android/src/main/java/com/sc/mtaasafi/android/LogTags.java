@@ -8,6 +8,7 @@ public class LogTags {
     public final static String LOCATION = "Location";
     public final static String NETWORK = "Network";
     public final static String BACKEND_W = "Backend write";
+    public final static String BACKEND_R = "Backend read";
     public final static String FEEDITEM = "Feed Item";
     public final static String FEEDADAPTER = "Feed adapter";
 }

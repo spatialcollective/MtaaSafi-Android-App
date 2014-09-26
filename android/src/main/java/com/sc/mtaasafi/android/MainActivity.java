@@ -48,6 +48,7 @@ public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks{
     private NewsFeedFragment feedFragment;
+    private NewReportFragment newReportFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private ServerCommunicater sc;
@@ -69,6 +70,11 @@ public class MainActivity extends ActionBarActivity implements
                 feedFragment.alertFeedUpdate();
             }
         });
+    }
+    // Called by the server communicator if it cannot successfully receive posts from the server
+    // for any reason.
+    public void onUpdateFailed(){
+        Toast.makeText(this, "Failed to update feed", Toast.LENGTH_SHORT).show();
     }
 
     // called by the fragment to update the fragment's feed w new posts.
@@ -121,13 +127,13 @@ public class MainActivity extends ActionBarActivity implements
     }
     // ======================Fragment Navigation:======================
     public void goToFeed(){
-        NewsFeedFragment fragment = new NewsFeedFragment();
+        feedFragment = new NewsFeedFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, fragment, "newsfeed")
+                .replace(R.id.fragmentContainer, feedFragment, "newsfeed")
                 .addToBackStack(null)
                 .commit();
-        getSupportActionBar().hide();
+        getSupportActionBar().show();
     }
 
 
@@ -213,7 +219,7 @@ public class MainActivity extends ActionBarActivity implements
                     ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
                     final byte[] bytearray = bytearrayoutputstream.toByteArray();
-                    feedFragment.onPhotoTaken(bytearray);
+                    newReportFragment.onPhotoTaken(bytearray);
                 }else {
                     Log.w("CAMERA", "Activity result was NOT okay");
                 }
@@ -295,7 +301,6 @@ public class MainActivity extends ActionBarActivity implements
         }
         else{
             Toast.makeText(this, "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
-
         }
     }
 
@@ -389,7 +394,6 @@ public class MainActivity extends ActionBarActivity implements
             getSupportActionBar().show();
         }
     }
-
     public void showLogins() {
         DialogFragment newFragment = new AccountsFragment();
         newFragment.show(getSupportFragmentManager(), "accounts");
