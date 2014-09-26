@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class PostView extends android.support.v4.app.Fragment {
     TextView titleTV, detailsTV, timestampTV, userNameTV;
-    ImageView profilePic, imageAttachedIcon, media, networkSharedIcon1, networkSharedIcon2;
+    ImageView imageAttachedIcon, media;
     ProgressBar progress;
     MainActivity mActivity;
     AQuery aq;
@@ -43,9 +43,8 @@ public class PostView extends android.support.v4.app.Fragment {
         }
         titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
         detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
-        timestampTV = (TextView) view.findViewById(R.id.timestamp);
-        userNameTV = (TextView) view.findViewById(R.id.userName);
-        profilePic = (ImageView) view.findViewById(R.id.proPic);
+        timestampTV = (TextView) view.findViewById(R.id.reportViewTimestamp);
+        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
         imageAttachedIcon = (ImageView) view.findViewById(R.id.picAttachedIcon);
         media = (ImageView) view.findViewById(R.id.attachedPic);
         progress = (ProgressBar) view.findViewById(R.id.progressBar);

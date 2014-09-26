@@ -19,22 +19,36 @@ import java.util.List;
  */
 public class FeedItem extends RelativeLayout {
     private LayoutInflater inflater;
-    private TextView contentTV, userNameTV, timeSincePostTV;
-    ImageView profilePic, sharedIcon, picsAttachedIcon;
-    public String content, proPicURL, mediaURL, userName, timeSincePost, timeStamp;
+    private TextView detailsTV, titleTV, timeSincePostTV;
+    ImageView profilePic, picsAttachedIcon;
+    public String title, details, proPicURL, mediaURL, userName, timeSincePost, timeStamp;
     public List<String> networksShared;
 
     double lat, lon;
 
-    public FeedItem(Context context){
-        super(context);
-        setUp();
-    }
-
     public FeedItem(Context context, PostData pd) {
         super(context);
-        setUp();
+        inflate();
+        setFields(pd);
+    }
+    public PostData toPostData(){
+        return new PostData(userName, proPicURL,
+                            timeStamp, lat, lon,
+                            details, "", mediaURL,
+                            networksShared);
+    }
 
+    private void inflate(){
+        inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.feed_item, this, true);
+        titleTV = (TextView) findViewById(R.id.itemTitle);
+        timeSincePostTV = (TextView) findViewById(R.id.timestamp);
+        detailsTV = (TextView) findViewById(R.id.itemDetails);
+        profilePic = (ImageView) findViewById(R.id.proPic);
+        picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
+        Log.d(LogTags.FEEDITEM, "Created! Contents: " + details);
+    }
+    private void setFields(PostData pd){
         if(pd.proPicURL != null)
             proPicURL = pd.proPicURL;
         if(pd.mediaURL == null)
@@ -43,42 +57,22 @@ public class FeedItem extends RelativeLayout {
             mediaURL = pd.mediaURL;
         if(pd.networksShared != null)
             networksShared = pd.networksShared;
-        userName = pd.userName;
-        userNameTV.setText(userName);
+        title = pd.title;
+        titleTV.setText(title);
 
         timeSincePost = PostData.timeSincePosted(pd.timestamp);
         timeSincePostTV.setText(timeSincePost);
 
-        content = pd.title;
-        contentTV.setText(content);
-
+        details = pd.details;
+        detailsTV.setText(briefDetails());
         lat = pd.latitude;
         lon = pd.longitude;
-
-    }
-    public PostData toPostData(){
-        return new PostData(userName, proPicURL,
-                            timeStamp, lat, lon,
-                            content, "", mediaURL,
-                            networksShared);
-    }
-    public void setContent(String content){
-        this.content = content;
-        contentTV.setText(content);
     }
 
-    private void setUp(){
-        inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.feed_item, this, true);
-
-        userNameTV = (TextView) findViewById(R.id.userName);
-        timeSincePostTV = (TextView) findViewById(R.id.timestamp);
-        contentTV = (TextView) findViewById(R.id.newReportDetails);
-
-        profilePic = (ImageView) findViewById(R.id.proPic);
-        sharedIcon = (ImageView) findViewById(R.id.sharedIcon);
-        picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
-
-        Log.d(LogTags.FEEDITEM, "Created! Contents: " + content);
+    public String briefDetails(){
+        if(details.length() > 140)
+            return details.substring(0, 139);
+        else
+            return details;
     }
 }

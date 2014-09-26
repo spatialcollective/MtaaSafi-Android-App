@@ -12,31 +12,24 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="User Name"
-        android:id="@+id/userName"
+        android:text="Title"
+        android:id="@+id/itemTitle"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/proPic"
         android:textColor="#666666"
         android:paddingLeft="10dp"
-        android:textSize="14dp" />
-
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/proPic"
-        android:background="#FFFFFF" />
+        android:textSize="25dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
-        android:id="@+id/reportViewDetails"
-        android:layout_below="@+id/userName"
-        android:layout_toRightOf="@+id/proPic"
+        android:id="@+id/itemDetails"
+        android:layout_below="@+id/itemTitle"
         android:paddingLeft="10dp"
         android:paddingRight="5dp"
-        android:textSize="18dp"
-        android:layout_toLeftOf="@+id/timestamp" />
+        android:textSize="14dp"
+        android:layout_toLeftOf="@+id/timestamp"
+        android:paddingTop="5dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,27 +51,19 @@
         android:padding="0dp"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/timestamp"
-        android:layout_above="@+id/reportViewDetails" />
+        android:layout_alignBottom="@+id/timestamp" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/reportViewDetails"
+        android:layout_below="@+id/itemDetails"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:id="@+id/linearLayout"
         android:paddingBottom="15dp">
 
     </LinearLayout>
-
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:id="@+id/sharedIcon"
-        android:src="@drawable/feed_shared_icon"
-        android:layout_alignBottom="@+id/reportViewDetails"
-        android:layout_toRightOf="@+id/reportViewDetails" />
 
     <ImageView
         android:layout_width="match_parent"

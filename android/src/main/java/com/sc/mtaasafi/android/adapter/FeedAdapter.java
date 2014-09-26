@@ -36,13 +36,8 @@ public class FeedAdapter extends BaseAdapter {
     private class PostHolder{
 //        String content;
         RelativeLayout view;
-        TextView contentTV;
-        TextView userNameTV;
-        TextView timeSinceTV;
-        ImageView picsAttachedIcon;
-        ImageView bottomLine;
-        ImageView proPic;
-        ImageView sharedIcon;
+        TextView detailsTV, titleTV, timeSinceTV;
+        ImageView picsAttachedIcon, proPic, sharedIcon;
         int position;
         PostHolder(FeedItem fi, int pos){
             position = pos;
@@ -57,18 +52,15 @@ public class FeedAdapter extends BaseAdapter {
                     mA.goToDetailView(fi.toPostData());
                 }
             });
-            contentTV = (TextView) fi.findViewById(R.id.reportViewDetails);
-            contentTV.setText(fi.content);
-
-            userNameTV = (TextView) fi.findViewById(R.id.userName);
-            userNameTV.setText(fi.userName);
+            detailsTV = (TextView) fi.findViewById(R.id.itemDetails);
+            detailsTV.setText(fi.briefDetails());
+            titleTV = (TextView) fi.findViewById(R.id.itemTitle);
+            titleTV.setText(fi.title);
 
             timeSinceTV = (TextView) fi.findViewById(R.id.timestamp);
             timeSinceTV.setText(fi.timeSincePost);
 
             picsAttachedIcon = (ImageView) fi.findViewById(R.id.picAttachedIcon);
-            sharedIcon = (ImageView) fi.findViewById(R.id.sharedIcon);
-            proPic = (ImageView) fi.findViewById(R.id.proPic);
             if(fi.mediaURL == null || fi.mediaURL.equals("") || fi.mediaURL.equals("null"))
                 picsAttachedIcon.setVisibility(View.INVISIBLE);
 
@@ -77,6 +69,7 @@ public class FeedAdapter extends BaseAdapter {
 
             if(fi.proPicURL != null && !fi.proPicURL.equals(""))
                 aq.id(proPic).image(fi.proPicURL);
+
         }
     }
     public FeedAdapter(Context context, NewsFeedFragment mFragment){
@@ -115,7 +108,7 @@ public class FeedAdapter extends BaseAdapter {
             postHolder = (PostHolder) convertView.getTag();
         }
         // set the dynamic data for each feed item.
-        postHolder.contentTV.setText(item.content);
+        postHolder.detailsTV.setText(item.briefDetails());
         postHolder.timeSinceTV.setText(item.timeSincePost);
         ImageOptions options = new ImageOptions();
 //        options.round = 20;

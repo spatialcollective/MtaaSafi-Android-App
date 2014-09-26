@@ -12,20 +12,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="User Name"
-        android:id="@+id/userName"
+        android:id="@+id/reportViewUsername"
         android:textColor="#666666"
         android:paddingLeft="10dp"
         android:textSize="14dp"
-        android:layout_alignTop="@+id/proPic"
-        android:layout_alignLeft="@+id/reportViewTitle"
-        android:layout_alignStart="@+id/reportViewTitle" />
-
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/proPic"
-        android:background="#666666"
-        android:layout_below="@+id/picAttachedIcon"
+        android:paddingTop="5dp"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/reportViewTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -38,15 +31,15 @@
         android:paddingRight="5dp"
         android:textSize="18dp"
         android:paddingBottom="15dp"
-        android:layout_below="@+id/reportViewTitle"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/reportViewUsername"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="5h"
-        android:id="@+id/timestamp"
+        android:id="@+id/reportViewTimestamp"
         android:textColor="#666666"
         android:paddingLeft="10dp"
         android:textSize="14dp"
@@ -61,8 +54,8 @@
         android:src="@drawable/pic_attached"
         android:padding="0dp"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/timestamp"
-        android:layout_alignBottom="@+id/timestamp" />
+        android:layout_toLeftOf="@+id/reportViewTimestamp"
+        android:layout_alignBottom="@+id/reportViewTimestamp" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -76,6 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
+        android:layout_alignEnd="@+id/attachedPic"
         android:layout_below="@+id/attachedPic"
         android:layout_centerHorizontal="true" />
 
@@ -85,8 +79,9 @@
         android:text="Report Title"
         android:id="@+id/reportViewTitle"
         android:textSize="30dp"
-        android:layout_below="@+id/userName"
-        android:layout_alignRight="@+id/progressBar"
-        android:layout_alignEnd="@+id/progressBar" />
+        android:layout_below="@+id/picAttachedIcon"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="10dp" />
 
 </RelativeLayout>
