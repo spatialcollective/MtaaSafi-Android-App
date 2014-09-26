@@ -80,9 +80,13 @@ public class MainActivity extends ActionBarActivity implements
     // Called by the server communicator if it cannot successfully receive posts from the server
     // for any reason.
     public void onUpdateFailed(){
-        Toast.makeText(this, "Failed to update feed", Toast.LENGTH_SHORT).show();
-        AlertDialogFragment adf = new AlertDialogFragment();
-        adf.show(getSupportFragmentManager(), "Update_failed_dialog");
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+                AlertDialogFragment adf = new AlertDialogFragment();
+                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
+            }
+        });
 //        List<PostData> posts = new ArrayList<PostData>();
 //        for(int i = 0; i < 15; i++){
 //            PostData pd = new PostData(mUsername,
@@ -106,7 +110,7 @@ public class MainActivity extends ActionBarActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(PostData postData){
-        String toastContent = postData.title + " " + postData.timestamp + " Lat: " + postData.latitude
+        String toastContent = "user " + postData.userName + " " + postData.title + " " + postData.timestamp + " Lat: " + postData.latitude
                 + " Lon:" + postData.longitude;
         Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
         toast.show();
@@ -259,7 +263,6 @@ public class MainActivity extends ActionBarActivity implements
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(PREF_USERNAME, retrievedUserName);
                     editor.commit();
-
                 }
                 else if (resultCode == RESULT_CANCELED) {
                     // The account picker dialog closed without selecting an account.
@@ -361,7 +364,6 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        determineUsername();
         if (savedInstanceState == null){
             goToFeed();
         } else {
@@ -391,6 +393,16 @@ public class MainActivity extends ActionBarActivity implements
         sc.getPosts();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle bundle){
+        bundle.putString("username", mUsername);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        determineUsername();
+    }
     @Override
     protected void onStop(){
         // Disconnecting the client invalidates it.
@@ -433,15 +445,17 @@ public class MainActivity extends ActionBarActivity implements
         newFragment.show(getSupportFragmentManager(), "accounts");
     }
 
-    private void determineUsername(){
+    private void determineUsername() {
+        if (mUsername == null || mUsername.equals("")) {
         String savedUserName = sharedPref.getString(PREF_USERNAME, "");
-        if(savedUserName.equals("")){
-            pickUserAccount();
-        }
-        else{
-            mUsername = savedUserName;
-            Toast.makeText(this, "Saved: " + mUsername,
+            if (savedUserName.equals("")) {
+                pickUserAccount();
+            }
+            else {
+                mUsername = savedUserName;
+                Toast.makeText(this, "Saved: " + mUsername,
                     Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

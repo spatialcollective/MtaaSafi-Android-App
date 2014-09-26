@@ -58,7 +58,8 @@ public class ServerCommunicater {
     public final static String timestampName = "timestamp";
     public final static String latName = "latitude";
     public final static String lonName = "longitude";
-    public final static String mediaName = "mediaURL";
+    public final static String mediaName = "media";
+    public final static String mediaURLName = "mediaURL";
     public final static String profilePicURL = "userPicURL";
     public final static String errorName = "error";
     public final static String writeURL = "http://app.spatialcollective.com/add_post";
@@ -188,7 +189,7 @@ public class ServerCommunicater {
                             String title = json.getString(titleName);
                             String detail = json.getString(detailName);
                             String timeCreated = json.getString(timestampName);
-                            String mediaURL = json.getString(mediaName);
+                            String mediaURL = json.getString(mediaURLName);
                             String usn = json.getString(userName);
                             double lat = json.getLong(latName);
                             double lon = json.getLong(lonName);
@@ -200,7 +201,7 @@ public class ServerCommunicater {
                                                         mediaURL,
                                                         null
                                                         );
-                            Log.e(LogTags.BACKEND_R, pd.title + " " + pd.details);
+                            Log.e(LogTags.BACKEND_R, pd.title + " " + pd.details + " " + pd.timestamp);
                             listContent.add(pd);
                             } catch (JSONException e) {
                             e.printStackTrace();

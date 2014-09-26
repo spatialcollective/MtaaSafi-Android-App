@@ -31,11 +31,13 @@ public class NewReportFragment extends Fragment {
     ImageView picPreview;
     byte[] pic;
     boolean isTitleEmpty, isDetailEmpty;
+    String userName;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
         isTitleEmpty = isDetailEmpty = true;
+        userName = mActivity.mUsername;
     }
 
     @Override
@@ -124,10 +126,10 @@ public class NewReportFragment extends Fragment {
                 .format(new java.util.Date(System.currentTimeMillis()));
         Location location = mActivity.getLocation();
         if (pic != null) {
-            mActivity.beamItUp(new PostData(mActivity.mUsername, timestamp, location.getLatitude(),
+            mActivity.beamItUp(new PostData(userName, timestamp, location.getLatitude(),
                     location.getLongitude(), reportTitle, reportDetails, pic));
         } else {
-            mActivity.beamItUp(new PostData(mActivity.mUsername, timestamp, location.getLatitude(),
+            mActivity.beamItUp(new PostData(userName, timestamp, location.getLatitude(),
                     location.getLongitude(), reportTitle, reportDetails));
         }
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
