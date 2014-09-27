@@ -64,6 +64,7 @@ public class MainActivity extends ActionBarActivity implements
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_PICK_IMAGE = 100;
 
+
     // ======================Client-Server Communications:======================
 
     // Called by the server communicator to add new posts to the feed fragment
@@ -243,10 +244,10 @@ public class MainActivity extends ActionBarActivity implements
             case REQUEST_IMAGE_CAPTURE :
                 if (resultCode == Activity.RESULT_OK){
                     Log.e(LogTags.FEEDADAPTER, "Activity result" + mCurrentPhotoPath);
-                    Bundle extras = data.getExtras();
+//                    Bundle extras = data.getExtras();
                     // Get the returned image from extra
-                    Bitmap bitmap = (Bitmap) extras.get("data");
-//                    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+//                    Bitmap bitmap = (Bitmap) extras.get("data");
+                    Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
                     ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
                     final byte[] bytearray = bytearrayoutputstream.toByteArray();
@@ -255,7 +256,7 @@ public class MainActivity extends ActionBarActivity implements
                     Log.w("CAMERA", "Activity result was NOT okay");
                 }
             case REQUEST_CODE_PICK_ACCOUNT:
-                if (resultCode == Activity.RESULT_OK) {
+                if (resultCode == Activity.RESULT_OK && data != null) {
                     String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
                     Toast.makeText(this, "Retrieved: " + retrievedUserName,
                             Toast.LENGTH_SHORT).show();
@@ -267,8 +268,8 @@ public class MainActivity extends ActionBarActivity implements
                 else if (resultCode == RESULT_CANCELED) {
                     // The account picker dialog closed without selecting an account.
                     // Notify users that they must pick an account to proceed.
-                    Toast.makeText(this, "You must pick an account to proceed",
-                        Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, "You must pick an account to proceed",
+//                        Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -330,8 +331,8 @@ public class MainActivity extends ActionBarActivity implements
                 Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
             if (photoFile != null){
-                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoPath);
-                Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile).toString());
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -366,9 +367,14 @@ public class MainActivity extends ActionBarActivity implements
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         if (savedInstanceState == null){
             goToFeed();
+            determineUsername();
         } else {
             feedFragment = (NewsFeedFragment) getSupportFragmentManager()
                     .findFragmentByTag("feedFragment");
+            mUsername = savedInstanceState.getString(PREF_USERNAME);
+            if(mUsername == null){
+                determineUsername();
+            }
         }
     }
 
@@ -392,16 +398,22 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient.connect();
         sc.getPosts();
     }
+    @Override
+    protected void onRestoreInstanceState(Bundle bundle){
+        mUsername = bundle.getString(PREF_USERNAME);
+        if(mUsername == null){
+            determineUsername();
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle bundle){
-        bundle.putString("username", mUsername);
+        bundle.putString(PREF_USERNAME, mUsername);
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        determineUsername();
     }
     @Override
     protected void onStop(){

@@ -32,6 +32,7 @@ public class NewReportFragment extends Fragment {
     byte[] pic;
     boolean isTitleEmpty, isDetailEmpty;
     String userName;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
