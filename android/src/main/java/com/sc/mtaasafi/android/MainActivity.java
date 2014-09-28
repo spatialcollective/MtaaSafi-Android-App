@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.AccountPicker;
@@ -40,11 +41,14 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener, ServerCommunicater.ServerCommCallbacks{
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        ServerCommunicater.ServerCommCallbacks,
+        NewsFeedFragment.ReportSelectedListener {
     private NewsFeedFragment feedFragment;
     private NewReportFragment newReportFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
+    private ListView feedView;
     private ServerCommunicater sc;
     private Report report;
     private SharedPreferences sharedPref;
@@ -108,19 +112,17 @@ public class MainActivity extends ActionBarActivity implements
         updateFeed();
     }
 
-    // ======================Post View Fragment:======================
-
     public void goToDetailView(Report report){
-        PostView postView = new PostView();
+        Bundle args = new Bundle();
+        args = report.saveState(args);
+        ReportDetailFragment reportFrag = new ReportDetailFragment();
+        reportFrag.setArguments(args);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, postView, "postView")
+                .replace(R.id.fragmentContainer, reportFrag, "reportDetailView")
                 .addToBackStack(null)
                 .commit();
-    }
-    // Called by postView fragment to retrieve the contents of the post it should be displaying.
-    public Report getReport() {
-        return report;
+//        reportFrag.updateView(report); // Null Pointer becasue frag transaction not yet complete
     }
 
     public static class ErrorDialogFragment extends DialogFragment {

@@ -34,7 +34,7 @@ public class FeedAdapter extends BaseAdapter {
     NewsFeedFragment mFragment;
     Context context;
     
-    private List<Report> mReports = new ArrayList<Report>();
+    public List<Report> mReports = new ArrayList<Report>();
 
     public FeedAdapter(Context context, NewsFeedFragment mFragment){
         this.mFragment = mFragment;
@@ -68,17 +68,7 @@ public class FeedAdapter extends BaseAdapter {
             reportFeedView = (FeedItemView) convertView;
             report = (Report) convertView.getTag();
         }
-        // set the dynamic data for each feed item.
-        reportFeedView.titleTV.setText(report.title);
-        reportFeedView.detailsTV.setText(reportFeedView.briefDetails(report.details));
-        reportFeedView.timeElapsedTV.setText(report.timeElapsed);
-        ImageOptions options = new ImageOptions();
-//        options.round = 20;
-        // aq.id(report.proPic).image(reportFeedView.proPicURL);
-        // if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
-        //     reportFeedView.picsAttachedIcon.setVisibility(View.INVISIBLE);
-        // else
-        //     reportFeedView.picsAttachedIcon.setVisibility(View.VISIBLE);
+
         reportFeedView.position = postion;
         reportFeedView.setTag(report);
         return reportFeedView;

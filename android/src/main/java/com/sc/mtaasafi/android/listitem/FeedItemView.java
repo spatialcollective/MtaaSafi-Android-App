@@ -32,17 +32,6 @@ public class FeedItemView extends RelativeLayout {
         inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.feed_item, this, true);
 
-        RelativeLayout rowView = (RelativeLayout) findViewById(R.id.feed_item);
-//        rowView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                MainActivity mA = (MainActivity) context;
-//                Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
-//                // mFragment.saveListPosition();
-//                mA.goToDetailView(report);
-//            }
-//        });
-
         titleTV = (TextView) findViewById(R.id.itemTitle);
         titleTV.setText(report.title);
         detailsTV = (TextView) findViewById(R.id.itemDetails);

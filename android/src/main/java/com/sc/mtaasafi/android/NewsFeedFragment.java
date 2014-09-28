@@ -1,11 +1,14 @@
 package com.sc.mtaasafi.android;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 
 import com.facebook.Session;
@@ -20,6 +23,7 @@ public class NewsFeedFragment extends ListFragment {
     private final String MESSAGE = "message";
     private final String PHOTO = "photo";
     FeedAdapter fa;
+    ReportSelectedListener mCallback;
     MultiAutoCompleteTextView et;
     MainActivity mActivity;
     byte[] picture;
@@ -46,8 +50,21 @@ public class NewsFeedFragment extends ListFragment {
         return view;
     }
 
+    @Override
+    public void onListItemClick(ListView l, View view, int position, long id) {
+        super.onListItemClick(l, view, position, id);
+        Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
+        // mFragment.saveListPosition();
+        Report r = fa.mReports.get(position);
+        mCallback.goToDetailView(r);
+    }
+
     private interface GraphObjectWithId extends GraphObject {
         String getId();
+    }
+
+    public interface ReportSelectedListener {
+        public void goToDetailView(Report report);
     }
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
@@ -90,5 +107,16 @@ public class NewsFeedFragment extends ListFragment {
     }
     public void onPhotoTaken(byte[] photo){
         picture = photo;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // This makes sure that the container activity has implemented the callback interface.
+        try {
+            mCallback = (ReportSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
+        }
     }
 }
