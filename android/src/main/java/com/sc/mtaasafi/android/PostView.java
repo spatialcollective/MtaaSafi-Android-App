@@ -9,9 +9,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
-import com.androidquery.callback.ImageOptions;
-
-import java.util.ArrayList;
 
 
 public class PostView extends android.support.v4.app.Fragment {
@@ -20,7 +17,8 @@ public class PostView extends android.support.v4.app.Fragment {
     ProgressBar progress;
     MainActivity mActivity;
     AQuery aq;
-    PostData pd;
+    Report report;
+    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -31,15 +29,9 @@ public class PostView extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_post_view, container, false);
         aq = new AQuery(view);
-        if(pd == null && savedState != null){
-            pd = new PostData  (savedState.getString("userName"),
-                    savedState.getString("timestamp"),
-                    savedState.getDouble("lat"), savedState.getDouble("lon"),
-                    savedState.getString("title"),
-                    savedState.getString("details"),
-                    savedState.getString("mediaURL"),
-                    savedState.getStringArrayList("networksShared"));
-        }
+        if (report == null && savedState != null)
+            report = new Report(savedState);
+
         titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
         detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
         timestampTV = (TextView) view.findViewById(R.id.reportViewTimestamp);
@@ -53,16 +45,16 @@ public class PostView extends android.support.v4.app.Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        if(mActivity.getDetailPostData() !=null){
-            pd = mActivity.getDetailPostData();
-        }
-        titleTV.setText(pd.title);
-        detailsTV.setText(pd.details);
+        if (mActivity.getReport() != null)
+            report = mActivity.getReport();
+
+        titleTV.setText(report.title);
+        detailsTV.setText(report.details);
         userNameTV.setText(mActivity.mUsername);
         // TODO: get this formatted pretty-like.
-//        timestampTV.setText(pd.timestamp);
-        if(pd.mediaURL != null && !pd.mediaURL.equals("") && !pd.mediaURL.equals("null")){
-            aq.id(media).progress(R.id.progressBar).image(pd.mediaURL);
+//        timestampTV.setText(report.timestamp);
+        if (report.mediaURL != null && !report.mediaURL.equals("") && !report.mediaURL.equals("null")){
+            aq.id(media).progress(R.id.progressBar).image(report.mediaURL);
         }
         else {
             imageAttachedIcon.setVisibility(View.INVISIBLE);
@@ -70,22 +62,16 @@ public class PostView extends android.support.v4.app.Fragment {
             progress.setVisibility(View.INVISIBLE);
         }
     }
+
     @Override
     public void onPause(){
         super.onPause();
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        if(pd !=null){
-            outState.putString("userName", pd.userName);
-            outState.putString("mediaURL", pd.mediaURL);
-            outState.putString("timestamp", pd.timestamp);
-            outState.putString("title", pd.title);
-            outState.putString("details", pd.details);
-            outState.putDouble("lat", pd.latitude);
-            outState.putDouble("lon", pd.longitude);
-            outState.putStringArrayList("networksShared", (ArrayList<String>) pd.networksShared);
-        }
+        if (report != null)
+            outState = report.saveState(outState);
     }
 }

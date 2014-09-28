@@ -1,23 +1,18 @@
 package com.sc.mtaasafi.android;
 
-import android.content.Context;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.MultiAutoCompleteTextView;
-import android.widget.Toast;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.sc.mtaasafi.android.adapter.FeedAdapter;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
@@ -30,6 +25,7 @@ public class NewsFeedFragment extends ListFragment {
     byte[] picture;
     int index;
     int top;
+    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -70,8 +66,8 @@ public class NewsFeedFragment extends ListFragment {
         }
     }
 
-    public void onFeedUpdate(List<PostData> posts){
-        fa.updateFeed(posts);
+    public void onFeedUpdate(List<Report> allReports){
+        fa.updateFeed(allReports);
     }
     public void alertFeedUpdate(){
         fa.notifyDataSetChanged();

@@ -12,11 +12,11 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.androidquery.callback.ImageOptions;
-import com.sc.mtaasafi.android.listitem.FeedItem;
+import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.listitem.FeedItemView;
 import com.sc.mtaasafi.android.LogTags;
 import com.sc.mtaasafi.android.MainActivity;
 import com.sc.mtaasafi.android.NewsFeedFragment;
-import com.sc.mtaasafi.android.PostData;
 import com.sc.mtaasafi.android.R;
 
 import java.util.ArrayList;
@@ -26,49 +26,19 @@ import java.util.List;
  * Created by Agree on 9/5/2014.
  */
 public class FeedAdapter extends BaseAdapter {
-    List<FeedItem> posts;
-    Context context;
+    List<FeedItemView> posts;
     AQuery aq;
     ListView mListView;
     int index;
     int top;
     NewsFeedFragment mFragment;
-    private class PostHolder{
-//        String content;
-        RelativeLayout view;
-        TextView detailsTV, titleTV, timeSinceTV;
-        ImageView picsAttachedIcon, proPic;
-        int position;
-        PostHolder(FeedItem fi, int pos){
-            position = pos;
-            view = (RelativeLayout) fi.findViewById(R.id.feed_item);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    MainActivity mA = (MainActivity) context;
-                    FeedItem fi = (FeedItem)getItem(position);
-                    Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
-                    mFragment.saveListPosition();
-                    mA.goToDetailView(fi.toPostData());
-                }
-            });
-            detailsTV = (TextView) fi.findViewById(R.id.itemDetails);
-            detailsTV.setText(fi.briefDetails());
-            titleTV = (TextView) fi.findViewById(R.id.itemTitle);
-            titleTV.setText(fi.title);
+    Context context;
+    
+    private List<Report> mReports = new ArrayList<Report>();
 
-            timeSinceTV = (TextView) fi.findViewById(R.id.timestamp);
-            timeSinceTV.setText(fi.timeSincePost);
-
-            picsAttachedIcon = (ImageView) fi.findViewById(R.id.picAttachedIcon);
-            if(fi.mediaURL == null || fi.mediaURL.equals("") || fi.mediaURL.equals("null"))
-                picsAttachedIcon.setVisibility(View.INVISIBLE);
-
-        }
-    }
     public FeedAdapter(Context context, NewsFeedFragment mFragment){
         this.mFragment = mFragment;
-        posts = new ArrayList<FeedItem>();
+        posts = new ArrayList<FeedItemView>();
         this.context = context;
         aq = new AQuery(context);
     }
@@ -78,51 +48,51 @@ public class FeedAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int i) {
-        if(posts !=null)
+        if (posts != null)
             return posts.get(i);
         else
             return null;
     }
 
     @Override
-    public long getItemId(int i) {
-        return posts.get(i).getId();
-    }
+    public long getItemId (int i) { return i; } // return posts.get(i).getId();
 
     @Override
-    public FeedItem getView(int i, View convertView, ViewGroup viewGroup) {
-        PostHolder postHolder;
-        FeedItem item = (FeedItem) getItem(i);
-        if(convertView == null){
-            convertView = item;
-            postHolder = new PostHolder((FeedItem) convertView, i);
-            convertView.setTag(postHolder);
-        }
-        else{
-            postHolder = (PostHolder) convertView.getTag();
+    public FeedItemView getView(int postion, View convertView, ViewGroup viewGroup) {
+        FeedItemView reportFeedView;
+        Report report;
+        if (convertView == null) {
+            report = (Report) mReports.get(postion);
+            reportFeedView = new FeedItemView(context, report, postion);
+        } else {
+            reportFeedView = (FeedItemView) convertView;
+            report = (Report) convertView.getTag();
         }
         // set the dynamic data for each feed item.
-        postHolder.titleTV.setText(item.title);
-        postHolder.detailsTV.setText(item.briefDetails());
-        postHolder.timeSinceTV.setText(item.timeSincePost);
+        reportFeedView.titleTV.setText(report.title);
+        reportFeedView.detailsTV.setText(reportFeedView.briefDetails(report.details));
+        reportFeedView.timeElapsedTV.setText(report.timeElapsed);
         ImageOptions options = new ImageOptions();
 //        options.round = 20;
-        aq.id(postHolder.proPic).image(item.proPicURL);
-        if(item.mediaURL == null || item.mediaURL.equals("") || item.mediaURL.equals("null"))
-            postHolder.picsAttachedIcon.setVisibility(View.INVISIBLE);
-        else
-            postHolder.picsAttachedIcon.setVisibility(View.VISIBLE);
-        postHolder.position = i;
-        convertView.setTag(postHolder);
-        return (FeedItem) convertView;
+        // aq.id(report.proPic).image(reportFeedView.proPicURL);
+        // if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
+        //     reportFeedView.picsAttachedIcon.setVisibility(View.INVISIBLE);
+        // else
+        //     reportFeedView.picsAttachedIcon.setVisibility(View.VISIBLE);
+        reportFeedView.position = postion;
+        reportFeedView.setTag(report);
+        return reportFeedView;
     }
 
-    public void updateFeed(List<PostData> newFeed){
-        List<FeedItem> items = new ArrayList<FeedItem>();
-        for(PostData postData : newFeed){
-            FeedItem fi = new FeedItem(context, postData);
-            items.add(fi);
+    public void updateFeed(List<Report> allReports) {
+        List<FeedItemView> items = new ArrayList<FeedItemView>();
+        for (int i = 0; i < allReports.size(); i++) {
+            Report report = allReports.get(i);
+            Log.d("updateFeed", "report title is " + report.title);
+            FeedItemView fItemView = new FeedItemView(context, report, i);
+            items.add(fItemView);
         }
+        mReports = allReports;
         posts = items;
         notifyDataSetChanged();
     }
