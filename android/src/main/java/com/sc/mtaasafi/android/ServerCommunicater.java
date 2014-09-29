@@ -96,7 +96,7 @@ public class ServerCommunicater {
             else
                 result = "Did not work";
         }catch (Exception e){
-            Log.d("InputStream", e.getLocalizedMessage());
+//            Log.d("InputStream", e.getLocalizedMessage());
             activity.onUpdateFailed();
         }
         return result;
@@ -129,8 +129,7 @@ public class ServerCommunicater {
                 JSONArray jsonArray = new JSONArray(result);
                 int len = jsonArray.length();
                 List<Report> listContent = new ArrayList<Report>(len);
-                Log.d("onPostExecute", "retrieved content list of length: " + len);
-
+//                Log.d("onPostExecute", "retrieved content list of length: " + len);
                 if (listContent.size() == 1 && jsonArray.getJSONObject(0).getString("error") != null){
                     activity.onUpdateFailed();
                     return;
@@ -144,13 +143,13 @@ public class ServerCommunicater {
                         e.printStackTrace();
                         activity.onUpdateFailed();
                     } catch(Exception e) {
-                        Log.d("content", "JSON error");
+//                        Log.d("content", "JSON error");
                         activity.onUpdateFailed();
                     }
                 }
                 activity.onFeedUpdate(listContent);
             } catch (JSONException e) {
-                Log.d("JSONObject", e.getLocalizedMessage());
+//                Log.d("JSONObject", e.getLocalizedMessage());
                 activity.onUpdateFailed();
             }
         }

@@ -66,7 +66,7 @@ public class Report {
                 this.networksShared = networksShared;
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.e(LogTags.JSON, "Failed to convert data from JSON");
+           Log.e(LogTags.JSON, "Failed to convert data from JSON");
         }
     }
 
@@ -104,7 +104,7 @@ public class Report {
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
-            Log.e(LogTags.JSON, "Failed to convert data to JSON");
+//            Log.e(LogTags.JSON, "Failed to convert data to JSON");
         }
         return null;
     }
@@ -147,7 +147,7 @@ public class Report {
 
         // takes a timestamp in format "yyyy-MM-dd'T'H:mm:ss"
     public static String getElapsedTime(String timestamp) {
-        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
+//        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
         SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
         try {
             long postEpochTime = df.parse(timestamp).getTime();

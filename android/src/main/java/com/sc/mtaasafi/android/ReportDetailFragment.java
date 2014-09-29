@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidquery.AQuery;
 
@@ -29,6 +30,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         if (args != null) {
             mReport = new Report(args);
+            Toast.makeText(getActivity(), "Time elapsed: " + mReport.timeElapsed, Toast.LENGTH_SHORT).show();
         }
     }
 
