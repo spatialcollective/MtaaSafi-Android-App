@@ -52,6 +52,7 @@
         android:id="@+id/attachedPic"
         android:src="@drawable/pic_placeholder"
         android:layout_below="@+id/reportViewDetails"
+        android:scaleType="fitCenter"
         android:layout_centerHorizontal="true" />
     <ProgressBar
         style="?android:attr/progressBarStyleLarge"

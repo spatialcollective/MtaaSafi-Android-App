@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -74,6 +75,7 @@ public class MainActivity extends ActionBarActivity implements
             }
         });
     }
+
     // Called by the server communicator if it cannot successfully receive posts from the server
     // for any reason.
     public void onUpdateFailed() {
@@ -228,6 +230,7 @@ public class MainActivity extends ActionBarActivity implements
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
         final byte[] bytearray = bytearrayoutputstream.toByteArray();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
         newReportFragment.onPhotoTaken(bytearray);
     }
 
@@ -288,6 +291,7 @@ public class MainActivity extends ActionBarActivity implements
     // Called by the new report fragment to launch a take picture activity.
     public void takePicture(){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
             File photoFile = null;
             try {
