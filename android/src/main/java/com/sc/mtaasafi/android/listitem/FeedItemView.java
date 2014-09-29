@@ -44,10 +44,12 @@ public class FeedItemView extends RelativeLayout {
         detailsTV.setText(briefDetails(report.details));
         timeElapsedTV = (TextView) findViewById(R.id.timestamp);
         timeElapsedTV.setText(report.timeElapsed);
-
-        ImageView picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
+        picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
         if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
             picsAttachedIcon.setVisibility(View.INVISIBLE);
+        else{
+            picsAttachedIcon.setVisibility(View.VISIBLE);
+        }
     }
 
     public String briefDetails(String origDetails){

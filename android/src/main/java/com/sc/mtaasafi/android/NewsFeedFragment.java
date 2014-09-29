@@ -80,9 +80,11 @@ public class NewsFeedFragment extends ListFragment {
     public void onFeedUpdate(List<Report> allReports){
         mAdapter.updateFeed(allReports);
     }
+
     public void alertFeedUpdate(){
         mAdapter.notifyDataSetChanged();
     }
+
     public void saveListPosition(){
         index = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
@@ -92,6 +94,7 @@ public class NewsFeedFragment extends ListFragment {
         bundle.putInt("top", top);
         onSaveInstanceState(bundle);
     }
+
     public void restoreListPosition(){
         getListView().setSelectionFromTop(index, top);
     }

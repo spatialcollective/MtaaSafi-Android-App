@@ -99,7 +99,6 @@ public class NewReportFragment extends Fragment {
 
     public void sendReport() {
         mActivity.beamItUp(createNewReport());
-
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(title.getWindowToken(), 0);
