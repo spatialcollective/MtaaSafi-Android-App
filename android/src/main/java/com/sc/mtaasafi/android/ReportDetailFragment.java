@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
-    ImageView imageAttachedIcon, media;
+    ImageView media;
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
     ProgressBar progress;
     MainActivity mActivity;
@@ -30,7 +30,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         Bundle args = getArguments();
         if (args != null) {
             mReport = new Report(args);
-            Toast.makeText(getActivity(), "Time elapsed: " + mReport.timeElapsed, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getActivity(), "Time elapsed: " + mReport.timeElapsed, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -52,13 +52,11 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         timeStampTV.setVisibility(View.VISIBLE);
         userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
         userNameTV.setText(mReport.userName);
-        imageAttachedIcon = (ImageView) view.findViewById(R.id.picAttachedIcon);
         media = (ImageView) view.findViewById(R.id.attachedPic);
         progress = (ProgressBar) view.findViewById(R.id.progressBar);
         if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
             aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
         } else {
-            imageAttachedIcon.setVisibility(View.INVISIBLE);
             media.setVisibility(View.INVISIBLE);
             progress.setVisibility(View.INVISIBLE);
         }

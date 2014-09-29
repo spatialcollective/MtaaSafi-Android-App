@@ -49,19 +49,6 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/picAttachedIcon"
-        android:src="@drawable/pic_attached"
-        android:padding="0dp"
-        android:layout_below="@+id/reportViewTitle"
-        android:layout_alignRight="@+id/reportViewTimeStamp"
-        android:layout_alignEnd="@+id/reportViewTimeStamp"
-        android:layout_alignBottom="@+id/reportViewUsername"
-        android:layout_alignLeft="@+id/reportViewTimeStamp"
-        android:layout_alignStart="@+id/reportViewTimeStamp" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/attachedPic"
         android:src="@drawable/pic_placeholder"
         android:layout_below="@+id/reportViewDetails"
