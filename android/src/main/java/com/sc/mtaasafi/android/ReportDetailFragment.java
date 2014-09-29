@@ -83,7 +83,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     private String getSimpleTimeStamp(String timestamp) {
         SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-        SimpleDateFormat displayFormat = new SimpleDateFormat("KK:mm a  dd MMM yy");
+        SimpleDateFormat displayFormat = new SimpleDateFormat("K:mm a  d MMM yy");
         try {
             return displayFormat.format(fromFormat.parse(timestamp));
         } catch (Exception e) {
