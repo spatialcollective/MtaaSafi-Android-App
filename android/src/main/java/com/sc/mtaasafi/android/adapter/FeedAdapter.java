@@ -64,13 +64,13 @@ public class FeedAdapter extends BaseAdapter {
         if (convertView == null) {
             reportFeedView = new FeedItemView(context, report, postion);
         } else {
-            reportFeedView = (FeedItemView) convertView.getTag();
+            reportFeedView = (FeedItemView) convertView;
         }
 
-//        reportFeedView.setViewData(report);
-        reportFeedView
-        convertView.setTag(reportFeedView);
-        return (FeedItemView) convertView;
+        reportFeedView.setViewData(report);
+        reportFeedView.position = postion;
+        reportFeedView.setTag(report);
+        return reportFeedView;
     }
 
     public void updateFeed(List<Report> allReports) {
