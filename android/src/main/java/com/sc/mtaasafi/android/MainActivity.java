@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -221,9 +222,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void getCapturedPhoto(Intent data) {
-        Bundle extras = data.getExtras();
-        Bitmap bitmap = (Bitmap) extras.get("data");
-        // Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+       // Bundle extras = data.getExtras();
+       // Bitmap bitmap = (Bitmap) extras.get("data");
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
         final byte[] bytearray = bytearrayoutputstream.toByteArray();
@@ -295,7 +296,7 @@ public class MainActivity extends ActionBarActivity implements
                 Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
             if (photoFile != null){
-                // takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 // Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
