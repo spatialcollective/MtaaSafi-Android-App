@@ -110,9 +110,9 @@ public class NewReportFragment extends Fragment {
         String titleString = title.getText().toString();
         String detailsString = details.getText().toString();
 
-        Report newPost = new Report(titleString, detailsString, mActivity.mUsername, mActivity.getLocation());
+        Report newReport = new Report(titleString, detailsString, mActivity.mUsername, mActivity.getLocation());
         if (pic != null)
-            newPost.addPic(pic);
+            newReport.addPic(pic);
 
         return newPost;
     }

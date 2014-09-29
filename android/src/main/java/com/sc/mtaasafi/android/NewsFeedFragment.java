@@ -35,7 +35,6 @@ public class NewsFeedFragment extends ListFragment {
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
         mAdapter = new FeedAdapter(mActivity, this);
-        // Required empty public constructor
         setListAdapter(mAdapter);
         index = top = 0;
     }
@@ -56,10 +55,6 @@ public class NewsFeedFragment extends ListFragment {
 //        Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
         Report r = mAdapter.mReports.get(position);
         mCallback.goToDetailView(r);
-    }
-
-    private interface GraphObjectWithId extends GraphObject {
-        String getId();
     }
 
     public interface ReportSelectedListener {

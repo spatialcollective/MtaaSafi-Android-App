@@ -77,7 +77,7 @@ public class MainActivity extends ActionBarActivity implements
     public void onUpdateFailed() {
         runOnUiThread(new Runnable() {
             public void run() {
-//                Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
                 AlertDialogFragment adf = new AlertDialogFragment();
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
@@ -307,8 +307,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timestamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES
         );

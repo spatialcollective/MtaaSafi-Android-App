@@ -14,7 +14,7 @@ import com.androidquery.AQuery;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
     ImageView imageAttachedIcon, media;
-    TextView titleTV, detailsTV, timestampTV, userNameTV;
+    TextView titleTV, detailsTV, timeStampTV, userNameTV;
     ProgressBar progress;
     MainActivity mActivity;
     AQuery aq;
@@ -44,9 +44,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         titleTV.setText(mReport.title);
         detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
         detailsTV.setText(mReport.details);
-        timestampTV = (TextView) view.findViewById(R.id.reportViewTimeElapsed);
-        timestampTV.setText(mReport.timeElapsed);
-        timestampTV.setVisibility(View.VISIBLE);
+        timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
+        timeStampTV.setText(mReport.timeStamp);
+        timeStampTV.setVisibility(View.VISIBLE);
         userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
         userNameTV.setText(mReport.userName);
         imageAttachedIcon = (ImageView) view.findViewById(R.id.picAttachedIcon);
