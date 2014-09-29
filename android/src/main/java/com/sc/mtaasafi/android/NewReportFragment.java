@@ -114,7 +114,7 @@ public class NewReportFragment extends Fragment {
         if (pic != null)
             newReport.addPic(pic);
 
-        return newPost;
+        return newReport;
     }
 
     // called when the edit texts' listeners detect a change in their texts

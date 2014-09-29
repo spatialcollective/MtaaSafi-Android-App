@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
+
+import java.text.SimpleDateFormat;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
@@ -43,7 +46,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
         detailsTV.setText(mReport.details);
         timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
-        timeStampTV.setText(mReport.timeStamp);
+        timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
         timeStampTV.setVisibility(View.VISIBLE);
         userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
         userNameTV.setText(mReport.userName);
@@ -74,5 +77,15 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         super.onSaveInstanceState(outState);
         if (mReport != null)
             outState = mReport.saveState(outState);
+    }
+
+    private String getSimpleTimeStamp(String timestamp) {
+        SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
+        SimpleDateFormat displayFormat = new SimpleDateFormat("KK:mm a  dd MMM yy");
+        try {
+            return displayFormat.format(fromFormat.parse(timestamp));
+        } catch (Exception e) {
+            return timestamp;
+        }
     }
 }

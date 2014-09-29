@@ -135,13 +135,13 @@ public class Report {
         else if (timeElapsed > week)
             return new SimpleDateFormat("dd LLL").format(date);
         else if (timeElapsed > 1.5 * day)
-            return Math.floor((week - timeElapsed)/day) + " days";
+            return (long) Math.floor(timeElapsed/day) + " days";
         else if (timeElapsed > day)
             return "1 day";
         else if (timeElapsed > hour)
-            return Math.floor((day - timeElapsed)/hour) + " hours";
+            return (long) Math.floor(timeElapsed/hour) + " hours";
         else if (timeElapsed > minute)
-            return Math.floor((hour - timeElapsed)/minute) + " min";
+            return (long) Math.floor(timeElapsed/minute) + " min";
         return "just now";
     }
 
@@ -160,7 +160,7 @@ public class Report {
     }
 
     private String createTimeStamp() {
-        return new SimpleDateFormat("yyyy-MM-dd'T'H:mm:ss")
+        return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
                 .format(new java.util.Date(System.currentTimeMillis()));
     }
 }
