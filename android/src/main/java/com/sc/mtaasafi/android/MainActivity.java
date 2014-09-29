@@ -171,9 +171,9 @@ public class MainActivity extends ActionBarActivity implements
     public void onConnected(Bundle bundle) {
 //        Toast.makeText(this, "Connected to Google Play", Toast.LENGTH_SHORT).show();
         mCurrentLocation = mLocationClient.getLastLocation();
-        Toast toast = Toast.makeText(this, "Location: " + mCurrentLocation.getLatitude()
-                + " " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT);
-        toast.show();
+        // Toast toast = Toast.makeText(this, "Location: " + mCurrentLocation.getLatitude()
+        //         + " " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT);
+        // toast.show();
     }
 
     @Override
