@@ -368,6 +368,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onResume(){
         super.onResume();
+        determineUsername();
     }
     @Override
     protected void onStop(){
