@@ -35,7 +35,6 @@ public class NewsFeedFragment extends ListFragment {
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
         mAdapter = new FeedAdapter(mActivity, this);
-        // Required empty public constructor
         setListAdapter(mAdapter);
         index = top = 0;
     }
@@ -54,13 +53,8 @@ public class NewsFeedFragment extends ListFragment {
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
         Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
-        // mFragment.saveListPosition();
         Report r = mAdapter.mReports.get(position);
         mCallback.goToDetailView(r);
-    }
-
-    private interface GraphObjectWithId extends GraphObject {
-        String getId();
     }
 
     public interface ReportSelectedListener {
@@ -104,9 +98,6 @@ public class NewsFeedFragment extends ListFragment {
     public void onPause(){
         super.onPause();
         saveListPosition();
-    }
-    public void onPhotoTaken(byte[] photo){
-        picture = photo;
     }
 
     @Override

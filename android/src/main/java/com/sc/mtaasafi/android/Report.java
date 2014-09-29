@@ -24,10 +24,11 @@ public class Report {
     public double latitude, longitude;
     public byte[] picture;
 
-    public String title, details, timeElapsed, userName, picURL, mediaURL;
+    public String title, details, timeStamp, timeElapsed, userName, picURL, mediaURL;
     public final static String titleKey = "title",
                             detailsKey = "details",
-                            timeElapsedKey = "timestamp",
+                            timeStampKey = "timestamp",
+                            timeElapsedKey = "timeElapsed",
                             userNameKey = "user",
                             mediaKey = "media",
                             mediaURLKey = "mediaURL",
@@ -36,7 +37,7 @@ public class Report {
                             networksKey = "networksShared";
 
     public Report() {
-        title = details = timeElapsed = userName = picURL = mediaURL = "";
+        title = details = timeStamp = timeElapsed = userName = picURL = mediaURL = "";
         latitude = longitude = 0;
     }
 
@@ -44,7 +45,8 @@ public class Report {
     public Report(String title, String details, String userName, Location location) {
         this.title = title;
         this.details = details;
-        this.timeElapsed = createTimeStamp();
+        this.timeStamp = createTimeStamp();
+        this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
@@ -54,7 +56,8 @@ public class Report {
         try {
             this.title = jsonServerData.getString(titleKey);
             this.details = jsonServerData.getString(detailsKey);
-            this.timeElapsed = getElapsedTime(jsonServerData.getString(timeElapsedKey));
+            this.timeStamp = jsonServerData.getString(timeStampKey);
+            this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
             this.mediaURL = jsonServerData.getString(mediaURLKey);
             this.latitude = jsonServerData.getLong(latKey);
@@ -70,7 +73,8 @@ public class Report {
     public Report(Bundle savedState) {
         this.title = savedState.getString(titleKey);
         this.details = savedState.getString(detailsKey);
-        this.timeElapsed = getElapsedTime(savedState.getString(timeElapsedKey));
+        this.timeStamp = savedState.getString(timeStampKey);
+        this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = savedState.getString(userNameKey);
         this.mediaURL = savedState.getString(mediaURLKey);
         this.latitude = savedState.getDouble(latKey);
@@ -88,6 +92,7 @@ public class Report {
             JSONObject json = new JSONObject();
             json.put(titleKey, this.title);
             json.put(detailsKey, this.details);
+            json.put(timeStampKey, this.timeStamp);
             json.put(timeElapsedKey, this.timeElapsed);
             json.put(userNameKey, this.userName);
             json.put(latKey, this.latitude);
@@ -108,15 +113,15 @@ public class Report {
     public Bundle saveState(Bundle outState) {
         outState.putString(titleKey, this.title);
         outState.putString(detailsKey, this.details);
+        outState.putString(timeStampKey, this.timeStamp);
+        outState.putString(timeElapsedKey, this.timeElapsed);
         outState.putString(userNameKey, this.userName);
         outState.putString(mediaURLKey, this.mediaURL);
-        outState.putString(timeElapsedKey, this.timeElapsed);
         outState.putDouble(latKey, this.latitude);
         outState.putDouble(lonKey, this.longitude);
         outState.putStringArrayList(networksKey, (ArrayList<String>) this.networksShared);
         return outState;
     }
-
 
     public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
         long second = 1000,
@@ -126,19 +131,18 @@ public class Report {
             week = 7 * day,
             year = 365 * day;
 
-        if (timeElapsed > year) {
+        if (timeElapsed > year)
             return new SimpleDateFormat("dd LLL yy").format(date);
-        } else if (timeElapsed > week) {
+        else if (timeElapsed > week)
             return new SimpleDateFormat("dd LLL").format(date);
-        } else if (timeElapsed > 1.5 * day) {
+        else if (timeElapsed > 1.5 * day)
             return Math.floor((week - timeElapsed)/day) + " days";
-        } else if (timeElapsed > day) {
+        else if (timeElapsed > day)
             return "1 day";
-        } else if (timeElapsed > hour) {
+        else if (timeElapsed > hour)
             return Math.floor((day - timeElapsed)/hour) + " hours";
-        } else if (timeElapsed > minute) {
+        else if (timeElapsed > minute)
             return Math.floor((hour - timeElapsed)/minute) + " min";
-        }
         return "just now";
     }
 

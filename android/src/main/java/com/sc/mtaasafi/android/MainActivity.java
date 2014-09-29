@@ -122,7 +122,6 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragmentContainer, reportFrag, "reportDetailView")
                 .addToBackStack(null)
                 .commit();
-//        reportFrag.updateView(report); // Null Pointer becasue frag transaction not yet complete
     }
 
     public static class ErrorDialogFragment extends DialogFragment {
