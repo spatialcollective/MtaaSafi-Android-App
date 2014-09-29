@@ -1,42 +1,41 @@
 package com.sc.mtaasafi.android;
 
-import android.content.Context;
-import android.location.Location;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
-import android.widget.Toast;
 
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
 import com.sc.mtaasafi.android.adapter.FeedAdapter;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
     private ImageButton sendPost, attachPic;
     private final String MESSAGE = "message";
     private final String PHOTO = "photo";
-    FeedAdapter fa;
+    FeedAdapter mAdapter;
+    ReportSelectedListener mCallback;
     MultiAutoCompleteTextView et;
     MainActivity mActivity;
     byte[] picture;
     int index;
     int top;
+    
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        fa = new FeedAdapter(mActivity, this);
-        // Required empty public constructor
-        setListAdapter(fa);
+        mAdapter = new FeedAdapter(mActivity, this);
+        setListAdapter(mAdapter);
         index = top = 0;
     }
 
@@ -50,8 +49,16 @@ public class NewsFeedFragment extends ListFragment {
         return view;
     }
 
-    private interface GraphObjectWithId extends GraphObject {
-        String getId();
+    @Override
+    public void onListItemClick(ListView l, View view, int position, long id) {
+        super.onListItemClick(l, view, position, id);
+//        Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
+        Report r = mAdapter.mReports.get(position);
+        mCallback.goToDetailView(r);
+    }
+
+    public interface ReportSelectedListener {
+        public void goToDetailView(Report report);
     }
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
@@ -70,12 +77,14 @@ public class NewsFeedFragment extends ListFragment {
         }
     }
 
-    public void onFeedUpdate(List<PostData> posts){
-        fa.updateFeed(posts);
+    public void onFeedUpdate(List<Report> allReports){
+        mAdapter.updateFeed(allReports);
     }
+
     public void alertFeedUpdate(){
-        fa.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
+
     public void saveListPosition(){
         index = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
@@ -85,6 +94,7 @@ public class NewsFeedFragment extends ListFragment {
         bundle.putInt("top", top);
         onSaveInstanceState(bundle);
     }
+
     public void restoreListPosition(){
         getListView().setSelectionFromTop(index, top);
     }
@@ -92,7 +102,14 @@ public class NewsFeedFragment extends ListFragment {
         super.onPause();
         saveListPosition();
     }
-    public void onPhotoTaken(byte[] photo){
-        picture = photo;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try { // This makes sure that the container activity has implemented the callback interface.
+            mCallback = (ReportSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
+        }
     }
 }
