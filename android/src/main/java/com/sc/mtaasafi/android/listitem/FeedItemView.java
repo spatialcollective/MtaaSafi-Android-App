@@ -42,7 +42,7 @@ public class FeedItemView extends RelativeLayout {
         titleTV.setText(report.title);
         detailsTV = (TextView) findViewById(R.id.itemDetails);
         detailsTV.setText(briefDetails(report.details));
-        timeElapsedTV = (TextView) findViewById(R.id.timestamp);
+        timeElapsedTV = (TextView) findViewById(R.id.timeElapsed);
         timeElapsedTV.setText(report.timeElapsed);
         picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
         if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))

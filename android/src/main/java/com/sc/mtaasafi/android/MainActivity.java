@@ -105,7 +105,7 @@ public class MainActivity extends ActionBarActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(Report report){
-        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude
+        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeStamp + " Lat: " + report.latitude
                 + " Lon:" + report.longitude;
         Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
         toast.show();
@@ -306,8 +306,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timestamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES
         );
