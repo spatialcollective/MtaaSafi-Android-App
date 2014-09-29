@@ -53,7 +53,7 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
-        Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
+//        Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
         Report r = mAdapter.mReports.get(position);
         mCallback.goToDetailView(r);
     }

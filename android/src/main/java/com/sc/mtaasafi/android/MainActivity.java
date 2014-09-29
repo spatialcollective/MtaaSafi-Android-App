@@ -77,7 +77,7 @@ public class MainActivity extends ActionBarActivity implements
     public void onUpdateFailed() {
         runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
                 AlertDialogFragment adf = new AlertDialogFragment();
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
@@ -105,10 +105,10 @@ public class MainActivity extends ActionBarActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(Report report){
-        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude
-                + " Lon:" + report.longitude;
-        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
-        toast.show();
+//        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude
+//                + " Lon:" + report.longitude;
+//        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
+//        toast.show();
         sc.post(report);
         updateFeed();
     }
@@ -168,7 +168,7 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onConnected(Bundle bundle) {
-        Toast.makeText(this, "Connected to Google Play", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Connected to Google Play", Toast.LENGTH_SHORT).show();
         mCurrentLocation = mLocationClient.getLastLocation();
         Toast toast = Toast.makeText(this, "Location: " + mCurrentLocation.getLatitude()
                 + " " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT);
@@ -205,10 +205,10 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.w("SERVICES", "Activity result called");
+//        Log.w("SERVICES", "Activity result called");
 
         if (resultCode == Activity.RESULT_OK) {
-            Log.w("SERVICES", "Yo the activity was okay");
+//            Log.w("SERVICES", "Yo the activity was okay");
         } else if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT) {
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
             return;
@@ -220,7 +220,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void getCapturedPhoto(Intent data) {
-        Log.e(LogTags.FEEDADAPTER, "Activity result image " + mCurrentPhotoPath);
+//        Log.e(LogTags.FEEDADAPTER, "Activity result image " + mCurrentPhotoPath);
         Bundle extras = data.getExtras();
         Bitmap bitmap = (Bitmap) extras.get("data");
         // Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
@@ -252,8 +252,8 @@ public class MainActivity extends ActionBarActivity implements
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-            Log.d("Location Updates",
-                    "Google Play services is available.");
+//            Log.d("Location Updates",
+//                    "Google Play services is available.");
             return true;
 
             // Google Play services was not available for some reason.
@@ -297,7 +297,7 @@ public class MainActivity extends ActionBarActivity implements
             }
             if (photoFile != null){
                 //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCurrentPhotoPath);
-                Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile).toString());
+//                Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile).toString());
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
@@ -414,8 +414,8 @@ public class MainActivity extends ActionBarActivity implements
             }
             else {
                 mUsername = savedUserName;
-                Toast.makeText(this, "Saved: " + mUsername,
-                    Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Saved: " + mUsername,
+//                    Toast.LENGTH_SHORT).show();
             }
         }
     }
