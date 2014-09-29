@@ -54,7 +54,6 @@ public class NewsFeedFragment extends ListFragment {
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
         Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
-        // mFragment.saveListPosition();
         Report r = mAdapter.mReports.get(position);
         mCallback.goToDetailView(r);
     }
@@ -86,9 +85,11 @@ public class NewsFeedFragment extends ListFragment {
     public void onFeedUpdate(List<Report> allReports){
         mAdapter.updateFeed(allReports);
     }
+
     public void alertFeedUpdate(){
         mAdapter.notifyDataSetChanged();
     }
+
     public void saveListPosition(){
         index = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
@@ -98,6 +99,7 @@ public class NewsFeedFragment extends ListFragment {
         bundle.putInt("top", top);
         onSaveInstanceState(bundle);
     }
+
     public void restoreListPosition(){
         getListView().setSelectionFromTop(index, top);
     }

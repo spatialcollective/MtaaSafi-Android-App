@@ -15,7 +15,6 @@ import org.w3c.dom.Text;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
-    String mTitle, mDetails, mTimeElapsed, mUserName;
     ImageView imageAttachedIcon, media;
     ProgressBar progress;
     MainActivity mActivity;
@@ -26,13 +25,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-
         Bundle args = getArguments();
         if (args != null) {
-            mTitle = args.getString("title", mTitle);
-            mDetails = args.getString("details", mDetails);
-            mTimeElapsed = args.getString("timestamp", mTimeElapsed);
-            mUserName = args.getString("user", mUserName);
+            mReport = new Report(args);
         }
     }
 
@@ -41,31 +36,28 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         View view = inflater.inflate(R.layout.fragment_post_view, container, false);
         aq = new AQuery(view);
         updateView(view);
-        
         return view;
     }
 
     private void updateView(View view) {
         TextView titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
-        titleTV.setText(mTitle);
+        titleTV.setText(mReport.title);
         TextView detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
-        detailsTV.setText(mDetails);
+        detailsTV.setText(mReport.details);
         TextView timestampTV = (TextView) view.findViewById(R.id.reportViewTimestamp);
-        timestampTV.setText(mTimeElapsed);
+        timestampTV.setText(mReport.timeElapsed);
         TextView userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
-        userNameTV.setText(mActivity.mUsername);
-
+        userNameTV.setText(mReport.userName);
         imageAttachedIcon = (ImageView) view.findViewById(R.id.picAttachedIcon);
-//        TextView media = (ImageView) view.findViewById(R.id.attachedPic);
+        media = (ImageView) view.findViewById(R.id.attachedPic);
         progress = (ProgressBar) view.findViewById(R.id.progressBar);
-
-//        if (report.mediaURL != null && !report.mediaURL.equals("") && !report.mediaURL.equals("null")) {
-//            aq.id(media).progress(R.id.progressBar).image(report.mediaURL);
-//        } else {
-//            imageAttachedIcon.setVisibility(View.INVISIBLE);
-//            media.setVisibility(View.INVISIBLE);
-//            progress.setVisibility(View.INVISIBLE);
-//        }
+        if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
+            aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
+        } else {
+            imageAttachedIcon.setVisibility(View.INVISIBLE);
+            media.setVisibility(View.INVISIBLE);
+            progress.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

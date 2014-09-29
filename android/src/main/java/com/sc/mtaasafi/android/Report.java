@@ -75,7 +75,6 @@ public class Report {
         this.mediaURL = savedState.getString(mediaURLKey);
         this.latitude = savedState.getDouble(latKey);
         this.longitude = savedState.getDouble(lonKey);
-
 //        this.networksShared = savedState.getStringArrayList(networksKey, (ArrayList<String>) savedState.networksShared);
     }
 
