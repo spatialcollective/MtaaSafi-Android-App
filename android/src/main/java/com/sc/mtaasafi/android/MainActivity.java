@@ -295,8 +295,8 @@ public class MainActivity extends ActionBarActivity implements
                 Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
             if (photoFile != null){
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile));
+                // takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                // Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
