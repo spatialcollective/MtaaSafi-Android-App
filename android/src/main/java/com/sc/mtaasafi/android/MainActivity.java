@@ -55,6 +55,7 @@ public class MainActivity extends ActionBarActivity implements
     public String mUsername;
     public String mCurrentPhotoPath;
     static final String PREF_USERNAME = "username";
+    static final String CURRENT_FRAGMENT = "current_fragment";
     static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_PICK_IMAGE = 100;
@@ -212,7 +213,6 @@ public class MainActivity extends ActionBarActivity implements
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
             return;
         } else { return; }
-
         if (requestCode == REQUEST_IMAGE_CAPTURE)
             getCapturedPhoto(data);
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
@@ -330,12 +330,7 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        if (savedInstanceState == null){
-            goToFeed();
-        } else {
-            feedFragment = (NewsFeedFragment) getSupportFragmentManager()
-                    .findFragmentByTag("feedFragment");
-        }
+        goToFeed();
     }
 
     private boolean isConnected(){

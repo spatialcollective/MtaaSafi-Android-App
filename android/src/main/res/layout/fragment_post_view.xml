@@ -39,8 +39,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="5h"
-        android:id="@+id/reportViewTimestamp"
-        android:textColor="#666666"
+        android:id="@+id/reportViewTimeElapsed"
         android:paddingLeft="10dp"
         android:textSize="14dp"
         android:layout_alignParentTop="true"
@@ -54,8 +53,8 @@
         android:src="@drawable/pic_attached"
         android:padding="0dp"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/reportViewTimestamp"
-        android:layout_alignBottom="@+id/reportViewTimestamp" />
+        android:layout_toLeftOf="@+id/reportViewTimeElapsed"
+        android:layout_alignBottom="@+id/reportViewTimeElapsed" />
 
     <ImageView
         android:layout_width="wrap_content"

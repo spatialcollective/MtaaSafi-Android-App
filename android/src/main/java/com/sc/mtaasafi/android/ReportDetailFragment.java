@@ -1,7 +1,6 @@
 package com.sc.mtaasafi.android;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +10,10 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 
-import org.w3c.dom.Text;
-
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
     ImageView imageAttachedIcon, media;
+    TextView titleTV, detailsTV, timestampTV, userNameTV;
     ProgressBar progress;
     MainActivity mActivity;
     AQuery aq;
@@ -40,13 +38,14 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     }
 
     private void updateView(View view) {
-        TextView titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
+        titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
         titleTV.setText(mReport.title);
-        TextView detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
+        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
         detailsTV.setText(mReport.details);
-        TextView timestampTV = (TextView) view.findViewById(R.id.reportViewTimestamp);
+        timestampTV = (TextView) view.findViewById(R.id.reportViewTimeElapsed);
         timestampTV.setText(mReport.timeElapsed);
-        TextView userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
+        timestampTV.setVisibility(View.VISIBLE);
+        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
         userNameTV.setText(mReport.userName);
         imageAttachedIcon = (ImageView) view.findViewById(R.id.picAttachedIcon);
         media = (ImageView) view.findViewById(R.id.attachedPic);

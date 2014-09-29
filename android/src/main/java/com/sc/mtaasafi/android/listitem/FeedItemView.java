@@ -47,6 +47,9 @@ public class FeedItemView extends RelativeLayout {
         picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
         if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
             picsAttachedIcon.setVisibility(View.INVISIBLE);
+        else{
+            picsAttachedIcon.setVisibility(View.VISIBLE);
+        }
     }
 
     public String briefDetails(String origDetails){

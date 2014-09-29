@@ -107,9 +107,6 @@ public class NewsFeedFragment extends ListFragment {
         super.onPause();
         saveListPosition();
     }
-    public void onPhotoTaken(byte[] photo){
-        picture = photo;
-    }
 
     @Override
     public void onAttach(Activity activity) {
