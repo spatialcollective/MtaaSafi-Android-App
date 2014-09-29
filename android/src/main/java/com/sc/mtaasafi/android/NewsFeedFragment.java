@@ -22,7 +22,7 @@ public class NewsFeedFragment extends ListFragment {
     private ImageButton sendPost, attachPic;
     private final String MESSAGE = "message";
     private final String PHOTO = "photo";
-    FeedAdapter fa;
+    FeedAdapter mAdapter;
     ReportSelectedListener mCallback;
     MultiAutoCompleteTextView et;
     MainActivity mActivity;
@@ -34,9 +34,9 @@ public class NewsFeedFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        fa = new FeedAdapter(mActivity, this);
+        mAdapter = new FeedAdapter(mActivity, this);
         // Required empty public constructor
-        setListAdapter(fa);
+        setListAdapter(mAdapter);
         index = top = 0;
     }
 
@@ -55,7 +55,7 @@ public class NewsFeedFragment extends ListFragment {
         super.onListItemClick(l, view, position, id);
         Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
         // mFragment.saveListPosition();
-        Report r = fa.mReports.get(position);
+        Report r = mAdapter.mReports.get(position);
         mCallback.goToDetailView(r);
     }
 
@@ -84,10 +84,10 @@ public class NewsFeedFragment extends ListFragment {
     }
 
     public void onFeedUpdate(List<Report> allReports){
-        fa.updateFeed(allReports);
+        mAdapter.updateFeed(allReports);
     }
     public void alertFeedUpdate(){
-        fa.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
     public void saveListPosition(){
         index = getListView().getFirstVisiblePosition();
@@ -112,8 +112,7 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        // This makes sure that the container activity has implemented the callback interface.
-        try {
+        try { // This makes sure that the container activity has implemented the callback interface.
             mCallback = (ReportSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");

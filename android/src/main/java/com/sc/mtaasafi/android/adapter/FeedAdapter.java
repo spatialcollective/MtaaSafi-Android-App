@@ -60,18 +60,17 @@ public class FeedAdapter extends BaseAdapter {
     @Override
     public FeedItemView getView(int postion, View convertView, ViewGroup viewGroup) {
         FeedItemView reportFeedView;
-        Report report;
+        Report report = mReports.get(postion);
         if (convertView == null) {
-            report = (Report) mReports.get(postion);
             reportFeedView = new FeedItemView(context, report, postion);
         } else {
-            reportFeedView = (FeedItemView) convertView;
-            report = (Report) convertView.getTag();
+            reportFeedView = (FeedItemView) convertView.getTag();
         }
 
-        reportFeedView.position = postion;
-        reportFeedView.setTag(report);
-        return reportFeedView;
+//        reportFeedView.setViewData(report);
+        reportFeedView
+        convertView.setTag(reportFeedView);
+        return (FeedItemView) convertView;
     }
 
     public void updateFeed(List<Report> allReports) {

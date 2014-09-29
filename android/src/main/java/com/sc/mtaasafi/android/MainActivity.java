@@ -152,7 +152,6 @@ public class MainActivity extends ActionBarActivity implements
         getSupportActionBar().show();
     }
 
-
     public void goToNewReport(){
         newReportFragment = new NewReportFragment();
         getSupportFragmentManager()

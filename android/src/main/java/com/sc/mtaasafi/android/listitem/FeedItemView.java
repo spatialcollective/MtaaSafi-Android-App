@@ -32,6 +32,12 @@ public class FeedItemView extends RelativeLayout {
         inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.feed_item, this, true);
 
+        setViewData(report);
+
+        Log.d(LogTags.FEEDITEM, "Created! Contents: " + report.details);
+    }
+    
+    public void setViewData(Report report) {
         titleTV = (TextView) findViewById(R.id.itemTitle);
         titleTV.setText(report.title);
         detailsTV = (TextView) findViewById(R.id.itemDetails);
@@ -42,8 +48,6 @@ public class FeedItemView extends RelativeLayout {
         ImageView picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
         if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
             picsAttachedIcon.setVisibility(View.INVISIBLE);
-
-        Log.d(LogTags.FEEDITEM, "Created! Contents: " + report.details);
     }
 
     public String briefDetails(String origDetails){
