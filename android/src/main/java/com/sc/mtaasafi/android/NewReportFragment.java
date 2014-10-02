@@ -1,5 +1,7 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -15,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.androidquery.AQuery;
+
+import java.io.ByteArrayOutputStream;
 
 public class NewReportFragment extends Fragment {
     MainActivity mActivity;
@@ -126,10 +130,16 @@ public class NewReportFragment extends Fragment {
            reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
     }
 
-    public void onPhotoTaken(byte[] pic){
-        this.pic = pic;
-        Bitmap bmp = BitmapFactory.decodeByteArray(pic, 0, pic.length);
+    public void onPhotoTaken(Intent data, String filePath) {
+        // Bundle extras = data.getExtras();
+        // Bitmap bitmap = (Bitmap) extras.get("data");
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
+        pic = bytearrayoutputstream.toByteArray();
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        Bitmap smallBmp = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
         AQuery aq = new AQuery(getActivity());
-        aq.id(picPreview).image(bmp);
+        aq.id(picPreview).image(smallBmp);
     }
 }

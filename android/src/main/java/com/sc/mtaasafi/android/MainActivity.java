@@ -223,20 +223,9 @@ public class MainActivity extends ActionBarActivity implements
             return;
         } else { return; }
         if (requestCode == REQUEST_IMAGE_CAPTURE)
-            getCapturedPhoto(data);
+            newReportFragment.onPhotoTaken(data, mCurrentPhotoPath);
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
-    }
-
-    private void getCapturedPhoto(Intent data) {
-       // Bundle extras = data.getExtras();
-       // Bitmap bitmap = (Bitmap) extras.get("data");
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
-        final byte[] bytearray = bytearrayoutputstream.toByteArray();
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        newReportFragment.onPhotoTaken(bytearray);
     }
 
     private void setUserName(Intent data) {
