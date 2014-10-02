@@ -32,12 +32,13 @@ public class ServerCommunicater {
 
     public interface ServerCommCallbacks{
         void onFeedUpdate(List<Report> posts);
+        int getScreenWidth();
         void onUpdateFailed();
     }
 
     public ServerCommCallbacks activity;
     public final static String writeURL = "http://app.spatialcollective.com/add_post",
-                            readURL = "http://app.spatialcollective.com/get_posts";
+                            readURL = "http://app.spatialcollective.com/get_posts/";
 
     ServerCommunicater(ServerCommCallbacks activity){
         this.activity = activity;
@@ -80,6 +81,7 @@ public class ServerCommunicater {
 
     public void getPosts(){
         FetchPosts fp = new FetchPosts();
+        Log.e(LogTags.BACKEND_W, readURL + activity.getScreenWidth());
         fp.execute(readURL);
     }
 

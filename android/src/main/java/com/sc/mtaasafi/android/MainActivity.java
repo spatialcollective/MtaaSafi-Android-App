@@ -10,6 +10,7 @@ import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -72,6 +73,7 @@ public class MainActivity extends ActionBarActivity implements
         runOnUiThread(new Runnable() {
             public void run() {
                 feedFragment.alertFeedUpdate();
+                feedFragment.setProgressBarVisibile(false);
             }
         });
     }
@@ -104,9 +106,12 @@ public class MainActivity extends ActionBarActivity implements
     // called by the fragment to update the fragment's feed w new posts.
     // When the server communicator gets the new posts, it will call onFeedUpdate above.
     public void updateFeed(){
+        feedFragment.setProgressBarVisibile(true);
         sc.getPosts();
     }
-
+    public int getScreenWidth(){
+        return getWindowManager().getDefaultDisplay().getWidth();
+    }
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(Report report){
 //        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude
@@ -355,7 +360,7 @@ public class MainActivity extends ActionBarActivity implements
         }
             // Connect the client.
         mLocationClient.connect();
-        sc.getPosts();
+        updateFeed();
     }
     @Override
     protected void onRestoreInstanceState(Bundle bundle){

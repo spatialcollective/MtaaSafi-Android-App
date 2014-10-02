@@ -10,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
+import android.widget.ProgressBar;
 
+import com.androidquery.util.Progress;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
@@ -19,9 +21,7 @@ import com.sc.mtaasafi.android.adapter.FeedAdapter;
 import java.util.List;
 
 public class NewsFeedFragment extends ListFragment {
-    private ImageButton sendPost, attachPic;
-    private final String MESSAGE = "message";
-    private final String PHOTO = "photo";
+    private ProgressBar progressBar;
     FeedAdapter mAdapter;
     ReportSelectedListener mCallback;
     MultiAutoCompleteTextView et;
@@ -42,13 +42,19 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
+        progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
         if(savedInstanceState !=null){
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
         return view;
     }
-
+    public void setProgressBarVisibile(boolean isVisible){
+        if(isVisible)
+            progressBar.setVisibility(View.VISIBLE);
+        else
+            progressBar.setVisibility(View.INVISIBLE);
+    }
     @Override
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
