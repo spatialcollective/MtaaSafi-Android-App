@@ -207,8 +207,9 @@ public class MainActivity extends ActionBarActivity implements
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
         if (resultCode != Activity.RESULT_OK)
             return;
-        else if (requestCode == REQUEST_IMAGE_CAPTURE)
+        else if (requestCode == REQUEST_IMAGE_CAPTURE){
             newReportFragment.onPhotoTaken(mCurrentPhotoPath);
+        }
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }

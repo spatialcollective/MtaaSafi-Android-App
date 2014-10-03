@@ -27,18 +27,29 @@ public class NewReportFragment extends Fragment {
     Button reportBtn;
     ImageView picPreview1, picPreview2, picPreview3;
     byte[] pic1, pic2, pic3;
+    String detailsString;
     boolean isDetailEmpty;
     int lastPreviewClicked;
     private final int PIC1 = 1;
     private final int PIC2 = 2;
     private final int PIC3 = 3;
+    private final String DEETS_KEY = "details";
+    private final String PIC1_KEY = "pic1";
+    private final String PIC2_KEY = "pic2";
+    private final String PIC3_KEY = "pic3";
 
-
+    AQuery aq;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        lastPreviewClicked = 0;
+        aq = new AQuery(mActivity);
+        if(savedInstanceState != null){
+            detailsString = savedInstanceState.getString(DEETS_KEY);
+            pic1 = savedInstanceState.getByteArray(PIC1_KEY);
+            pic2 = savedInstanceState.getByteArray(PIC2_KEY);
+            pic3 = savedInstanceState.getByteArray(PIC3_KEY);
+        }
     }
 
     @Override
@@ -47,9 +58,18 @@ public class NewReportFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
         details = (EditText) view.findViewById(R.id.newReportDetails);
-
+        if(detailsString != null){
+            details.setText(detailsString);
+        }
         picPreview1 = (ImageView) view.findViewById(R.id.pic1);
+        if(pic1 != null)
+            aq.id(picPreview1).image(BitmapFactory.decodeByteArray(pic1, 0, pic1.length));
         picPreview2 = (ImageView) view.findViewById(R.id.pic2);
+        if(pic2 != null)
+            aq.id(picPreview2).image(BitmapFactory.decodeByteArray(pic2, 0, pic2.length));
+        if(pic3 != null)
+            aq.id(picPreview3).image(BitmapFactory.decodeByteArray(pic3, 0, pic3.length));
+
         picPreview3 = (ImageView) view.findViewById(R.id.pic3);
 
         reportBtn = (Button) view.findViewById(R.id.reportButton);
@@ -133,7 +153,6 @@ public class NewReportFragment extends Fragment {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
         Bitmap smallBmp = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
 
-        AQuery aq = new AQuery(getActivity());
         switch(lastPreviewClicked){
             case PIC1: {
                 pic1 = bytearrayoutputstream.toByteArray();
@@ -171,5 +190,11 @@ public class NewReportFragment extends Fragment {
         else
             attachPicsTV.setVisibility(View.INVISIBLE);
         attemptEnableReport();
+    }
+    public void onSaveInstanceState(Bundle outState){
+        outState.putString(DEETS_KEY, details.getText().toString());
+        outState.putByteArray(PIC1_KEY, pic1);
+        outState.putByteArray(PIC2_KEY, pic2);
+        outState.putByteArray(PIC3_KEY, pic3);
     }
 }
