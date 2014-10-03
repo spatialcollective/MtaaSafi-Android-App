@@ -82,7 +82,7 @@ public class ServerCommunicater {
     public void getPosts(){
         FetchPosts fp = new FetchPosts();
         Log.e(LogTags.BACKEND_W, readURL + activity.getScreenWidth());
-        fp.execute(readURL);
+        fp.execute(readURL + activity.getScreenWidth());
     }
 
     private String GET(String url){
