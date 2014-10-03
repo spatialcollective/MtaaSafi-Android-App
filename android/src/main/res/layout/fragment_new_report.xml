@@ -1,33 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
-        android:padding="8dp"
-        android:id="@+id/reportTopHalf">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/report_button_text"
-            android:id="@+id/reportButton"
-            android:layout_gravity="right"
-            android:background="@color/report_button_unclickable"
-            android:textColor="@color/white" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/newReportTitle"
-            android:hint="@string/report_title_hint"
-            android:singleLine="true" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/new_report">
 
         <EditText
             android:layout_width="match_parent"
@@ -36,42 +12,41 @@
             android:hint="@string/report_detail_hint"
             android:background="@null"
             android:singleLine="true"
-            android:paddingLeft="10dp" />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+            android:paddingLeft="10dp"
+            android:textSize="18dp"
+            android:paddingTop="8dp" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Camera"
-            android:id="@+id/picFromCam"
+            android:text="@string/report_button_text"
+            android:id="@+id/reportButton"
+            android:layout_gravity="right"
+            android:background="@color/report_button_unclickable"
+            android:textColor="@color/white"
             android:layout_alignParentBottom="true"
-            android:layout_alignRight="@+id/picturePreview"
-            android:layout_alignEnd="@+id/picturePreview" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/picturePreview"
-            android:src="@drawable/pic_placeholder"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Attach Picture:"
-            android:id="@+id/textView"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:paddingLeft="8dp"
-            android:textSize="20dp" />
-    </RelativeLayout>
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+        <include layout="@layout/attach_pic_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/reportButton"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="15dp"
+            android:id="@+id/include" />
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Attach 3 more pictures:"
+        android:id="@+id/attachMorePicturesText"
+        android:layout_above="@+id/include"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="24dp" />
+
+</RelativeLayout>
+

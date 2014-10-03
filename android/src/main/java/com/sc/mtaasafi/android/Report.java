@@ -42,11 +42,10 @@ public class Report {
     }
 
     // for Report objects created by the user to send to the server
-    public Report(String title, String details, String userName, Location location) {
-        this.title = title;
+    public Report(String details, String userName, Location location,
+                  byte[] pic1, byte[] pic2, byte[] pic3) {
         this.details = details;
         this.timeStamp = createTimeStamp();
-        this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
@@ -89,7 +88,6 @@ public class Report {
     public JSONObject getJson() {
         try {
             JSONObject json = new JSONObject();
-            json.put(titleKey, this.title);
             json.put(detailsKey, this.details);
             json.put(timeStampKey, this.timeStamp);
             json.put(timeElapsedKey, this.timeElapsed);

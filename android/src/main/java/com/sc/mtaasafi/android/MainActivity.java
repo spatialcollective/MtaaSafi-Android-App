@@ -73,7 +73,6 @@ public class MainActivity extends ActionBarActivity implements
         runOnUiThread(new Runnable() {
             public void run() {
                 feedFragment.alertFeedUpdate();
-                feedFragment.setProgressBarVisibile(false);
             }
         });
     }
@@ -106,7 +105,6 @@ public class MainActivity extends ActionBarActivity implements
     // called by the fragment to update the fragment's feed w new posts.
     // When the server communicator gets the new posts, it will call onFeedUpdate above.
     public void updateFeed(){
-        feedFragment.setProgressBarVisibile(true);
         sc.getPosts();
     }
     public int getScreenWidth(){
@@ -210,7 +208,7 @@ public class MainActivity extends ActionBarActivity implements
         if (resultCode != Activity.RESULT_OK)
             return;
         else if (requestCode == REQUEST_IMAGE_CAPTURE)
-            newReportFragment.onPhotoTaken(data, mCurrentPhotoPath);
+            newReportFragment.onPhotoTaken(mCurrentPhotoPath);
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }

@@ -73,7 +73,7 @@ public class FeedAdapter extends BaseAdapter {
         return reportFeedView;
     }
 
-    public void updateFeed(List<Report> allReports) {
+    public void updateItems(List<Report> allReports) {
         List<FeedItemView> items = new ArrayList<FeedItemView>();
         for (int i = 0; i < allReports.size(); i++) {
             Report report = allReports.get(i);
