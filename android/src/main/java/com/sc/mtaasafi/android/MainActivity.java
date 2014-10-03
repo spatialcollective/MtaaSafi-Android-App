@@ -20,6 +20,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -49,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements
         NewsFeedFragment.ReportSelectedListener {
     private NewsFeedFragment feedFragment;
     private NewReportFragment newReportFragment;
+    private ReportDetailFragment reportDetailFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private ListView feedView;
@@ -57,8 +59,15 @@ public class MainActivity extends ActionBarActivity implements
     private SharedPreferences sharedPref;
     public String mUsername;
     public String mCurrentPhotoPath;
-    static final String PREF_USERNAME = "username";
-    static final String CURRENT_FRAGMENT = "current_fragment";
+    static final String USERNAME_KEY = "username";
+    static final String FEED_FRAG_KEY = "feed";
+    static final String NEW_REPORT_KEY = "new_report";
+    static final String REPORT_DETAIL_KEY = "report_detail";
+    static final String CURRENT_PHOTO_PATH_KEY = "photo_path";
+    static String CURRENT_FRAGMENT_KEY = "current_fragment";
+    static final String FRAGMENT_NEWREPORT = "1";
+    static final String FRAGMENT_REPORTDETAIL = "2";
+    static final String FRAGMENT_FEED = "3";
     static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_PICK_IMAGE = 100;
@@ -122,11 +131,13 @@ public class MainActivity extends ActionBarActivity implements
 
     public void goToDetailView(Report report){
         Bundle args = report.saveState(new Bundle());
-        ReportDetailFragment reportFrag = new ReportDetailFragment();
-        reportFrag.setArguments(args);
+        if(reportDetailFragment == null){
+            reportDetailFragment = new ReportDetailFragment();
+        }
+        reportDetailFragment.setArguments(args);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer, reportFrag, "reportDetailView")
+                .replace(R.id.fragmentContainer, reportDetailFragment, "reportDetailView")
                 .addToBackStack(null)
                 .commit();
     }
@@ -145,7 +156,9 @@ public class MainActivity extends ActionBarActivity implements
     }
     // ======================Fragment Navigation:======================
     public void goToFeed(){
-        feedFragment = new NewsFeedFragment();
+        if(feedFragment == null){
+            feedFragment = new NewsFeedFragment();
+        }
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, feedFragment, "newsfeed")
@@ -155,7 +168,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToNewReport(){
-        newReportFragment = new NewReportFragment();
+        if(newReportFragment == null){
+            newReportFragment = new NewReportFragment();
+        }
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragmentContainer, newReportFragment, "newReport")
@@ -218,7 +233,7 @@ public class MainActivity extends ActionBarActivity implements
         String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         mUsername = retrievedUserName;
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(PREF_USERNAME, retrievedUserName);
+        editor.putString(USERNAME_KEY, retrievedUserName);
         editor.commit();
     }
 
@@ -294,7 +309,25 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        goToFeed();
+        if(savedInstanceState != null){
+            mUsername = savedInstanceState.getString(USERNAME_KEY);
+            mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
+            FragmentManager manager = getSupportFragmentManager();
+            goToNewReport();
+//            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
+//            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
+//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
+            String currentFragment = savedInstanceState.getString(CURRENT_FRAGMENT_KEY);
+//            if(currentFragment.equals(FRAGMENT_NEWREPORT)){
+//                goToNewReport();
+//            }
+//            else{
+//                goToFeed();
+//            }
+        }
+        else{
+            goToFeed();
+        }
     }
 
     private boolean isConnected() {
@@ -317,14 +350,25 @@ public class MainActivity extends ActionBarActivity implements
     }
     @Override
     protected void onRestoreInstanceState(Bundle bundle){
-        mUsername = bundle.getString(PREF_USERNAME);
+        mUsername = bundle.getString(USERNAME_KEY);
         if (mUsername == null)
             determineUsername();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle bundle){
-        bundle.putString(PREF_USERNAME, mUsername);
+        bundle.putString(USERNAME_KEY, mUsername);
+        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
+        bundle.putString(CURRENT_FRAGMENT_KEY, FRAGMENT_NEWREPORT);
+        if(feedFragment != null){
+            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
+        }
+        if(newReportFragment != null){
+            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
+        }
+        if(reportDetailFragment != null){
+            getSupportFragmentManager().putFragment(bundle, REPORT_DETAIL_KEY, reportDetailFragment);
+        }
     }
 
     @Override
@@ -375,7 +419,7 @@ public class MainActivity extends ActionBarActivity implements
 
     private void determineUsername() {
         if (mUsername == null || mUsername.equals("")) {
-            String savedUserName = sharedPref.getString(PREF_USERNAME, "");
+            String savedUserName = sharedPref.getString(USERNAME_KEY, "");
             if (savedUserName.equals(""))
                 pickUserAccount();
             else
