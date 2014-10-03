@@ -11,4 +11,5 @@ public class LogTags {
     public final static String BACKEND_R = "Backend read";
     public final static String FEEDITEM = "Feed Item";
     public final static String FEEDADAPTER = "Feed adapter";
+    public final static String PHOTO = "Photo";
 }

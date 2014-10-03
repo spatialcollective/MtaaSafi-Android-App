@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class NewReportFragment extends Fragment {
     private final String PIC1_KEY = "pic1";
     private final String PIC2_KEY = "pic2";
     private final String PIC3_KEY = "pic3";
+    private final String LASTPREVIEW_KEY = "last_preview";
 
     AQuery aq;
     @Override
@@ -46,6 +48,7 @@ public class NewReportFragment extends Fragment {
         aq = new AQuery(mActivity);
         if(savedInstanceState != null){
             detailsString = savedInstanceState.getString(DEETS_KEY);
+            lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
             pic1 = savedInstanceState.getByteArray(PIC1_KEY);
             pic2 = savedInstanceState.getByteArray(PIC2_KEY);
             pic3 = savedInstanceState.getByteArray(PIC3_KEY);
@@ -152,7 +155,7 @@ public class NewReportFragment extends Fragment {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
         Bitmap smallBmp = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-
+        Log.e(LogTags.PHOTO, "Got to onPHOTOTAKEN in fragment! Bitmap: " + bitmap.toString());
         switch(lastPreviewClicked){
             case PIC1: {
                 pic1 = bytearrayoutputstream.toByteArray();
@@ -192,7 +195,9 @@ public class NewReportFragment extends Fragment {
         attemptEnableReport();
     }
     public void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
         outState.putString(DEETS_KEY, details.getText().toString());
+        outState.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
         outState.putByteArray(PIC1_KEY, pic1);
         outState.putByteArray(PIC2_KEY, pic2);
         outState.putByteArray(PIC3_KEY, pic3);

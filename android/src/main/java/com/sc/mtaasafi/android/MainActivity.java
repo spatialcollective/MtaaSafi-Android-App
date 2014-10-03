@@ -314,16 +314,17 @@ public class MainActivity extends ActionBarActivity implements
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
             goToNewReport();
-//            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
-//            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
-//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
+            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
+            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
+            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
             String currentFragment = savedInstanceState.getString(CURRENT_FRAGMENT_KEY);
+            goToNewReport();
 //            if(currentFragment.equals(FRAGMENT_NEWREPORT)){
 //                goToNewReport();
 //            }
 //            else{
 //                goToFeed();
-//            }
+////            }
         }
         else{
             goToFeed();
@@ -346,7 +347,7 @@ public class MainActivity extends ActionBarActivity implements
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
         mLocationClient.connect();
-        updateFeed();
+//        updateFeed();
     }
     @Override
     protected void onRestoreInstanceState(Bundle bundle){
@@ -357,6 +358,7 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     protected void onSaveInstanceState(Bundle bundle){
+        super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
         bundle.putString(CURRENT_FRAGMENT_KEY, FRAGMENT_NEWREPORT);
