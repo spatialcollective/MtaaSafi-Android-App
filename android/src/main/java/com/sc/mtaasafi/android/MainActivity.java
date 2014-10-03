@@ -83,7 +83,7 @@ public class MainActivity extends ActionBarActivity implements
     public void onUpdateFailed() {
         runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
                 AlertDialogFragment adf = new AlertDialogFragment();
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
@@ -123,8 +123,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToDetailView(Report report){
-        Bundle args = new Bundle();
-        args = report.saveState(args);
+        Bundle args = report.saveState(new Bundle());
         ReportDetailFragment reportFrag = new ReportDetailFragment();
         reportFrag.setArguments(args);
         getSupportFragmentManager()
@@ -132,24 +131,19 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragmentContainer, reportFrag, "reportDetailView")
                 .addToBackStack(null)
                 .commit();
-//        reportFrag.updateView(report); // Null Pointer becasue frag transaction not yet complete
     }
 
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
-        public ErrorDialogFragment(){
+        public ErrorDialogFragment() {
             super();
             mDialog = null;
         }
-        // Set the dialog to display
-        public void setDialog(Dialog dialog) {
-            mDialog = dialog;
-        }
-        // Return a Dialog to the DialogFragment.
+
+        public void setDialog(Dialog dialog) { mDialog = dialog; }
+
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return mDialog;
-        }
+        public Dialog onCreateDialog(Bundle savedInstanceState) { return mDialog; }
     }
     // ======================Fragment Navigation:======================
     public void goToFeed(){
@@ -171,25 +165,22 @@ public class MainActivity extends ActionBarActivity implements
                 .commit();
         getSupportActionBar().hide();
     }
+
     // ======================Google Play Services Setup:======================
-    private final static int
-            CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
     @Override
     public void onConnected(Bundle bundle) {
-//        Toast.makeText(this, "Connected to Google Play", Toast.LENGTH_SHORT).show();
         mCurrentLocation = mLocationClient.getLastLocation();
-        // Toast toast = Toast.makeText(this, "Location: " + mCurrentLocation.getLatitude()
-        //         + " " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT);
+        // Toast toast = Toast.makeText(this, "Location: " + mCurrentLocation.getLatitude() + " " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT);
         // toast.show();
     }
 
     @Override
     public void onDisconnected() {
-        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.",
-                Toast.LENGTH_SHORT).show();
-
+        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
     }
+
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         /*
@@ -214,15 +205,11 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        Log.w("SERVICES", "Activity result called");
-
-        if (resultCode == Activity.RESULT_OK) {
-//            Log.w("SERVICES", "Yo the activity was okay");
-        } else if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT) {
+        if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
+        if (resultCode != Activity.RESULT_OK)
             return;
-        } else { return; }
-        if (requestCode == REQUEST_IMAGE_CAPTURE)
+        else if (requestCode == REQUEST_IMAGE_CAPTURE)
             newReportFragment.onPhotoTaken(data, mCurrentPhotoPath);
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
@@ -243,30 +230,20 @@ public class MainActivity extends ActionBarActivity implements
 
     private boolean servicesConnected() {
         // Check that Google Play services is available
-        int resultCode =
-                GooglePlayServicesUtil.
-                        isGooglePlayServicesAvailable(this);
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
             // In debug mode, log the status
-//            Log.d("Location Updates",
-//                    "Google Play services is available.");
+            // Log.d("Location Updates", "Google Play services is available.");
             return true;
-
             // Google Play services was not available for some reason.
             // resultCode holds the error code.
         } else {
-            // Get the error dialog from Google Play services
-            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                    resultCode,
-                    this,
+            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this,
                     CONNECTION_FAILURE_RESOLUTION_REQUEST);
-
             // If Google Play services can provide an error dialog
-            if (errorDialog != null) {
-                // Create a new DialogFragment for the error dialog
+            if (errorDialog != null)
                 showErrorFragment(errorDialog);
-            }
             return false;
         }
     }
@@ -274,13 +251,10 @@ public class MainActivity extends ActionBarActivity implements
     private void showErrorFragment(Dialog errorDialog){
         ErrorDialogFragment errorFragment =
                 new ErrorDialogFragment();
-        // Set the dialog in the DialogFragment
         errorFragment.setDialog(errorDialog);
-        // Show the error dialog in the DialogFragment
-        errorFragment.show(getSupportFragmentManager(),
-                "Location Updates");
-
+        errorFragment.show(getSupportFragmentManager(), "Location Updates");
     }
+
     // ======================Picture-taking Logic:======================
     // Called by the new report fragment to launch a take picture activity.
     public void takePicture(){
@@ -290,16 +264,13 @@ public class MainActivity extends ActionBarActivity implements
             File photoFile = null;
             try {
                 photoFile = createImageFile();
-            } catch (IOException ex){
-                Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
-            }
-            if (photoFile != null){
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 // Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            } catch (IOException ex){
+                Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
-        }
-        else{
+        } else {
             Toast.makeText(this, "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
         }
     }
@@ -310,11 +281,7 @@ public class MainActivity extends ActionBarActivity implements
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES
         );
-        File image = File.createTempFile(
-                imageFileName,
-                ".jpg",
-                storageDir
-        );
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
 
         mCurrentPhotoPath = image.getAbsolutePath();
         return image;
@@ -331,7 +298,7 @@ public class MainActivity extends ActionBarActivity implements
         goToFeed();
     }
 
-    private boolean isConnected(){
+    private boolean isConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
@@ -340,23 +307,20 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        // Connect the client.
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals("")) {
             // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
             // If they say yes, send them to Location Settings
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
-            // Connect the client.
         mLocationClient.connect();
         updateFeed();
     }
     @Override
     protected void onRestoreInstanceState(Bundle bundle){
         mUsername = bundle.getString(PREF_USERNAME);
-        if(mUsername == null){
+        if (mUsername == null)
             determineUsername();
-        }
     }
 
     @Override
@@ -386,10 +350,9 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
         switch (item.getItemId()) {
             case R.id._action_report:
-                    goToNewReport();
+                goToNewReport();
                 return true;
             case R.id.accounts_menu:
                 showLogins();
@@ -402,10 +365,10 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if(getSupportFragmentManager().findFragmentByTag("newReport") == null){
+        if (getSupportFragmentManager().findFragmentByTag("newReport") == null)
             getSupportActionBar().show();
-        }
     }
+
     public void showLogins() {
         DialogFragment newFragment = new AccountsFragment();
         newFragment.show(getSupportFragmentManager(), "accounts");
@@ -413,22 +376,17 @@ public class MainActivity extends ActionBarActivity implements
 
     private void determineUsername() {
         if (mUsername == null || mUsername.equals("")) {
-        String savedUserName = sharedPref.getString(PREF_USERNAME, "");
-            if (savedUserName.equals("")) {
+            String savedUserName = sharedPref.getString(PREF_USERNAME, "");
+            if (savedUserName.equals(""))
                 pickUserAccount();
-            }
-            else {
+            else
                 mUsername = savedUserName;
-//                Toast.makeText(this, "Saved: " + mUsername,
-//                    Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
     private void pickUserAccount() {
         String[] accountTypes = new String[]{"com.google"};
-        Intent intent = AccountPicker.newChooseAccountIntent(null, null,
-                accountTypes, false, null, null, null, null);
+        Intent intent = AccountPicker.newChooseAccountIntent(null, null, accountTypes, false, null, null, null, null);
         startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
 }
