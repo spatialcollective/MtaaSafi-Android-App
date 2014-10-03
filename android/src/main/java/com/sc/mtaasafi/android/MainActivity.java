@@ -176,7 +176,6 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragmentContainer, newReportFragment, "newReport")
                 .addToBackStack(null)
                 .commit();
-        getSupportActionBar().hide();
     }
 
     // ======================Google Play Services Setup:======================

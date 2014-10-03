@@ -155,7 +155,8 @@ public class NewReportFragment extends Fragment {
         ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
         Bitmap smallBmp = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-        Log.e(LogTags.PHOTO, "Got to onPHOTOTAKEN in fragment! Bitmap: " + bitmap.toString());
+        Log.e(LogTags.PHOTO, "Got to onPHOTOTAKEN in fragment! Bitmap: " + bitmap.toString() +
+                " lastPreviewClicked: "+ lastPreviewClicked);
         switch(lastPreviewClicked){
             case PIC1: {
                 pic1 = bytearrayoutputstream.toByteArray();
@@ -188,12 +189,15 @@ public class NewReportFragment extends Fragment {
         if(pic3 == null){
             emptyPics++;
         }
-        if(emptyPics > 0)
+        if(emptyPics > 1)
             attachPicsTV.setText("Attach " + emptyPics + " more pictures:");
+        else if (emptyPics == 1)
+            attachPicsTV.setText("Attach " + emptyPics + " more picture:");
         else
             attachPicsTV.setVisibility(View.INVISIBLE);
         attemptEnableReport();
     }
+
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putString(DEETS_KEY, details.getText().toString());
