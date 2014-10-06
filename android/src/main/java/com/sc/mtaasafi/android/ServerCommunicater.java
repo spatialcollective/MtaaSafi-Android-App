@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -76,7 +77,6 @@ public class ServerCommunicater {
         StringEntity entity = new StringEntity(report.getJson().toString());
         httpPost.setEntity(entity);
         HttpResponse httpResponse = httpclient.execute(httpPost);
-        logResponse(httpResponse.getEntity().getContent());
     }
 
     public void getPosts(){
@@ -85,75 +85,77 @@ public class ServerCommunicater {
         fp.execute(readURL + activity.getScreenWidth());
     }
 
-    private String GET(String url){
+    private JSONArray GET(String url){
         InputStream inputStream;
-        String result = "";
-        try{
+        String resultString = "error";
+
+        try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
             inputStream = httpResponse.getEntity().getContent();
-
             if (inputStream != null)
-                result = convertInputStreamToString(inputStream);
-            else
-                result = "Did not work";
-        }catch (Exception e){
-//            Log.d("InputStream", e.getLocalizedMessage());
+                resultString = convertInputStreamToString(inputStream);
+        } catch (Exception e) {
             activity.onUpdateFailed();
         }
-        return result;
+        backupDataToFile(resultString);
+        return convertStringToJson(resultString);
+    }
+
+    private void backupDataToFile(String dataString) {
+//        try {
+//            outputStream = openFileOutput("serverBackup", Context.MODE_PRIVATE);
+//            outputStream.write(dataString.getBytes());
+//            outputStream.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        StringBuilder result = new StringBuilder(inputStream.available());
         String line;
-        String result = "";
+
         while((line = bufferedReader.readLine()) != null)
-            result += line;
+            result.append(line);
         inputStream.close();
-        return result;
+        return result.toString();
     }
 
-    private static void logResponse(InputStream inputStream) {
-//        String result = convertInputStreamToString(inputStream);
-//        Log.e(LogTags.BACKEND_W, result);
+    private JSONArray convertStringToJson(String input) {
+        try {
+            JSONArray jsonArray = new JSONArray(input);
+            if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+                activity.onUpdateFailed();
+            return jsonArray;
+        } catch (JSONException e) {
+            activity.onUpdateFailed();
+        }
+        return new JSONArray();
     }
 
-    private class FetchPosts extends AsyncTask<String, Void, String> {
+    private class FetchPosts extends AsyncTask<String, Void, JSONArray> {
         @Override
-        protected String doInBackground(String... urls){
+        protected JSONArray doInBackground(String... urls) {
             return GET(urls[0]);
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            try {
-                JSONArray jsonArray = new JSONArray(result);
-                int len = jsonArray.length();
-                List<Report> listContent = new ArrayList<Report>(len);
-//                Log.d("onPostExecute", "retrieved content list of length: " + len);
-                if (listContent.size() == 1 && jsonArray.getJSONObject(0).getString("error") != null){
-                    activity.onUpdateFailed();
-                    return;
-                }
+        protected void onPostExecute(JSONArray result) {
+            int len = result.length();
+            List<Report> listContent = new ArrayList<Report>(len);
 
-                for (int i = 0; i < len; i++) {
-                    try {
-                        JSONObject json = jsonArray.getJSONObject(i);
-                        listContent.add(new Report(json, null));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        activity.onUpdateFailed();
-                    } catch(Exception e) {
-//                        Log.d("content", "JSON error");
-                        activity.onUpdateFailed();
-                    }
-                }
-                activity.onFeedUpdate(listContent);
+            try {
+                for (int i = 0; i < len; i++)
+                    listContent.add(new Report(result.getJSONObject(i), null));
             } catch (JSONException e) {
-//                Log.d("JSONObject", e.getLocalizedMessage());
+                activity.onUpdateFailed();
+            } catch (Exception e) {
+                e.printStackTrace();
                 activity.onUpdateFailed();
             }
+            activity.onFeedUpdate(listContent);
         }
     }
 }
