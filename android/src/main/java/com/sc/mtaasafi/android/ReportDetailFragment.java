@@ -1,14 +1,12 @@
 package com.sc.mtaasafi.android;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.androidquery.AQuery;
 
@@ -16,7 +14,7 @@ import java.text.SimpleDateFormat;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
-    ImageView media;
+    ImageView media1, media2, media3;
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
     ProgressBar progress;
     MainActivity mActivity;
@@ -36,7 +34,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
-        View view = inflater.inflate(R.layout.fragment_post_view, container, false);
+        View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         aq = new AQuery(view);
         updateView(view);
         return view;
@@ -52,14 +50,20 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         timeStampTV.setVisibility(View.VISIBLE);
         userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
         userNameTV.setText(mReport.userName);
-        media = (ImageView) view.findViewById(R.id.attachedPic);
+        media1 = (ImageView) view.findViewById(R.id.media1);
+        media2 = (ImageView) view.findViewById(R.id.media2);
+        media3 = (ImageView) view.findViewById(R.id.media3);
         progress = (ProgressBar) view.findViewById(R.id.progressBar);
-        if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
-            aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
-        } else {
-            media.setVisibility(View.INVISIBLE);
-            progress.setVisibility(View.INVISIBLE);
-        }
+        aq.id(media1).progress(R.id.progressBar).image(mReport.media1URL);
+        aq.id(media2).progress(R.id.progressBar).image(mReport.media2URL);
+        aq.id(media3).progress(R.id.progressBar).image(mReport.media3URL);
+//
+//        if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
+//            aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
+//        } else {
+//            media.setVisibility(View.INVISIBLE);
+//            progress.setVisibility(View.INVISIBLE);
+//        }
     }
 
     @Override

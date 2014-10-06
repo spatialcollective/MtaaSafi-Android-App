@@ -40,11 +40,6 @@ public class Report {
                             latKey = "latitude",
                             lonKey = "longitude";
 
-    public Report() {
-        title = details = timeStamp = timeElapsed = userName = media1URL = media2URL = media3URL = "";
-        latitude = longitude = 0;
-    }
-
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
                   byte[] pic1, byte[] pic2, byte[] pic3) {
