@@ -148,7 +148,7 @@ public class ServerCommunicater {
 
             try {
                 for (int i = 0; i < len; i++)
-                    listContent.add(new Report(result.getJSONObject(i), null));
+                    listContent.add(new Report(result.getJSONObject(i)));
             } catch (JSONException e) {
                 activity.onUpdateFailed();
             } catch (Exception e) {

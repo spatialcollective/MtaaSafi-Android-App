@@ -25,10 +25,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        Bundle args = getArguments();
-        if (args != null) {
-            mReport = new Report(args);
-//            Toast.makeText(getActivity(), "Time elapsed: " + mReport.timeElapsed, Toast.LENGTH_SHORT).show();
+        if(savedInstanceState != null){
+            mReport = new Report(savedInstanceState);
         }
     }
 
@@ -36,27 +34,34 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         aq = new AQuery(view);
-        updateView(view);
         return view;
     }
 
-    private void updateView(View view) {
-        titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
-        titleTV.setText(mReport.title);
-        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
-        detailsTV.setText(mReport.details);
-        timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
-        timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
-        timeStampTV.setVisibility(View.VISIBLE);
-        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
-        userNameTV.setText(mReport.userName);
-        media1 = (ImageView) view.findViewById(R.id.media1);
-        media2 = (ImageView) view.findViewById(R.id.media2);
-        media3 = (ImageView) view.findViewById(R.id.media3);
-        progress = (ProgressBar) view.findViewById(R.id.progressBar);
-        aq.id(media1).progress(R.id.progressBar).image(mReport.media1URL);
-        aq.id(media2).progress(R.id.progressBar).image(mReport.media2URL);
-        aq.id(media3).progress(R.id.progressBar).image(mReport.media3URL);
+    public void updateView(Report report) {
+        mReport = report;
+//        titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
+//        titleTV.setText(mReport.title);
+        aq.id(R.id.reportViewTitle).text(mReport.title);
+        aq.id(R.id.reportViewDetails).text(mReport.details);
+        aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
+        aq.id(R.id.reportViewUsername).text(mReport.userName);
+//        aq.id(R.id.media1).progress(R.id.progressBar).image(mReport.media1URL);
+//        aq.id(R.id.media2).progress(R.id.progressBar).image(mReport.media2URL);
+//        aq.id(R.id.media3).progress(R.id.progressBar).image(mReport.media3URL);
+//        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
+//        detailsTV.setText(mReport.details);
+//        timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
+//        timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
+//        timeStampTV.setVisibility(View.VISIBLE);
+//        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
+//        userNameTV.setText(mReport.userName);
+//        media1 = (ImageView) view.findViewById(R.id.media1);
+//        media2 = (ImageView) view.findViewById(R.id.media2);
+//        media3 = (ImageView) view.findViewById(R.id.media3);
+//        progress = (ProgressBar) view.findViewById(R.id.progressBar);
+//        aq.id(R.id.media1).progress(R.id.progressBar).image(mReport.media1URL);
+//        aq.id(R.id.media2).progress(R.id.progressBar).image(mReport.media2URL);
+//        aq.id(R.id.media3).progress(R.id.progressBar).image(mReport.media3URL);
 //
 //        if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
 //            aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
