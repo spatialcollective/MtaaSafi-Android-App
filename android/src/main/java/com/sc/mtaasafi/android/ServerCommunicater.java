@@ -85,31 +85,43 @@ public class ServerCommunicater {
         fp.execute(readURL + activity.getScreenWidth());
     }
 
-    private JSONArray GET(String url){
-        InputStream inputStream;
-        String resultString = "error";
+    private List<Report> GET(String url) {
+        String resultString;
+        JSONArray resultJson;
 
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-            inputStream = httpResponse.getEntity().getContent();
-            if (inputStream != null)
-                resultString = convertInputStreamToString(inputStream);
-        } catch (Exception e) {
-            activity.onUpdateFailed();
+            resultString = getDataFromServer(url);
+            resultJson = convertStringToJson(resultString);
+            activity.backupDataToFile(resultString);
+            return createReportsFromJson(resultJson);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            try {
+                resultString = activity.getJsonStringFromFile();
+                resultJson = convertStringToJson(resultString);
+                return createReportsFromJson(resultJson);
+            } catch (Exception e) {
+                activity.onUpdateFailed();
+            }
         }
-        backupDataToFile(resultString);
-        return convertStringToJson(resultString);
+        return new ArrayList<Report>();
     }
 
-    private void backupDataToFile(String dataString) {
-//        try {
-//            outputStream = openFileOutput("serverBackup", Context.MODE_PRIVATE);
-//            outputStream.write(dataString.getBytes());
-//            outputStream.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+    private String getDataFromServer(String url) throws IOException {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        if (inputStream != null)
+            return convertInputStreamToString(inputStream);
+        return "error";
+    }
+
+    private List<Report> createReportsFromJson(JSONArray jsonData) throws JSONException {
+        int len = jsonData.length();
+        List<Report> listContent = new ArrayList<Report>(len);
+        for (int i = 0; i < len; i++)
+            listContent.add(new Report(jsonData.getJSONObject(i), null));
+        return listContent;
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
@@ -142,20 +154,8 @@ public class ServerCommunicater {
         }
 
         @Override
-        protected void onPostExecute(JSONArray result) {
-            int len = result.length();
-            List<Report> listContent = new ArrayList<Report>(len);
-
-            try {
-                for (int i = 0; i < len; i++)
-                    listContent.add(new Report(result.getJSONObject(i)));
-            } catch (JSONException e) {
-                activity.onUpdateFailed();
-            } catch (Exception e) {
-                e.printStackTrace();
-                activity.onUpdateFailed();
-            }
-            activity.onFeedUpdate(listContent);
+        protected void onPostExecute(List<Report> result) {
+            activity.onFeedUpdate(result);
         }
     }
 }

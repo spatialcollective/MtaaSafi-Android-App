@@ -135,7 +135,6 @@ public class Report {
         return "just now";
     }
 
-        // takes a timestamp in format "yyyy-MM-dd'T'H:mm:ss"
     public static String getElapsedTime(String timestamp) {
 //        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
         SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
