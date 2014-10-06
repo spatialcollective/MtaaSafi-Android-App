@@ -57,13 +57,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         aq.id(media1).progress(R.id.progressBar).image(mReport.media1URL);
         aq.id(media2).progress(R.id.progressBar).image(mReport.media2URL);
         aq.id(media3).progress(R.id.progressBar).image(mReport.media3URL);
-//
-//        if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
-//            aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
-//        } else {
-//            media.setVisibility(View.INVISIBLE);
-//            progress.setVisibility(View.INVISIBLE);
-//        }
     }
 
     @Override

@@ -41,11 +41,6 @@ public class FeedItemView extends RelativeLayout {
         detailsTV.setText(briefDetails(report.details));
         timeElapsedTV = (TextView) findViewById(R.id.timeElapsed);
         timeElapsedTV.setText(report.timeElapsed);
-        if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
-            picsAttachedIcon.setVisibility(View.INVISIBLE);
-        else{
-            picsAttachedIcon.setVisibility(View.VISIBLE);
-        }
     }
 
     public String briefDetails(String origDetails){

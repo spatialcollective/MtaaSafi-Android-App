@@ -35,9 +35,16 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
+import org.json.JSONArray;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -87,7 +94,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     // Called by the server communicator if it cannot successfully receive posts from the server
-    // for any reason.
     public void onUpdateFailed() {
         runOnUiThread(new Runnable() {
             public void run() {
@@ -96,6 +102,22 @@ public class MainActivity extends ActionBarActivity implements
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
+    }
+
+    public void backupDataToFile(String dataString) throws IOException {
+        FileOutputStream outputStream = openFileOutput("serverBackup.json", Context.MODE_PRIVATE);
+        outputStream.write(dataString.getBytes());
+        outputStream.close();
+    }
+
+    public String getJsonStringFromFile() throws IOException {
+        FileInputStream jsonFileStream = openFileInput("serverBackup.json");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(jsonFileStream));
+        StringBuilder jsonString = new StringBuilder();
+        String line;
+        while ((line = bufferedReader.readLine()) != null)
+            jsonString.append(line);
+        return jsonString.toString();
     }
 
     // called by the fragment to update the fragment's feed w new posts.
@@ -222,7 +244,7 @@ public class MainActivity extends ActionBarActivity implements
         editor.commit();
     }
 
-    public Location getLocation(){
+    public Location getLocation() {
         mCurrentLocation = mLocationClient.getLastLocation();
         return mCurrentLocation;
     }
@@ -252,6 +274,13 @@ public class MainActivity extends ActionBarActivity implements
                 new ErrorDialogFragment();
         errorFragment.setDialog(errorDialog);
         errorFragment.show(getSupportFragmentManager(), "Location Updates");
+    }
+
+
+    private boolean isConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
     // ======================Picture-taking Logic:======================
@@ -294,7 +323,7 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
@@ -310,16 +339,9 @@ public class MainActivity extends ActionBarActivity implements
 //            else{
 //                goToFeed();
 ////            }
-        }
-        else{
+        } else {
             goToFeed();
         }
-    }
-
-    private boolean isConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
     }
 
     @Override

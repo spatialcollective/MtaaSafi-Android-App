@@ -29,7 +29,6 @@ public class Report {
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
-                            timeElapsedKey = "timeElapsed",
                             userNameKey = "user",
                             pic1Key = "pic1",
                             pic2Key = "pic2",
@@ -92,7 +91,6 @@ public class Report {
             JSONObject json = new JSONObject();
             json.put(detailsKey, this.details);
             json.put(timeStampKey, this.timeStamp);
-            json.put(timeElapsedKey, this.timeElapsed);
             json.put(userNameKey, this.userName);
             json.put(latKey, this.latitude);
             json.put(lonKey, this.longitude);
@@ -112,7 +110,6 @@ public class Report {
         outState.putString(titleKey, this.title);
         outState.putString(detailsKey, this.details);
         outState.putString(timeStampKey, this.timeStamp);
-        outState.putString(timeElapsedKey, this.timeElapsed);
         outState.putString(userNameKey, this.userName);
         outState.putString(media1URLKey, this.media1URL);
         outState.putString(media2URLKey, this.media2URL);
@@ -145,7 +142,6 @@ public class Report {
         return "just now";
     }
 
-        // takes a timestamp in format "yyyy-MM-dd'T'H:mm:ss"
     public static String getElapsedTime(String timestamp) {
 //        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
         SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");

@@ -1,10 +1,10 @@
 package com.sc.mtaasafi.android;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -35,6 +35,8 @@ public class ServerCommunicater {
         void onFeedUpdate(List<Report> posts);
         int getScreenWidth();
         void onUpdateFailed();
+        void backupDataToFile(String dataString) throws IOException;
+        String getJsonStringFromFile() throws IOException;
     }
 
     public ServerCommCallbacks activity;
@@ -85,31 +87,43 @@ public class ServerCommunicater {
         fp.execute(readURL + activity.getScreenWidth());
     }
 
-    private JSONArray GET(String url){
-        InputStream inputStream;
-        String resultString = "error";
+    private List<Report> GET(String url) {
+        String resultString;
+        JSONArray resultJson;
 
         try {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-            inputStream = httpResponse.getEntity().getContent();
-            if (inputStream != null)
-                resultString = convertInputStreamToString(inputStream);
-        } catch (Exception e) {
-            activity.onUpdateFailed();
+            resultString = getDataFromServer(url);
+            resultJson = convertStringToJson(resultString);
+            activity.backupDataToFile(resultString);
+            return createReportsFromJson(resultJson);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            try {
+                resultString = activity.getJsonStringFromFile();
+                resultJson = convertStringToJson(resultString);
+                return createReportsFromJson(resultJson);
+            } catch (Exception e) {
+                activity.onUpdateFailed();
+            }
         }
-        backupDataToFile(resultString);
-        return convertStringToJson(resultString);
+        return new ArrayList<Report>();
     }
 
-    private void backupDataToFile(String dataString) {
-//        try {
-//            outputStream = openFileOutput("serverBackup", Context.MODE_PRIVATE);
-//            outputStream.write(dataString.getBytes());
-//            outputStream.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+    private String getDataFromServer(String url) throws IOException {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        if (inputStream != null)
+            return convertInputStreamToString(inputStream);
+        return "error";
+    }
+
+    private List<Report> createReportsFromJson(JSONArray jsonData) throws JSONException {
+        int len = jsonData.length();
+        List<Report> listContent = new ArrayList<Report>(len);
+        for (int i = 0; i < len; i++)
+            listContent.add(new Report(jsonData.getJSONObject(i), null));
+        return listContent;
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
@@ -123,39 +137,22 @@ public class ServerCommunicater {
         return result.toString();
     }
 
-    private JSONArray convertStringToJson(String input) {
-        try {
-            JSONArray jsonArray = new JSONArray(input);
-            if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-                activity.onUpdateFailed();
-            return jsonArray;
-        } catch (JSONException e) {
-            activity.onUpdateFailed();
-        }
-        return new JSONArray();
+    private JSONArray convertStringToJson(String input) throws JSONException {
+        JSONArray jsonArray = new JSONArray(input);
+        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+            throw new JSONException("Got error from server.");
+        return jsonArray;
     }
 
-    private class FetchPosts extends AsyncTask<String, Void, JSONArray> {
+    private class FetchPosts extends AsyncTask<String, Void, List<Report>> {
         @Override
-        protected JSONArray doInBackground(String... urls) {
+        protected List<Report> doInBackground(String... urls) {
             return GET(urls[0]);
         }
 
         @Override
-        protected void onPostExecute(JSONArray result) {
-            int len = result.length();
-            List<Report> listContent = new ArrayList<Report>(len);
-
-            try {
-                for (int i = 0; i < len; i++)
-                    listContent.add(new Report(result.getJSONObject(i), null));
-            } catch (JSONException e) {
-                activity.onUpdateFailed();
-            } catch (Exception e) {
-                e.printStackTrace();
-                activity.onUpdateFailed();
-            }
-            activity.onFeedUpdate(listContent);
+        protected void onPostExecute(List<Report> result) {
+            activity.onFeedUpdate(result);
         }
     }
 }
