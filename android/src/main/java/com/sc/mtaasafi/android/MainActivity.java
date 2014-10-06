@@ -88,19 +88,6 @@ public class MainActivity extends ActionBarActivity implements
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
-//        List<Report> posts = new ArrayList<Report>();
-//        for(int i = 0; i < 15; i++){
-//            Report report = new Report(mUsername,
-//                    "",
-//                    0,0,
-//                    "this is"+i, "my song" + i,
-//                    null,
-//                    null);
-//            posts.add(pd);
-//            }
-//        if(feedFragment!=null){
-//            onFeedUpdate(posts);
-//        }
     }
 
     // called by the fragment to update the fragment's feed w new posts.
