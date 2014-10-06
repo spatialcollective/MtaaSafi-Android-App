@@ -24,9 +24,7 @@ public class NewsFeedFragment extends ListFragment {
     private ProgressBar progressBar;
     FeedAdapter mAdapter;
     ReportSelectedListener mCallback;
-    MultiAutoCompleteTextView et;
     MainActivity mActivity;
-    byte[] picture;
     int index;
     int top;
     
@@ -47,14 +45,10 @@ public class NewsFeedFragment extends ListFragment {
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
+        updateFeed();
         return view;
     }
-    public void setProgressBarVisibile(boolean isVisible){
-        if(isVisible)
-            progressBar.setVisibility(View.VISIBLE);
-        else
-            progressBar.setVisibility(View.INVISIBLE);
-    }
+
     @Override
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
@@ -63,6 +57,11 @@ public class NewsFeedFragment extends ListFragment {
         mCallback.goToDetailView(r);
     }
 
+    public void updateFeed(){
+        // TODO: setup conditional that only turns on progressBar if there are new posts from server
+        progressBar.setVisibility(View.VISIBLE);
+        mActivity.updateFeed();
+    }
     public interface ReportSelectedListener {
         public void goToDetailView(Report report);
     }
@@ -76,6 +75,7 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public void onResume(){
         super.onResume();
+
         restoreListPosition();
         Session session = Session.getActiveSession();
         if (session != null && (session.isOpened() || session.isClosed())){
@@ -84,7 +84,8 @@ public class NewsFeedFragment extends ListFragment {
     }
 
     public void onFeedUpdate(List<Report> allReports){
-        mAdapter.updateFeed(allReports);
+        progressBar.setVisibility(View.INVISIBLE);
+        mAdapter.updateItems(allReports);
     }
 
     public void alertFeedUpdate(){

@@ -31,10 +31,7 @@ public class FeedItemView extends RelativeLayout {
         mReport = report;
         inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         inflater.inflate(R.layout.feed_item, this, true);
-
         setViewData(report);
-
-        Log.d(LogTags.FEEDITEM, "Created! Contents: " + report.details);
     }
     
     public void setViewData(Report report) {
@@ -44,7 +41,6 @@ public class FeedItemView extends RelativeLayout {
         detailsTV.setText(briefDetails(report.details));
         timeElapsedTV = (TextView) findViewById(R.id.timeElapsed);
         timeElapsedTV.setText(report.timeElapsed);
-        picsAttachedIcon = (ImageView) findViewById(R.id.picAttachedIcon);
         if (report.mediaURL == null || report.mediaURL.equals("") || report.mediaURL.equals("null"))
             picsAttachedIcon.setVisibility(View.INVISIBLE);
         else{

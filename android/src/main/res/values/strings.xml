@@ -15,9 +15,8 @@
     <string name="new_post">New Post</string>
     <string name="new_photo">New Photo</string>
     <string name="new_post_hint">new post...</string>
-    <string name="report_detail_hint">Details about the problem...</string>
-    <string name="report_title_hint">Report title</string>
-    <string name="report_button_text">Report</string>
+    <string name="report_detail_hint">Description of the problem...</string>
+    <string name="report_button_text">Send</string>
     <string name="dialog_update_failed">Failed to update feed</string>
     <string name="dialog_update_failed_ok">Ok</string>
     <string name="dialog_update_failed_retry">Retry</string>

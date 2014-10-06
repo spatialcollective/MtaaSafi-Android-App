@@ -22,34 +22,40 @@ import java.util.List;
 public class Report {
     public List<String> networksShared;
     public double latitude, longitude;
-    public byte[] picture;
+    public byte[] pic1, pic2, pic3;
 
-    public String title, details, timeStamp, timeElapsed, userName, picURL, mediaURL;
+    public String   title, details, timeStamp, timeElapsed, userName,
+                    media1URL, media2URL, media3URL;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
                             timeElapsedKey = "timeElapsed",
                             userNameKey = "user",
-                            mediaKey = "media",
-                            mediaURLKey = "mediaURL",
+                            pic1Key = "pic1",
+                            pic2Key = "pic2",
+                            pic3Key = "pic3",
+                            media1URLKey = "media1URL",
+                            media2URLKey = "media2URL",
+                            media3URLKey = "media3URL",
                             latKey = "latitude",
-                            lonKey = "longitude",
-                            networksKey = "networksShared";
+                            lonKey = "longitude";
 
     public Report() {
-        title = details = timeStamp = timeElapsed = userName = picURL = mediaURL = "";
+        title = details = timeStamp = timeElapsed = userName = media1URL = media2URL = media3URL = "";
         latitude = longitude = 0;
     }
 
     // for Report objects created by the user to send to the server
-    public Report(String title, String details, String userName, Location location) {
-        this.title = title;
+    public Report(String details, String userName, Location location,
+                  byte[] pic1, byte[] pic2, byte[] pic3) {
         this.details = details;
         this.timeStamp = createTimeStamp();
-        this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
+        this.pic1 = pic1;
+        this.pic2 = pic2;
+        this.pic3 = pic3;
     }
 
     public Report(JSONObject jsonServerData, List<String> networksShared) {
@@ -59,7 +65,9 @@ public class Report {
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-            this.mediaURL = jsonServerData.getString(mediaURLKey);
+            this.media1URL = jsonServerData.getString(media1URLKey);
+            this.media2URL = jsonServerData.getString(media2URLKey);
+            this.media3URL = jsonServerData.getString(media3URLKey);
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
             if (networksShared != null)
@@ -76,30 +84,26 @@ public class Report {
         this.timeStamp = savedState.getString(timeStampKey);
         this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = savedState.getString(userNameKey);
-        this.mediaURL = savedState.getString(mediaURLKey);
+        this.media1URL = savedState.getString(media1URLKey);
+        this.media2URL = savedState.getString(media2URLKey);
+        this.media3URL = savedState.getString(media3URLKey);
         this.latitude = savedState.getDouble(latKey);
         this.longitude = savedState.getDouble(lonKey);
 //        this.networksShared = savedState.getStringArrayList(networksKey, (ArrayList<String>) savedState.networksShared);
     }
 
-    public void addPic(byte[] pic) {
-        this.picture = pic;
-    }
-
     public JSONObject getJson() {
         try {
             JSONObject json = new JSONObject();
-            json.put(titleKey, this.title);
             json.put(detailsKey, this.details);
             json.put(timeStampKey, this.timeStamp);
             json.put(timeElapsedKey, this.timeElapsed);
             json.put(userNameKey, this.userName);
             json.put(latKey, this.latitude);
             json.put(lonKey, this.longitude);
-            if (this.picture != null) {
-                String encodedImage = Base64.encodeToString(this.picture, Base64.DEFAULT);
-                json.put(mediaKey, encodedImage);
-            }
+            json.put(pic1Key, Base64.encodeToString(this.pic1, Base64.DEFAULT));
+            json.put(pic2Key, Base64.encodeToString(this.pic2, Base64.DEFAULT));
+            json.put(pic3Key, Base64.encodeToString(this.pic3, Base64.DEFAULT));
             Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {
@@ -115,10 +119,11 @@ public class Report {
         outState.putString(timeStampKey, this.timeStamp);
         outState.putString(timeElapsedKey, this.timeElapsed);
         outState.putString(userNameKey, this.userName);
-        outState.putString(mediaURLKey, this.mediaURL);
+        outState.putString(media1URLKey, this.media1URL);
+        outState.putString(media2URLKey, this.media2URL);
+        outState.putString(media3URLKey, this.media3URL);
         outState.putDouble(latKey, this.latitude);
         outState.putDouble(lonKey, this.longitude);
-        outState.putStringArrayList(networksKey, (ArrayList<String>) this.networksShared);
         return outState;
     }
 
