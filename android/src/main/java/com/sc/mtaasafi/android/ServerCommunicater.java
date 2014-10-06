@@ -35,6 +35,8 @@ public class ServerCommunicater {
         void onFeedUpdate(List<Report> posts);
         int getScreenWidth();
         void onUpdateFailed();
+        void backupDataToFile(String dataString) throws IOException;
+        String getJsonStringFromFile() throws IOException;
     }
 
     public ServerCommCallbacks activity;
@@ -120,7 +122,7 @@ public class ServerCommunicater {
         int len = jsonData.length();
         List<Report> listContent = new ArrayList<Report>(len);
         for (int i = 0; i < len; i++)
-            listContent.add(new Report(jsonData.getJSONObject(i), null));
+            listContent.add(new Report(jsonData.getJSONObject(i)));
         return listContent;
     }
 
@@ -147,9 +149,9 @@ public class ServerCommunicater {
         return new JSONArray();
     }
 
-    private class FetchPosts extends AsyncTask<String, Void, JSONArray> {
+    private class FetchPosts extends AsyncTask<String, Void, List<Report>> {
         @Override
-        protected JSONArray doInBackground(String... urls) {
+        protected List<Report> doInBackground(String... urls) {
             return GET(urls[0]);
         }
 
