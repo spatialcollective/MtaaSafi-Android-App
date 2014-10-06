@@ -24,9 +24,7 @@ public class NewsFeedFragment extends ListFragment {
     private ProgressBar progressBar;
     FeedAdapter mAdapter;
     ReportSelectedListener mCallback;
-    MultiAutoCompleteTextView et;
     MainActivity mActivity;
-    byte[] picture;
     int index;
     int top;
     
