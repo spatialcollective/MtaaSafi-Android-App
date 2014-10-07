@@ -249,38 +249,11 @@ public class MainActivity extends ActionBarActivity implements
         return mCurrentLocation;
     }
 
-    private boolean servicesConnected() {
-        // Check that Google Play services is available
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        // If Google Play services is available
-        if (ConnectionResult.SUCCESS == resultCode) {
-            // In debug mode, log the status
-            // Log.d("Location Updates", "Google Play services is available.");
-            return true;
-            // Google Play services was not available for some reason.
-            // resultCode holds the error code.
-        } else {
-            Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                    CONNECTION_FAILURE_RESOLUTION_REQUEST);
-            // If Google Play services can provide an error dialog
-            if (errorDialog != null)
-                showErrorFragment(errorDialog);
-            return false;
-        }
-    }
-
     private void showErrorFragment(Dialog errorDialog){
         ErrorDialogFragment errorFragment =
                 new ErrorDialogFragment();
         errorFragment.setDialog(errorDialog);
         errorFragment.show(getSupportFragmentManager(), "Location Updates");
-    }
-
-
-    private boolean isConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
     }
 
     // ======================Picture-taking Logic:======================
