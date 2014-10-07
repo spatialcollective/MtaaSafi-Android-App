@@ -13,6 +13,7 @@ public class LogTags {
                                 FEEDADAPTER = "FEED ADAPTER",
                                 NEWREPORT = "NEW REPORT FRAGMENT",
                                 PHOTO = "PHOTO",
-                                PAGER = "PAGER";
+                                PAGER = "PAGER",
+                                MAIN_ACTIVITY = "MAIN ACTIVITY";
     
 }

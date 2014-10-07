@@ -83,7 +83,6 @@ public class ServerCommunicater {
 
     public void getPosts(){
         FetchPosts fp = new FetchPosts();
-        Log.e(LogTags.BACKEND_R, readURL + activity.getScreenWidth());
         fp.execute(readURL + activity.getScreenWidth());
     }
 

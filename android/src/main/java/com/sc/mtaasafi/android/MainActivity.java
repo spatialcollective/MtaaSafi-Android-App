@@ -23,6 +23,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +49,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -67,12 +69,24 @@ public class MainActivity extends ActionBarActivity implements
     public String mUsername;
     public String mCurrentPhotoPath;
     private int currentItem;
+
+    String mCurrentPhotopath;
+    int lastPreviewClicked;
+    ArrayList<byte[]> pics;
+
+    private final int PIC1 = 0,
+            PIC2 = PIC1 + 1,
+            PIC3 = PIC2 + 1,
+            TOTAL_PICS = PIC3 + 1;
+
+
     NonSwipePager mPager;
     FragmentAdapter fa;
 
     static final String USERNAME_KEY = "username",
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
-                        CURRENT_FRAGMENT_KEY = "current_fragment";
+                        CURRENT_FRAGMENT_KEY = "current_fragment",
+                        picsKey = "pics";
 
 
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
@@ -175,7 +189,6 @@ public class MainActivity extends ActionBarActivity implements
 
     public void goToNewReport(){
         mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-        Log.e(LogTags.PAGER, "NEW REPORT CALLED!");
         currentItem = FRAGMENT_NEWREPORT;
     }
 
@@ -223,14 +236,15 @@ public class MainActivity extends ActionBarActivity implements
         if (resultCode != Activity.RESULT_OK)
             return;
         else if (requestCode == REQUEST_IMAGE_CAPTURE){
+            Log.e(LogTags.PHOTO, "onActivityResult");
+            onPhotoTaken();
             mPager.setCurrentItem(FRAGMENT_NEWREPORT);
             newReportFragment = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
-            newReportFragment.onPhotoTaken(mCurrentPhotoPath);
+
         }
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }
-
     private void setUserName(Intent data) {
         String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         mUsername = retrievedUserName;
@@ -280,7 +294,9 @@ public class MainActivity extends ActionBarActivity implements
 
     // ======================Picture-taking Logic:======================
     // Called by the new report fragment to launch a take picture activity.
-    public void takePicture(NewReportFragment nrf){
+    public void takePicture(NewReportFragment nrf, int previewClicked){
+        Log.e(LogTags.PHOTO, "takePicture");
+        lastPreviewClicked = previewClicked;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         newReportFragment = nrf;
@@ -311,16 +327,28 @@ public class MainActivity extends ActionBarActivity implements
         return image;
     }
 
+    private void onPhotoTaken(){
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
+        pics.add(lastPreviewClicked, byteArrayOutStream.toByteArray());
+    }
+
+    public ArrayList<byte[]> getPics(){
+        return pics;
+    }
     // ======================Activity Setup:======================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
+
         setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
-
+        pics = new ArrayList<byte[]>();
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -329,6 +357,11 @@ public class MainActivity extends ActionBarActivity implements
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+            restorePics(savedInstanceState.getStringArrayList(picsKey));
+        } else {
+            for(int i = 0; i < TOTAL_PICS; i++){
+                pics.add(null);
+            }
         }
             //mPager.setCurrentItem(currentItem);
 //            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
@@ -346,10 +379,23 @@ public class MainActivity extends ActionBarActivity implements
 //        goToFeed();
 
     }
+    private void restorePics(List<String> encodedPics){
+        for (int i = 0; i < TOTAL_PICS; i++) {
+            if (!encodedPics.get(i).equals("null")) {
+                // decode byte[] from string, add to pics list, create a thumb from the byte[],
+                // add it to the preview.
+                pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
+            } else {
+                pics.add(null);
+            }
+        }
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
+        Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals("")) {
             // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
@@ -373,6 +419,16 @@ public class MainActivity extends ActionBarActivity implements
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
         currentItem = fa.getItemPosition(mPager.getCurrentItem());
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
+        List<String> encodedPics = new ArrayList<String>();
+        for (byte[] pic : pics) {
+            if (pic != null)
+                encodedPics.add(Base64.encodeToString(pic, Base64.DEFAULT));
+            else {
+                encodedPics.add("null");
+            }
+        }
+        bundle.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
+
 //        if(feedFragment != null){
 //            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
 //        }
@@ -387,11 +443,13 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onResume(){
         super.onResume();
+        Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
     }
     @Override
     protected void onStop(){
         // Disconnecting the client invalidates it.
+        Log.e(LogTags.MAIN_ACTIVITY, "onStop");
         mLocationClient.disconnect();
         super.onStop();
     }

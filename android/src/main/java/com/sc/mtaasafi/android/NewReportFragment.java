@@ -52,14 +52,14 @@ public class NewReportFragment extends Fragment {
         aq = new AQuery(mActivity);
         pics = new ArrayList<byte[]>();
         picPreviews = new ImageView[TOTAL_PICS];
-        Log.e(LogTags.NEWREPORT, "On Create called");
-        setRetainInstance(true);
+        Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedState) {
         // Inflate the layout for this fragment
+        Log.e(LogTags.NEWREPORT, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
         details = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         picPreviews[0] = (ImageView) view.findViewById(R.id.pic1);
@@ -77,39 +77,45 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
+        Log.e(LogTags.NEWREPORT, "onActivityCreated");
+
         if (savedState != null) {
             detailsString = savedState.getString(DEETS_KEY);
             if (detailsString != null) {
                 details.setText(detailsString);
             }
             lastPreviewClicked = savedState.getInt(LASTPREVIEW_KEY);
-            restorePics(savedState.getStringArrayList(picsKey));
+//            restorePics(savedState.getStringArrayList(picsKey));
+            restorePics();
+            Log.e(LogTags.NEWREPORT, "onActivityCreated: lastPreviewClicked: " + lastPreviewClicked);
+
         } else {
             for (int i = 0; i < TOTAL_PICS; i++) {
                 pics.add(null);
             }
         }
+
         Bundle args = getArguments();
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        if (mCurrentPhotopath != null) {
-            Log.e(LogTags.NEWREPORT, "Current photo path: " + mCurrentPhotopath);
-            onPhotoTaken(mCurrentPhotopath);
-//            setArguments(null);
-        }
+        Log.e(LogTags.NEWREPORT, "onResume");
+        restorePics();
+//        if (mCurrentPhotopath != null) {
+//            Log.e(LogTags.NEWREPORT, "Current photo path: " + mCurrentPhotopath);
+//            onPhotoTaken(mCurrentPhotopath);
+////            setArguments(null);
+//        }
     }
-    private void restorePics(List<String> encodedPics) {
+    private void restorePics() {
+        pics = mActivity.getPics();
         for (int i = 0; i < TOTAL_PICS; i++) {
-            if (!encodedPics.get(i).equals("null")) {
+            if (pics.get(i)!= null) {
                 // decode byte[] from string, add to pics list, create a thumb from the byte[],
                 // add it to the preview.
-                pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
                 aq.id(picPreviews[i]).image(getThumbnail(pics.get(i)));
-            } else {
-                pics.add(null);
             }
         }
     }
@@ -159,8 +165,8 @@ public class NewReportFragment extends Fragment {
 
     public void onPicPreviewClicked(int previewClicked) {
         lastPreviewClicked = previewClicked;
-        setRetainInstance(true);
-        mActivity.takePicture((NewReportFragment) getParentFragment());
+//        setRetainInstance(true);
+        mActivity.takePicture((NewReportFragment) getParentFragment(), lastPreviewClicked);
     }
 
     public void sendReport() {
@@ -182,14 +188,14 @@ public class NewReportFragment extends Fragment {
         if (pics != null && !pics.isEmpty()) {
             for (int i = 0; i < TOTAL_PICS; i++) {
                 if (pics.get(i) == null) {
-                    Log.e(LogTags.NEWREPORT, "pic" + i + " is null");
+//                    Log.e(LogTags.NEWREPORT, "pic" + i + " is null");
                     hasEmptyPics = true;
                     break;
                 }
             }
         }
-        Log.e(LogTags.NEWREPORT, "Do u have details: " + !details.getText().toString().isEmpty()
-                + ". Have all pics: " + !hasEmptyPics);
+//        Log.e(LogTags.NEWREPORT, "Do u have details: " + !details.getText().toString().isEmpty()
+//                + ". Have all pics: " + !hasEmptyPics);
         if (!details.getText().toString().isEmpty() && !hasEmptyPics) {
             reportBtn.setClickable(true);
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
@@ -199,11 +205,19 @@ public class NewReportFragment extends Fragment {
         }
     }
 
-    public void onPhotoTaken(String filePath) {
+    public void onPhotoTaken(String filePath, int previewClicked) {
+        Log.e(LogTags.NEWREPORT, "onPhotoTaken");
         Bitmap bitmap = BitmapFactory.decodeFile(filePath);
         ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
         Bitmap thumbnail = getThumbnail(byteArrayOutStream.toByteArray());
+        lastPreviewClicked = previewClicked;
+        if(pics == null){
+            pics = new ArrayList<byte[]>();
+            for(int i = 0; i < TOTAL_PICS; i++){
+                pics.add(null);
+            }
+        }
         switch (lastPreviewClicked) {
             case PIC1: {
                 pics.add(PIC1, byteArrayOutStream.toByteArray());
