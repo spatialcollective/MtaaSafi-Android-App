@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 
+import com.androidquery.AQuery;
 import com.androidquery.util.Progress;
 import com.facebook.Session;
 import com.facebook.SessionState;
@@ -25,12 +26,14 @@ public class NewsFeedFragment extends ListFragment {
     FeedAdapter mAdapter;
     ReportSelectedListener mCallback;
     MainActivity mActivity;
+    AQuery aq;
     int index;
     int top;
     
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        aq = new AQuery(getActivity());
         mActivity = (MainActivity) getActivity();
         mAdapter = new FeedAdapter(mActivity, this);
         setListAdapter(mAdapter);

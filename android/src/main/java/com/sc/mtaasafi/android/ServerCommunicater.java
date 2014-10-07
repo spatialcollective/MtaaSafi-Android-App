@@ -1,10 +1,10 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -122,7 +122,7 @@ public class ServerCommunicater {
         int len = jsonData.length();
         List<Report> listContent = new ArrayList<Report>(len);
         for (int i = 0; i < len; i++)
-            listContent.add(new Report(jsonData.getJSONObject(i), null));
+            listContent.add(new Report(jsonData.getJSONObject(i)));
         return listContent;
     }
 
@@ -137,11 +137,16 @@ public class ServerCommunicater {
         return result.toString();
     }
 
-    private JSONArray convertStringToJson(String input) throws JSONException {
-        JSONArray jsonArray = new JSONArray(input);
-        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-            throw new JSONException("Got error from server.");
-        return jsonArray;
+    private JSONArray convertStringToJson(String input) {
+        try {
+            JSONArray jsonArray = new JSONArray(input);
+            if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+                activity.onUpdateFailed();
+            return jsonArray;
+        } catch (JSONException e) {
+            activity.onUpdateFailed();
+        }
+        return new JSONArray();
     }
 
     private class FetchPosts extends AsyncTask<String, Void, List<Report>> {

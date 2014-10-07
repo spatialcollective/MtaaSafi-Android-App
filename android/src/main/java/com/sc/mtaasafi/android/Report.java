@@ -6,12 +6,14 @@ import android.util.Log;
 
 import android.location.Location;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -20,52 +22,44 @@ import java.util.List;
  * Data class for passing data about posts
  */
 public class Report {
-    public List<String> networksShared;
     public double latitude, longitude;
-    public byte[] pic1, pic2, pic3;
-
-    public String   title, details, timeStamp, timeElapsed, userName,
-                    media1URL, media2URL, media3URL;
+    public List<byte[]> pics;
+    public String   title, details, timeStamp, timeElapsed, userName;
+    public List<String> mediaURLs;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
                             userNameKey = "user",
-                            pic1Key = "pic1",
-                            pic2Key = "pic2",
-                            pic3Key = "pic3",
-                            media1URLKey = "media1URL",
-                            media2URLKey = "media2URL",
-                            media3URLKey = "media3URL",
+                            picsKey = "pics",
+                            mediaURLsKey = "mediaURLs",
                             latKey = "latitude",
                             lonKey = "longitude";
 
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
-                  byte[] pic1, byte[] pic2, byte[] pic3) {
+                  List<byte[]> pics) {
         this.details = details;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
-        this.pic1 = pic1;
-        this.pic2 = pic2;
-        this.pic3 = pic3;
+        this.pics = pics;
     }
 
-    public Report(JSONObject jsonServerData, List<String> networksShared) {
+    public Report(JSONObject jsonServerData) {
         try {
             this.title = jsonServerData.getString(titleKey);
             this.details = jsonServerData.getString(detailsKey);
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-            this.media1URL = jsonServerData.getString(media1URLKey);
-            this.media2URL = jsonServerData.getString(media2URLKey);
-            this.media3URL = jsonServerData.getString(media3URLKey);
+            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
+            mediaURLs = new ArrayList<String>();
+            for(int i = 0; i < mediaURLsInJSON.length(); i++){
+              mediaURLs.add(mediaURLsInJSON.get(i).toString());
+            }
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
-            if (networksShared != null)
-                this.networksShared = networksShared;
         } catch (JSONException e) {
             e.printStackTrace();
            Log.e(LogTags.JSON, "Failed to convert data from JSON");
@@ -78,12 +72,9 @@ public class Report {
         this.timeStamp = savedState.getString(timeStampKey);
         this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = savedState.getString(userNameKey);
-        this.media1URL = savedState.getString(media1URLKey);
-        this.media2URL = savedState.getString(media2URLKey);
-        this.media3URL = savedState.getString(media3URLKey);
+        this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(mediaURLsKey)));
         this.latitude = savedState.getDouble(latKey);
         this.longitude = savedState.getDouble(lonKey);
-//        this.networksShared = savedState.getStringArrayList(networksKey, (ArrayList<String>) savedState.networksShared);
     }
 
     public JSONObject getJson() {
@@ -94,14 +85,18 @@ public class Report {
             json.put(userNameKey, this.userName);
             json.put(latKey, this.latitude);
             json.put(lonKey, this.longitude);
-            json.put(pic1Key, Base64.encodeToString(this.pic1, Base64.DEFAULT));
-            json.put(pic2Key, Base64.encodeToString(this.pic2, Base64.DEFAULT));
-            json.put(pic3Key, Base64.encodeToString(this.pic3, Base64.DEFAULT));
+
+            JSONArray jsonPics = new JSONArray();
+            for(byte[] pic : pics){
+                jsonPics.put(Base64.encodeToString(pic, Base64.DEFAULT));
+            }
+            json.put(picsKey, jsonPics);
+
             Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
-//            Log.e(LogTags.JSON, "Failed to convert data to JSON");
+            Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
         }
         return null;
     }
@@ -111,9 +106,7 @@ public class Report {
         outState.putString(detailsKey, this.details);
         outState.putString(timeStampKey, this.timeStamp);
         outState.putString(userNameKey, this.userName);
-        outState.putString(media1URLKey, this.media1URL);
-        outState.putString(media2URLKey, this.media2URL);
-        outState.putString(media3URLKey, this.media3URL);
+        outState.putStringArray(mediaURLsKey, (String[]) this.mediaURLs.toArray());
         outState.putDouble(latKey, this.latitude);
         outState.putDouble(lonKey, this.longitude);
         return outState;

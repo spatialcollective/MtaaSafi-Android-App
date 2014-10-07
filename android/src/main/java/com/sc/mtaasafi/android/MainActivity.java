@@ -21,6 +21,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -34,6 +35,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
 import org.json.JSONArray;
 
@@ -60,24 +62,25 @@ public class MainActivity extends ActionBarActivity implements
     private ReportDetailFragment reportDetailFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
-    private ListView feedView;
     private ServerCommunicater sc;
-    private Report report;
     private SharedPreferences sharedPref;
     public String mUsername;
     public String mCurrentPhotoPath;
-    static final String USERNAME_KEY = "username";
-    static final String FEED_FRAG_KEY = "feed";
-    static final String NEW_REPORT_KEY = "new_report";
-    static final String REPORT_DETAIL_KEY = "report_detail";
-    static final String CURRENT_PHOTO_PATH_KEY = "photo_path";
-    static String CURRENT_FRAGMENT_KEY = "current_fragment";
-    static final String FRAGMENT_NEWREPORT = "1";
-    static final String FRAGMENT_REPORTDETAIL = "2";
-    static final String FRAGMENT_FEED = "3";
-    static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int REQUEST_PICK_IMAGE = 100;
+    private int currentItem;
+    NonSwipePager mPager;
+    FragmentAdapter fa;
+
+    static final String USERNAME_KEY = "username",
+                        CURRENT_PHOTO_PATH_KEY = "photo_path",
+                        CURRENT_FRAGMENT_KEY = "current_fragment";
+
+
+    static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
+                        REQUEST_IMAGE_CAPTURE = 1,
+                        FRAGMENT_FEED = 0,
+                        FRAGMENT_REPORTDETAIL = 1,
+                        FRAGMENT_NEWREPORT = 2,
+                        REQUEST_PICK_IMAGE = 100;
 
 
     // ======================Client-Server Communications:======================
@@ -85,6 +88,7 @@ public class MainActivity extends ActionBarActivity implements
     // Called by the server communicator to add new posts to the feed fragment
     @Override
     public void onFeedUpdate(List<Report> allReports) {
+        feedFragment = (NewsFeedFragment) fa.getItem(FRAGMENT_FEED);
         feedFragment.onFeedUpdate(allReports);
         runOnUiThread(new Runnable() {
             public void run() {
@@ -138,19 +142,6 @@ public class MainActivity extends ActionBarActivity implements
         updateFeed();
     }
 
-    public void goToDetailView(Report report){
-        Bundle args = report.saveState(new Bundle());
-        if(reportDetailFragment == null){
-            reportDetailFragment = new ReportDetailFragment();
-        }
-        reportDetailFragment.setArguments(args);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, reportDetailFragment, "reportDetailView")
-                .addToBackStack(null)
-                .commit();
-    }
-
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
         public ErrorDialogFragment() {
@@ -165,26 +156,23 @@ public class MainActivity extends ActionBarActivity implements
     }
     // ======================Fragment Navigation:======================
     public void goToFeed(){
-        if(feedFragment == null){
-            feedFragment = new NewsFeedFragment();
-        }
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, feedFragment, "newsfeed")
-                .addToBackStack(null)
-                .commit();
-        getSupportActionBar().show();
+        mPager.setCurrentItem(FRAGMENT_FEED);
+        currentItem = FRAGMENT_FEED;
+    }
+
+    public void goToDetailView(Report report){
+        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
+        ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
+        Bundle args = report.saveState(new Bundle());
+        rdf.updateView(report);
+        rdf.setArguments(args);
+        currentItem = FRAGMENT_REPORTDETAIL;
     }
 
     public void goToNewReport(){
-        if(newReportFragment == null){
-            newReportFragment = new NewReportFragment();
-        }
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, newReportFragment, "newReport")
-                .addToBackStack(null)
-                .commit();
+        mPager.setCurrentItem(FRAGMENT_NEWREPORT);
+        Log.e(LogTags.PAGER, "NEW REPORT CALLED!");
+        currentItem = FRAGMENT_NEWREPORT;
     }
 
     // ======================Google Play Services Setup:======================
@@ -296,16 +284,21 @@ public class MainActivity extends ActionBarActivity implements
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        if (savedInstanceState != null) {
+        fa = new FragmentAdapter(getSupportFragmentManager());
+
+        mPager = (NonSwipePager)findViewById(R.id.pager);
+        mPager.setAdapter(fa);
+
+        if(savedInstanceState != null){
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
-            goToNewReport();
-            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
-            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
-            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
-            String currentFragment = savedInstanceState.getString(CURRENT_FRAGMENT_KEY);
-            goToNewReport();
+            currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+
+            //mPager.setCurrentItem(currentItem);
+//            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
+//            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
+//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
 //            if(currentFragment.equals(FRAGMENT_NEWREPORT)){
 //                goToNewReport();
 //            }
@@ -315,6 +308,8 @@ public class MainActivity extends ActionBarActivity implements
         } else {
             goToFeed();
         }
+        goToFeed();
+
     }
 
     @Override
@@ -341,16 +336,17 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-        bundle.putString(CURRENT_FRAGMENT_KEY, FRAGMENT_NEWREPORT);
-        if(feedFragment != null){
-            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
-        }
-        if(newReportFragment != null){
-            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
-        }
-        if(reportDetailFragment != null){
-            getSupportFragmentManager().putFragment(bundle, REPORT_DETAIL_KEY, reportDetailFragment);
-        }
+        currentItem = fa.getItemPosition(mPager.getCurrentItem());
+        bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
+//        if(feedFragment != null){
+//            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
+//        }
+//        if(newReportFragment != null){
+//            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
+//        }
+//        if(reportDetailFragment != null){
+//            getSupportFragmentManager().putFragment(bundle, REPORT_DETAIL_KEY, reportDetailFragment);
+//        }
     }
 
     @Override
@@ -389,9 +385,11 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        if (getSupportFragmentManager().findFragmentByTag("newReport") == null)
-            getSupportActionBar().show();
+//        super.onBackPressed();
+        if(currentItem != FRAGMENT_FEED){
+            goToFeed();
+            currentItem = FRAGMENT_FEED;
+        }
     }
 
     public void showLogins() {
