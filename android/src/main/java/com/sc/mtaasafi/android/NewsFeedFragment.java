@@ -63,7 +63,7 @@ public class NewsFeedFragment extends ListFragment {
     public void updateFeed(){
         // TODO: setup conditional that only turns on progressBar if there are new posts from server
         progressBar.setVisibility(View.VISIBLE);
-        mActivity.updateFeed();
+        mActivity.updateFeed(this);
     }
     public interface ReportSelectedListener {
         public void goToDetailView(Report report);

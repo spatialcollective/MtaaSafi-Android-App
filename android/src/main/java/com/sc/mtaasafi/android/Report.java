@@ -53,11 +53,11 @@ public class Report {
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
-            mediaURLs = new ArrayList<String>();
-            for(int i = 0; i < mediaURLsInJSON.length(); i++){
-              mediaURLs.add(mediaURLsInJSON.get(i).toString());
-            }
+//            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
+//            mediaURLs = new ArrayList<String>();
+//            for(int i = 0; i < mediaURLsInJSON.length(); i++){
+//              mediaURLs.add(mediaURLsInJSON.get(i).toString());
+//            }
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
         } catch (JSONException e) {
