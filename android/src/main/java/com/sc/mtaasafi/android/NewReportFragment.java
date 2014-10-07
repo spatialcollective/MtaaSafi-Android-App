@@ -18,7 +18,6 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +29,6 @@ public class NewReportFragment extends Fragment {
     ImageView[] picPreviews;
     ArrayList<byte[]> pics;
     String detailsString;
-    String mCurrentPhotopath;
     int lastPreviewClicked;
 
     private final int PIC1 = 0,
@@ -40,8 +38,7 @@ public class NewReportFragment extends Fragment {
 
     private final String DEETS_KEY = "details",
             picsKey = "pics",
-            LASTPREVIEW_KEY = "last_preview",
-            FILEPATH_KEY = "filepath";
+            LASTPREVIEW_KEY = "last_preview";
 
     AQuery aq;
 
@@ -118,6 +115,7 @@ public class NewReportFragment extends Fragment {
                 aq.id(picPreviews[i]).image(getThumbnail(pics.get(i)));
             }
         }
+        determineEmptyPicsText();
     }
 
     private void setListeners() {
@@ -205,41 +203,6 @@ public class NewReportFragment extends Fragment {
         }
     }
 
-    public void onPhotoTaken(String filePath, int previewClicked) {
-        Log.e(LogTags.NEWREPORT, "onPhotoTaken");
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
-        Bitmap thumbnail = getThumbnail(byteArrayOutStream.toByteArray());
-        lastPreviewClicked = previewClicked;
-        if(pics == null){
-            pics = new ArrayList<byte[]>();
-            for(int i = 0; i < TOTAL_PICS; i++){
-                pics.add(null);
-            }
-        }
-        switch (lastPreviewClicked) {
-            case PIC1: {
-                pics.add(PIC1, byteArrayOutStream.toByteArray());
-                aq.id(picPreviews[PIC1]).image(thumbnail);
-                break;
-            }
-            case PIC2: {
-                pics.add(PIC2, byteArrayOutStream.toByteArray());
-                aq.id(picPreviews[PIC2]).image(thumbnail);
-                break;
-            }
-            case PIC3: {
-                pics.add(PIC3, byteArrayOutStream.toByteArray());
-                aq.id(picPreviews[PIC3]).image(thumbnail);
-                break;
-            }
-        }
-        mCurrentPhotopath = null;
-        determineEmptyPicsText();
-//        setRetainInstance(false);
-    }
-
     // Returns 100x100px thumbnail to populate picPreviews.
     private Bitmap getThumbnail(byte[] pic) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(pic, 0, pic.length);
@@ -266,18 +229,6 @@ public class NewReportFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putString(DEETS_KEY, details.getText().toString());
         outState.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
-        List<String> encodedPics = new ArrayList<String>();
-        for (byte[] pic : pics) {
-            if (pic != null)
-                encodedPics.add(Base64.encodeToString(pic, Base64.DEFAULT));
-            else {
-                encodedPics.add("null");
-            }
-        }
-        outState.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
     }
 
-    public void setCurrentPhotoPath(String currentPhotopath) {
-        mCurrentPhotopath = currentPhotopath;
-    }
 }

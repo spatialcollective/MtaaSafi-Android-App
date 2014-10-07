@@ -239,8 +239,6 @@ public class MainActivity extends ActionBarActivity implements
             Log.e(LogTags.PHOTO, "onActivityResult");
             onPhotoTaken();
             mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-            newReportFragment = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
-
         }
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
@@ -299,7 +297,6 @@ public class MainActivity extends ActionBarActivity implements
         lastPreviewClicked = previewClicked;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        newReportFragment = nrf;
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
             File photoFile = null;
             try {
