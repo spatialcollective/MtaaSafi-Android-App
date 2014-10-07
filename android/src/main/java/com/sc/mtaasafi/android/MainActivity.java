@@ -88,7 +88,7 @@ public class MainActivity extends ActionBarActivity implements
     // Called by the server communicator to add new posts to the feed fragment
     @Override
     public void onFeedUpdate(List<Report> allReports) {
-        feedFragment = (NewsFeedFragment) fa.getItem(FRAGMENT_FEED);
+//        feedFragment = (NewsFeedFragment) fa.getItem(FRAGMENT_FEED);
         feedFragment.onFeedUpdate(allReports);
         runOnUiThread(new Runnable() {
             public void run() {
@@ -126,6 +126,10 @@ public class MainActivity extends ActionBarActivity implements
 
     // called by the fragment to update the fragment's feed w new posts.
     // When the server communicator gets the new posts, it will call onFeedUpdate above.
+    public void updateFeed(NewsFeedFragment nff){
+        feedFragment = nff;
+        sc.getPosts();
+    }
     public void updateFeed(){
         sc.getPosts();
     }
@@ -139,7 +143,7 @@ public class MainActivity extends ActionBarActivity implements
 //        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
 //        toast.show();
         sc.post(report);
-        updateFeed();
+        sc.getPosts();
     }
 
     public static class ErrorDialogFragment extends DialogFragment {
@@ -218,8 +222,11 @@ public class MainActivity extends ActionBarActivity implements
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
         if (resultCode != Activity.RESULT_OK)
             return;
-        else if (requestCode == REQUEST_IMAGE_CAPTURE)
+        else if (requestCode == REQUEST_IMAGE_CAPTURE){
+            mPager.setCurrentItem(FRAGMENT_NEWREPORT);
+            newReportFragment = (NewReportFragment) fa.getItem(FRAGMENT_NEWREPORT);
             newReportFragment.onPhotoTaken(mCurrentPhotoPath);
+        }
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }
@@ -289,12 +296,12 @@ public class MainActivity extends ActionBarActivity implements
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
-        if(savedInstanceState != null){
+        if(savedInstanceState != null) {
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-
+        }
             //mPager.setCurrentItem(currentItem);
 //            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
 //            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
@@ -305,10 +312,10 @@ public class MainActivity extends ActionBarActivity implements
 //            else{
 //                goToFeed();
 ////            }
-        } else {
-            goToFeed();
-        }
-        goToFeed();
+//        } else {
+//            goToFeed();
+//        }
+//        goToFeed();
 
     }
 

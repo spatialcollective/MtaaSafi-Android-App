@@ -23,9 +23,9 @@ public class FragmentAdapter extends FragmentStatePagerAdapter{
 
     @Override
     public Fragment getItem(int i) {
-//        String name = makeFragmentName(R.id.pager, i);
-//        Fragment f = fm.findFragmentByTag(name);
-//        if(f == null){
+        String name = makeFragmentName(R.id.pager, i);
+        Fragment f = fm.findFragmentByTag(name);
+        if(f == null){
             switch (i){
                 case 0:
                     return new NewsFeedFragment();
@@ -33,7 +33,7 @@ public class FragmentAdapter extends FragmentStatePagerAdapter{
                     return new ReportDetailFragment();
                 case 2:
                     return new NewReportFragment();
-//            }
+            }
         }
        return null;
     }

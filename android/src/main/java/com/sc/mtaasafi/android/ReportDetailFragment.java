@@ -25,9 +25,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        if(savedInstanceState != null){
-            mReport = new Report(savedInstanceState);
-        }
+//        if(savedInstanceState != null){
+//            mReport = new Report(savedInstanceState);
+//        }
     }
 
     @Override

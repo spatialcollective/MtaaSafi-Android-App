@@ -49,12 +49,21 @@ public class NewReportFragment extends Fragment {
         mActivity = (MainActivity) getActivity();
         aq = new AQuery(mActivity);
         pics = new ArrayList<byte[]>();
+        picPreviews = new ImageView[TOTAL_PICS];
         if(savedInstanceState != null){
             detailsString = savedInstanceState.getString(DEETS_KEY);
             lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
             List<String> encodedPics = savedInstanceState.getStringArrayList(picsKey);
-            for(String encodedPic : encodedPics){
-                pics.add(Base64.decode(encodedPic, Base64.DEFAULT));
+            for(int i = 0; i < TOTAL_PICS; i++){
+                if(!encodedPics.get(i).equals("null"))
+                    pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
+                else
+                    pics.add(null);
+            }
+        }
+        else{
+            for(int i = 0; i < TOTAL_PICS; i++){
+                pics.add(null);
             }
         }
     }
@@ -71,6 +80,7 @@ public class NewReportFragment extends Fragment {
         picPreviews[0] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[2] = (ImageView) view.findViewById(R.id.pic3);
+
         for(int i = 0; i < TOTAL_PICS; i++){
             if(pics.get(i) != null){
                 aq.id(picPreviews[i])
@@ -210,7 +220,11 @@ public class NewReportFragment extends Fragment {
         outState.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
         List<String> encodedPics = new ArrayList<String>();
         for(byte[] pic : pics){
-            encodedPics.add(Base64.encodeToString(pic, Base64.DEFAULT));
+            if(pic != null)
+                encodedPics.add(Base64.encodeToString(pic, Base64.DEFAULT));
+            else{
+                encodedPics.add("null");
+            }
         }
         outState.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
     }
