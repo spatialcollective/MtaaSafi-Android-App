@@ -30,17 +30,21 @@ public class NewReportFragment extends Fragment {
     ImageView[] picPreviews;
     ArrayList<byte[]> pics;
     String detailsString;
+    String mCurrentPhotopath;
     int lastPreviewClicked;
-    private final int   PIC1 = 0,
-                        PIC2 = PIC1+1,
-                        PIC3 = PIC2+1,
-                        TOTAL_PICS = PIC3+1;
+
+    private final int PIC1 = 0,
+            PIC2 = PIC1 + 1,
+            PIC3 = PIC2 + 1,
+            TOTAL_PICS = PIC3 + 1;
 
     private final String DEETS_KEY = "details",
-                         picsKey = "pics",
-                         LASTPREVIEW_KEY = "last_preview";
+            picsKey = "pics",
+            LASTPREVIEW_KEY = "last_preview",
+            FILEPATH_KEY = "filepath";
 
     AQuery aq;
+
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -49,6 +53,7 @@ public class NewReportFragment extends Fragment {
         pics = new ArrayList<byte[]>();
         picPreviews = new ImageView[TOTAL_PICS];
         Log.e(LogTags.NEWREPORT, "On Create called");
+        setRetainInstance(true);
     }
 
     @Override
@@ -70,41 +75,55 @@ public class NewReportFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedState){
+    public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
-        if(savedState != null){
+        if (savedState != null) {
             detailsString = savedState.getString(DEETS_KEY);
-            if(detailsString != null){
+            if (detailsString != null) {
                 details.setText(detailsString);
             }
             lastPreviewClicked = savedState.getInt(LASTPREVIEW_KEY);
             restorePics(savedState.getStringArrayList(picsKey));
-        } else{
-            for(int i = 0; i < TOTAL_PICS; i++){
+        } else {
+            for (int i = 0; i < TOTAL_PICS; i++) {
                 pics.add(null);
             }
         }
+        Bundle args = getArguments();
     }
 
-    private void restorePics(List<String> encodedPics){
-        for(int i = 0; i < TOTAL_PICS; i++){
-            if(!encodedPics.get(i).equals("null")){
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (mCurrentPhotopath != null) {
+            Log.e(LogTags.NEWREPORT, "Current photo path: " + mCurrentPhotopath);
+            onPhotoTaken(mCurrentPhotopath);
+//            setArguments(null);
+        }
+    }
+    private void restorePics(List<String> encodedPics) {
+        for (int i = 0; i < TOTAL_PICS; i++) {
+            if (!encodedPics.get(i).equals("null")) {
                 // decode byte[] from string, add to pics list, create a thumb from the byte[],
                 // add it to the preview.
                 pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
                 aq.id(picPreviews[i]).image(getThumbnail(pics.get(i)));
-            } else{
+            } else {
                 pics.add(null);
             }
         }
     }
 
-    private void setListeners(){
+    private void setListeners() {
         details.addTextChangedListener(new TextWatcher() {
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
+
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 attemptEnableReport();
@@ -112,21 +131,18 @@ public class NewReportFragment extends Fragment {
         });
 
         picPreviews[PIC1].setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
                 onPicPreviewClicked(PIC1);
             }
         });
         picPreviews[PIC2].setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
                 onPicPreviewClicked(PIC2);
             }
         });
         picPreviews[PIC3].setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
                 onPicPreviewClicked(PIC3);
@@ -135,10 +151,13 @@ public class NewReportFragment extends Fragment {
 
         reportBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) { sendReport(); }
+            public void onClick(View view) {
+                sendReport();
+            }
         });
     }
-    public void onPicPreviewClicked(int previewClicked){
+
+    public void onPicPreviewClicked(int previewClicked) {
         lastPreviewClicked = previewClicked;
         setRetainInstance(true);
         mActivity.takePicture((NewReportFragment) getParentFragment());
@@ -154,25 +173,30 @@ public class NewReportFragment extends Fragment {
 
     public Report createNewReport() {
         return new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
-            pics);
+                pics);
     }
 
     // called when the edit texts' listeners detect a change in their texts
     public void attemptEnableReport() {
-       boolean hasEmptyPics = false;
-       for(byte[] pic : pics){
-           if(pic == null){
-               hasEmptyPics = true;
-               break;
-           }
-       }
-       if (!details.getText().toString().isEmpty() && !hasEmptyPics){
-           reportBtn.setClickable(true);
-           reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
-       } else{
-           reportBtn.setClickable(false);
-           reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
-       }
+        boolean hasEmptyPics = false;
+        if (pics != null && !pics.isEmpty()) {
+            for (int i = 0; i < TOTAL_PICS; i++) {
+                if (pics.get(i) == null) {
+                    Log.e(LogTags.NEWREPORT, "pic" + i + " is null");
+                    hasEmptyPics = true;
+                    break;
+                }
+            }
+        }
+        Log.e(LogTags.NEWREPORT, "Do u have details: " + !details.getText().toString().isEmpty()
+                + ". Have all pics: " + !hasEmptyPics);
+        if (!details.getText().toString().isEmpty() && !hasEmptyPics) {
+            reportBtn.setClickable(true);
+            reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
+        } else {
+            reportBtn.setClickable(false);
+            reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
+        }
     }
 
     public void onPhotoTaken(String filePath) {
@@ -180,7 +204,7 @@ public class NewReportFragment extends Fragment {
         ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
         Bitmap thumbnail = getThumbnail(byteArrayOutStream.toByteArray());
-        switch(lastPreviewClicked){
+        switch (lastPreviewClicked) {
             case PIC1: {
                 pics.add(PIC1, byteArrayOutStream.toByteArray());
                 aq.id(picPreviews[PIC1]).image(thumbnail);
@@ -197,24 +221,24 @@ public class NewReportFragment extends Fragment {
                 break;
             }
         }
+        mCurrentPhotopath = null;
         determineEmptyPicsText();
-        setRetainInstance(false);
+//        setRetainInstance(false);
     }
 
     // Returns 100x100px thumbnail to populate picPreviews.
-    private Bitmap getThumbnail(byte[] pic){
+    private Bitmap getThumbnail(byte[] pic) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(pic, 0, pic.length);
         return Bitmap.createScaledBitmap(bitmap, 100, 100, true);
     }
 
-    private void determineEmptyPicsText(){
+    private void determineEmptyPicsText() {
         int emptyPics = 0;
-        for(int i = 0; i < pics.size(); i++){
-            if(pics.get(i) == null)
+        for (int i = 0; i < pics.size(); i++) {
+            if (pics.get(i) == null)
                 emptyPics++;
         }
-
-        if(emptyPics > 1)
+        if (emptyPics > 1)
             attachPicsTV.setText("Attach " + emptyPics + " more pictures:");
         else if (emptyPics == 1)
             attachPicsTV.setText("Attach " + emptyPics + " more picture:");
@@ -224,18 +248,22 @@ public class NewReportFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState){
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(DEETS_KEY, details.getText().toString());
         outState.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
         List<String> encodedPics = new ArrayList<String>();
-        for(byte[] pic : pics){
-            if(pic != null)
+        for (byte[] pic : pics) {
+            if (pic != null)
                 encodedPics.add(Base64.encodeToString(pic, Base64.DEFAULT));
-            else{
+            else {
                 encodedPics.add("null");
             }
         }
         outState.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
+    }
+
+    public void setCurrentPhotoPath(String currentPhotopath) {
+        mCurrentPhotopath = currentPhotopath;
     }
 }

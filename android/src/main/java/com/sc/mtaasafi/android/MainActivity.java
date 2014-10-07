@@ -223,8 +223,8 @@ public class MainActivity extends ActionBarActivity implements
         if (resultCode != Activity.RESULT_OK)
             return;
         else if (requestCode == REQUEST_IMAGE_CAPTURE){
-//            mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-//            newReportFragment = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
+            mPager.setCurrentItem(FRAGMENT_NEWREPORT);
+            newReportFragment = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
             newReportFragment.onPhotoTaken(mCurrentPhotoPath);
         }
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
