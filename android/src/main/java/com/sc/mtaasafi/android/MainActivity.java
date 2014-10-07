@@ -223,8 +223,8 @@ public class MainActivity extends ActionBarActivity implements
         if (resultCode != Activity.RESULT_OK)
             return;
         else if (requestCode == REQUEST_IMAGE_CAPTURE){
-            mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-            newReportFragment = (NewReportFragment) fa.getItem(FRAGMENT_NEWREPORT);
+//            mPager.setCurrentItem(FRAGMENT_NEWREPORT);
+//            newReportFragment = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
             newReportFragment.onPhotoTaken(mCurrentPhotoPath);
         }
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
@@ -280,9 +280,10 @@ public class MainActivity extends ActionBarActivity implements
 
     // ======================Picture-taking Logic:======================
     // Called by the new report fragment to launch a take picture activity.
-    public void takePicture(){
+    public void takePicture(NewReportFragment nrf){
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        newReportFragment = nrf;
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
             File photoFile = null;
             try {
