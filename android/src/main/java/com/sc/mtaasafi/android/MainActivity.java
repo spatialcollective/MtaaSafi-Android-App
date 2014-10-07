@@ -157,6 +157,7 @@ public class MainActivity extends ActionBarActivity implements
 //        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
 //        toast.show();
         sc.post(report);
+        pics.clear();
         sc.getPosts();
     }
 
