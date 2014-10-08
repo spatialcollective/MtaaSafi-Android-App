@@ -72,7 +72,7 @@ public class MainActivity extends ActionBarActivity implements
 
     String mCurrentPhotopath;
     int lastPreviewClicked;
-    ArrayList<byte[]> pics;
+    ArrayList<String> pics;
 
     private final int PIC1 = 0,
             PIC2 = PIC1 + 1,
@@ -182,9 +182,9 @@ public class MainActivity extends ActionBarActivity implements
     public void goToDetailView(Report report){
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
-        Bundle args = report.saveState(new Bundle());
-        rdf.updateView(report);
-        rdf.setArguments(args);
+        //Bundle args = report.saveState(new Bundle());
+        //rdf.updateView(report);
+        //rdf.setArguments(args);
         currentItem = FRAGMENT_REPORTDETAIL;
     }
 
@@ -326,13 +326,13 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onPhotoTaken(){
-        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
-        pics.add(lastPreviewClicked, byteArrayOutStream.toByteArray());
+//        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
+//        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
+        pics.add(lastPreviewClicked, mCurrentPhotoPath);
     }
 
-    public ArrayList<byte[]> getPics(){
+    public ArrayList<String> getPics(){
         return pics;
     }
     // ======================Activity Setup:======================
@@ -346,7 +346,7 @@ public class MainActivity extends ActionBarActivity implements
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
-        pics = new ArrayList<byte[]>();
+        pics = new ArrayList<String>();
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -382,7 +382,7 @@ public class MainActivity extends ActionBarActivity implements
             if (!encodedPics.get(i).equals("null")) {
                 // decode byte[] from string, add to pics list, create a thumb from the byte[],
                 // add it to the preview.
-                pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
+                pics.add(encodedPics.get(i));
             } else {
                 pics.add(null);
             }
@@ -418,9 +418,9 @@ public class MainActivity extends ActionBarActivity implements
         currentItem = fa.getItemPosition(mPager.getCurrentItem());
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
         List<String> encodedPics = new ArrayList<String>();
-        for (byte[] pic : pics) {
+        for (String pic : pics) {
             if (pic != null)
-                encodedPics.add(Base64.encodeToString(pic, Base64.DEFAULT));
+                encodedPics.add(pic);
             else {
                 encodedPics.add("null");
             }

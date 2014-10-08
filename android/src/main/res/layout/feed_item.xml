@@ -44,25 +44,14 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/itemDetails"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/linearLayout"
-        android:paddingBottom="15dp">
-
-    </LinearLayout>
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:id="@+id/bottomLine"
-        android:layout_below="@+id/linearLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:background="#999999" />
+        android:background="#999999"
+        android:layout_below="@+id/itemDetails"
+        android:paddingTop="10dp" />
 
 </RelativeLayout>

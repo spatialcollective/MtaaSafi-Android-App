@@ -27,7 +27,7 @@ public class NewReportFragment extends Fragment {
     TextView attachPicsTV;
     Button reportBtn;
     ImageView[] picPreviews;
-    ArrayList<byte[]> pics;
+    ArrayList<String> pics;
     String detailsString;
     int lastPreviewClicked;
 
@@ -47,7 +47,7 @@ public class NewReportFragment extends Fragment {
         super.onCreate(savedState);
         mActivity = (MainActivity) getActivity();
         aq = new AQuery(mActivity);
-        pics = new ArrayList<byte[]>();
+        pics = new ArrayList<String>();
         picPreviews = new ImageView[TOTAL_PICS];
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
     }
@@ -176,8 +176,9 @@ public class NewReportFragment extends Fragment {
     }
 
     public Report createNewReport() {
+        // TODO: figure out how to manage pics in report class
         return new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
-                pics);
+                null);
     }
 
     // called when the edit texts' listeners detect a change in their texts
@@ -204,9 +205,8 @@ public class NewReportFragment extends Fragment {
     }
 
     // Returns 100x100px thumbnail to populate picPreviews.
-    private Bitmap getThumbnail(byte[] pic) {
-        Bitmap bitmap = BitmapFactory.decodeByteArray(pic, 0, pic.length);
-        return Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+    private Bitmap getThumbnail(String picPath) {
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(picPath), 100, 100, true);
     }
 
     private void determineEmptyPicsText() {
