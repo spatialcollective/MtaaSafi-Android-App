@@ -1,12 +1,19 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import com.androidquery.AQuery;
 
@@ -15,6 +22,8 @@ import java.text.SimpleDateFormat;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
     ImageView media1, media2, media3;
+    Button previous, next;
+    ViewFlipper flipper;
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
     ProgressBar progress;
     MainActivity mActivity;
@@ -34,6 +43,21 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         aq = new AQuery(view);
+        previous = (Button) view.findViewById(R.id.buttonPrevious);
+        flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
+        previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flipper.showPrevious();
+            }
+        });
+        next = (Button) view.findViewById(R.id.buttonNext);
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                flipper.showPrevious();
+            }
+        });
         return view;
     }
 
@@ -97,4 +121,5 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             return timestamp;
         }
     }
+
 }
