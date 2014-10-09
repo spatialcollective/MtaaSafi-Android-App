@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.androidquery.AQuery;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,11 +102,6 @@ public class NewReportFragment extends Fragment {
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
         restorePics();
-//        if (mCurrentPhotopath != null) {
-//            Log.e(LogTags.NEWREPORT, "Current photo path: " + mCurrentPhotopath);
-//            onPhotoTaken(mCurrentPhotopath);
-////            setArguments(null);
-//        }
     }
     private void restorePics() {
         pics = mActivity.getPics();

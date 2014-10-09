@@ -326,9 +326,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onPhotoTaken(){
-//        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-//        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
         pics.add(lastPreviewClicked, mCurrentPhotoPath);
     }
 
@@ -357,26 +354,11 @@ public class MainActivity extends ActionBarActivity implements
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
             restorePics(savedInstanceState.getStringArrayList(picsKey));
         } else {
-            for(int i = 0; i < TOTAL_PICS; i++){
+            for(int i = 0; i < TOTAL_PICS; i++)
                 pics.add(null);
-            }
         }
-            //mPager.setCurrentItem(currentItem);
-//            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
-//            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
-//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
-//            if(currentFragment.equals(FRAGMENT_NEWREPORT)){
-//                goToNewReport();
-//            }
-//            else{
-//                goToFeed();
-////            }
-//        } else {
-//            goToFeed();
-//        }
-//        goToFeed();
-
     }
+
     private void restorePics(List<String> encodedPics){
         for (int i = 0; i < TOTAL_PICS; i++) {
             if (!encodedPics.get(i).equals("null")) {
@@ -405,8 +387,7 @@ public class MainActivity extends ActionBarActivity implements
     }
     @Override
     protected void onRestoreInstanceState(Bundle bundle){
-        mUsername = bundle.getString(USERNAME_KEY);
-        if (mUsername == null)
+        if (bundle.getString(USERNAME_KEY) == null)
             determineUsername();
     }
 
@@ -426,16 +407,6 @@ public class MainActivity extends ActionBarActivity implements
             }
         }
         bundle.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
-
-//        if(feedFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
-//        }
-//        if(newReportFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
-//        }
-//        if(reportDetailFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, REPORT_DETAIL_KEY, reportDetailFragment);
-//        }
     }
 
     @Override
@@ -452,13 +423,13 @@ public class MainActivity extends ActionBarActivity implements
         super.onStop();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.action_bar, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+    // @Override
+    // public boolean onCreateOptionsMenu(Menu menu) {
+    //     // Inflate the menu items for use in the action bar
+    //     MenuInflater inflater = getMenuInflater();
+    //     inflater.inflate(R.menu.action_bar, menu);
+    //     return super.onCreateOptionsMenu(menu);
+    // }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
