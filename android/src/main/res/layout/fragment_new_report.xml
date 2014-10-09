@@ -5,16 +5,17 @@
     android:layout_height="match_parent"
     android:id="@+id/new_report">
 
-        <EditText
+        <com.sc.mtaasafi.android.DescriptionEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/newReportDetails"
             android:hint="@string/report_detail_hint"
             android:background="@null"
-            android:singleLine="true"
             android:paddingLeft="10dp"
+            android:maxLength ="2000"
             android:textSize="18dp"
-            android:paddingTop="8dp" />
+            android:paddingTop="8dp"
+            android:imeOptions="actionDone"/>
 
         <Button
             android:layout_width="wrap_content"

@@ -1,6 +1,5 @@
 package com.sc.mtaasafi.android;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,7 +24,7 @@ import java.util.List;
 
 public class NewReportFragment extends Fragment {
     MainActivity mActivity;
-    EditText details;
+    DescriptionEditText details;
     TextView attachPicsTV;
     Button reportBtn;
     ImageView[] picPreviews;
@@ -44,49 +42,24 @@ public class NewReportFragment extends Fragment {
 
     AQuery aq;
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
         mActivity = (MainActivity) getActivity();
         aq = new AQuery(mActivity);
         pics = new ArrayList<byte[]>();
         picPreviews = new ImageView[TOTAL_PICS];
-        if(savedInstanceState != null){
-            detailsString = savedInstanceState.getString(DEETS_KEY);
-            lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
-            List<String> encodedPics = savedInstanceState.getStringArrayList(picsKey);
-            for(int i = 0; i < TOTAL_PICS; i++){
-                if(!encodedPics.get(i).equals("null"))
-                    pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
-                else
-                    pics.add(null);
-            }
-        }
-        else{
-            for(int i = 0; i < TOTAL_PICS; i++){
-                pics.add(null);
-            }
-        }
+        Log.e(LogTags.NEWREPORT, "On Create called");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-        details = (EditText) view.findViewById(R.id.newReportDetails);
-        if(detailsString != null){
-            details.setText(detailsString);
-        }
+        details = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         picPreviews[0] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[2] = (ImageView) view.findViewById(R.id.pic3);
-
-        for(int i = 0; i < TOTAL_PICS; i++){
-            if(pics.get(i) != null){
-                aq.id(picPreviews[i])
-                        .image(BitmapFactory.decodeByteArray(pics.get(i), 0, pics.get(i).length));
-            }
-        }
 
         reportBtn = (Button) view.findViewById(R.id.reportButton);
         reportBtn.setClickable(false);
@@ -94,6 +67,36 @@ public class NewReportFragment extends Fragment {
         attachPicsTV = (TextView) view.findViewById(R.id.attachMorePicturesText);
         setListeners();
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedState){
+        super.onActivityCreated(savedState);
+        if(savedState != null){
+            detailsString = savedState.getString(DEETS_KEY);
+            if(detailsString != null){
+                details.setText(detailsString);
+            }
+            lastPreviewClicked = savedState.getInt(LASTPREVIEW_KEY);
+            restorePics(savedState.getStringArrayList(picsKey));
+        } else{
+            for(int i = 0; i < TOTAL_PICS; i++){
+                pics.add(null);
+            }
+        }
+    }
+
+    private void restorePics(List<String> encodedPics){
+        for(int i = 0; i < TOTAL_PICS; i++){
+            if(!encodedPics.get(i).equals("null")){
+                // decode byte[] from string, add to pics list, create a thumb from the byte[],
+                // add it to the preview.
+                pics.add(Base64.decode(encodedPics.get(i), Base64.DEFAULT));
+                aq.id(picPreviews[i]).image(getThumbnail(pics.get(i)));
+            } else{
+                pics.add(null);
+            }
+        }
     }
 
     private void setListeners(){
@@ -108,28 +111,25 @@ public class NewReportFragment extends Fragment {
             }
         });
 
-        picPreviews[0].setOnClickListener(new View.OnClickListener() {
+        picPreviews[PIC1].setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                lastPreviewClicked = PIC1;
-                mActivity.takePicture();
+                onPicPreviewClicked(PIC1);
             }
         });
-        picPreviews[1].setOnClickListener(new View.OnClickListener(){
+        picPreviews[PIC2].setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                lastPreviewClicked = PIC2;
-                mActivity.takePicture();
+                onPicPreviewClicked(PIC2);
             }
         });
-        picPreviews[2].setOnClickListener(new View.OnClickListener(){
+        picPreviews[PIC3].setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                lastPreviewClicked = PIC3;
-                mActivity.takePicture();
+                onPicPreviewClicked(PIC3);
             }
         });
 
@@ -137,6 +137,11 @@ public class NewReportFragment extends Fragment {
             @Override
             public void onClick(View view) { sendReport(); }
         });
+    }
+    public void onPicPreviewClicked(int previewClicked){
+        lastPreviewClicked = previewClicked;
+        setRetainInstance(true);
+        mActivity.takePicture((NewReportFragment) getParentFragment());
     }
 
     public void sendReport() {
@@ -172,30 +177,34 @@ public class NewReportFragment extends Fragment {
 
     public void onPhotoTaken(String filePath) {
         Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytearrayoutputstream);
-        Bitmap smallBmp = Bitmap.createScaledBitmap(bitmap, 100, 100, true);
-        Log.e(LogTags.PHOTO, "Got to onPHOTOTAKEN in fragment! Bitmap: " + bitmap.toString() +
-                " lastPreviewClicked: "+ lastPreviewClicked);
+        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
+        Bitmap thumbnail = getThumbnail(byteArrayOutStream.toByteArray());
         switch(lastPreviewClicked){
             case PIC1: {
-                pics.add(PIC1, bytearrayoutputstream.toByteArray());
-                aq.id(picPreviews[PIC1]).image(smallBmp);
+                pics.add(PIC1, byteArrayOutStream.toByteArray());
+                aq.id(picPreviews[PIC1]).image(thumbnail);
                 break;
             }
             case PIC2: {
-                pics.add(PIC2, bytearrayoutputstream.toByteArray());
-                aq.id(picPreviews[PIC2]).image(smallBmp);
+                pics.add(PIC2, byteArrayOutStream.toByteArray());
+                aq.id(picPreviews[PIC2]).image(thumbnail);
                 break;
             }
             case PIC3: {
-                pics.add(PIC3, bytearrayoutputstream.toByteArray());
-                aq.id(picPreviews[PIC3]).image(smallBmp);
+                pics.add(PIC3, byteArrayOutStream.toByteArray());
+                aq.id(picPreviews[PIC3]).image(thumbnail);
                 break;
             }
         }
         determineEmptyPicsText();
-        lastPreviewClicked = 0;
+        setRetainInstance(false);
+    }
+
+    // Returns 100x100px thumbnail to populate picPreviews.
+    private Bitmap getThumbnail(byte[] pic){
+        Bitmap bitmap = BitmapFactory.decodeByteArray(pic, 0, pic.length);
+        return Bitmap.createScaledBitmap(bitmap, 100, 100, true);
     }
 
     private void determineEmptyPicsText(){
@@ -214,6 +223,7 @@ public class NewReportFragment extends Fragment {
         attemptEnableReport();
     }
 
+    @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putString(DEETS_KEY, details.getText().toString());
