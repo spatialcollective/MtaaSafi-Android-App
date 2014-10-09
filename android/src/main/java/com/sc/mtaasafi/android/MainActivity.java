@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -70,7 +71,6 @@ public class MainActivity extends ActionBarActivity implements
     public String mCurrentPhotoPath;
     private int currentItem;
 
-    String mCurrentPhotopath;
     int lastPreviewClicked;
     ArrayList<String> picPaths;
 
@@ -159,11 +159,11 @@ public class MainActivity extends ActionBarActivity implements
 //        toast.show();
         Log.e(LogTags.BACKEND_W, "Beam it up");
         sc.post(report);
-        sc.getPosts();
     }
     // called by the ServerCommunicater when the post has been successfully written to the server
     public void onBeamedUp(){
         picPaths.clear();
+        goToFeed();
     }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
@@ -186,8 +186,8 @@ public class MainActivity extends ActionBarActivity implements
     public void goToDetailView(Report report){
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
-        //Bundle args = report.saveState(new Bundle());
-        //rdf.updateView(report);
+//        Bundle args = report.saveState(new Bundle());
+        rdf.updateView(report);
         //rdf.setArguments(args);
         currentItem = FRAGMENT_REPORTDETAIL;
     }
@@ -344,13 +344,12 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
-
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
-        picPaths = new ArrayList<String>();
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -365,9 +364,9 @@ public class MainActivity extends ActionBarActivity implements
             Log.e(LogTags.NEWREPORT, "saved picPaths : " + picPaths.size());
 //            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
         } else {
-            picPaths.clear();
+            picPaths = new ArrayList<String>();
             for(int i = 0; i < TOTAL_PICS; i++){
-                picPaths.add(null);
+                picPaths.add(i, null);
             }
         }
             //mPager.setCurrentItem(currentItem);
@@ -385,19 +384,6 @@ public class MainActivity extends ActionBarActivity implements
 //        }
 //        goToFeed();
 
-    }
-    private void restorePics(List<String> encodedPics){
-//        picPaths = new ArrayList(savedInstanceState.getStringArrayList(picPathsKey).subList(0, TOTAL_PICS -1));
-//        for (int i = 0; i < TOTAL_PICS; i++) {
-//            if (!encodedPics.get(i).equals("null")) {
-//                // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
-//                // add it to the preview.
-//                picPaths.add(encodedPics.get(i));
-//            } else {
-//                picPaths.add(null);
-//            }
-//        }
-//        picPaths = new ArrayList(picPaths.subList(0, TOTAL_PICS -1));
     }
 
     @Override

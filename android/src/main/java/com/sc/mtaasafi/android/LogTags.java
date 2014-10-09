@@ -14,6 +14,7 @@ public class LogTags {
                                 NEWREPORT = "NEW REPORT FRAGMENT",
                                 PHOTO = "PHOTO",
                                 PAGER = "PAGER",
-                                MAIN_ACTIVITY = "MAIN ACTIVITY";
+                                MAIN_ACTIVITY = "MAIN ACTIVITY",
+                                PANEL_SLIDER = "PANEL SLIDER";
     
 }

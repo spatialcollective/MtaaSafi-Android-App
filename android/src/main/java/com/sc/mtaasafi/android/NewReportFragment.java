@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -134,10 +135,21 @@ public class NewReportFragment extends Fragment {
         BitmapFactory.decodeFile(picPath, options);
         int picWidth = options.outWidth;
         int screenWidth = mActivity.getScreenWidth();
-
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 10;
+        int reqWidth = (screenWidth - padding_dp * pixels_per_dp)/3;
         int inSampleSize = 1;
 
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(picPath), 100, 100, true);
+        if(picWidth > reqWidth){
+            final int halfWidth = picWidth / 2;
+            while ((halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        options.inSampleSize = inSampleSize;
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(picPath, options);
     }
 
     private void setListeners() {
@@ -193,7 +205,6 @@ public class NewReportFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
-        mActivity.goToFeed();
     }
 
     public Report createNewReport() {
@@ -204,7 +215,6 @@ public class NewReportFragment extends Fragment {
         details.setText("");
         return report;
     }
-
     // called when the edit texts' listeners detect a change in their texts
     public void attemptEnableReport() {
         boolean hasEmptyPics = false;
