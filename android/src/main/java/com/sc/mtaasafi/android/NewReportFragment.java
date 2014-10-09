@@ -109,6 +109,7 @@ public class NewReportFragment extends Fragment {
     private void restorePics() {
         picPaths = mActivity.getPics();
         int emptyPics = TOTAL_PICS;
+        Log.e(LogTags.NEWREPORT, "restorePics size: " + picPaths.size());
         for (int i = 0; i < TOTAL_PICS; i++) {
             if (picPaths.get(i)!= null) {
                 // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
@@ -124,6 +125,19 @@ public class NewReportFragment extends Fragment {
         else
             attachPicsTV.setVisibility(View.INVISIBLE);
         attemptEnableReport();
+    }
+
+    // Returns 100x100px thumbnail to populate picPreviews.
+    private Bitmap getThumbnail(String picPath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(picPath, options);
+        int picWidth = options.outWidth;
+        int screenWidth = mActivity.getScreenWidth();
+
+        int inSampleSize = 1;
+
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(picPath), 100, 100, true);
     }
 
     private void setListeners() {
@@ -185,9 +199,10 @@ public class NewReportFragment extends Fragment {
     public Report createNewReport() {
         // TODO: figure out how to manage picPaths in report class
         Log.e(LogTags.NEWREPORT, "createNewReport");
+        Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
+                picPaths.subList(0, TOTAL_PICS));
         details.setText("");
-        return new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
-                picPaths);
+        return report;
     }
 
     // called when the edit texts' listeners detect a change in their texts
@@ -211,19 +226,6 @@ public class NewReportFragment extends Fragment {
             reportBtn.setClickable(false);
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
         }
-    }
-
-    // Returns 100x100px thumbnail to populate picPreviews.
-    private Bitmap getThumbnail(String picPath) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(picPath, options);
-        int picWidth;
-        int screenWidth;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(picPath), 100, 100, true);
     }
 
     @Override

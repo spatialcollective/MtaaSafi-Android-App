@@ -359,8 +359,13 @@ public class MainActivity extends ActionBarActivity implements
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
+            picPaths = new ArrayList(
+                        savedInstanceState.getStringArrayList(picPathsKey)
+                        .subList(0, TOTAL_PICS));
+            Log.e(LogTags.NEWREPORT, "saved picPaths : " + picPaths.size());
+//            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
         } else {
+            picPaths.clear();
             for(int i = 0; i < TOTAL_PICS; i++){
                 picPaths.add(null);
             }
@@ -382,15 +387,17 @@ public class MainActivity extends ActionBarActivity implements
 
     }
     private void restorePics(List<String> encodedPics){
-        for (int i = 0; i < TOTAL_PICS; i++) {
-            if (!encodedPics.get(i).equals("null")) {
-                // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
-                // add it to the preview.
-                picPaths.add(encodedPics.get(i));
-            } else {
-                picPaths.add(null);
-            }
-        }
+//        picPaths = new ArrayList(savedInstanceState.getStringArrayList(picPathsKey).subList(0, TOTAL_PICS -1));
+//        for (int i = 0; i < TOTAL_PICS; i++) {
+//            if (!encodedPics.get(i).equals("null")) {
+//                // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
+//                // add it to the preview.
+//                picPaths.add(encodedPics.get(i));
+//            } else {
+//                picPaths.add(null);
+//            }
+//        }
+//        picPaths = new ArrayList(picPaths.subList(0, TOTAL_PICS -1));
     }
 
     @Override
@@ -421,16 +428,15 @@ public class MainActivity extends ActionBarActivity implements
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
         currentItem = fa.getItemPosition(mPager.getCurrentItem());
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
-        List<String> encodedPics = new ArrayList<String>();
-        for (String pic : picPaths) {
-            if (pic != null)
-                encodedPics.add(pic);
-            else {
-                encodedPics.add("null");
-            }
-        }
-        bundle.putStringArrayList(picPathsKey, (ArrayList<String>) encodedPics);
-
+//        List<String> encodedPics = new List();
+//        for (int i = 0; i < TOTAL_PICS; i++) {
+//            if (picPaths.get(i) != null)
+//                encodedPics.add(i, picPaths.get(i));
+//            else {
+//                encodedPics.add(i, null);
+//            }
+//        }
+        bundle.putStringArrayList(picPathsKey, picPaths);
 //        if(feedFragment != null){
 //            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
 //        }
