@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.androidquery.AQuery;
 import com.androidquery.util.Progress;
@@ -24,6 +26,7 @@ import java.util.List;
 public class NewsFeedFragment extends ListFragment {
     private ProgressBar progressBar;
     FeedAdapter mAdapter;
+    RelativeLayout mLayout;
     ReportSelectedListener mCallback;
     MainActivity mActivity;
     AQuery aq;
@@ -43,6 +46,12 @@ public class NewsFeedFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
+        mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 4;
+        mLayout.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
+
         progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
         if(savedInstanceState !=null){
             index = savedInstanceState.getInt("index");

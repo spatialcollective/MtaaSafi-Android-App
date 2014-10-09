@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -29,6 +30,7 @@ public class NewReportFragment extends Fragment {
     Button reportBtn;
     ImageView[] picPreviews;
     ArrayList<String> picPaths;
+    RelativeLayout mLayout;
     int lastPreviewClicked;
 
     private final int PIC1 = 0,
@@ -58,6 +60,14 @@ public class NewReportFragment extends Fragment {
         // Inflate the layout for this fragment
         Log.e(LogTags.NEWREPORT, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
+        mLayout = (RelativeLayout) view.findViewById(R.id.new_report);
+
+        //
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 4;
+        mLayout.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
+
         details = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         picPreviews[0] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);

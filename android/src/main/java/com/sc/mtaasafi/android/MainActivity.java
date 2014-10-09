@@ -25,6 +25,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -469,7 +470,14 @@ public class MainActivity extends ActionBarActivity implements
                 return super.onOptionsItemSelected(item);
         }
     }
-
+    public int getActionBarHeight(){
+        int actionBarHeight = 0;
+        TypedValue tv = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+        }
+        return actionBarHeight;
+    }
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
@@ -477,6 +485,7 @@ public class MainActivity extends ActionBarActivity implements
             goToFeed();
             currentItem = FRAGMENT_FEED;
         }
+        getSupportActionBar().show();
     }
 
     public void showLogins() {

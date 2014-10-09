@@ -53,12 +53,12 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
 
         // Make sure the actionbar doesn't block the text of the Report.
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
         int pixels_per_dp = (int)(metrics.density + 0.5f);
         int padding_dp = 4;
-        mReportText.setPadding(0, pixels_per_dp * padding_dp + getActionBarHeight(), 0, 0);
+        mReportText.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
 
         mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -124,14 +124,13 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     public void setActionBarTranslation(float y) {
         // Figure out the actionbar height
-        int actionBarHeight = getActionBarHeight();
         // A hack to add the translation to the action bar
         ViewGroup content = ((ViewGroup) mActivity.findViewById(android.R.id.content).getParent());
         int children = content.getChildCount();
         for (int i = 0; i < children; i++) {
             View child = content.getChildAt(i);
             if (child.getId() != android.R.id.content) {
-                if (y <= -actionBarHeight) {
+                if (y <= -mActivity.getActionBarHeight()) {
                     child.setVisibility(View.GONE);
                 } else {
                     child.setVisibility(View.VISIBLE);
@@ -143,14 +142,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
                 }
             }
         }
-    }
-    private int getActionBarHeight(){
-        int actionBarHeight = 0;
-        TypedValue tv = new TypedValue();
-        if (mActivity.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-        }
-        return actionBarHeight;
     }
 
     public void updateView(Report report) {
