@@ -120,6 +120,7 @@ public class MainActivity extends ActionBarActivity implements
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
+        picPaths.clear();
     }
 
     public void backupDataToFile(String dataString) throws IOException {
@@ -158,10 +159,12 @@ public class MainActivity extends ActionBarActivity implements
 //        toast.show();
         Log.e(LogTags.BACKEND_W, "Beam it up");
         sc.post(report);
-        picPaths.clear();
         sc.getPosts();
     }
-
+    // called by the ServerCommunicater when the post has been successfully written to the server
+    public void onBeamedUp(){
+        picPaths.clear();
+    }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
         public ErrorDialogFragment() {

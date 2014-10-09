@@ -28,7 +28,6 @@ public class NewReportFragment extends Fragment {
     Button reportBtn;
     ImageView[] picPreviews;
     ArrayList<String> picPaths;
-    String detailsString;
     int lastPreviewClicked;
 
     private final int PIC1 = 0,
@@ -77,7 +76,7 @@ public class NewReportFragment extends Fragment {
         Log.e(LogTags.NEWREPORT, "onActivityCreated");
 
         if (savedState != null) {
-            detailsString = savedState.getString(DEETS_KEY);
+            String detailsString = savedState.getString(DEETS_KEY);
             if (detailsString != null) {
                 details.setText(detailsString);
             }
@@ -186,6 +185,7 @@ public class NewReportFragment extends Fragment {
     public Report createNewReport() {
         // TODO: figure out how to manage picPaths in report class
         Log.e(LogTags.NEWREPORT, "createNewReport");
+        details.setText("");
         return new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
                 picPaths);
     }
@@ -215,6 +215,14 @@ public class NewReportFragment extends Fragment {
 
     // Returns 100x100px thumbnail to populate picPreviews.
     private Bitmap getThumbnail(String picPath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(picPath, options);
+        int picWidth;
+        int screenWidth;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
         return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(picPath), 100, 100, true);
     }
 

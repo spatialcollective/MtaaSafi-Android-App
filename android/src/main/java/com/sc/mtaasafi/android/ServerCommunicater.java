@@ -35,6 +35,7 @@ public class ServerCommunicater {
         void onFeedUpdate(List<Report> posts);
         int getScreenWidth();
         void onUpdateFailed();
+        void onBeamedUp();
         void backupDataToFile(String dataString) throws IOException;
         String getJsonStringFromFile() throws IOException;
     }
@@ -69,6 +70,9 @@ public class ServerCommunicater {
                 e.printStackTrace();
             }
             return null;
+        }
+        protected void onPostExecute(String results) {
+            activity.onBeamedUp();
         }
     }
 

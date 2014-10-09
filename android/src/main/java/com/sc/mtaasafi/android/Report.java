@@ -48,6 +48,10 @@ public class Report {
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
         this.picPaths = picPaths;
+        Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
+                picPaths.get(0).toString() + ". " +
+                picPaths.get(1).toString() +". " +
+                picPaths.get(2).toString());
     }
 
     public Report(JSONObject jsonServerData) {
@@ -91,12 +95,15 @@ public class Report {
             json.put(lonKey, this.longitude);
 
             JSONArray jsonpics = new JSONArray();
-            for(String pic : picPaths){
-                File file = new File(pic);
+            Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
+            for(int i = 0; i < picPaths.size(); i++){
+                Log.e(LogTags.JSON, "Entered picPaths forLoop");
+                File file = new File(picPaths.get(i));
                 byte[] b = new byte[(int) file.length()];
                 FileInputStream fileInputStream = new FileInputStream(file);
                 fileInputStream.read(b);
                 jsonpics.put(Base64.encodeToString(b, Base64.DEFAULT));
+                Log.e(LogTags.JSON, "Pic Byte[]: " + Base64.encodeToString(b, Base64.DEFAULT));
             }
             json.put(picsKey, jsonpics);
             Log.e(LogTags.JSON, json.toString());
