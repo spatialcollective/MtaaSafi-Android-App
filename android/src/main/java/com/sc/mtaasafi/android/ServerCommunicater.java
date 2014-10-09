@@ -49,6 +49,7 @@ public class ServerCommunicater {
 
     // Asynchronously push the post to the server
     public void post(Report report){
+        Log.e(LogTags.BACKEND_W, "ServerCommunicater.post");
         WritePost writePost = new WritePost(report);
         writePost.execute(writeURL);
     }
@@ -62,6 +63,7 @@ public class ServerCommunicater {
         @Override
         protected String doInBackground(String... urls) {
             try {
+                Log.e(LogTags.BACKEND_W, "ServerCommunicater.writePost");
                 writeToServer(urls[0], report);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -79,6 +81,8 @@ public class ServerCommunicater {
         StringEntity entity = new StringEntity(report.getJson().toString());
         httpPost.setEntity(entity);
         HttpResponse httpResponse = httpclient.execute(httpPost);
+        Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer");
+
     }
 
     public void getPosts(){

@@ -72,7 +72,7 @@ public class MainActivity extends ActionBarActivity implements
 
     String mCurrentPhotopath;
     int lastPreviewClicked;
-    ArrayList<String> pics;
+    ArrayList<String> picPaths;
 
     private final int PIC1 = 0,
             PIC2 = PIC1 + 1,
@@ -86,7 +86,7 @@ public class MainActivity extends ActionBarActivity implements
     static final String USERNAME_KEY = "username",
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
-                        picsKey = "pics";
+                        picPathsKey = "picPaths";
 
 
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
@@ -156,8 +156,9 @@ public class MainActivity extends ActionBarActivity implements
 //                + " Lon:" + report.longitude;
 //        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
 //        toast.show();
+        Log.e(LogTags.BACKEND_W, "Beam it up");
         sc.post(report);
-        pics.clear();
+        picPaths.clear();
         sc.getPosts();
     }
 
@@ -329,11 +330,11 @@ public class MainActivity extends ActionBarActivity implements
 //        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
 //        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
 //        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
-        pics.add(lastPreviewClicked, mCurrentPhotoPath);
+        picPaths.add(lastPreviewClicked, mCurrentPhotoPath);
     }
 
     public ArrayList<String> getPics(){
-        return pics;
+        return picPaths;
     }
     // ======================Activity Setup:======================
     @Override
@@ -346,7 +347,7 @@ public class MainActivity extends ActionBarActivity implements
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
-        pics = new ArrayList<String>();
+        picPaths = new ArrayList<String>();
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -355,10 +356,10 @@ public class MainActivity extends ActionBarActivity implements
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-            restorePics(savedInstanceState.getStringArrayList(picsKey));
+            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
         } else {
             for(int i = 0; i < TOTAL_PICS; i++){
-                pics.add(null);
+                picPaths.add(null);
             }
         }
             //mPager.setCurrentItem(currentItem);
@@ -380,11 +381,11 @@ public class MainActivity extends ActionBarActivity implements
     private void restorePics(List<String> encodedPics){
         for (int i = 0; i < TOTAL_PICS; i++) {
             if (!encodedPics.get(i).equals("null")) {
-                // decode byte[] from string, add to pics list, create a thumb from the byte[],
+                // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
                 // add it to the preview.
-                pics.add(encodedPics.get(i));
+                picPaths.add(encodedPics.get(i));
             } else {
-                pics.add(null);
+                picPaths.add(null);
             }
         }
     }
@@ -418,14 +419,14 @@ public class MainActivity extends ActionBarActivity implements
         currentItem = fa.getItemPosition(mPager.getCurrentItem());
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
         List<String> encodedPics = new ArrayList<String>();
-        for (String pic : pics) {
+        for (String pic : picPaths) {
             if (pic != null)
                 encodedPics.add(pic);
             else {
                 encodedPics.add("null");
             }
         }
-        bundle.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
+        bundle.putStringArrayList(picPathsKey, (ArrayList<String>) encodedPics);
 
 //        if(feedFragment != null){
 //            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
