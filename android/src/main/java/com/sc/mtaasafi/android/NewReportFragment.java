@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -29,8 +31,8 @@ public class NewReportFragment extends Fragment {
     TextView attachPicsTV;
     Button reportBtn;
     ImageView[] picPreviews;
-    ArrayList<String> pics;
-    String detailsString;
+    ArrayList<String> picPaths;
+    RelativeLayout mLayout;
     int lastPreviewClicked;
 
     private final int PIC1 = 0,
@@ -39,7 +41,7 @@ public class NewReportFragment extends Fragment {
             TOTAL_PICS = PIC3 + 1;
 
     private final String DEETS_KEY = "details",
-            picsKey = "pics",
+            picPathsKey = "picPaths",
             LASTPREVIEW_KEY = "last_preview";
 
     AQuery aq;
@@ -49,7 +51,7 @@ public class NewReportFragment extends Fragment {
         super.onCreate(savedState);
         mActivity = (MainActivity) getActivity();
         aq = new AQuery(mActivity);
-        pics = new ArrayList<String>();
+        picPaths = new ArrayList<String>();
         picPreviews = new ImageView[TOTAL_PICS];
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
     }
@@ -60,6 +62,14 @@ public class NewReportFragment extends Fragment {
         // Inflate the layout for this fragment
         Log.e(LogTags.NEWREPORT, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
+        mLayout = (RelativeLayout) view.findViewById(R.id.new_report);
+
+        //
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 4;
+        mLayout.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
+
         details = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         picPreviews[0] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);
@@ -79,18 +89,18 @@ public class NewReportFragment extends Fragment {
         Log.e(LogTags.NEWREPORT, "onActivityCreated");
 
         if (savedState != null) {
-            detailsString = savedState.getString(DEETS_KEY);
+            String detailsString = savedState.getString(DEETS_KEY);
             if (detailsString != null) {
                 details.setText(detailsString);
             }
             lastPreviewClicked = savedState.getInt(LASTPREVIEW_KEY);
-//            restorePics(savedState.getStringArrayList(picsKey));
+//            restorePics(savedState.getStringArrayList(picPathsKey));
             restorePics();
             Log.e(LogTags.NEWREPORT, "onActivityCreated: lastPreviewClicked: " + lastPreviewClicked);
 
         } else {
             for (int i = 0; i < TOTAL_PICS; i++) {
-                pics.add(null);
+                picPaths.add(null);
             }
         }
 
@@ -103,16 +113,50 @@ public class NewReportFragment extends Fragment {
         Log.e(LogTags.NEWREPORT, "onResume");
         restorePics();
     }
+
     private void restorePics() {
-        pics = mActivity.getPics();
+        picPaths = mActivity.getPics();
+        int emptyPics = TOTAL_PICS;
+        Log.e(LogTags.NEWREPORT, "restorePics size: " + picPaths.size());
         for (int i = 0; i < TOTAL_PICS; i++) {
-            if (pics.get(i)!= null) {
-                // decode byte[] from string, add to pics list, create a thumb from the byte[],
+            if (picPaths.get(i)!= null) {
+                // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
                 // add it to the preview.
-                aq.id(picPreviews[i]).image(getThumbnail(pics.get(i)));
+                aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
+                emptyPics--;
             }
         }
-        determineEmptyPicsText();
+        if (emptyPics > 1)
+            attachPicsTV.setText("Attach " + emptyPics + " more pictures:");
+        else if (emptyPics == 1)
+            attachPicsTV.setText("Attach " + emptyPics + " more picture:");
+        else
+            attachPicsTV.setVisibility(View.INVISIBLE);
+        attemptEnableReport();
+    }
+
+    // Returns 100x100px thumbnail to populate picPreviews.
+    private Bitmap getThumbnail(String picPath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(picPath, options);
+        int picWidth = options.outWidth;
+        int screenWidth = mActivity.getScreenWidth();
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 10;
+        int reqWidth = (screenWidth - padding_dp * pixels_per_dp)/3;
+        int inSampleSize = 1;
+
+        if(picWidth > reqWidth){
+            final int halfWidth = picWidth / 2;
+            while ((halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        options.inSampleSize = inSampleSize;
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(picPath, options);
     }
 
     private void setListeners() {
@@ -160,7 +204,6 @@ public class NewReportFragment extends Fragment {
 
     public void onPicPreviewClicked(int previewClicked) {
         lastPreviewClicked = previewClicked;
-//        setRetainInstance(true);
         mActivity.takePicture((NewReportFragment) getParentFragment(), lastPreviewClicked);
     }
 
@@ -169,21 +212,22 @@ public class NewReportFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
-        mActivity.goToFeed();
     }
 
     public Report createNewReport() {
-        // TODO: figure out how to manage pics in report class
-        return new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
-                null);
+        // TODO: figure out how to manage picPaths in report class
+        Log.e(LogTags.NEWREPORT, "createNewReport");
+        Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
+                picPaths.subList(0, TOTAL_PICS));
+        details.setText("");
+        return report;
     }
-
     // called when the edit texts' listeners detect a change in their texts
     public void attemptEnableReport() {
         boolean hasEmptyPics = false;
-        if (pics != null && !pics.isEmpty()) {
+        if (picPaths != null && !picPaths.isEmpty()) {
             for (int i = 0; i < TOTAL_PICS; i++) {
-                if (pics.get(i) == null) {
+                if (picPaths.get(i) == null) {
 //                    Log.e(LogTags.NEWREPORT, "pic" + i + " is null");
                     hasEmptyPics = true;
                     break;
@@ -191,7 +235,7 @@ public class NewReportFragment extends Fragment {
             }
         }
 //        Log.e(LogTags.NEWREPORT, "Do u have details: " + !details.getText().toString().isEmpty()
-//                + ". Have all pics: " + !hasEmptyPics);
+//                + ". Have all picPaths: " + !hasEmptyPics);
         if (!details.getText().toString().isEmpty() && !hasEmptyPics) {
             reportBtn.setClickable(true);
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
@@ -199,26 +243,6 @@ public class NewReportFragment extends Fragment {
             reportBtn.setClickable(false);
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
         }
-    }
-
-    // Returns 100x100px thumbnail to populate picPreviews.
-    private Bitmap getThumbnail(String picPath) {
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeFile(picPath), 100, 100, true);
-    }
-
-    private void determineEmptyPicsText() {
-        int emptyPics = 0;
-        for (int i = 0; i < pics.size(); i++) {
-            if (pics.get(i) == null)
-                emptyPics++;
-        }
-        if (emptyPics > 1)
-            attachPicsTV.setText("Attach " + emptyPics + " more pictures:");
-        else if (emptyPics == 1)
-            attachPicsTV.setText("Attach " + emptyPics + " more picture:");
-        else
-            attachPicsTV.setVisibility(View.INVISIBLE);
-        attemptEnableReport();
     }
 
     @Override

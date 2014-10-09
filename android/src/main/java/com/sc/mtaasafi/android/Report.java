@@ -10,6 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,27 +27,31 @@ import java.util.List;
  */
 public class Report {
     public double latitude, longitude;
-    public List<byte[]> pics;
+    public List<String> picPaths;
     public String   title, details, timeStamp, timeElapsed, userName;
     public List<String> mediaURLs;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
                             userNameKey = "user",
-                            picsKey = "pics",
+                            picsKey = "picPaths",
                             mediaURLsKey = "mediaURLs",
                             latKey = "latitude",
                             lonKey = "longitude";
 
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
-                  List<byte[]> pics) {
+                  List<String> picPaths) {
         this.details = details;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
-        this.pics = pics;
+        this.picPaths = picPaths;
+        Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
+                picPaths.get(0).toString() + ". " +
+                picPaths.get(1).toString() +". " +
+                picPaths.get(2).toString());
     }
 
     public Report(JSONObject jsonServerData) {
@@ -53,11 +61,11 @@ public class Report {
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-//            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
-//            mediaURLs = new ArrayList<String>();
-//            for(int i = 0; i < mediaURLsInJSON.length(); i++){
-//              mediaURLs.add(mediaURLsInJSON.get(i).toString());
-//            }
+            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
+            mediaURLs = new ArrayList<String>();
+            for(int i = 0; i < mediaURLsInJSON.length(); i++){
+              mediaURLs.add(mediaURLsInJSON.get(i).toString());
+            }
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
         } catch (JSONException e) {
@@ -86,17 +94,27 @@ public class Report {
             json.put(latKey, this.latitude);
             json.put(lonKey, this.longitude);
 
-            JSONArray jsonPics = new JSONArray();
-            for(byte[] pic : pics){
-                jsonPics.put(Base64.encodeToString(pic, Base64.DEFAULT));
+            JSONArray jsonpics = new JSONArray();
+            Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
+            for(int i = 0; i < picPaths.size(); i++){
+                Log.e(LogTags.JSON, "Entered picPaths forLoop");
+                File file = new File(picPaths.get(i));
+                byte[] b = new byte[(int) file.length()];
+                FileInputStream fileInputStream = new FileInputStream(file);
+                fileInputStream.read(b);
+                jsonpics.put(Base64.encodeToString(b, Base64.DEFAULT));
+                Log.e(LogTags.JSON, "Pic Byte[]: " + Base64.encodeToString(b, Base64.DEFAULT));
             }
-            json.put(picsKey, jsonPics);
-
+            json.put(picsKey, jsonpics);
             Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -106,7 +124,7 @@ public class Report {
         outState.putString(detailsKey, this.details);
         outState.putString(timeStampKey, this.timeStamp);
         outState.putString(userNameKey, this.userName);
-        outState.putStringArray(mediaURLsKey, (String[]) this.mediaURLs.toArray());
+        outState.putStringArray(mediaURLsKey, this.mediaURLs.toArray(new String[mediaURLs.size()]));
         outState.putDouble(latKey, this.latitude);
         outState.putDouble(lonKey, this.longitude);
         return outState;

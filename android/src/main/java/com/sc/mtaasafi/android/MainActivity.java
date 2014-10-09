@@ -25,9 +25,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -70,9 +72,8 @@ public class MainActivity extends ActionBarActivity implements
     public String mCurrentPhotoPath;
     private int currentItem;
 
-    String mCurrentPhotopath;
     int lastPreviewClicked;
-    ArrayList<String> pics;
+    ArrayList<String> picPaths;
 
     private final int PIC1 = 0,
             PIC2 = PIC1 + 1,
@@ -86,7 +87,7 @@ public class MainActivity extends ActionBarActivity implements
     static final String USERNAME_KEY = "username",
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
-                        picsKey = "pics";
+                        picPathsKey = "picPaths";
 
 
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
@@ -120,6 +121,7 @@ public class MainActivity extends ActionBarActivity implements
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
+        picPaths.clear();
     }
 
     public void backupDataToFile(String dataString) throws IOException {
@@ -156,11 +158,14 @@ public class MainActivity extends ActionBarActivity implements
 //                + " Lon:" + report.longitude;
 //        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
 //        toast.show();
+        Log.e(LogTags.BACKEND_W, "Beam it up");
         sc.post(report);
-        pics.clear();
-        sc.getPosts();
     }
-
+    // called by the ServerCommunicater when the post has been successfully written to the server
+    public void onBeamedUp(){
+        picPaths.clear();
+        goToFeed();
+    }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
         public ErrorDialogFragment() {
@@ -182,8 +187,8 @@ public class MainActivity extends ActionBarActivity implements
     public void goToDetailView(Report report){
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
-        //Bundle args = report.saveState(new Bundle());
-        //rdf.updateView(report);
+//        Bundle args = report.saveState(new Bundle());
+        rdf.updateView(report);
         //rdf.setArguments(args);
         currentItem = FRAGMENT_REPORTDETAIL;
     }
@@ -326,24 +331,23 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onPhotoTaken(){
-        pics.add(lastPreviewClicked, mCurrentPhotoPath);
+        picPaths.add(lastPreviewClicked, mCurrentPhotoPath);
     }
 
     public ArrayList<String> getPics(){
-        return pics;
+        return picPaths;
     }
     // ======================Activity Setup:======================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
-
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
-        pics = new ArrayList<String>();
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -352,22 +356,15 @@ public class MainActivity extends ActionBarActivity implements
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
             FragmentManager manager = getSupportFragmentManager();
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-            restorePics(savedInstanceState.getStringArrayList(picsKey));
+            picPaths = new ArrayList(
+                        savedInstanceState.getStringArrayList(picPathsKey)
+                        .subList(0, TOTAL_PICS));
+            Log.e(LogTags.NEWREPORT, "saved picPaths : " + picPaths.size());
+//            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
         } else {
+            picPaths = new ArrayList<String>();
             for(int i = 0; i < TOTAL_PICS; i++)
-                pics.add(null);
-        }
-    }
-
-    private void restorePics(List<String> encodedPics){
-        for (int i = 0; i < TOTAL_PICS; i++) {
-            if (!encodedPics.get(i).equals("null")) {
-                // decode byte[] from string, add to pics list, create a thumb from the byte[],
-                // add it to the preview.
-                pics.add(encodedPics.get(i));
-            } else {
-                pics.add(null);
-            }
+                picPaths.add(i, null);
         }
     }
 
@@ -398,15 +395,24 @@ public class MainActivity extends ActionBarActivity implements
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
         currentItem = fa.getItemPosition(mPager.getCurrentItem());
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
-        List<String> encodedPics = new ArrayList<String>();
-        for (String pic : pics) {
-            if (pic != null)
-                encodedPics.add(pic);
-            else {
-                encodedPics.add("null");
-            }
-        }
-        bundle.putStringArrayList(picsKey, (ArrayList<String>) encodedPics);
+//        List<String> encodedPics = new List();
+//        for (int i = 0; i < TOTAL_PICS; i++) {
+//            if (picPaths.get(i) != null)
+//                encodedPics.add(i, picPaths.get(i));
+//            else {
+//                encodedPics.add(i, null);
+//            }
+//        }
+        bundle.putStringArrayList(picPathsKey, picPaths);
+//        if(feedFragment != null){
+//            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
+//        }
+//        if(newReportFragment != null){
+//            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
+//        }
+//        if(reportDetailFragment != null){
+//            getSupportFragmentManager().putFragment(bundle, REPORT_DETAIL_KEY, reportDetailFragment);
+//        }
     }
 
     @Override
@@ -444,7 +450,14 @@ public class MainActivity extends ActionBarActivity implements
                 return super.onOptionsItemSelected(item);
         }
     }
-
+    public int getActionBarHeight(){
+        int actionBarHeight = 0;
+        TypedValue tv = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+        }
+        return actionBarHeight;
+    }
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
@@ -452,6 +465,7 @@ public class MainActivity extends ActionBarActivity implements
             goToFeed();
             currentItem = FRAGMENT_FEED;
         }
+        getSupportActionBar().show();
     }
 
     public void showLogins() {
