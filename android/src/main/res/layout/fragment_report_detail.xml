@@ -85,7 +85,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/reportDetailViewText">
+        android:layout_below="@+id/reportDetailViewText"
+        android:background="#808080">
         <ViewFlipper
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -124,7 +125,7 @@
             android:text="Prev"
             android:id="@+id/buttonPrevious"
             android:layout_above="@+id/viewFlipper"
-            android:layout_alignParentBottom="true"
+            android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             />
 
@@ -135,7 +136,6 @@
             android:id="@+id/buttonNext"
             android:layout_above="@+id/viewFlipper"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true" />
+            android:layout_centerVertical="true" />
         </RelativeLayout>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

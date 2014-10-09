@@ -124,7 +124,7 @@ public class Report {
         outState.putString(detailsKey, this.details);
         outState.putString(timeStampKey, this.timeStamp);
         outState.putString(userNameKey, this.userName);
-        outState.putStringArray(mediaURLsKey, (String[]) this.mediaURLs.toArray());
+        outState.putStringArray(mediaURLsKey, this.mediaURLs.toArray(new String[mediaURLs.size()]));
         outState.putDouble(latKey, this.latitude);
         outState.putDouble(lonKey, this.longitude);
         return outState;

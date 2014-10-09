@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -16,6 +17,7 @@ import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -33,6 +35,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
     ProgressBar progress;
     private SlidingUpPanelLayout mLayout;
+    private RelativeLayout mReportText;
 
     MainActivity mActivity;
     AQuery aq;
@@ -49,11 +52,19 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
+        mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+
+        // Make sure the actionbar doesn't block the text of the Report.
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 4;
+        mReportText.setPadding(0, pixels_per_dp * padding_dp + getActionBarHeight(), 0, 0);
+
         mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset < 0.2) {
+                if (slideOffset > 0.2) {
                     if (mActivity.getSupportActionBar().isShowing()) {
                         mActivity.getSupportActionBar().hide();
                     }
