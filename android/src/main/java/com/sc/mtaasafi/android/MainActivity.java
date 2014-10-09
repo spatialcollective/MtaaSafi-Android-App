@@ -383,8 +383,9 @@ public class MainActivity extends ActionBarActivity implements
 //        updateFeed();
     }
     @Override
-    protected void onRestoreInstanceState(Bundle bundle){
-        if (bundle.getString(USERNAME_KEY) == null)
+    protected void onRestoreInstanceState(Bundle bundle) {
+        mUsername = bundle.getString(USERNAME_KEY);
+        if (mUsername == null)
             determineUsername();
     }
 
@@ -429,13 +430,13 @@ public class MainActivity extends ActionBarActivity implements
         super.onStop();
     }
 
-    // @Override
-    // public boolean onCreateOptionsMenu(Menu menu) {
-    //     // Inflate the menu items for use in the action bar
-    //     MenuInflater inflater = getMenuInflater();
-    //     inflater.inflate(R.menu.action_bar, menu);
-    //     return super.onCreateOptionsMenu(menu);
-    // }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+         // Inflate the menu items for use in the action bar
+         MenuInflater inflater = getMenuInflater();
+         inflater.inflate(R.menu.action_bar, menu);
+         return super.onCreateOptionsMenu(menu);
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
