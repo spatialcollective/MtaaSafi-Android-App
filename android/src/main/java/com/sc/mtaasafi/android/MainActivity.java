@@ -178,12 +178,13 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToDetailView(Report report){
+        reportDetailReport = report;
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
-        ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
-//        Bundle args = report.saveState(new Bundle());
-        rdf.updateView(report);
-        //rdf.setArguments(args);
+        Log.e("GO TO DETAIL VIEW", reportDetailReport.title);
         currentItem = FRAGMENT_REPORTDETAIL;
+    }
+    public void getReportDetailReport(ReportDetailFragment rdf){
+        rdf.updateView(reportDetailReport);
     }
 
     public void goToNewReport(){
@@ -331,9 +332,6 @@ public class MainActivity extends ActionBarActivity implements
         return picPaths;
     }
 
-    public void getReportDetailReport(ReportDetailFragment rdf){
-        rdf.updateView(reportDetailReport);
-    }
     // ======================Activity Setup:======================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
