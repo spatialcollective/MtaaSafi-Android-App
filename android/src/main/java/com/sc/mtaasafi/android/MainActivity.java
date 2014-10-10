@@ -61,6 +61,8 @@ public class MainActivity extends ActionBarActivity implements
     private ServerCommunicater sc;
     private SharedPreferences sharedPref;
     private Report reportDetailReport;
+    private boolean isBeamingUp;
+    private NewReportFragment newReportFragment;
     public String mUsername;
     public String mCurrentPhotoPath;
     private int currentItem;
@@ -146,18 +148,23 @@ public class MainActivity extends ActionBarActivity implements
         return getWindowManager().getDefaultDisplay().getWidth();
     }
     // takes a post written by the user from the feed fragment, pushes it to server
-    public void beamItUp(Report report){
+    public void beamItUp(Report report, NewReportFragment nrf){
 //        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude
 //                + " Lon:" + report.longitude;
 //        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
 //        toast.show();
+        newReportFragment = nrf;
+        isBeamingUp = true;
         Log.e(LogTags.BACKEND_W, "Beam it up");
         sc.post(report);
     }
     // called by the ServerCommunicater when the post has been successfully written to the server
     public void onBeamedUp(){
+        newReportFragment.onReportSent();
         picPaths.clear();
+        isBeamingUp = false;
         goToFeed();
+        newReportFragment = null;
     }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
@@ -184,7 +191,8 @@ public class MainActivity extends ActionBarActivity implements
         currentItem = FRAGMENT_REPORTDETAIL;
     }
     public void getReportDetailReport(ReportDetailFragment rdf){
-        rdf.updateView(reportDetailReport);
+        if(reportDetailReport != null)
+            rdf.updateView(reportDetailReport);
     }
 
     public void goToNewReport(){
@@ -345,7 +353,7 @@ public class MainActivity extends ActionBarActivity implements
         fa = new FragmentAdapter(getSupportFragmentManager());
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
-
+        isBeamingUp = false;
         if(savedInstanceState != null) {
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
@@ -463,9 +471,11 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
-        if(currentItem != FRAGMENT_FEED){
-            goToFeed();
-            currentItem = FRAGMENT_FEED;
+        if(!isBeamingUp){
+            if(currentItem != FRAGMENT_FEED){
+                goToFeed();
+                currentItem = FRAGMENT_FEED;
+            }
         }
         getSupportActionBar().show();
     }

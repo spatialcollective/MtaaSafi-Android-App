@@ -94,7 +94,6 @@ public class Report {
             json.put(latKey, this.latitude);
             json.put(lonKey, this.longitude);
 
-            JSONArray jsonpics = new JSONArray();
             Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
             for(int i = 0; i < picPaths.size(); i++){
                 Log.e(LogTags.JSON, "Entered picPaths forLoop");
@@ -102,11 +101,10 @@ public class Report {
                 byte[] b = new byte[(int) file.length()];
                 FileInputStream fileInputStream = new FileInputStream(file);
                 fileInputStream.read(b);
-                jsonpics.put(Base64.encodeToString(b, Base64.DEFAULT));
+                json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
                 fileInputStream.close();
                 Log.e(LogTags.JSON, "Pic Byte[]: " + Base64.encodeToString(b, Base64.DEFAULT));
             }
-            json.put(picsKey, jsonpics);
             Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {

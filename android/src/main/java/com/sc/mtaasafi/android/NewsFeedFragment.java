@@ -47,10 +47,7 @@ public class NewsFeedFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
         mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int pixels_per_dp = (int)(metrics.density + 0.5f);
-        int padding_dp = 7;
-        mLayout.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
+        mLayout.setPadding(0, mActivity.getActionBarHeight(), 0, 0);
 
         progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
         if(savedInstanceState !=null){
