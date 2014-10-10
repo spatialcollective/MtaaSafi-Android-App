@@ -184,7 +184,8 @@ public class MainActivity extends ActionBarActivity implements
         currentItem = FRAGMENT_REPORTDETAIL;
     }
     public void getReportDetailReport(ReportDetailFragment rdf){
-        rdf.updateView(reportDetailReport);
+        if (reportDetailReport != null)
+            rdf.updateView(reportDetailReport);
     }
 
     public void goToNewReport(){
