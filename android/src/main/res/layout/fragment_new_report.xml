@@ -57,7 +57,7 @@
         android:layout_alignParentTop="true"
         android:id="@+id/uploading_screen"
         android:background="@color/Gray"
-        android:visibility="invisible">
+        android:visibility="visible">
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -72,10 +72,20 @@
             android:layout_height="wrap_content"
             android:text="Uploading..."
             android:id="@+id/textView"
-            android:layout_below="@+id/progressBar"
-            android:layout_centerHorizontal="true"
             android:textColor="@color/white"
-            android:textSize="24dp" />
+            android:textSize="24dp"
+            android:layout_below="@+id/progressBar"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="this may take a moment"
+            android:id="@+id/textView2"
+            android:layout_marginTop="36dp"
+            android:textColor="@color/LightGrey"
+            android:layout_below="@+id/textView"
+            android:layout_centerHorizontal="true" />
     </RelativeLayout>
 
 </RelativeLayout>

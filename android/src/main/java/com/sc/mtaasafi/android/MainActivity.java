@@ -144,9 +144,11 @@ public class MainActivity extends ActionBarActivity implements
     public void updateFeed(){
         sc.getPosts();
     }
+
     public int getScreenWidth(){
         return getWindowManager().getDefaultDisplay().getWidth();
     }
+
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(Report report, NewReportFragment nrf){
 //        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude

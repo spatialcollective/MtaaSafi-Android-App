@@ -118,14 +118,18 @@ public class NewReportFragment extends Fragment {
         picPaths = mActivity.getPics();
         int emptyPics = TOTAL_PICS;
         Log.e(LogTags.NEWREPORT, "restorePics size: " + picPaths.size());
+        // if picPaths is empty, that means you're in a new newReportFragment
         if(picPaths.size() != 0){
             for (int i = 0; i < TOTAL_PICS; i++) {
                 if (picPaths.get(i)!= null) {
-                    // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
-                    // add it to the preview.
                     aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
                     emptyPics--;
                 }
+            }
+        }
+        else{
+            for (int i = 0; i < TOTAL_PICS; i++) {
+                aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
             }
         }
         if (emptyPics > 1)
@@ -215,8 +219,8 @@ public class NewReportFragment extends Fragment {
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
         uploadingScreen.setVisibility(View.VISIBLE);
-        Toast.makeText(getActivity(), "Sending report, this may take a moment.", Toast.LENGTH_LONG).show();
     }
+
     public void onReportSent(){
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");

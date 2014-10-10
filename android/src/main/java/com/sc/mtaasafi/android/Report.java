@@ -103,7 +103,6 @@ public class Report {
                 fileInputStream.read(b);
                 json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
                 fileInputStream.close();
-                Log.e(LogTags.JSON, "Pic Byte[]: " + Base64.encodeToString(b, Base64.DEFAULT));
             }
             Log.e(LogTags.JSON, json.toString());
             return json;
