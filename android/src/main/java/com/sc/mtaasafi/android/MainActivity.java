@@ -24,6 +24,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -31,6 +32,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
+import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -317,6 +319,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_main);

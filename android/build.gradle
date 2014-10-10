@@ -1,4 +1,25 @@
+buildscript {
+    repositories {
+        maven { url 'http://download.crashlytics.com/maven' }
+    }
+
+    dependencies {
+        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+    }
+}
 apply plugin: 'android'
+apply plugin: 'crashlytics'
+
+repositories {
+    maven {
+        url TWITTERSDK_REPOSITORY_URL
+        credentials {
+            username = TWITTERSDK_REPOSITORY_USER
+            password = TWITTERSDK_REPOSITORY_PASSWORD
+        }
+    }
+}
+
 
 android {
     compileSdkVersion 19
@@ -31,5 +52,8 @@ dependencies {
     compile 'com.android.support:support-v4:20.0.0'
     // You must install or update the Google Repository through the SDK manager to use this dependency.
     compile 'com.google.android.gms:play-services:5.0.89'
+    compile('com.twitter.sdk.android:crashlytics:1.2.+@aar') {
+        transitive = true;
+    }
 
 }
