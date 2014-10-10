@@ -178,13 +178,11 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToDetailView(Report report){
-        reportDetailReport = report;
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
-//        ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(mPager.getCurrentItem());
-//        Log.e(LogTags.FEEDITEM, report.title);
-//        report.toString();
+        ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
 //        Bundle args = report.saveState(new Bundle());
-//        rdf.setArguments(args);
+        rdf.updateView(report);
+        //rdf.setArguments(args);
         currentItem = FRAGMENT_REPORTDETAIL;
     }
 
@@ -326,9 +324,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onPhotoTaken(){
-//        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath);
-//        ByteArrayOutputStream byteArrayOutStream = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutStream);
         picPaths.add(lastPreviewClicked, mCurrentPhotoPath);
     }
 
@@ -350,7 +345,6 @@ public class MainActivity extends ActionBarActivity implements
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
-
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -372,26 +366,13 @@ public class MainActivity extends ActionBarActivity implements
                 picPaths.add(i, null);
             }
         }
-//            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
-//            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
-//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, HAS_REPORT_DETAIL_KEY);
-//            if(currentFragment.equals(FRAGMENT_NEWREPORT)){
-//                goToNewReport();
-//            }
-//            else{
-//                goToFeed();
-////            }
-//        } else {
-//            goToFeed();
-//        }
-//        goToFeed();
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals("")) {
             // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
@@ -399,10 +380,9 @@ public class MainActivity extends ActionBarActivity implements
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
         mLocationClient.connect();
-//        updateFeed();
     }
     @Override
-    protected void onRestoreInstanceState(Bundle bundle){
+    protected void onRestoreInstanceState(Bundle bundle) {
         mUsername = bundle.getString(USERNAME_KEY);
         if (mUsername == null)
             determineUsername();
@@ -455,10 +435,10 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.action_bar, menu);
-        return super.onCreateOptionsMenu(menu);
+         // Inflate the menu items for use in the action bar
+         MenuInflater inflater = getMenuInflater();
+         inflater.inflate(R.menu.action_bar, menu);
+         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -482,7 +462,6 @@ public class MainActivity extends ActionBarActivity implements
         }
         return actionBarHeight;
     }
-
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
