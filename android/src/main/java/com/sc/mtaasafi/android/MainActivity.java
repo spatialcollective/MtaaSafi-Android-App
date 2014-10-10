@@ -9,15 +9,12 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -34,13 +31,9 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
-import org.json.JSONArray;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -151,10 +144,6 @@ public class MainActivity extends ActionBarActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(Report report, NewReportFragment nrf){
-//        String toastContent = "user " + report.userName + " " + report.title + " " + report.timeElapsed + " Lat: " + report.latitude
-//                + " Lon:" + report.longitude;
-//        Toast toast = Toast.makeText(this, toastContent, Toast.LENGTH_SHORT);
-//        toast.show();
         newReportFragment = nrf;
         isBeamingUp = true;
         Log.e(LogTags.BACKEND_W, "Beam it up");
@@ -165,7 +154,7 @@ public class MainActivity extends ActionBarActivity implements
     public void onBeamedUp(){
         picPaths.clear();
         for(int i = 0; i < TOTAL_PICS; i++){
-            picPaths.add(i, null);
+            picPaths.add(null);
         }
         isBeamingUp = false;
         goToFeed();
@@ -212,8 +201,6 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         mCurrentLocation = mLocationClient.getLastLocation();
-        // Toast toast = Toast.makeText(this, "Location: " + mCurrentLocation.getLatitude() + " " + mCurrentLocation.getLongitude(), Toast.LENGTH_SHORT);
-        // toast.show();
     }
 
     @Override
@@ -223,12 +210,6 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        /*
-         * Google Play services can resolve some errors it detects.
-         * If the error has a resolution, try sending an Intent to
-         * start a Google Play services activity that can resolve
-         * error.
-         */
         if (connectionResult.hasResolution()) {
             try { // Start an Activity that tries to resolve the error
                 connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
@@ -247,9 +228,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
-        if (resultCode != Activity.RESULT_OK)
-            return;
-        else if (requestCode == REQUEST_IMAGE_CAPTURE){
+        if (requestCode == REQUEST_IMAGE_CAPTURE){
             Log.e(LogTags.PHOTO, "onActivityResult");
             onPhotoTaken();
             mPager.setCurrentItem(FRAGMENT_NEWREPORT);
@@ -271,15 +250,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private boolean servicesConnected() {
-        // Check that Google Play services is available
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
-            // In debug mode, log the status
-            // Log.d("Location Updates", "Google Play services is available.");
             return true;
-            // Google Play services was not available for some reason.
-            // resultCode holds the error code.
         } else {
             Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this,
                     CONNECTION_FAILURE_RESOLUTION_REQUEST);
@@ -298,12 +271,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
 
-    private boolean isConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnected();
-    }
-
     // ======================Picture-taking Logic:======================
     // Called by the new report fragment to launch a take picture activity.
     public void takePicture(NewReportFragment nrf, int previewClicked){
@@ -316,7 +283,6 @@ public class MainActivity extends ActionBarActivity implements
             try {
                 photoFile = createImageFile();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                // Log.w(LogTags.FEEDADAPTER, "Take picture: " + Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } catch (IOException ex){
                 Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
@@ -339,7 +305,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onPhotoTaken(){
-        picPaths.add(lastPreviewClicked, mCurrentPhotoPath);
+        picPaths.set(lastPreviewClicked, mCurrentPhotoPath);
+        Log.e(LogTags.PHOTO, picPaths.toString());
     }
 
     public ArrayList<String> getPics(){
@@ -363,7 +330,6 @@ public class MainActivity extends ActionBarActivity implements
         if(savedInstanceState != null) {
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-            FragmentManager manager = getSupportFragmentManager();
             currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
             picPaths = new ArrayList(
                         savedInstanceState.getStringArrayList(picPathsKey)
@@ -371,11 +337,10 @@ public class MainActivity extends ActionBarActivity implements
             Log.e(LogTags.NEWREPORT, "current item " + currentItem);
             if(savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
                 reportDetailReport = new Report(savedInstanceState);
-//            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
         } else {
             picPaths = new ArrayList<String>();
             for(int i = 0; i < TOTAL_PICS; i++){
-                picPaths.add(i, null);
+                picPaths.add(null);
             }
         }
     }
@@ -410,24 +375,7 @@ public class MainActivity extends ActionBarActivity implements
             reportDetailReport.saveState(bundle);
         }
         bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
-//        List<String> encodedPics = new List();
-//        for (int i = 0; i < TOTAL_PICS; i++) {
-//            if (picPaths.get(i) != null)
-//                encodedPics.add(i, picPaths.get(i));
-//            else {
-//                encodedPics.add(i, null);
-//            }
-//        }
         bundle.putStringArrayList(picPathsKey, picPaths);
-//        if(feedFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, FEED_FRAG_KEY, feedFragment);
-//        }
-//        if(newReportFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
-//        }
-//        if(reportDetailFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, HAS_REPORT_DETAIL_KEY, reportDetailFragment);
-//        }
     }
 
     @Override
@@ -473,7 +421,6 @@ public class MainActivity extends ActionBarActivity implements
     }
     @Override
     public void onBackPressed() {
-//        super.onBackPressed();
         if(!isBeamingUp){
             if(currentItem != FRAGMENT_FEED){
                 goToFeed();
@@ -481,11 +428,6 @@ public class MainActivity extends ActionBarActivity implements
             }
         }
         getSupportActionBar().show();
-    }
-
-    public void showLogins() {
-        DialogFragment newFragment = new AccountsFragment();
-        newFragment.show(getSupportFragmentManager(), "accounts");
     }
 
     private void determineUsername() {

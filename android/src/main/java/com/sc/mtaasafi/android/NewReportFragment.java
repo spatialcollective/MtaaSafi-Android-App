@@ -153,7 +153,7 @@ public class NewReportFragment extends Fragment {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int pixels_per_dp = (int)(metrics.density + 0.5f);
         int padding_dp = 15;
-        int reqWidth = (screenWidth - padding_dp * pixels_per_dp)/3;
+        int reqWidth = (screenWidth)/3 - padding_dp * pixels_per_dp;
         int inSampleSize = 1;
 
         if(picWidth > reqWidth){
@@ -220,6 +220,7 @@ public class NewReportFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
+        details.setFocusable(false);
         uploadingScreen.setVisibility(View.VISIBLE);
         for(int i = 0; i < TOTAL_PICS; i++){
             picPreviews[i].setClickable(false);
@@ -230,6 +231,7 @@ public class NewReportFragment extends Fragment {
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
         restorePics();
+        details.setFocusable(true);
         for(int i = 0; i < TOTAL_PICS; i++){
             picPreviews[i].setClickable(true);
         }

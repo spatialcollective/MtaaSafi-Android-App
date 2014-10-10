@@ -84,9 +84,9 @@ public class ServerCommunicater {
 
         StringEntity entity = new StringEntity(report.getJson().toString());
         httpPost.setEntity(entity);
+        Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer: httpclient starting");
         HttpResponse httpResponse = httpclient.execute(httpPost);
-        Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer");
-
+        Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer: httpclient finished");
     }
 
     public void getPosts(){

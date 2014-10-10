@@ -30,6 +30,8 @@ public class Report {
     public List<String> picPaths;
     public String   title, details, timeStamp, timeElapsed, userName;
     public List<String> mediaURLs;
+    public int voteCount;
+    public boolean iUpvoted;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",

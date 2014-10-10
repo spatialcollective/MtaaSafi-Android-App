@@ -29,7 +29,6 @@ import java.text.SimpleDateFormat;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
-    ImageView media1, media2, media3;
     final String hadAReportKey = "hadareport";
     Button previous, next;
     ViewFlipper flipper;
