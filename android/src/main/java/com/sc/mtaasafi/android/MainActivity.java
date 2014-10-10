@@ -8,9 +8,6 @@ import android.content.SharedPreferences;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -21,16 +18,13 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.AccountPicker;
@@ -62,12 +56,11 @@ public class MainActivity extends ActionBarActivity implements
         ServerCommunicater.ServerCommCallbacks,
         NewsFeedFragment.ReportSelectedListener {
     private NewsFeedFragment feedFragment;
-    private NewReportFragment newReportFragment;
-    private ReportDetailFragment reportDetailFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private SharedPreferences sharedPref;
+    private Report reportDetailReport;
     public String mUsername;
     public String mCurrentPhotoPath;
     private int currentItem;
@@ -87,15 +80,15 @@ public class MainActivity extends ActionBarActivity implements
     static final String USERNAME_KEY = "username",
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
+                        HAS_REPORT_DETAIL_KEY = "report_detail",
                         picPathsKey = "picPaths";
 
 
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
                         REQUEST_IMAGE_CAPTURE = 1,
                         FRAGMENT_FEED = 0,
-                        FRAGMENT_REPORTDETAIL = 1,
-                        FRAGMENT_NEWREPORT = 2,
-                        REQUEST_PICK_IMAGE = 100;
+                        FRAGMENT_REPORTDETAIL = 2,
+                        FRAGMENT_NEWREPORT = 1;
 
 
     // ======================Client-Server Communications:======================
@@ -185,11 +178,13 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToDetailView(Report report){
+        reportDetailReport = report;
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
-        ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(FRAGMENT_REPORTDETAIL);
+//        ReportDetailFragment rdf = (ReportDetailFragment) fa.getItem(mPager.getCurrentItem());
+//        Log.e(LogTags.FEEDITEM, report.title);
+//        report.toString();
 //        Bundle args = report.saveState(new Bundle());
-        rdf.updateView(report);
-        //rdf.setArguments(args);
+//        rdf.setArguments(args);
         currentItem = FRAGMENT_REPORTDETAIL;
     }
 
@@ -340,6 +335,10 @@ public class MainActivity extends ActionBarActivity implements
     public ArrayList<String> getPics(){
         return picPaths;
     }
+
+    public void getReportDetailReport(ReportDetailFragment rdf){
+        rdf.updateView(reportDetailReport);
+    }
     // ======================Activity Setup:======================
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,6 +350,7 @@ public class MainActivity extends ActionBarActivity implements
         sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
+
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
 
@@ -362,7 +362,9 @@ public class MainActivity extends ActionBarActivity implements
             picPaths = new ArrayList(
                         savedInstanceState.getStringArrayList(picPathsKey)
                         .subList(0, TOTAL_PICS));
-            Log.e(LogTags.NEWREPORT, "saved picPaths : " + picPaths.size());
+            Log.e(LogTags.NEWREPORT, "current item " + currentItem);
+            if(savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
+                reportDetailReport = new Report(savedInstanceState);
 //            restorePics(savedInstanceState.getStringArrayList(picPathsKey));
         } else {
             picPaths = new ArrayList<String>();
@@ -370,10 +372,9 @@ public class MainActivity extends ActionBarActivity implements
                 picPaths.add(i, null);
             }
         }
-            //mPager.setCurrentItem(currentItem);
 //            feedFragment = (NewsFeedFragment) manager.getFragment(savedInstanceState, FEED_FRAG_KEY);
 //            newReportFragment = (NewReportFragment) manager.getFragment(savedInstanceState, NEW_REPORT_KEY);
-//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, REPORT_DETAIL_KEY);
+//            reportDetailFragment = (ReportDetailFragment) manager.getFragment(savedInstanceState, HAS_REPORT_DETAIL_KEY);
 //            if(currentFragment.equals(FRAGMENT_NEWREPORT)){
 //                goToNewReport();
 //            }
@@ -391,7 +392,6 @@ public class MainActivity extends ActionBarActivity implements
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
-
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals("")) {
             // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
@@ -413,8 +413,11 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-        currentItem = fa.getItemPosition(mPager.getCurrentItem());
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
+        if(reportDetailReport != null){
+            reportDetailReport.saveState(bundle);
+        }
+        bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
 //        List<String> encodedPics = new List();
 //        for (int i = 0; i < TOTAL_PICS; i++) {
 //            if (picPaths.get(i) != null)
@@ -431,7 +434,7 @@ public class MainActivity extends ActionBarActivity implements
 //            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_KEY, newReportFragment);
 //        }
 //        if(reportDetailFragment != null){
-//            getSupportFragmentManager().putFragment(bundle, REPORT_DETAIL_KEY, reportDetailFragment);
+//            getSupportFragmentManager().putFragment(bundle, HAS_REPORT_DETAIL_KEY, reportDetailFragment);
 //        }
     }
 
@@ -440,6 +443,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
+        mPager.setCurrentItem(currentItem);
     }
     @Override
     protected void onStop(){
@@ -478,6 +482,7 @@ public class MainActivity extends ActionBarActivity implements
         }
         return actionBarHeight;
     }
+
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();

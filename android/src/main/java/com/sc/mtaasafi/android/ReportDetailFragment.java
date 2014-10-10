@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
     ImageView media1, media2, media3;
+    final String hadAReportKey = "hadareport";
     Button previous, next;
     ViewFlipper flipper;
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
@@ -44,13 +45,14 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
-        if(savedInstanceState != null){
+        if(savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey)){
             mReport = new Report(savedInstanceState);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+        Log.e(LogTags.FEEDITEM, "ReportDetailFrag: onCreateView called");
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
 
@@ -99,6 +101,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             }
         });
 
+        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
+        timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
+        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
 
         aq = new AQuery(view);
         previous = (Button) view.findViewById(R.id.buttonPrevious);
@@ -119,8 +124,19 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
                 flipper.showPrevious();
             }
         });
+        if(getArguments() != null){
+            mReport = new Report(getArguments());
+        }
+
+        if(mReport !=null){
+            updateView(mReport);
+        }
+        else{
+            Log.e("REPORT DETAIL", "mReport is null in onCreateView");
+        }
         return view;
     }
+
 
     public void setActionBarTranslation(float y) {
         // Figure out the actionbar height
@@ -146,6 +162,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     public void updateView(Report report) {
         mReport = report;
+        Log.e(LogTags.FEEDITEM, "UpdateView's report: " + mReport.title);
+        aq = new AQuery(mActivity);
         aq.id(R.id.reportViewTitle).text(mReport.title);
         aq.id(R.id.reportViewDetails).text(mReport.details);
         aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
@@ -153,13 +171,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
         aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
         aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
-//        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
-//        detailsTV.setText(mReport.details);
-//        timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
-//        timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
-//        timeStampTV.setVisibility(View.VISIBLE);
-//        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
-//        userNameTV.setText(mReport.userName);
+        detailsTV.setText(mReport.details);
+        timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
+        userNameTV.setText(mReport.userName);
 //        media1 = (ImageView) view.findViewById(R.id.media1);
 //        media2 = (ImageView) view.findViewById(R.id.media2);
 //        media3 = (ImageView) view.findViewById(R.id.media3);
@@ -179,6 +193,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     @Override
     public void onResume(){
         super.onResume();
+        mActivity.getReportDetailReport(this);
     }
 
     @Override
@@ -189,8 +204,12 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        if (mReport != null)
+        if (mReport != null){
             outState = mReport.saveState(outState);
+            outState.putBoolean(hadAReportKey, true);
+        }
+        else
+            outState.putBoolean(hadAReportKey, false);
     }
 
     private String getSimpleTimeStamp(String timestamp) {

@@ -127,6 +127,7 @@ public class Report {
         outState.putStringArray(mediaURLsKey, this.mediaURLs.toArray(new String[mediaURLs.size()]));
         outState.putDouble(latKey, this.latitude);
         outState.putDouble(lonKey, this.longitude);
+        Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
     }
 

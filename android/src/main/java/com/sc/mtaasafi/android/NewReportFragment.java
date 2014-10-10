@@ -147,7 +147,7 @@ public class NewReportFragment extends Fragment {
         int screenWidth = mActivity.getScreenWidth();
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int pixels_per_dp = (int)(metrics.density + 0.5f);
-        int padding_dp = 10;
+        int padding_dp = 15;
         int reqWidth = (screenWidth - padding_dp * pixels_per_dp)/3;
         int inSampleSize = 1;
 
@@ -251,7 +251,8 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(DEETS_KEY, details.getText().toString());
+        if(details != null)
+            outState.putString(DEETS_KEY, details.getText().toString());
         outState.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
     }
 
