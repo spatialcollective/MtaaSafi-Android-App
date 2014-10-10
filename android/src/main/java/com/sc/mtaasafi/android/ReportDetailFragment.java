@@ -131,9 +131,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         if(mReport !=null){
             updateView(mReport);
         }
-        else{
-            Log.e("REPORT DETAIL", "mReport is null in onCreateView");
-        }
         return view;
     }
 

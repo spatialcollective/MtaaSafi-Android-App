@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.androidquery.AQuery;
 
@@ -33,6 +34,7 @@ public class NewReportFragment extends Fragment {
     ImageView[] picPreviews;
     ArrayList<String> picPaths;
     RelativeLayout mLayout;
+    RelativeLayout uploadingScreen;
     int lastPreviewClicked;
 
     private final int PIC1 = 0,
@@ -63,13 +65,11 @@ public class NewReportFragment extends Fragment {
         Log.e(LogTags.NEWREPORT, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
         mLayout = (RelativeLayout) view.findViewById(R.id.new_report);
-
-        //
+        uploadingScreen = (RelativeLayout) view.findViewById(R.id.uploading_screen);
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int pixels_per_dp = (int)(metrics.density + 0.5f);
         int padding_dp = 4;
         mLayout.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
-
         details = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         picPreviews[0] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);
@@ -118,12 +118,20 @@ public class NewReportFragment extends Fragment {
         picPaths = mActivity.getPics();
         int emptyPics = TOTAL_PICS;
         Log.e(LogTags.NEWREPORT, "restorePics size: " + picPaths.size());
-        for (int i = 0; i < TOTAL_PICS; i++) {
-            if (picPaths.get(i)!= null) {
-                // decode byte[] from string, add to picPaths list, create a thumb from the byte[],
-                // add it to the preview.
-                aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
-                emptyPics--;
+        // if picPaths is empty, that means you're in a new newReportFragment
+        if(picPaths.size() != 0){
+            for (int i = 0; i < TOTAL_PICS; i++) {
+                if (picPaths.get(i)!= null) {
+                    aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
+                    emptyPics--;
+                }
+                else
+                    aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
+            }
+        }
+        else{
+            for (int i = 0; i < TOTAL_PICS; i++) {
+                aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
             }
         }
         if (emptyPics > 1)
@@ -208,18 +216,28 @@ public class NewReportFragment extends Fragment {
     }
 
     public void sendReport() {
-        mActivity.beamItUp(createNewReport());
+        mActivity.beamItUp(createNewReport(), this);
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
+        uploadingScreen.setVisibility(View.VISIBLE);
+        for(int i = 0; i < TOTAL_PICS; i++){
+            picPreviews[i].setClickable(false);
+        }
     }
 
+    public void onReportSent(){
+        uploadingScreen.setVisibility(View.INVISIBLE);
+        details.setText("");
+        restorePics();
+        for(int i = 0; i < TOTAL_PICS; i++){
+            picPreviews[i].setClickable(true);
+        }
+    }
     public Report createNewReport() {
-        // TODO: figure out how to manage picPaths in report class
         Log.e(LogTags.NEWREPORT, "createNewReport");
         Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
                 picPaths.subList(0, TOTAL_PICS));
-        details.setText("");
         return report;
     }
     // called when the edit texts' listeners detect a change in their texts
