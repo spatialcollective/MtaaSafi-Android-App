@@ -57,7 +57,7 @@
         android:layout_alignParentTop="true"
         android:id="@+id/uploading_screen"
         android:background="@color/Gray"
-        android:visibility="visible">
+        android:visibility="invisible">
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"

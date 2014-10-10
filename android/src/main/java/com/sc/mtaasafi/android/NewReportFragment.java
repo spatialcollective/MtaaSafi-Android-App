@@ -125,6 +125,8 @@ public class NewReportFragment extends Fragment {
                     aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
                     emptyPics--;
                 }
+                else
+                    aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
             }
         }
         else{
@@ -219,11 +221,18 @@ public class NewReportFragment extends Fragment {
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
         uploadingScreen.setVisibility(View.VISIBLE);
+        for(int i = 0; i < TOTAL_PICS; i++){
+            picPreviews[i].setClickable(false);
+        }
     }
 
     public void onReportSent(){
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
+        restorePics();
+        for(int i = 0; i < TOTAL_PICS; i++){
+            picPreviews[i].setClickable(true);
+        }
     }
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");

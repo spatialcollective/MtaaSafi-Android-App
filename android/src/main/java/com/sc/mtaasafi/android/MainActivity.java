@@ -160,12 +160,16 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.BACKEND_W, "Beam it up");
         sc.post(report);
     }
+
     // called by the ServerCommunicater when the post has been successfully written to the server
     public void onBeamedUp(){
-        newReportFragment.onReportSent();
         picPaths.clear();
+        for(int i = 0; i < TOTAL_PICS; i++){
+            picPaths.add(i, null);
+        }
         isBeamingUp = false;
         goToFeed();
+        newReportFragment.onReportSent();
         newReportFragment = null;
     }
     public static class ErrorDialogFragment extends DialogFragment {
