@@ -459,9 +459,6 @@ public class MainActivity extends ActionBarActivity implements
             case R.id._action_report:
                 goToNewReport();
                 return true;
-            case R.id.accounts_menu:
-                showLogins();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
