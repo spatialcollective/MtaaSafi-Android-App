@@ -167,7 +167,7 @@ public class MainActivity extends ActionBarActivity implements
     }
     // called by the ServerCommunicater when the post has been successfully written to the server
     // tells the main activity the next field it expects
-    public void onServerResponse(int reportToSendId, int nextExpectedField){
+    public void onServerResponse(int reportToSendId, final int nextExpectedField){
         Log.e("Main Activity", "ReportId: " + " next expected Field: " + nextExpectedField);
         if(nextExpectedField == SERVER_POST_SUCCESS){
             Log.e("Main Activity", "Made it into the nextField == SERVER_POST_SUCCESS statement");
@@ -188,8 +188,12 @@ public class MainActivity extends ActionBarActivity implements
             reportToSend = null;
         }
         else{
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    newReportFragment.onPostUpdate(nextExpectedField);
+                }
+            });
             this.reportToSendId = reportToSendId;
-//            newReportFragment.onFieldSent();
         }
         this.nextFieldToSend = nextExpectedField;
 

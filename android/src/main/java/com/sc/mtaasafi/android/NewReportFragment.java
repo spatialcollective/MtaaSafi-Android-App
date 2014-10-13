@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,13 +30,15 @@ import java.util.List;
 public class NewReportFragment extends Fragment {
     MainActivity mActivity;
     DescriptionEditText details;
-    TextView attachPicsTV;
+    TextView attachPicsTV, uploadingTV;
     Button reportBtn;
     ImageView[] picPreviews;
+    ImageView reportTextUploading, pic1Uploading, pic2Uploading, pic3Uploading;
     ArrayList<String> picPaths;
     RelativeLayout mLayout;
     RelativeLayout uploadingScreen;
     int lastPreviewClicked;
+    ProgressBar reportTextProgress, pic1Progress, pic2Progress, pic3Progress;
 
     private final int PIC1 = 0,
             PIC2 = PIC1 + 1,
@@ -75,6 +78,15 @@ public class NewReportFragment extends Fragment {
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[2] = (ImageView) view.findViewById(R.id.pic3);
 
+        reportTextUploading = (ImageView) view.findViewById(R.id.reportUploadingIcon);
+        pic1Uploading = (ImageView) view.findViewById(R.id.pic1UploadingIcon);
+        pic2Uploading = (ImageView) view.findViewById(R.id.pic2UploadingIcon);
+        pic3Uploading = (ImageView) view.findViewById(R.id.pic3UploadingIcon);
+        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
+        pic1Progress = (ProgressBar) view.findViewById(R.id.progressBarPic1);
+        pic2Progress = (ProgressBar) view.findViewById(R.id.progressBarPic2);
+        pic3Progress = (ProgressBar) view.findViewById(R.id.progressBarPic3);
+        uploadingTV = (TextView) view.findViewById(R.id.uploadingText);
         reportBtn = (Button) view.findViewById(R.id.reportButton);
         reportBtn.setClickable(false);
 
@@ -227,7 +239,48 @@ public class NewReportFragment extends Fragment {
             picPreviews[i].setClickable(false);
         }
     }
+    public void onPostUpdate(int currentFieldSending){
+        switch(currentFieldSending){
+            case 0:{
+                reportTextProgress.setVisibility(View.VISIBLE);
+                uploadingTV.setText("Uploading report text...");
+                break;
+            }
+            case 1:{
+                reportTextProgress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Uploading first picture...");
+                pic1Progress.setVisibility(View.VISIBLE);
+                reportTextProgress.setVisibility(View.INVISIBLE);
+                reportTextUploading.setImageResource(R.drawable.report_uploaded);
+                break;
+            }
+            case 2:{
+                pic1Progress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Uploading second picture...");
+                pic2Progress.setVisibility(View.VISIBLE);
+                pic1Progress.setVisibility(View.INVISIBLE);
+                pic1Uploading.setImageResource(R.drawable.pic1_uploaded);
+                break;
+            }
+            case 3:{
+                pic2Progress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Uploading third picture...");
+                pic3Progress.setVisibility(View.VISIBLE);
+                pic2Progress.setVisibility(View.INVISIBLE);
+                pic2Uploading.setImageResource(R.drawable.pic2_uploaded);
+                break;
+            }
+            case -1:{
+                pic3Progress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Report uploaded!");
+                pic3Progress.setVisibility(View.INVISIBLE);
+                pic3Uploading.setImageResource(R.drawable.pic3_uploaded);
+                break;
+            }
 
+
+        }
+    }
     public void onReportSent(){
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
