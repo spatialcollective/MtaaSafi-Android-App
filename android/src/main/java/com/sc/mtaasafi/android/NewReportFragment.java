@@ -112,6 +112,7 @@ public class NewReportFragment extends Fragment {
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
         restorePics();
+        mActivity.setNewReportFragmentListener(this);
     }
 
     private void restorePics() {
@@ -143,7 +144,7 @@ public class NewReportFragment extends Fragment {
         attemptEnableReport();
     }
 
-    // Returns 100x100px thumbnail to populate picPreviews.
+    // Returns dynamically sized thumbnail to populate picPreviews.
     private Bitmap getThumbnail(String picPath) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -216,7 +217,7 @@ public class NewReportFragment extends Fragment {
     }
 
     public void sendReport() {
-        mActivity.beamItUp(createNewReport(), this);
+        mActivity.beamNewReportUp(createNewReport());
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
@@ -239,7 +240,7 @@ public class NewReportFragment extends Fragment {
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");
         Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
-                picPaths.subList(0, TOTAL_PICS));
+                picPaths);
         return report;
     }
     // called when the edit texts' listeners detect a change in their texts
@@ -248,14 +249,11 @@ public class NewReportFragment extends Fragment {
         if (picPaths != null && !picPaths.isEmpty()) {
             for (int i = 0; i < TOTAL_PICS; i++) {
                 if (picPaths.get(i) == null) {
-//                    Log.e(LogTags.NEWREPORT, "pic" + i + " is null");
                     hasEmptyPics = true;
                     break;
                 }
             }
         }
-//        Log.e(LogTags.NEWREPORT, "Do u have details: " + !details.getText().toString().isEmpty()
-//                + ". Have all picPaths: " + !hasEmptyPics);
         if (!details.getText().toString().isEmpty() && !hasEmptyPics) {
             reportBtn.setClickable(true);
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));

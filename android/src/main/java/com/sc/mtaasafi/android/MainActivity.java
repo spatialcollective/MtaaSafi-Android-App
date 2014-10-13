@@ -55,14 +55,11 @@ public class MainActivity extends ActionBarActivity implements
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private SharedPreferences sharedPref;
-    private Report reportDetailReport;
+    private Report reportDetailReport, reportToSend;
     private boolean isBeamingUp;
     private NewReportFragment newReportFragment;
-    public String mUsername;
-    public String mCurrentPhotoPath;
-    private int currentItem;
-
-    int lastPreviewClicked;
+    public String mUsername, mCurrentPhotoPath;
+    private int currentFragment, nextFieldToSend, lastPreviewClicked, reportToSendId;
     ArrayList<String> picPaths;
 
     private final int PIC1 = 0,
@@ -78,14 +75,20 @@ public class MainActivity extends ActionBarActivity implements
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
-                        picPathsKey = "picPaths";
+                        PIC_PATHS_KEY = "picPaths",
+                        NEXT_FIELD_TO_SEND_KEY ="next_field",
+                        REPORT_ID_TO_SEND_KEY = "report_to_send_id",
+                        REPORT_DETAIL_KEY = "report_detail";
 
 
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
                         REQUEST_IMAGE_CAPTURE = 1,
                         FRAGMENT_FEED = 0,
                         FRAGMENT_REPORTDETAIL = 2,
-                        FRAGMENT_NEWREPORT = 1;
+                        FRAGMENT_NEWREPORT = 1,
+                        SERVER_POST_SUCCESS = -1,
+                        NO_REPORT_TO_SEND = -1,
+                        NEW_REPORT = 0;
 
 
     // ======================Client-Server Communications:======================
@@ -144,24 +147,52 @@ public class MainActivity extends ActionBarActivity implements
         return getWindowManager().getDefaultDisplay().getWidth();
     }
 
-    // takes a post written by the user from the feed fragment, pushes it to server
-    public void beamItUp(Report report, NewReportFragment nrf){
-        newReportFragment = nrf;
-        isBeamingUp = true;
-        Log.e(LogTags.BACKEND_W, "Beam it up");
-        sc.post(report);
+    // called by the new report fragment in sendReport()
+    public void beamNewReportUp(Report report){
+        reportToSend = report;
+        beamItUp(NEW_REPORT, 0, report);
     }
 
+    // takes a post written by the user from the feed fragment, pushes it to server
+    public void beamItUp(int reportId, int fieldToSend, Report report){
+        isBeamingUp = true;
+        reportToSendId = reportId;
+        nextFieldToSend = fieldToSend;
+        Log.e(LogTags.BACKEND_W, "Beam it up");
+        sc.post(reportId, fieldToSend, report);
+    }
+
+    public void setNewReportFragmentListener(NewReportFragment nrf){
+        newReportFragment = nrf;
+    }
     // called by the ServerCommunicater when the post has been successfully written to the server
-    public void onBeamedUp(){
-        picPaths.clear();
-        for(int i = 0; i < TOTAL_PICS; i++){
-            picPaths.add(null);
+    // tells the main activity the next field it expects
+    public void onServerResponse(int reportToSendId, int nextExpectedField){
+        Log.e("Main Activity", "ReportId: " + " next expected Field: " + nextExpectedField);
+        if(nextExpectedField == SERVER_POST_SUCCESS){
+            Log.e("Main Activity", "Made it into the nextField == SERVER_POST_SUCCESS statement");
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    isBeamingUp = false;
+                    picPaths.clear();
+                    for(int i = 0; i < TOTAL_PICS; i++){
+                        picPaths.add(null);
+                    }
+                    // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+                    goToFeed();
+                    newReportFragment.onReportSent();
+                    newReportFragment = null;
+                }
+            });
+            this.reportToSendId = NO_REPORT_TO_SEND;
+            reportToSend = null;
         }
-        isBeamingUp = false;
-        goToFeed();
-        newReportFragment.onReportSent();
-        newReportFragment = null;
+        else{
+            this.reportToSendId = reportToSendId;
+//            newReportFragment.onFieldSent();
+        }
+        this.nextFieldToSend = nextExpectedField;
+
     }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
@@ -178,14 +209,14 @@ public class MainActivity extends ActionBarActivity implements
     // ======================Fragment Navigation:======================
     public void goToFeed(){
         mPager.setCurrentItem(FRAGMENT_FEED);
-        currentItem = FRAGMENT_FEED;
+        currentFragment = FRAGMENT_FEED;
     }
 
     public void goToDetailView(Report report){
         reportDetailReport = report;
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         Log.e("GO TO DETAIL VIEW", reportDetailReport.title);
-        currentItem = FRAGMENT_REPORTDETAIL;
+        currentFragment = FRAGMENT_REPORTDETAIL;
     }
     public void getReportDetailReport(ReportDetailFragment rdf){
         if(reportDetailReport != null)
@@ -194,7 +225,7 @@ public class MainActivity extends ActionBarActivity implements
 
     public void goToNewReport(){
         mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-        currentItem = FRAGMENT_NEWREPORT;
+        currentFragment = FRAGMENT_NEWREPORT;
     }
 
     // ======================Google Play Services Setup:======================
@@ -333,18 +364,28 @@ public class MainActivity extends ActionBarActivity implements
         if(savedInstanceState != null) {
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-            currentItem = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+            currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
             picPaths = new ArrayList(
-                        savedInstanceState.getStringArrayList(picPathsKey)
+                        savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
                         .subList(0, TOTAL_PICS));
-            Log.e(LogTags.NEWREPORT, "current item " + currentItem);
+            Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
             if(savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-                reportDetailReport = new Report(savedInstanceState);
+                reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+            Integer reportId = savedInstanceState.getInt(REPORT_ID_TO_SEND_KEY);
+            if(reportId != null){
+                reportToSendId = reportId;
+                if(reportToSendId != NO_REPORT_TO_SEND){
+                    nextFieldToSend = savedInstanceState.getInt(NEXT_FIELD_TO_SEND_KEY);
+                    reportToSend = new Report(REPORT_ID_TO_SEND_KEY, savedInstanceState);
+                    beamItUp(reportToSendId, nextFieldToSend, reportToSend);
+                }
+            }
         } else {
             picPaths = new ArrayList<String>();
             for(int i = 0; i < TOTAL_PICS; i++){
                 picPaths.add(null);
             }
+            reportToSendId = NO_REPORT_TO_SEND;
         }
     }
 
@@ -373,12 +414,17 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-        bundle.putInt(CURRENT_FRAGMENT_KEY, currentItem);
+        bundle.putInt(CURRENT_FRAGMENT_KEY, currentFragment);
         if(reportDetailReport != null){
-            reportDetailReport.saveState(bundle);
+            reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
         }
         bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
-        bundle.putStringArrayList(picPathsKey, picPaths);
+        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
+        bundle.putInt(NEXT_FIELD_TO_SEND_KEY, nextFieldToSend);
+        bundle.putInt(REPORT_ID_TO_SEND_KEY, reportToSendId);
+        if(reportToSend != null){
+            reportToSend.saveState(REPORT_ID_TO_SEND_KEY, bundle);
+        }
     }
 
     @Override
@@ -386,7 +432,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
-        mPager.setCurrentItem(currentItem);
+        mPager.setCurrentItem(currentFragment);
     }
     @Override
     protected void onStop(){
@@ -425,9 +471,9 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onBackPressed() {
         if(!isBeamingUp){
-            if(currentItem != FRAGMENT_FEED){
+            if(currentFragment != FRAGMENT_FEED){
                 goToFeed();
-                currentItem = FRAGMENT_FEED;
+                currentFragment = FRAGMENT_FEED;
             }
         }
         getSupportActionBar().show();

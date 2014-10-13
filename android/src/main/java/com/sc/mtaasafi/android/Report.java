@@ -27,11 +27,12 @@ import java.util.List;
  */
 public class Report {
     public double latitude, longitude;
-    public List<String> picPaths;
+    public ArrayList<String> picPaths;
     public String   title, details, timeStamp, timeElapsed, userName;
-    public List<String> mediaURLs;
+    public ArrayList<String> mediaURLs;
     public int voteCount;
     public boolean iUpvoted;
+    private final static int FIELD_TEXT = 0;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
@@ -43,7 +44,7 @@ public class Report {
 
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
-                  List<String> picPaths) {
+                  ArrayList<String> picPaths) {
         this.details = details;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
@@ -76,16 +77,49 @@ public class Report {
         }
     }
 
-    public Report(Bundle savedState) {
-        this.title = savedState.getString(titleKey);
-        this.details = savedState.getString(detailsKey);
-        this.timeStamp = savedState.getString(timeStampKey);
+    public Report(String report_key, Bundle savedState) {
+        this.title = savedState.getString(report_key+titleKey);
+        this.details = savedState.getString(report_key+detailsKey);
+        this.timeStamp = savedState.getString(report_key+timeStampKey);
         this.timeElapsed = getElapsedTime(this.timeStamp);
-        this.userName = savedState.getString(userNameKey);
-        this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(mediaURLsKey)));
-        this.latitude = savedState.getDouble(latKey);
-        this.longitude = savedState.getDouble(lonKey);
+        this.userName = savedState.getString(report_key+userNameKey);
+        this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
+        this.latitude = savedState.getDouble(report_key+latKey);
+        this.longitude = savedState.getDouble(report_key+lonKey);
+        this.picPaths = savedState.getStringArrayList(report_key+picsKey);
     }
+
+    public JSONObject getJsonForField(int i){
+    try{
+        JSONObject json = new JSONObject();
+        if(i == FIELD_TEXT){
+            json.put(detailsKey, this.details);
+            json.put(timeStampKey, this.timeStamp);
+            json.put(userNameKey, this.userName);
+            json.put(latKey, this.latitude);
+            json.put(lonKey, this.longitude);
+        }
+        else{
+            File file = new File(picPaths.get(i - 1));
+            byte[] b = new byte[(int) file.length()];
+            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream.read(b);
+            json.put(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
+            Log.e("JSON", "PIC: " + json.getString(picsKey));
+            fileInputStream.close();
+        }
+        return json;
+    } catch (JSONException e) {
+        e.printStackTrace();
+        Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return null;
+    }
+
 
     public JSONObject getJson() {
         try {
@@ -119,14 +153,18 @@ public class Report {
         return null;
     }
 
-    public Bundle saveState(Bundle outState) {
-        outState.putString(titleKey, this.title);
-        outState.putString(detailsKey, this.details);
-        outState.putString(timeStampKey, this.timeStamp);
-        outState.putString(userNameKey, this.userName);
-        outState.putStringArray(mediaURLsKey, this.mediaURLs.toArray(new String[mediaURLs.size()]));
-        outState.putDouble(latKey, this.latitude);
-        outState.putDouble(lonKey, this.longitude);
+    public Bundle saveState(String report_key, Bundle outState) {
+        outState.putString(report_key+titleKey, this.title);
+        outState.putString(report_key+detailsKey, this.details);
+        outState.putString(report_key+timeStampKey, this.timeStamp);
+        outState.putString(report_key+userNameKey, this.userName);
+        if(mediaURLs != null)
+            outState.putStringArray(report_key+mediaURLsKey,
+                    this.mediaURLs.toArray(new String[mediaURLs.size()]));
+        outState.putDouble(report_key+latKey, this.latitude);
+        outState.putDouble(report_key+lonKey, this.longitude);
+        if(picPaths != null && !picPaths.isEmpty())
+            outState.putStringArrayList(report_key+picsKey, this.picPaths);
         Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
     }
