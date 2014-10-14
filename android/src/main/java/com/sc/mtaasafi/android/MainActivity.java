@@ -114,12 +114,13 @@ public class MainActivity extends ActionBarActivity implements
 
     // Called by the server communicator if it cannot successfully receive posts from the server
     public void onUpdateFailed() {
+        final Toast toast = Toast.makeText(this, "Update failed!", Toast.LENGTH_SHORT);
         runOnUiThread(new Runnable() {
             public void run() {
-                // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
-                AlertDialogFragment adf = new AlertDialogFragment("Feed update failed", "ok",
-                        "retry", UPDATE_FAILED);
-                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
+                toast.show();
+//                AlertDialogFragment adf = new AlertDialogFragment("Feed update failed", "ok",
+//                        "retry", UPDATE_FAILED);
+//                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
     }
@@ -212,12 +213,18 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void onUploadFailed(final String failMessage){
+        final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
+        goToFeed();
+        reportToSend = null;
+        reportToSendId = NO_REPORT_TO_SEND;
+        nextFieldToSend = SERVER_POST_SUCCESS;
         runOnUiThread(new Runnable() {
             public void run() {
-                // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
-                AlertDialogFragment adf = new AlertDialogFragment("Upload failed: "+ failMessage, "ok",
-                        "retry", UPDATE_FAILED);
-                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
+                toast.show();
+//                // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+//                AlertDialogFragment adf = new AlertDialogFragment("Upload failed: "+ failMessage, "ok",
+//                        "retry", UPDATE_FAILED);
+//                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
 
