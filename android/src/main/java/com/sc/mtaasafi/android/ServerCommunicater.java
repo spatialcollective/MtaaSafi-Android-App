@@ -45,6 +45,7 @@ public class ServerCommunicater {
 
     ServerCommunicater(ServerCommCallbacks activity){
         this.activity = activity;
+
     }
 
     // Asynchronously push the post to the server
