@@ -33,9 +33,9 @@ public class FragmentAdapter extends FragmentPagerAdapter{
             case 0:
                 return nff;
             case 1:
-                return rdf;
-            case 2:
                 return nrf;
+            case 2:
+                return rdf;
         }
        return null;
     }

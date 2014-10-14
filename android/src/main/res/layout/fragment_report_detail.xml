@@ -1,107 +1,89 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="bottom"
+    sothree:panelHeight="68dp"
+    sothree:shadowHeight="4dp">
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:id="@+id/reportDetailView"
+    android:id="@+id/reportDetailViewText"
     android:paddingBottom="@dimen/activity_vertical_margin">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User Name"
-        android:id="@+id/reportViewUsername"
-        android:textColor="#666666"
-        android:paddingLeft="10dp"
-        android:textSize="14dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="10dp"
-        android:layout_below="@+id/reportViewTitle"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
-        android:id="@+id/reportViewDetails"
-        android:paddingLeft="10dp"
-        android:paddingRight="5dp"
-        android:textSize="18dp"
-        android:paddingBottom="15dp"
-        android:layout_below="@+id/reportViewUsername"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="5h"
-        android:id="@+id/reportViewTimeStamp"
-        android:paddingLeft="10dp"
-        android:textSize="14dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report Title"
-        android:id="@+id/reportViewTitle"
-        android:textSize="30dp"
-        android:paddingLeft="10dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <ViewFlipper
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/viewFlipper"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignTop="@+id/progressBar">
-
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/media1"
-            android:src="@drawable/pic_selected_icon"
-            android:scaleType="fitCenter"
-            android:layout_below="@+id/reportViewDetails"
+            android:text="5h"
+            android:id="@+id/reportViewTimeStamp"
+            android:paddingRight="10dp"
+            android:textSize="14dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="right" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Report Title"
+            android:id="@+id/reportViewTitle"
+            android:textSize="30dp"
+            android:paddingLeft="10dp"
+            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginLeft="152dp" />
+            android:layout_alignParentStart="true" />
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/media2"
-            android:src="@drawable/pic_placeholder"
-            android:layout_below="@+id/reportViewDetails"
-            android:scaleType="fitCenter"
-            android:layout_centerHorizontal="true" />
+            android:text="User Name"
+            android:id="@+id/reportViewUsername"
+            android:textColor="#666666"
+            android:paddingLeft="10dp"
+            android:textSize="14dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="10dp"
+            android:layout_below="@+id/reportViewTitle"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/media3"
-            android:src="@drawable/send_icon"
-            android:scaleType="fitCenter"
-            android:layout_above="@+id/progressBar"
-            android:layout_toLeftOf="@+id/reportViewTimeStamp" />
-    </ViewFlipper>
+            android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
+            android:id="@+id/reportViewDetails"
+            android:paddingLeft="10dp"
+            android:paddingRight="5dp"
+            android:textSize="18dp"
+            android:paddingBottom="15dp"
+            android:layout_below="@+id/reportViewUsername"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_below="@+id/reportViewDetails"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="97dp" />
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/reportDetailProgress"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="false" />
+    </LinearLayout>
+
 
 </RelativeLayout>
+    <!-- SLIDING LAYOUT -->
+<include layout="@layout/report_detail_pic_flipper"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/reportDetailViewText"></include>
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>

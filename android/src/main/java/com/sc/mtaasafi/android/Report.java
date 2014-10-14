@@ -10,6 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,27 +27,34 @@ import java.util.List;
  */
 public class Report {
     public double latitude, longitude;
-    public List<byte[]> pics;
+    public ArrayList<String> picPaths;
     public String   title, details, timeStamp, timeElapsed, userName;
-    public List<String> mediaURLs;
+    public ArrayList<String> mediaURLs;
+    public int voteCount;
+    public boolean iUpvoted;
+    private final static int FIELD_TEXT = 0;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
                             userNameKey = "user",
-                            picsKey = "pics",
+                            picsKey = "picPaths",
                             mediaURLsKey = "mediaURLs",
                             latKey = "latitude",
                             lonKey = "longitude";
 
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
-                  List<byte[]> pics) {
+                  ArrayList<String> picPaths) {
         this.details = details;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
-        this.pics = pics;
+        this.picPaths = picPaths;
+        Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
+                picPaths.get(0).toString() + ". " +
+                picPaths.get(1).toString() +". " +
+                picPaths.get(2).toString());
     }
 
     public Report(JSONObject jsonServerData) {
@@ -53,11 +64,11 @@ public class Report {
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-//            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
-//            mediaURLs = new ArrayList<String>();
-//            for(int i = 0; i < mediaURLsInJSON.length(); i++){
-//              mediaURLs.add(mediaURLsInJSON.get(i).toString());
-//            }
+            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
+            mediaURLs = new ArrayList<String>();
+            for(int i = 0; i < mediaURLsInJSON.length(); i++){
+              mediaURLs.add(mediaURLsInJSON.get(i).toString());
+            }
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
         } catch (JSONException e) {
@@ -66,16 +77,49 @@ public class Report {
         }
     }
 
-    public Report(Bundle savedState) {
-        this.title = savedState.getString(titleKey);
-        this.details = savedState.getString(detailsKey);
-        this.timeStamp = savedState.getString(timeStampKey);
+    public Report(String report_key, Bundle savedState) {
+        this.title = savedState.getString(report_key+titleKey);
+        this.details = savedState.getString(report_key+detailsKey);
+        this.timeStamp = savedState.getString(report_key+timeStampKey);
         this.timeElapsed = getElapsedTime(this.timeStamp);
-        this.userName = savedState.getString(userNameKey);
-        this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(mediaURLsKey)));
-        this.latitude = savedState.getDouble(latKey);
-        this.longitude = savedState.getDouble(lonKey);
+        this.userName = savedState.getString(report_key+userNameKey);
+        this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
+        this.latitude = savedState.getDouble(report_key+latKey);
+        this.longitude = savedState.getDouble(report_key+lonKey);
+        this.picPaths = savedState.getStringArrayList(report_key+picsKey);
     }
+
+    public JSONObject getJsonForField(int i){
+    try{
+        JSONObject json = new JSONObject();
+        if(i == FIELD_TEXT){
+            json.put(detailsKey, this.details);
+            json.put(timeStampKey, this.timeStamp);
+            json.put(userNameKey, this.userName);
+            json.put(latKey, this.latitude);
+            json.put(lonKey, this.longitude);
+        }
+        else{
+            File file = new File(picPaths.get(i - 1));
+            byte[] b = new byte[(int) file.length()];
+            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream.read(b);
+            json.put(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
+            Log.e("JSON", "PIC: " + json.getString(picsKey));
+            fileInputStream.close();
+        }
+        return json;
+    } catch (JSONException e) {
+        e.printStackTrace();
+        Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
+    } catch (FileNotFoundException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return null;
+    }
+
 
     public JSONObject getJson() {
         try {
@@ -86,29 +130,41 @@ public class Report {
             json.put(latKey, this.latitude);
             json.put(lonKey, this.longitude);
 
-            JSONArray jsonPics = new JSONArray();
-            for(byte[] pic : pics){
-                jsonPics.put(Base64.encodeToString(pic, Base64.DEFAULT));
+            Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
+            for(int i = 0; i < picPaths.size(); i++){
+                Log.e(LogTags.JSON, "Entered picPaths forLoop");
+                File file = new File(picPaths.get(i));
+                byte[] b = new byte[(int) file.length()];
+                FileInputStream fileInputStream = new FileInputStream(file);
+                fileInputStream.read(b);
+                json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
+                fileInputStream.close();
             }
-            json.put(picsKey, jsonPics);
-
-            Log.e(LogTags.JSON, json.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
-    public Bundle saveState(Bundle outState) {
-        outState.putString(titleKey, this.title);
-        outState.putString(detailsKey, this.details);
-        outState.putString(timeStampKey, this.timeStamp);
-        outState.putString(userNameKey, this.userName);
-        outState.putStringArray(mediaURLsKey, (String[]) this.mediaURLs.toArray());
-        outState.putDouble(latKey, this.latitude);
-        outState.putDouble(lonKey, this.longitude);
+    public Bundle saveState(String report_key, Bundle outState) {
+        outState.putString(report_key+titleKey, this.title);
+        outState.putString(report_key+detailsKey, this.details);
+        outState.putString(report_key+timeStampKey, this.timeStamp);
+        outState.putString(report_key+userNameKey, this.userName);
+        if(mediaURLs != null)
+            outState.putStringArray(report_key+mediaURLsKey,
+                    this.mediaURLs.toArray(new String[mediaURLs.size()]));
+        outState.putDouble(report_key+latKey, this.latitude);
+        outState.putDouble(report_key+lonKey, this.longitude);
+        if(picPaths != null && !picPaths.isEmpty())
+            outState.putStringArrayList(report_key+picsKey, this.picPaths);
+        Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
     }
 
