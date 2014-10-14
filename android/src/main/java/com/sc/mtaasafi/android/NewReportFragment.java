@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,13 +30,15 @@ import java.util.List;
 public class NewReportFragment extends Fragment {
     MainActivity mActivity;
     DescriptionEditText details;
-    TextView attachPicsTV;
+    TextView attachPicsTV, uploadingTV;
     Button reportBtn;
     ImageView[] picPreviews;
+    ImageView reportTextUploading, pic1Uploading, pic2Uploading, pic3Uploading;
     ArrayList<String> picPaths;
     RelativeLayout mLayout;
     RelativeLayout uploadingScreen;
     int lastPreviewClicked;
+    ProgressBar reportTextProgress, pic1Progress, pic2Progress, pic3Progress;
 
     private final int PIC1 = 0,
             PIC2 = PIC1 + 1,
@@ -75,6 +78,15 @@ public class NewReportFragment extends Fragment {
         picPreviews[1] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[2] = (ImageView) view.findViewById(R.id.pic3);
 
+        reportTextUploading = (ImageView) view.findViewById(R.id.reportUploadingIcon);
+        pic1Uploading = (ImageView) view.findViewById(R.id.pic1UploadingIcon);
+        pic2Uploading = (ImageView) view.findViewById(R.id.pic2UploadingIcon);
+        pic3Uploading = (ImageView) view.findViewById(R.id.pic3UploadingIcon);
+        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
+        pic1Progress = (ProgressBar) view.findViewById(R.id.progressBarPic1);
+        pic2Progress = (ProgressBar) view.findViewById(R.id.progressBarPic2);
+        pic3Progress = (ProgressBar) view.findViewById(R.id.progressBarPic3);
+        uploadingTV = (TextView) view.findViewById(R.id.uploadingText);
         reportBtn = (Button) view.findViewById(R.id.reportButton);
         reportBtn.setClickable(false);
 
@@ -112,6 +124,7 @@ public class NewReportFragment extends Fragment {
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
         restorePics();
+        mActivity.setNewReportFragmentListener(this);
     }
 
     private void restorePics() {
@@ -143,7 +156,7 @@ public class NewReportFragment extends Fragment {
         attemptEnableReport();
     }
 
-    // Returns 100x100px thumbnail to populate picPreviews.
+    // Returns dynamically sized thumbnail to populate picPreviews.
     private Bitmap getThumbnail(String picPath) {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -153,7 +166,7 @@ public class NewReportFragment extends Fragment {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int pixels_per_dp = (int)(metrics.density + 0.5f);
         int padding_dp = 15;
-        int reqWidth = (screenWidth - padding_dp * pixels_per_dp)/3;
+        int reqWidth = (screenWidth)/3 - padding_dp * pixels_per_dp;
         int inSampleSize = 1;
 
         if(picWidth > reqWidth){
@@ -216,20 +229,63 @@ public class NewReportFragment extends Fragment {
     }
 
     public void sendReport() {
-        mActivity.beamItUp(createNewReport(), this);
+        mActivity.beamNewReportUp(createNewReport());
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
+        details.setFocusable(false);
         uploadingScreen.setVisibility(View.VISIBLE);
         for(int i = 0; i < TOTAL_PICS; i++){
             picPreviews[i].setClickable(false);
         }
     }
+    public void onPostUpdate(int currentFieldSending){
+        switch(currentFieldSending){
+            case 0:{
+                reportTextProgress.setVisibility(View.VISIBLE);
+                uploadingTV.setText("Uploading report text...");
+                break;
+            }
+            case 1:{
+                reportTextProgress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Uploading first picture...");
+                pic1Progress.setVisibility(View.VISIBLE);
+                reportTextProgress.setVisibility(View.INVISIBLE);
+                reportTextUploading.setImageResource(R.drawable.report_uploaded);
+                break;
+            }
+            case 2:{
+                pic1Progress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Uploading second picture...");
+                pic2Progress.setVisibility(View.VISIBLE);
+                pic1Progress.setVisibility(View.INVISIBLE);
+                pic1Uploading.setImageResource(R.drawable.pic1_uploaded);
+                break;
+            }
+            case 3:{
+                pic2Progress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Uploading third picture...");
+                pic3Progress.setVisibility(View.VISIBLE);
+                pic2Progress.setVisibility(View.INVISIBLE);
+                pic2Uploading.setImageResource(R.drawable.pic2_uploaded);
+                break;
+            }
+            case -1:{
+                pic3Progress.setVisibility(View.INVISIBLE);
+                uploadingTV.setText("Report uploaded!");
+                pic3Progress.setVisibility(View.INVISIBLE);
+                pic3Uploading.setImageResource(R.drawable.pic3_uploaded);
+                break;
+            }
 
+
+        }
+    }
     public void onReportSent(){
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
         restorePics();
+        details.setFocusable(true);
         for(int i = 0; i < TOTAL_PICS; i++){
             picPreviews[i].setClickable(true);
         }
@@ -237,7 +293,7 @@ public class NewReportFragment extends Fragment {
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");
         Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
-                picPaths.subList(0, TOTAL_PICS));
+                picPaths);
         return report;
     }
     // called when the edit texts' listeners detect a change in their texts
@@ -246,14 +302,11 @@ public class NewReportFragment extends Fragment {
         if (picPaths != null && !picPaths.isEmpty()) {
             for (int i = 0; i < TOTAL_PICS; i++) {
                 if (picPaths.get(i) == null) {
-//                    Log.e(LogTags.NEWREPORT, "pic" + i + " is null");
                     hasEmptyPics = true;
                     break;
                 }
             }
         }
-//        Log.e(LogTags.NEWREPORT, "Do u have details: " + !details.getText().toString().isEmpty()
-//                + ". Have all picPaths: " + !hasEmptyPics);
         if (!details.getText().toString().isEmpty() && !hasEmptyPics) {
             reportBtn.setClickable(true);
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));

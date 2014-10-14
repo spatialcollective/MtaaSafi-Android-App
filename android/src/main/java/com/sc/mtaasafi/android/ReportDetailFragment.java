@@ -29,8 +29,8 @@ import java.text.SimpleDateFormat;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
-    ImageView media1, media2, media3;
-    final String hadAReportKey = "hadareport";
+    final String hadAReportKey = "hadareport",
+                 reportKey = "report";
     Button previous, next;
     ViewFlipper flipper;
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
@@ -46,7 +46,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         super.onCreate(savedInstanceState);
         mActivity = (MainActivity) getActivity();
         if(savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey)){
-            mReport = new Report(savedInstanceState);
+            mReport = new Report(reportKey, savedInstanceState);
         }
     }
 
@@ -124,9 +124,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
                 flipper.showPrevious();
             }
         });
-        if(getArguments() != null){
-            mReport = new Report(getArguments());
-        }
 
         if(mReport !=null){
             updateView(mReport);
@@ -202,7 +199,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         if (mReport != null){
-            outState = mReport.saveState(outState);
+            outState = mReport.saveState(reportKey, outState);
             outState.putBoolean(hadAReportKey, true);
         }
         else
