@@ -174,16 +174,11 @@ public class ServerCommunicater {
         return result.toString();
     }
 
-    private JSONArray convertStringToJson(String input) {
-        try {
-            JSONArray jsonArray = new JSONArray(input);
-            if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-                activity.onUpdateFailed();
-            return jsonArray;
-        } catch (JSONException e) {
-            activity.onUpdateFailed();
-        }
-        return new JSONArray();
+    private JSONArray convertStringToJson(String input) throws JSONException {
+        JSONArray jsonArray = new JSONArray(input);
+        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+            throw new JSONException("Server returned error");
+        return jsonArray;
     }
 
     private class FetchPosts extends AsyncTask<String, Void, List<Report>> {
