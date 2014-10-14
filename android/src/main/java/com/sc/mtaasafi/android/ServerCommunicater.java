@@ -4,12 +4,14 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,11 +39,18 @@ public class ServerCommunicater {
         void onUpdateFailed();
         void backupDataToFile(String dataString) throws IOException;
         String getJsonStringFromFile() throws IOException;
+        void onServerResponse(int reportId, int nextField);
     }
 
     public ServerCommCallbacks activity;
-    public final static String writeURL = "http://app.spatialcollective.com/add_post",
-                            readURL = "http://app.spatialcollective.com/get_posts/";
+    private int currentField;
+    private static final int    NEW_REPORT = 0,
+                                POST_SUCCESS = -1;
+
+    private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
+                                READ_URL = "http://app.spatialcollective.com/get_posts/",
+                                NEXT_FIELD_KEY = "nextfield",
+                                REPORT_ID_KEY = "pid";
 
     ServerCommunicater(ServerCommCallbacks activity){
         this.activity = activity;
@@ -49,21 +58,24 @@ public class ServerCommunicater {
     }
 
     // Asynchronously push the post to the server
-    public void post(Report report){
-        WritePost writePost = new WritePost(report);
-        writePost.execute(writeURL);
+    public void post(int reportId, int fieldToSend, Report report){
+        Log.e(LogTags.BACKEND_W, "ServerCommunicater.post");
+        WritePostText writePost = new WritePostText(report, reportId);
+        writePost.execute(fieldToSend);
     }
 
-    private class WritePost extends AsyncTask<String, Void, String>{
+    private class WritePostText extends AsyncTask<Integer, Void, String>{
         Report report;
-        WritePost(Report post) {
-            report = post;
+        int reportId;
+        WritePostText(Report report, int reportId) {
+            this.report = report;
+            this.reportId = reportId;
         }
-
         @Override
-        protected String doInBackground(String... urls) {
+        protected String doInBackground(Integer... fieldsToSend) {
             try {
-                writeToServer(urls[0], report);
+                Log.e(LogTags.BACKEND_W, "ServerCommunicater.writePost");
+                writeToServer(reportId, fieldsToSend[0], report);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -71,21 +83,46 @@ public class ServerCommunicater {
         }
     }
 
-    private static void writeToServer(String wURL, Report report) throws JSONException, IOException {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(wURL);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-
-        StringEntity entity = new StringEntity(report.getJson().toString());
-        httpPost.setEntity(entity);
-        HttpResponse httpResponse = httpclient.execute(httpPost);
+    // takes postId and the field # to be sent to the server and and a JSON of the contents to be sent for that field
+    // postId: 0 ==> new post write URL has no postID attached, postId > 0 ==> writeURL += postId
+    // CurrentField: 0 ==> reportText, currentField > 0 ==> picture(currentField - 1);
+    // recursively goes through the contents of the report, sending one field at a time and updating
+    // mainActivity about its progress
+    private void writeToServer(int reportId, int fieldToSend, Report report) throws JSONException, IOException {
+        Log.e(LogTags.BACKEND_W, "field to send: " + fieldToSend);
+        if(fieldToSend != POST_SUCCESS){
+            HttpClient httpclient = new DefaultHttpClient();
+            String writeUrl = BASE_WRITE_URL;
+            JSONObject contents;
+            if(reportId != NEW_REPORT){
+                writeUrl += "/" + reportId + "/";
+            }
+            contents = report.getJsonForField(fieldToSend);
+            HttpPost httpPost = new HttpPost(writeUrl);
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+            httpPost.setEntity(new StringEntity(contents.toString()));
+            Log.e(LogTags.BACKEND_W, "httpclient starting for field: " + fieldToSend + " write url: " + writeUrl);
+            HttpResponse response = httpclient.execute(httpPost);
+            String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            JSONObject responseJSON = new JSONObject(responseString);
+            int nextField = responseJSON.getInt(NEXT_FIELD_KEY);
+            activity.onServerResponse(reportId, nextField);
+            if(nextField != POST_SUCCESS){
+                reportId = responseJSON.getInt(REPORT_ID_KEY);
+                writeToServer(reportId, nextField, report);
+            }
+        }
+        else{
+            Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer: httpclient finished, in second else");
+            activity.onServerResponse(reportId, fieldToSend);
+        }
+        Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer: httpclient finished");
     }
 
     public void getPosts(){
         FetchPosts fp = new FetchPosts();
-        Log.e(LogTags.BACKEND_R, readURL + activity.getScreenWidth());
-        fp.execute(readURL + activity.getScreenWidth());
+        fp.execute(READ_URL + activity.getScreenWidth());
     }
 
     private List<Report> GET(String url) {
@@ -138,16 +175,11 @@ public class ServerCommunicater {
         return result.toString();
     }
 
-    private JSONArray convertStringToJson(String input) {
-        try {
-            JSONArray jsonArray = new JSONArray(input);
-            if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-                activity.onUpdateFailed();
-            return jsonArray;
-        } catch (JSONException e) {
-            activity.onUpdateFailed();
-        }
-        return new JSONArray();
+    private JSONArray convertStringToJson(String input) throws JSONException {
+        JSONArray jsonArray = new JSONArray(input);
+        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+            throw new JSONException("Server returned error");
+        return jsonArray;
     }
 
     private class FetchPosts extends AsyncTask<String, Void, List<Report>> {
