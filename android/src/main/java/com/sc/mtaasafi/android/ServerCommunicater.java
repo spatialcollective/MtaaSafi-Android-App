@@ -40,6 +40,7 @@ public class ServerCommunicater {
         void backupDataToFile(String dataString) throws IOException;
         String getJsonStringFromFile() throws IOException;
         void onServerResponse(int reportId, int nextField);
+        void onUploadFailed(String failMessage);
     }
 
     public ServerCommCallbacks activity;
@@ -94,9 +95,8 @@ public class ServerCommunicater {
             HttpClient httpclient = new DefaultHttpClient();
             String writeUrl = BASE_WRITE_URL;
             JSONObject contents;
-            if(reportId != NEW_REPORT){
+            if(reportId != NEW_REPORT)
                 writeUrl += "/" + reportId + "/";
-            }
             contents = report.getJsonForField(fieldToSend);
             HttpPost httpPost = new HttpPost(writeUrl);
             httpPost.setHeader("Accept", "application/json");
@@ -104,6 +104,11 @@ public class ServerCommunicater {
             httpPost.setEntity(new StringEntity(contents.toString()));
             Log.e(LogTags.BACKEND_W, "httpclient starting for field: " + fieldToSend + " write url: " + writeUrl);
             HttpResponse response = httpclient.execute(httpPost);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if(statusCode >= 400 && statusCode < 500)
+                activity.onUploadFailed("Client error");
+            else if(statusCode >=500 && statusCode < 600)
+                activity.onUploadFailed("Server error");
             String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
             JSONObject responseJSON = new JSONObject(responseString);
             int nextField = responseJSON.getInt(NEXT_FIELD_KEY);

@@ -235,46 +235,44 @@ public class NewReportFragment extends Fragment {
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
         details.setFocusable(false);
         uploadingScreen.setVisibility(View.VISIBLE);
+        reportTextProgress.setVisibility(View.VISIBLE);
         for(int i = 0; i < TOTAL_PICS; i++){
             picPreviews[i].setClickable(false);
         }
     }
-    public void onPostUpdate(int currentFieldSending){
-        switch(currentFieldSending){
+    public void onPostUpdate(int nextField){
+        switch(nextField){
             case 0:{
                 reportTextProgress.setVisibility(View.VISIBLE);
                 uploadingTV.setText("Uploading report text...");
                 break;
             }
             case 1:{
-                reportTextProgress.setVisibility(View.INVISIBLE);
+                reportTextProgress.setVisibility(View.GONE);
                 uploadingTV.setText("Uploading first picture...");
                 pic1Progress.setVisibility(View.VISIBLE);
-                reportTextProgress.setVisibility(View.INVISIBLE);
                 reportTextUploading.setImageResource(R.drawable.report_uploaded);
                 break;
             }
             case 2:{
-                pic1Progress.setVisibility(View.INVISIBLE);
+                pic1Progress.setVisibility(View.GONE);
                 uploadingTV.setText("Uploading second picture...");
                 pic2Progress.setVisibility(View.VISIBLE);
-                pic1Progress.setVisibility(View.INVISIBLE);
                 pic1Uploading.setImageResource(R.drawable.pic1_uploaded);
                 break;
             }
             case 3:{
-                pic2Progress.setVisibility(View.INVISIBLE);
+                pic2Progress.setVisibility(View.GONE);
                 uploadingTV.setText("Uploading third picture...");
                 pic3Progress.setVisibility(View.VISIBLE);
-                pic2Progress.setVisibility(View.INVISIBLE);
                 pic2Uploading.setImageResource(R.drawable.pic2_uploaded);
                 break;
             }
             case -1:{
-                pic3Progress.setVisibility(View.INVISIBLE);
+                pic3Progress.setVisibility(View.GONE);
                 uploadingTV.setText("Report uploaded!");
-                pic3Progress.setVisibility(View.INVISIBLE);
                 pic3Uploading.setImageResource(R.drawable.pic3_uploaded);
+                onReportSent();
                 break;
             }
 
@@ -289,6 +287,7 @@ public class NewReportFragment extends Fragment {
         for(int i = 0; i < TOTAL_PICS; i++){
             picPreviews[i].setClickable(true);
         }
+        Toast.makeText(getActivity(), "Report uploaded!", Toast.LENGTH_SHORT);
     }
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");

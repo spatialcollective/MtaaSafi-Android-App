@@ -105,7 +105,6 @@ public class Report {
             FileInputStream fileInputStream = new FileInputStream(file);
             fileInputStream.read(b);
             json.put(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
-            Log.e("JSON", "PIC: " + json.getString(picsKey));
             fileInputStream.close();
         }
         return json;

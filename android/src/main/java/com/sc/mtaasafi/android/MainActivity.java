@@ -56,7 +56,7 @@ public class MainActivity extends ActionBarActivity implements
     private ServerCommunicater sc;
     private SharedPreferences sharedPref;
     private Report reportDetailReport, reportToSend;
-    private boolean isBeamingUp;
+    private boolean reportIsBeamingUp;
     private NewReportFragment newReportFragment;
     public String mUsername, mCurrentPhotoPath;
     private int currentFragment, nextFieldToSend, lastPreviewClicked, reportToSendId;
@@ -80,16 +80,23 @@ public class MainActivity extends ActionBarActivity implements
                         REPORT_ID_TO_SEND_KEY = "report_to_send_id",
                         REPORT_DETAIL_KEY = "report_detail";
 
-
+                        // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
                         REQUEST_IMAGE_CAPTURE = 1,
+
+                        // FragmentPager
                         FRAGMENT_FEED = 0,
                         FRAGMENT_REPORTDETAIL = 2,
                         FRAGMENT_NEWREPORT = 1,
+
+                        // Report uploads
                         SERVER_POST_SUCCESS = -1,
                         NO_REPORT_TO_SEND = -1,
-                        NEW_REPORT = 0;
+                        NEW_REPORT = 0,
 
+                        //AlertDialog
+                        UPLOAD_FAILED = 0,
+                        UPDATE_FAILED = 1;
 
     // ======================Client-Server Communications:======================
 
@@ -110,11 +117,11 @@ public class MainActivity extends ActionBarActivity implements
         runOnUiThread(new Runnable() {
             public void run() {
                 // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
-                AlertDialogFragment adf = new AlertDialogFragment();
+                AlertDialogFragment adf = new AlertDialogFragment("Feed update failed", "ok",
+                        "retry", UPDATE_FAILED);
                 adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
-        picPaths.clear();
     }
 
     public void backupDataToFile(String dataString) throws IOException {
@@ -155,7 +162,7 @@ public class MainActivity extends ActionBarActivity implements
 
     // takes a post written by the user from the feed fragment, pushes it to server
     public void beamItUp(int reportId, int fieldToSend, Report report){
-        isBeamingUp = true;
+        reportIsBeamingUp = true;
         reportToSendId = reportId;
         nextFieldToSend = fieldToSend;
         Log.e(LogTags.BACKEND_W, "Beam it up");
@@ -164,6 +171,11 @@ public class MainActivity extends ActionBarActivity implements
 
     public void setNewReportFragmentListener(NewReportFragment nrf){
         newReportFragment = nrf;
+        if(reportIsBeamingUp){
+            for(int i = 0; i < nextFieldToSend+1; i++){
+                newReportFragment.onPostUpdate(i);
+            }
+        }
     }
     // called by the ServerCommunicater when the post has been successfully written to the server
     // tells the main activity the next field it expects
@@ -173,7 +185,7 @@ public class MainActivity extends ActionBarActivity implements
             Log.e("Main Activity", "Made it into the nextField == SERVER_POST_SUCCESS statement");
             runOnUiThread(new Runnable() {
                 public void run() {
-                    isBeamingUp = false;
+                    reportIsBeamingUp = false;
                     picPaths.clear();
                     for(int i = 0; i < TOTAL_PICS; i++){
                         picPaths.add(null);
@@ -197,6 +209,21 @@ public class MainActivity extends ActionBarActivity implements
         }
         this.nextFieldToSend = nextExpectedField;
 
+    }
+
+    public void onUploadFailed(final String failMessage){
+        runOnUiThread(new Runnable() {
+            public void run() {
+                // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
+                AlertDialogFragment adf = new AlertDialogFragment("Upload failed: "+ failMessage, "ok",
+                        "retry", UPDATE_FAILED);
+                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
+            }
+        });
+
+    }
+    public void retryUpload(){
+        beamItUp(reportToSendId, nextFieldToSend, reportToSend);
     }
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
@@ -273,6 +300,7 @@ public class MainActivity extends ActionBarActivity implements
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }
+
     private void setUserName(Intent data) {
         String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         mUsername = retrievedUserName;
@@ -327,7 +355,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onPhotoTaken(){
-        picPaths.set(lastPreviewClicked, mCurrentPhotoPath);
+        File file = new File(mCurrentPhotoPath);
+        if(file != null && file.length() != 0)
+            picPaths.set(lastPreviewClicked, mCurrentPhotoPath);
         Log.e(LogTags.PHOTO, picPaths.toString());
     }
 
@@ -349,7 +379,7 @@ public class MainActivity extends ActionBarActivity implements
         fa = new FragmentAdapter(getSupportFragmentManager());
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
-        isBeamingUp = false;
+        reportIsBeamingUp = false;
         if(savedInstanceState != null) {
             mUsername = savedInstanceState.getString(USERNAME_KEY);
             mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
@@ -361,13 +391,13 @@ public class MainActivity extends ActionBarActivity implements
             if(savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
                 reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
             Integer reportId = savedInstanceState.getInt(REPORT_ID_TO_SEND_KEY);
-            if(reportId != null){
-                reportToSendId = reportId;
-                if(reportToSendId != NO_REPORT_TO_SEND){
-                    nextFieldToSend = savedInstanceState.getInt(NEXT_FIELD_TO_SEND_KEY);
-                    reportToSend = new Report(REPORT_ID_TO_SEND_KEY, savedInstanceState);
-                    beamItUp(reportToSendId, nextFieldToSend, reportToSend);
-                }
+            reportToSendId = reportId;
+            if(reportToSendId != NO_REPORT_TO_SEND){
+                reportIsBeamingUp = true;
+                goToNewReport();
+                nextFieldToSend = savedInstanceState.getInt(NEXT_FIELD_TO_SEND_KEY);
+                reportToSend = new Report(REPORT_ID_TO_SEND_KEY, savedInstanceState);
+                beamItUp(reportToSendId, nextFieldToSend, reportToSend);
             }
         } else {
             picPaths = new ArrayList<String>();
@@ -459,7 +489,7 @@ public class MainActivity extends ActionBarActivity implements
     }
     @Override
     public void onBackPressed() {
-        if(!isBeamingUp){
+        if(!reportIsBeamingUp){
             if(currentFragment != FRAGMENT_FEED){
                 goToFeed();
                 currentFragment = FRAGMENT_FEED;
