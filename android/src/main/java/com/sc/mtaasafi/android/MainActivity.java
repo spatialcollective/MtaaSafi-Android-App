@@ -28,7 +28,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
@@ -48,12 +47,12 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-        ServerCommunicater.ServerCommCallbacks,
+//        NewsFeedLoader.NewsFeedLoaderCallbacks,
         NewsFeedFragment.ReportSelectedListener {
     private NewsFeedFragment feedFragment;
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
-    private ServerCommunicater sc;
+    private NewsFeedLoader sc;
     private SharedPreferences sharedPref;
     private Report reportDetailReport, pendingReport;
     private NewReportFragment newReportFragment;
@@ -61,11 +60,7 @@ public class MainActivity extends ActionBarActivity implements
     private int currentFragment, nextPieceKey, lastPreviewClicked;
     ArrayList<String> picPaths;
 
-    private final int PIC1 = 0,
-            PIC2 = PIC1 + 1,
-            PIC3 = PIC2 + 1,
-            TOTAL_PICS = PIC3 + 1;
-
+    private final int TOTAL_PICS = 3;
 
     NonSwipePager mPager;
     FragmentAdapter fa;
@@ -86,30 +81,21 @@ public class MainActivity extends ActionBarActivity implements
                         // FragmentPager
                         FRAGMENT_FEED = 0,
                         FRAGMENT_REPORTDETAIL = 2,
-                        FRAGMENT_NEWREPORT = 1,
-
-                        // Report uploads
-                        TRANSACTION_COMPLETE = -1,
-                        REPORT_TYPE_KEY = -1,
-                        NEW_REPORT = 0,
-
-                        //AlertDialog
-                        UPLOAD_FAILED = 0,
-                        UPDATE_FAILED = 1;
+                        FRAGMENT_NEWREPORT = 1;
 
     // ======================Client-Server Communications:======================
 
-    // Called by the server communicator to add new posts to the feed fragment
-    @Override
-    public void onFeedUpdate(List<Report> allReports) {
-//        feedFragment = (NewsFeedFragment) fa.getItem(FRAGMENT_FEED);
-        feedFragment.onFeedUpdate(allReports);
-        runOnUiThread(new Runnable() {
-            public void run() {
-                feedFragment.alertFeedUpdate();
-            }
-        });
-    }
+//    // Called by the server communicator to add new posts to the feed fragment
+//    @Override
+//    public void onFeedUpdate(List<Report> allReports) {
+////        feedFragment = (NewsFeedFragment) fa.getItem(FRAGMENT_FEED);
+//        feedFragment.onFeedUpdate(allReports);
+//        runOnUiThread(new Runnable() {
+//            public void run() {
+//                feedFragment.alertFeedUpdate();
+//            }
+//        });
+//    }
 
     // Called by the server communicator if it cannot successfully receive posts from the server
     public void onUpdateFailed() {
@@ -117,9 +103,6 @@ public class MainActivity extends ActionBarActivity implements
         runOnUiThread(new Runnable() {
             public void run() {
                 toast.show();
-//                AlertDialogFragment adf = new AlertDialogFragment("Feed update failed", "ok",
-//                        "retry", UPDATE_FAILED);
-//                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
             }
         });
     }
@@ -142,13 +125,9 @@ public class MainActivity extends ActionBarActivity implements
 
     // called by the fragment to update the fragment's feed w new posts.
     // When the server communicator gets the new posts, it will call onFeedUpdate above.
-    public void updateFeed(NewsFeedFragment nff){
-        feedFragment = nff;
-        sc.getPosts();
-    }
-    public void updateFeed(){
-        sc.getPosts();
-    }
+//    public void updateFeed(NewsFeedFragment nff){
+//        feedFragment = nff;
+//    }
 
     public int getScreenWidth(){
         return getWindowManager().getDefaultDisplay().getWidth();
@@ -158,7 +137,7 @@ public class MainActivity extends ActionBarActivity implements
     public void beamUpNewReport(Report report){
         pendingReport = report;
         Log.e(LogTags.BACKEND_W, "Beam it up");
-        sc.postNewReport(report); // Lifecycle issues. Server Communicator should deal with its own lifecycle, maybe thats a reason to make it a loader.
+//        sc.postNewReport(report); // Lifecycle issues. Server Communicator should deal with its own lifecycle, maybe thats a reason to make it a loader.
     }
 
     public void setNewReportFragmentListener(NewReportFragment nrf){
@@ -352,7 +331,6 @@ public class MainActivity extends ActionBarActivity implements
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
-        sc = new ServerCommunicater(this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         fa = new FragmentAdapter(getSupportFragmentManager());
         mPager = (NonSwipePager)findViewById(R.id.pager);
@@ -379,24 +357,24 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        mUsername = savedInstanceState.getString(USERNAME_KEY);
-        if (mUsername == null)
-            determineUsername();
-
-        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-        picPaths = new ArrayList(
-                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
-                    .subList(0, TOTAL_PICS));
-        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
-        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
-            goToNewReport();
-            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
-            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
-            beamUpNewReport(pendingReport);
-        }
+//        mUsername = savedInstanceState.getString(USERNAME_KEY);
+//        if (mUsername == null)
+//            determineUsername();
+//
+//        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
+//        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+//        picPaths = new ArrayList(
+//                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
+//                    .subList(0, TOTAL_PICS));
+//        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
+//        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
+//            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+//        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
+//            goToNewReport();
+//            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
+//            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
+//            beamUpNewReport(pendingReport);
+//        }
     }
     @Override
     protected void onSaveInstanceState(Bundle bundle){

@@ -61,11 +61,10 @@ public class FeedAdapter extends BaseAdapter {
     public FeedItemView getView(int postion, View convertView, ViewGroup viewGroup) {
         FeedItemView reportFeedView;
         Report report = mReports.get(postion);
-        if (convertView == null) {
+        if (convertView == null)
             reportFeedView = new FeedItemView(context, report, postion);
-        } else {
+        else
             reportFeedView = (FeedItemView) convertView;
-        }
 
         reportFeedView.setViewData(report);
         reportFeedView.position = postion;

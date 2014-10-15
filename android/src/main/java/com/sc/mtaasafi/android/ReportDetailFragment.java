@@ -66,28 +66,21 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset > 0.2) {
-                    if (mActivity.getSupportActionBar().isShowing()) {
-                        mActivity.getSupportActionBar().hide();
-                    }
-                } else {
-                    if (!mActivity.getSupportActionBar().isShowing()) {
-                        mActivity.getSupportActionBar().show();
-                    }
-                }
+                if (slideOffset > 0.2 && mActivity.getSupportActionBar().isShowing())
+                    mActivity.getSupportActionBar().hide();
+                else if (!mActivity.getSupportActionBar().isShowing())
+                    mActivity.getSupportActionBar().show();
                 setActionBarTranslation(mLayout.getCurrentParalaxOffset());
             }
 
             @Override
             public void onPanelExpanded(View panel) {
                 Log.i(LogTags.PANEL_SLIDER, "onPanelExpanded");
-
             }
 
             @Override
             public void onPanelCollapsed(View panel) {
                 Log.i(LogTags.PANEL_SLIDER, "onPanelCollapsed");
-
             }
 
             @Override
@@ -171,20 +164,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         detailsTV.setText(mReport.details);
         timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
         userNameTV.setText(mReport.userName);
-//        media1 = (ImageView) view.findViewById(R.id.media1);
-//        media2 = (ImageView) view.findViewById(R.id.media2);
-//        media3 = (ImageView) view.findViewById(R.id.media3);
-//        progress = (ProgressBar) view.findViewById(R.id.progressBar);
-//        aq.id(R.id.media1).progress(R.id.progressBar).image(mReport.media1URL);
-//        aq.id(R.id.media2).progress(R.id.progressBar).image(mReport.media2URL);
-//        aq.id(R.id.media3).progress(R.id.progressBar).image(mReport.media3URL);
-//
-//        if (mReport.mediaURL != null && !mReport.mediaURL.equals("") && !mReport.mediaURL.equals("null")) {
-//            aq.id(media).progress(R.id.progressBar).image(mReport.mediaURL);
-//        } else {
-//            media.setVisibility(View.INVISIBLE);
-//            progress.setVisibility(View.INVISIBLE);
-//        }
     }
 
     @Override

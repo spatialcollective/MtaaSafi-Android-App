@@ -3,6 +3,8 @@ package com.sc.mtaasafi.android;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.androidquery.AQuery;
-import com.androidquery.util.Progress;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphObject;
@@ -23,7 +24,9 @@ import com.sc.mtaasafi.android.adapter.FeedAdapter;
 
 import java.util.List;
 
-public class NewsFeedFragment extends ListFragment {
+public class NewsFeedFragment extends ListFragment
+        implements LoaderManager.LoaderCallbacks<List<Report>> {
+
     private ProgressBar progressBar;
     FeedAdapter mAdapter;
     RelativeLayout mLayout;
@@ -34,13 +37,14 @@ public class NewsFeedFragment extends ListFragment {
     int top;
     
     @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
+        index = top = 0;
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
         mActivity = (MainActivity) getActivity();
         mAdapter = new FeedAdapter(mActivity, this);
         setListAdapter(mAdapter);
-        index = top = 0;
+        getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
@@ -48,14 +52,18 @@ public class NewsFeedFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
         mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
         mLayout.setPadding(0, mActivity.getActionBarHeight(), 0, 0);
-
         progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
+        progressBar.setVisibility(View.INVISIBLE);
         if(savedInstanceState !=null){
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
-        updateFeed();
         return view;
+    }
+
+    @Override public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+//        setListShown(false);
     }
 
     @Override
@@ -66,11 +74,6 @@ public class NewsFeedFragment extends ListFragment {
         mCallback.goToDetailView(r);
     }
 
-    public void updateFeed(){
-        // TODO: setup conditional that only turns on progressBar if there are new posts from server
-        progressBar.setVisibility(View.VISIBLE);
-        mActivity.updateFeed(this);
-    }
     public interface ReportSelectedListener {
         public void goToDetailView(Report report);
     }
@@ -93,7 +96,7 @@ public class NewsFeedFragment extends ListFragment {
     }
 
     public void onFeedUpdate(List<Report> allReports){
-        progressBar.setVisibility(View.INVISIBLE);
+//        setListShown(true);
         mAdapter.updateItems(allReports);
     }
 
@@ -111,10 +114,10 @@ public class NewsFeedFragment extends ListFragment {
         onSaveInstanceState(bundle);
     }
 
-    public void restoreListPosition(){
+    public void restoreListPosition() {
         getListView().setSelectionFromTop(index, top);
     }
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         saveListPosition();
     }
@@ -127,5 +130,26 @@ public class NewsFeedFragment extends ListFragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
         }
+    }
+
+    @Override
+    public Loader<List<Report>> onCreateLoader(int id, Bundle args) {
+        Log.e("Attempting load", "going...");
+        return new NewsFeedLoader(mActivity);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Report>> loader, List<Report> data) {
+        Log.e("LoadFinished", data.toString());
+        mAdapter.updateItems(data);
+//        if (isResumed())
+//            setListShown(true);
+//        else
+//            setListShownNoAnimation(true);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Report>> loader) {
+        mAdapter.updateItems(null);
     }
 }
