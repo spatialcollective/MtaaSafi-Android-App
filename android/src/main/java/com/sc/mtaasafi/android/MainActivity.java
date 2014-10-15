@@ -47,12 +47,10 @@ import java.util.List;
 public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-//        NewsFeedLoader.NewsFeedLoaderCallbacks,
         NewsFeedFragment.ReportSelectedListener {
-    private NewsFeedFragment feedFragment;
+
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
-    private NewsFeedLoader sc;
     private SharedPreferences sharedPref;
     private Report reportDetailReport, pendingReport;
     private NewReportFragment newReportFragment;
@@ -83,20 +81,6 @@ public class MainActivity extends ActionBarActivity implements
                         FRAGMENT_REPORTDETAIL = 2,
                         FRAGMENT_NEWREPORT = 1;
 
-    // ======================Client-Server Communications:======================
-
-//    // Called by the server communicator to add new posts to the feed fragment
-//    @Override
-//    public void onFeedUpdate(List<Report> allReports) {
-////        feedFragment = (NewsFeedFragment) fa.getItem(FRAGMENT_FEED);
-//        feedFragment.onFeedUpdate(allReports);
-//        runOnUiThread(new Runnable() {
-//            public void run() {
-//                feedFragment.alertFeedUpdate();
-//            }
-//        });
-//    }
-
     // Called by the server communicator if it cannot successfully receive posts from the server
     public void onUpdateFailed() {
         final Toast toast = Toast.makeText(this, "Update failed!", Toast.LENGTH_SHORT);
@@ -122,12 +106,6 @@ public class MainActivity extends ActionBarActivity implements
             jsonString.append(line);
         return jsonString.toString();
     }
-
-    // called by the fragment to update the fragment's feed w new posts.
-    // When the server communicator gets the new posts, it will call onFeedUpdate above.
-//    public void updateFeed(NewsFeedFragment nff){
-//        feedFragment = nff;
-//    }
 
     public int getScreenWidth(){
         return getWindowManager().getDefaultDisplay().getWidth();

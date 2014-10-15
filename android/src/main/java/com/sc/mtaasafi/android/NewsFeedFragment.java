@@ -53,8 +53,8 @@ public class NewsFeedFragment extends ListFragment
         mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
         mLayout.setPadding(0, mActivity.getActionBarHeight(), 0, 0);
         progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
-        progressBar.setVisibility(View.INVISIBLE);
-        if(savedInstanceState !=null){
+        progressBar.setVisibility(View.VISIBLE);
+        if (savedInstanceState != null) {
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
@@ -63,13 +63,11 @@ public class NewsFeedFragment extends ListFragment
 
     @Override public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-//        setListShown(false);
     }
 
     @Override
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
-//        Log.e(LogTags.FEEDADAPTER, "CLICKED FEED ITEM!!!!");
         Report r = mAdapter.mReports.get(position);
         mCallback.goToDetailView(r);
     }
@@ -95,16 +93,7 @@ public class NewsFeedFragment extends ListFragment
         }
     }
 
-    public void onFeedUpdate(List<Report> allReports){
-//        setListShown(true);
-        mAdapter.updateItems(allReports);
-    }
-
-    public void alertFeedUpdate(){
-        mAdapter.notifyDataSetChanged();
-    }
-
-    public void saveListPosition(){
+    public void saveListPosition() {
         index = getListView().getFirstVisiblePosition();
         View v = getListView().getChildAt(0);
         top = (v == null) ? 0 : v.getTop();
@@ -134,18 +123,13 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public Loader<List<Report>> onCreateLoader(int id, Bundle args) {
-        Log.e("Attempting load", "going...");
-        return new NewsFeedLoader(mActivity);
+        return new NewsFeedLoader(getActivity());
     }
 
     @Override
     public void onLoadFinished(Loader<List<Report>> loader, List<Report> data) {
-        Log.e("LoadFinished", data.toString());
         mAdapter.updateItems(data);
-//        if (isResumed())
-//            setListShown(true);
-//        else
-//            setListShownNoAnimation(true);
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
