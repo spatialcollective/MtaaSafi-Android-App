@@ -55,11 +55,10 @@ public class MainActivity extends ActionBarActivity implements
     private Location mCurrentLocation;
     private ServerCommunicater sc;
     private SharedPreferences sharedPref;
-    private Report reportDetailReport, reportToSend;
-    private boolean reportIsBeamingUp;
+    private Report reportDetailReport, pendingReport;
     private NewReportFragment newReportFragment;
     public String mUsername, mCurrentPhotoPath;
-    private int currentFragment, nextFieldToSend, lastPreviewClicked, reportToSendId;
+    private int currentFragment, nextPieceKey, lastPreviewClicked;
     ArrayList<String> picPaths;
 
     private final int PIC1 = 0,
@@ -76,8 +75,8 @@ public class MainActivity extends ActionBarActivity implements
                         CURRENT_FRAGMENT_KEY = "current_fragment",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
                         PIC_PATHS_KEY = "picPaths",
-                        NEXT_FIELD_TO_SEND_KEY ="next_field",
-                        REPORT_ID_TO_SEND_KEY = "report_to_send_id",
+                        PENDING_PIECE_KEY ="next_field",
+                        PENDING_REPORT_TYPE_KEY = "report_to_send_id",
                         REPORT_DETAIL_KEY = "report_detail";
 
                         // onActivityResult
@@ -90,8 +89,8 @@ public class MainActivity extends ActionBarActivity implements
                         FRAGMENT_NEWREPORT = 1,
 
                         // Report uploads
-                        SERVER_POST_SUCCESS = -1,
-                        NO_REPORT_TO_SEND = -1,
+                        TRANSACTION_COMPLETE = -1,
+                        REPORT_TYPE_KEY = -1,
                         NEW_REPORT = 0,
 
                         //AlertDialog
@@ -155,83 +154,55 @@ public class MainActivity extends ActionBarActivity implements
         return getWindowManager().getDefaultDisplay().getWidth();
     }
 
-    // called by the new report fragment in sendReport()
-    public void beamNewReportUp(Report report){
-        reportToSend = report;
-        beamItUp(NEW_REPORT, 0, report);
-    }
-
     // takes a post written by the user from the feed fragment, pushes it to server
-    public void beamItUp(int reportId, int fieldToSend, Report report){
-        reportIsBeamingUp = true;
-        reportToSendId = reportId;
-        nextFieldToSend = fieldToSend;
+    public void beamUpNewReport(Report report){
+        pendingReport = report;
         Log.e(LogTags.BACKEND_W, "Beam it up");
-        sc.post(reportId, fieldToSend, report);
+        sc.postNewReport(report); // Lifecycle issues. Server Communicator should deal with its own lifecycle, maybe thats a reason to make it a loader.
     }
 
     public void setNewReportFragmentListener(NewReportFragment nrf){
         newReportFragment = nrf;
-        if(reportIsBeamingUp){
-            for(int i = 0; i < nextFieldToSend+1; i++){
+        if(pendingReport != null){
+            for(int i = 0; i < nextPieceKey+1; i++){
                 newReportFragment.onPostUpdate(i);
             }
         }
     }
-    // called by the ServerCommunicater when the post has been successfully written to the server
-    // tells the main activity the next field it expects
-    public void onServerResponse(int reportToSendId, final int nextExpectedField){
-        Log.e("Main Activity", "ReportId: " + " next expected Field: " + nextExpectedField);
-        if(nextExpectedField == SERVER_POST_SUCCESS){
-            Log.e("Main Activity", "Made it into the nextField == SERVER_POST_SUCCESS statement");
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    reportIsBeamingUp = false;
-                    picPaths.clear();
-                    for(int i = 0; i < TOTAL_PICS; i++){
-                        picPaths.add(null);
-                    }
-                    // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
-                    goToFeed();
-                    newReportFragment.onReportSent();
-                    newReportFragment = null;
-                }
-            });
-            this.reportToSendId = NO_REPORT_TO_SEND;
-            reportToSend = null;
-        }
-        else{
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    newReportFragment.onPostUpdate(nextExpectedField);
-                }
-            });
-            this.reportToSendId = reportToSendId;
-        }
-        this.nextFieldToSend = nextExpectedField;
 
+    public void updatePendingReportProgress(final int progress){
+        Log.e("Main Activity", "ReportId: " + " next expected Field: " + progress);
+        newReportFragment.onPostUpdate(progress);
+        this.nextPieceKey = progress;
+    }
+
+    public void onReportUploadSuccess() {
+        clearNewReportData();
+        newReportFragment.onReportSent();
+        newReportFragment = null;
     }
 
     public void onUploadFailed(final String failMessage){
         final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
-        goToFeed();
-        reportToSend = null;
-        reportToSendId = NO_REPORT_TO_SEND;
-        nextFieldToSend = SERVER_POST_SUCCESS;
+        clearNewReportData();
         runOnUiThread(new Runnable() {
-            public void run() {
-                toast.show();
-//                // Toast.makeText(getApplicationContext(), "Failed to update feed", Toast.LENGTH_SHORT).show();
-//                AlertDialogFragment adf = new AlertDialogFragment("Upload failed: "+ failMessage, "ok",
-//                        "retry", UPDATE_FAILED);
-//                adf.show(getSupportFragmentManager(), "Update_failed_dialog");
-            }
+            public void run() { toast.show(); }
         });
+    }
 
+    private void clearNewReportData() {
+        pendingReport = null;
+        nextPieceKey = -1; // TRANSACTION_COMPLETE
+        picPaths.clear();
+        for (int i = 0; i < TOTAL_PICS; i++)
+            picPaths.add(null);
+        goToFeed();
     }
+
     public void retryUpload(){
-        beamItUp(reportToSendId, nextFieldToSend, reportToSend);
+    //     beamItUp(reportId, nextPieceKey, pendingReport);
     }
+
     public static class ErrorDialogFragment extends DialogFragment {
         private Dialog mDialog;
         public ErrorDialogFragment() {
@@ -253,7 +224,7 @@ public class MainActivity extends ActionBarActivity implements
     public void goToDetailView(Report report){
         reportDetailReport = report;
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
-        Log.e("GO TO DETAIL VIEW", reportDetailReport.title);
+        Log.e("GO TO DETAIL VIEW", report.title);
         currentFragment = FRAGMENT_REPORTDETAIL;
     }
     public void getReportDetailReport(ReportDetailFragment rdf){
@@ -386,33 +357,10 @@ public class MainActivity extends ActionBarActivity implements
         fa = new FragmentAdapter(getSupportFragmentManager());
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
-        reportIsBeamingUp = false;
-        if(savedInstanceState != null) {
-            mUsername = savedInstanceState.getString(USERNAME_KEY);
-            mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-            currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-            picPaths = new ArrayList(
-                        savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
-                        .subList(0, TOTAL_PICS));
-            Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
-            if(savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-                reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-            Integer reportId = savedInstanceState.getInt(REPORT_ID_TO_SEND_KEY);
-            reportToSendId = reportId;
-            if(reportToSendId != NO_REPORT_TO_SEND){
-                reportIsBeamingUp = true;
-                goToNewReport();
-                nextFieldToSend = savedInstanceState.getInt(NEXT_FIELD_TO_SEND_KEY);
-                reportToSend = new Report(REPORT_ID_TO_SEND_KEY, savedInstanceState);
-                beamItUp(reportToSendId, nextFieldToSend, reportToSend);
-            }
-        } else {
-            picPaths = new ArrayList<String>();
-            for(int i = 0; i < TOTAL_PICS; i++){
-                picPaths.add(null);
-            }
-            reportToSendId = NO_REPORT_TO_SEND;
-        }
+
+        picPaths = new ArrayList<String>();
+        for(int i = 0; i < TOTAL_PICS; i++)
+            picPaths.add(null);
     }
 
     @Override
@@ -428,13 +376,28 @@ public class MainActivity extends ActionBarActivity implements
         }
         mLocationClient.connect();
     }
+
     @Override
-    protected void onRestoreInstanceState(Bundle bundle) {
-        mUsername = bundle.getString(USERNAME_KEY);
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        mUsername = savedInstanceState.getString(USERNAME_KEY);
         if (mUsername == null)
             determineUsername();
-    }
 
+        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
+        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+        picPaths = new ArrayList(
+                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
+                    .subList(0, TOTAL_PICS));
+        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
+        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
+            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
+            goToNewReport();
+            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
+            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
+            beamUpNewReport(pendingReport);
+        }
+    }
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
@@ -446,11 +409,9 @@ public class MainActivity extends ActionBarActivity implements
         }
         bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
         bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
-        bundle.putInt(NEXT_FIELD_TO_SEND_KEY, nextFieldToSend);
-        bundle.putInt(REPORT_ID_TO_SEND_KEY, reportToSendId);
-        if(reportToSend != null){
-            reportToSend.saveState(REPORT_ID_TO_SEND_KEY, bundle);
-        }
+        bundle.putInt(PENDING_PIECE_KEY, nextPieceKey);
+        if (pendingReport != null)
+            pendingReport.saveState(PENDING_REPORT_TYPE_KEY, bundle);
     }
 
     @Override
@@ -486,23 +447,19 @@ public class MainActivity extends ActionBarActivity implements
                 return super.onOptionsItemSelected(item);
         }
     }
-    public int getActionBarHeight(){
-        int actionBarHeight = 0;
-        TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-        }
-        return actionBarHeight;
-    }
+
     @Override
     public void onBackPressed() {
-        if(!reportIsBeamingUp){
-            if(currentFragment != FRAGMENT_FEED){
-                goToFeed();
-                currentFragment = FRAGMENT_FEED;
-            }
-        }
+        if(pendingReport == null && currentFragment != FRAGMENT_FEED)
+            goToFeed();
         getSupportActionBar().show();
+    }
+
+    public int getActionBarHeight(){
+        TypedValue tv = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) 
+            return TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+        return 0;
     }
 
     private void determineUsername() {

@@ -137,12 +137,10 @@ public class NewReportFragment extends Fragment {
                 if (picPaths.get(i)!= null) {
                     aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
                     emptyPics--;
-                }
-                else
+                } else
                     aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
             }
-        }
-        else{
+        } else { 
             for (int i = 0; i < TOTAL_PICS; i++) {
                 aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
             }
@@ -229,7 +227,7 @@ public class NewReportFragment extends Fragment {
     }
 
     public void sendReport() {
-        mActivity.beamNewReportUp(createNewReport());
+        mActivity.beamUpNewReport(createNewReport());
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
@@ -275,11 +273,10 @@ public class NewReportFragment extends Fragment {
                 onReportSent();
                 break;
             }
-
-
         }
     }
     public void onReportSent(){
+        Log.e(LogTags.BACKEND_W, "onReportSent");
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
         restorePics();

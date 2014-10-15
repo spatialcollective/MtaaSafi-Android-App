@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,9 +27,10 @@ import java.util.List;
  * Data class for passing data about posts
  */
 public class Report {
+    public int id;
     public double latitude, longitude;
     public ArrayList<String> picPaths;
-    public String   title, details, timeStamp, timeElapsed, userName;
+    public String title, details, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaURLs;
     public int voteCount;
     public boolean iUpvoted;
@@ -89,56 +91,26 @@ public class Report {
         this.picPaths = savedState.getStringArrayList(report_key+picsKey);
     }
 
-    public JSONObject getJsonForField(int i){
-    try{
+    public JSONObject getJsonForText() throws JSONException {
         JSONObject json = new JSONObject();
-        if(i == FIELD_TEXT){
-            json.put(detailsKey, this.details);
-            json.put(timeStampKey, this.timeStamp);
-            json.put(userNameKey, this.userName);
-            json.put(latKey, this.latitude);
-            json.put(lonKey, this.longitude);
-        }
-        else{
-            File file = new File(picPaths.get(i - 1));
-            byte[] b = new byte[(int) file.length()];
-            FileInputStream fileInputStream = new FileInputStream(file);
-            fileInputStream.read(b);
-            json.put(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
-            fileInputStream.close();
-        }
+        json.put(detailsKey, this.details);
+        json.put(timeStampKey, this.timeStamp);
+        json.put(userNameKey, this.userName);
+        json.put(latKey, this.latitude);
+        json.put(lonKey, this.longitude);
         return json;
-    } catch (JSONException e) {
-        e.printStackTrace();
-        Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
-    } catch (FileNotFoundException e) {
-        e.printStackTrace();
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-    return null;
     }
 
+    public JSONObject getJsonForPic(int i) throws JSONException, FileNotFoundException, IOException {
+        return convertPicFileToJson(new JSONObject(), new File(picPaths.get(i - 1)));
+    }
 
     public JSONObject getJson() {
         try {
-            JSONObject json = new JSONObject();
-            json.put(detailsKey, this.details);
-            json.put(timeStampKey, this.timeStamp);
-            json.put(userNameKey, this.userName);
-            json.put(latKey, this.latitude);
-            json.put(lonKey, this.longitude);
-
+            JSONObject json = getJsonForText();
             Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
-            for(int i = 0; i < picPaths.size(); i++){
-                Log.e(LogTags.JSON, "Entered picPaths forLoop");
-                File file = new File(picPaths.get(i));
-                byte[] b = new byte[(int) file.length()];
-                FileInputStream fileInputStream = new FileInputStream(file);
-                fileInputStream.read(b);
-                json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
-                fileInputStream.close();
-            }
+            for (int i = 0; i < picPaths.size(); i++)
+                json = convertPicFileToJson(json, new File(picPaths.get(i)));
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -149,6 +121,15 @@ public class Report {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private JSONObject convertPicFileToJson(JSONObject json, File file) throws IOException, JSONException {
+        byte[] b = new byte[(int) file.length()];
+        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        inputStream.read(b);
+        json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
+        inputStream.close();
+        return json;
     }
 
     public Bundle saveState(String report_key, Bundle outState) {

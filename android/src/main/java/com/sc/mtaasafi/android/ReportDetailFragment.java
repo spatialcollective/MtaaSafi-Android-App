@@ -162,9 +162,12 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         aq.id(R.id.reportViewDetails).text(mReport.details);
         aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
         aq.id(R.id.reportViewUsername).text(mReport.userName);
-        aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
-        aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
-        aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
+        if (mReport.mediaURLs.size() > 0)
+            aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
+        if (mReport.mediaURLs.size() > 1)
+            aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
+        if (mReport.mediaURLs.size() > 2)
+            aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
         detailsTV.setText(mReport.details);
         timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
         userNameTV.setText(mReport.userName);

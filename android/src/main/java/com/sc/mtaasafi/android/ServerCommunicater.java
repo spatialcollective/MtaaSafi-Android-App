@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -39,95 +40,106 @@ public class ServerCommunicater {
         void onUpdateFailed();
         void backupDataToFile(String dataString) throws IOException;
         String getJsonStringFromFile() throws IOException;
-        void onServerResponse(int reportId, int nextField);
+        void updatePendingReportProgress(int progress);
+        void onReportUploadSuccess();
         void onUploadFailed(String failMessage);
     }
 
     public ServerCommCallbacks activity;
     private int currentField;
-    private static final int    NEW_REPORT = 0,
-                                POST_SUCCESS = -1;
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
                                 READ_URL = "http://app.spatialcollective.com/get_posts/",
-                                NEXT_FIELD_KEY = "nextfield",
+                                NEXT_REPORT_PIECE_KEY = "nextfield",
                                 REPORT_ID_KEY = "pid";
 
     ServerCommunicater(ServerCommCallbacks activity){
         this.activity = activity;
-
     }
 
-    // Asynchronously push the post to the server
-    public void post(int reportId, int fieldToSend, Report report){
-        Log.e(LogTags.BACKEND_W, "ServerCommunicater.post");
-        WritePostText writePost = new WritePostText(report, reportId);
-        writePost.execute(fieldToSend);
-    }
+    public void postNewReport(Report report) { new SendReport().execute(report); }
 
-    private class WritePostText extends AsyncTask<Integer, Void, String>{
-        Report report;
-        int reportId;
-        WritePostText(Report report, int reportId) {
-            this.report = report;
-            this.reportId = reportId;
-        }
+    private class SendReport extends AsyncTask<Report, Integer, Integer> {
+
         @Override
-        protected String doInBackground(Integer... fieldsToSend) {
+        protected Integer doInBackground(Report... report) {
             try {
                 Log.e(LogTags.BACKEND_W, "ServerCommunicater.writePost");
-                writeToServer(reportId, fieldsToSend[0], report);
+                return writeReportToServer(report[0]);
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
         }
-    }
 
-    // takes postId and the field # to be sent to the server and and a JSON of the contents to be sent for that field
-    // postId: 0 ==> new post write URL has no postID attached, postId > 0 ==> writeURL += postId
-    // CurrentField: 0 ==> reportText, currentField > 0 ==> picture(currentField - 1);
-    // recursively goes through the contents of the report, sending one field at a time and updating
-    // mainActivity about its progress
-    private void writeToServer(int reportId, int fieldToSend, Report report) throws JSONException, IOException {
-        Log.e(LogTags.BACKEND_W, "field to send: " + fieldToSend);
-        if(fieldToSend != POST_SUCCESS){
+        protected void onProgressUpdate(Integer... progress) {
+            activity.updatePendingReportProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            Log.e(LogTags.BACKEND_W, "onPostExecute");
+            if (result == -1)
+                activity.onReportUploadSuccess();
+            else
+                activity.onUploadFailed("Unknown Error");
+        }
+
+        private int writeReportToServer(Report report) throws JSONException, IOException {
+            try {
+                HttpResponse response = sendRequest(0, report.getJsonForText().toString());
+                JSONObject jsonResponse = processResponse(response);
+                int nextPieceKey = jsonResponse.getInt(NEXT_REPORT_PIECE_KEY);
+                report.id = jsonResponse.getInt(REPORT_ID_KEY);
+                while (nextPieceKey != -1) {
+                    jsonResponse = writePieceToServer(report, nextPieceKey);
+                    nextPieceKey = jsonResponse.getInt(NEXT_REPORT_PIECE_KEY);
+                }
+                updateProgress(nextPieceKey);
+                return nextPieceKey;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return 0;
+        }
+
+        private void updateProgress(int nextPiece) {
+            Integer[] progress = new Integer[1];
+            progress[0] = Integer.valueOf(nextPiece);
+            publishProgress(progress);
+        }
+
+        private JSONObject writePieceToServer(Report report, int nextPieceKey) throws JSONException, IOException, FileNotFoundException {
+            HttpResponse response = sendRequest(report.id, report.getJsonForPic(nextPieceKey).toString());
+            updateProgress(nextPieceKey);
+            return processResponse(response);
+        }
+
+        private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode >= 400 && statusCode < 500)
+                activity.onUploadFailed("Client error");
+            else if (statusCode >= 500 && statusCode < 600)
+                activity.onUploadFailed("Server error");
+            String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            return new JSONObject(responseString);
+        }
+
+        private HttpResponse sendRequest(int reportId, String contents) throws IOException {
             HttpClient httpclient = new DefaultHttpClient();
             String writeUrl = BASE_WRITE_URL;
-            JSONObject contents;
-            if(reportId != NEW_REPORT)
+            if (reportId != 0)
                 writeUrl += "/" + reportId + "/";
-            contents = report.getJsonForField(fieldToSend);
             HttpPost httpPost = new HttpPost(writeUrl);
             httpPost.setHeader("Accept", "application/json");
             httpPost.setHeader("Content-type", "application/json");
-            httpPost.setEntity(new StringEntity(contents.toString()));
-            Log.e(LogTags.BACKEND_W, "httpclient starting for field: " + fieldToSend + " write url: " + writeUrl);
-            HttpResponse response = httpclient.execute(httpPost);
-            int statusCode = response.getStatusLine().getStatusCode();
-            if(statusCode >= 400 && statusCode < 500)
-                activity.onUploadFailed("Client error");
-            else if(statusCode >=500 && statusCode < 600)
-                activity.onUploadFailed("Server error");
-            String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            JSONObject responseJSON = new JSONObject(responseString);
-            int nextField = responseJSON.getInt(NEXT_FIELD_KEY);
-            activity.onServerResponse(reportId, nextField);
-            if(nextField != POST_SUCCESS){
-                reportId = responseJSON.getInt(REPORT_ID_KEY);
-                writeToServer(reportId, nextField, report);
-            }
+            httpPost.setEntity(new StringEntity(contents));
+            return httpclient.execute(httpPost);
         }
-        else{
-            Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer: httpclient finished, in second else");
-            activity.onServerResponse(reportId, fieldToSend);
-        }
-        Log.e(LogTags.BACKEND_W, "ServerCommunicater.writeToServer: httpclient finished");
     }
 
     public void getPosts(){
-        FetchPosts fp = new FetchPosts();
-        fp.execute(READ_URL + activity.getScreenWidth());
+        new FetchPosts().execute(READ_URL + activity.getScreenWidth());
     }
 
     private List<Report> GET(String url) {
@@ -188,6 +200,7 @@ public class ServerCommunicater {
     }
 
     private class FetchPosts extends AsyncTask<String, Void, List<Report>> {
+
         @Override
         protected List<Report> doInBackground(String... urls) {
             return GET(urls[0]);
