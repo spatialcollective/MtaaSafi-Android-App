@@ -52,11 +52,10 @@ public class MainActivity extends ActionBarActivity implements
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private SharedPreferences sharedPref;
-    private Report reportDetailReport, pendingReport;
+    private Report reportDetailReport;
     private NewReportFragment newReportFragment;
     public String mUsername, mCurrentPhotoPath;
-    private int currentFragment, nextPieceKey, lastPreviewClicked;
-    ArrayList<String> picPaths;
+    private int currentFragment, lastPreviewClicked;
 
     private final int TOTAL_PICS = 3;
 
@@ -67,7 +66,6 @@ public class MainActivity extends ActionBarActivity implements
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
-                        PIC_PATHS_KEY = "picPaths",
                         PENDING_PIECE_KEY ="next_field",
                         PENDING_REPORT_TYPE_KEY = "report_to_send_id",
                         REPORT_DETAIL_KEY = "report_detail";
@@ -113,19 +111,9 @@ public class MainActivity extends ActionBarActivity implements
 
     public void setNewReportFragmentListener(NewReportFragment nrf){
         newReportFragment = nrf;
-//        if(pendingReport != null){
-//            for(int i = 0; i < nextPieceKey+1; i++){
-//                newReportFragment.onPostUpdate(i);
-//            }
-//        }
     }
 
     public void clearNewReportData() {
-        pendingReport = null;
-        nextPieceKey = -1; // TRANSACTION_COMPLETE
-        picPaths.clear();
-        for (int i = 0; i < TOTAL_PICS; i++)
-            picPaths.add(null);
         goToFeed();
         newReportFragment = null;
     }
@@ -243,12 +231,8 @@ public class MainActivity extends ActionBarActivity implements
     private void onPhotoTaken(){
         File file = new File(mCurrentPhotoPath);
         if(file != null && file.length() != 0)
-            picPaths.set(lastPreviewClicked, mCurrentPhotoPath);
-        Log.e(LogTags.PHOTO, picPaths.toString());
-    }
-
-    public ArrayList<String> getPics(){
-        return picPaths;
+            newReportFragment.picPaths.set(lastPreviewClicked, mCurrentPhotoPath);
+        Log.e(LogTags.PHOTO, newReportFragment.picPaths.toString());
     }
 
     // ======================Activity Setup:======================
@@ -264,10 +248,6 @@ public class MainActivity extends ActionBarActivity implements
         fa = new FragmentAdapter(getSupportFragmentManager());
         mPager = (NonSwipePager)findViewById(R.id.pager);
         mPager.setAdapter(fa);
-
-        picPaths = new ArrayList<String>();
-        for(int i = 0; i < TOTAL_PICS; i++)
-            picPaths.add(null);
     }
 
     @Override
@@ -286,24 +266,17 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//        mUsername = savedInstanceState.getString(USERNAME_KEY);
-//        if (mUsername == null)
-//            determineUsername();
-//
-//        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-//        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-//        picPaths = new ArrayList(
-//                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
-//                    .subList(0, TOTAL_PICS));
-//        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
-//        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-//            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-//        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
-//            goToNewReport();
-//            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
-//            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
-//            beamUpNewReport(pendingReport);
-//        }
+       mUsername = savedInstanceState.getString(USERNAME_KEY);
+       if (mUsername == null)
+           determineUsername();
+
+       mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
+       currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+
+       if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
+           reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+       if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) // NO_REPORT_TO_SEND
+           goToNewReport();
     }
     @Override
     protected void onSaveInstanceState(Bundle bundle){
@@ -311,14 +284,9 @@ public class MainActivity extends ActionBarActivity implements
         bundle.putString(USERNAME_KEY, mUsername);
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentFragment);
-        if(reportDetailReport != null){
+        if(reportDetailReport != null)
             reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
-        }
         bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
-        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
-        bundle.putInt(PENDING_PIECE_KEY, nextPieceKey);
-        if (pendingReport != null)
-            pendingReport.saveState(PENDING_REPORT_TYPE_KEY, bundle);
     }
 
     @Override
@@ -357,7 +325,7 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onBackPressed() {
-        if(pendingReport == null && currentFragment != FRAGMENT_FEED)
+        if(newReportFragment.pendingReport == null && currentFragment != FRAGMENT_FEED)
             goToFeed();
         getSupportActionBar().show();
     }

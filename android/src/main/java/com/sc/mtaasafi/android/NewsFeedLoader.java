@@ -54,7 +54,7 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
     @Override
     protected void onStartLoading() {
         List<Report> savedReports = getReportsFromFile();
-        if (mReports == null && savedReports.length > 0)
+        if (mReports == null && savedReports.size() > 0)
             mReports = savedReports;
         if (mReports != null)
             deliverResult(mReports);

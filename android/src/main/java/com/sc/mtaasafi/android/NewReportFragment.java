@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 public class NewReportFragment extends Fragment {
     MainActivity mActivity;
+    Report pendingReport;
     DescriptionEditText details;
     TextView attachPicsTV, uploadingTV;
     Button reportBtn;
@@ -33,7 +34,7 @@ public class NewReportFragment extends Fragment {
     ArrayList<String> picPaths;
     RelativeLayout mLayout;
     RelativeLayout uploadingScreen;
-    int lastPreviewClicked;
+    int lastPreviewClicked, nextPendingPieceKey;
     ProgressBar reportTextProgress, pic1Progress, pic2Progress, pic3Progress;
 
     private final int PIC1 = 0,
@@ -41,9 +42,9 @@ public class NewReportFragment extends Fragment {
             PIC3 = PIC2 + 1,
             TOTAL_PICS = PIC3 + 1;
 
-    private final String DEETS_KEY = "details",
-            picPathsKey = "picPaths",
-            LASTPREVIEW_KEY = "last_preview";
+    private final String    DEETS_KEY = "details",
+                            PIC_PATHS_KEY = "picPaths",
+                            LASTPREVIEW_KEY = "last_preview";
 
     AQuery aq;
 
@@ -53,6 +54,8 @@ public class NewReportFragment extends Fragment {
         mActivity = (MainActivity) getActivity();
         aq = new AQuery(mActivity);
         picPaths = new ArrayList<String>();
+        for(int i = 0; i < TOTAL_PICS; i++)
+            picPaths.add(null);
         picPreviews = new ImageView[TOTAL_PICS];
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
     }
@@ -96,20 +99,11 @@ public class NewReportFragment extends Fragment {
         super.onActivityCreated(savedState);
         Log.e(LogTags.NEWREPORT, "onActivityCreated");
 
-        if (savedState != null) {
-            String detailsString = savedState.getString(DEETS_KEY);
-            if (detailsString != null) {
-                details.setText(detailsString);
-            }
-            lastPreviewClicked = savedState.getInt(LASTPREVIEW_KEY);
-//            restorePics(savedState.getStringArrayList(picPathsKey));
-            restorePics();
-            Log.e(LogTags.NEWREPORT, "onActivityCreated: lastPreviewClicked: " + lastPreviewClicked);
+        
 
         } else {
-            for (int i = 0; i < TOTAL_PICS; i++) {
+            for (int i = 0; i < TOTAL_PICS; i++)
                 picPaths.add(null);
-            }
         }
 
         Bundle args = getArguments();
@@ -124,7 +118,6 @@ public class NewReportFragment extends Fragment {
     }
 
     private void restorePics() {
-        picPaths = mActivity.getPics();
         int emptyPics = TOTAL_PICS;
         Log.e(LogTags.NEWREPORT, "restorePics size: " + picPaths.size());
         // if picPaths is empty, that means you're in a new newReportFragment
@@ -147,7 +140,7 @@ public class NewReportFragment extends Fragment {
             attachPicsTV.setText("Attach " + emptyPics + " more picture:");
         else
             attachPicsTV.setVisibility(View.INVISIBLE);
-        attemptEnableReport();
+        attemptEnableSend();
     }
 
     // Returns dynamically sized thumbnail to populate picPreviews.
@@ -186,7 +179,7 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                attemptEnableReport();
+                attemptEnableSend();
             }
         });
 
@@ -223,9 +216,9 @@ public class NewReportFragment extends Fragment {
     }
 
     public void beamUpNewReport() {
-        // pendingReport = report;
+        pendingReport = createNewReport();
         Log.e(LogTags.BACKEND_W, "Beam it up");
-        new NewReportUploader(this).execute(createNewReport());
+        new NewReportUploader(this).execute(pendingReport);
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
@@ -237,6 +230,7 @@ public class NewReportFragment extends Fragment {
     }
 
     public void updatePostProgress(int progress){
+        nextPendingPieceKey = progress;
         switch(progress){
             case 0:{
                 reportTextProgress.setVisibility(View.VISIBLE);
@@ -275,6 +269,7 @@ public class NewReportFragment extends Fragment {
 
     public void uploadSuccess() {
         mActivity.clearNewReportData();
+        clearData();
         clearView();
     }
 
@@ -285,19 +280,23 @@ public class NewReportFragment extends Fragment {
         retryUpload();
     }
 
-    public void clearView(){
-        Log.e(LogTags.BACKEND_W, "onReportSent");
+    private void clearData() {
+        pendingReport = null;
+        picPaths.clear();
+        for (int i = 0; i < TOTAL_PICS; i++)
+            picPaths.add(null);
+    }
+
+    private void clearView() {
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
         restorePics();
         details.setFocusable(true);
-        for(int i = 0; i < TOTAL_PICS; i++){
+        for (int i = 0; i < TOTAL_PICS; i++)
             picPreviews[i].setClickable(true);
-        }
-        Toast.makeText(getActivity(), "Report uploaded!", Toast.LENGTH_SHORT);
     }
 
-    public void retryUpload(){
+    public void retryUpload() {
     //     beamItUp(reportId, nextPieceKey, pendingReport);
     }
 
@@ -307,32 +306,59 @@ public class NewReportFragment extends Fragment {
                 picPaths);
         return report;
     }
-    // called when the edit texts' listeners detect a change in their texts
-    public void attemptEnableReport() {
-        boolean hasEmptyPics = false;
+
+    public void attemptEnableSend() {
+        int i = 0;
         if (picPaths != null && !picPaths.isEmpty()) {
-            for (int i = 0; i < TOTAL_PICS; i++) {
+            while (i < TOTAL_PICS) {
                 if (picPaths.get(i) == null) {
-                    hasEmptyPics = true;
-                    break;
+                    disableSend();
+                    return;
                 }
+                i++;
             }
+            if (!details.getText().toString().isEmpty())
+                enableSend();
         }
-        if (!details.getText().toString().isEmpty() && !hasEmptyPics) {
-            reportBtn.setClickable(true);
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
-        } else {
-            reportBtn.setClickable(false);
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
+    }
+
+    private void enableSend() {
+        reportBtn.setClickable(true);
+        reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
+    }
+
+    private void disableSend() {
+        reportBtn.setClickable(false);
+        reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        String detailsString = savedInstanceState.getString(DEETS_KEY);
+        if (detailsString != null)
+            details.setText(detailsString);
+        lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
+        restorePics();
+        picPaths = new ArrayList(
+                savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
+                .subList(0, TOTAL_PICS));
+        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
+            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
+            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
+            beamUpNewReport(pendingReport);
         }
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if(details != null)
-            outState.putString(DEETS_KEY, details.getText().toString());
-        outState.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
+    protected void onSaveInstanceState(Bundle bundle){
+        super.onSaveInstanceState(bundle);
+        if (details != null)
+            bundle.putString(DEETS_KEY, details.getText().toString());
+        bundle.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
+        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
+        bundle.putInt(PENDING_PIECE_KEY, nextPendingPieceKey);
+        if (pendingReport != null)
+            pendingReport.saveState(PENDING_REPORT_TYPE_KEY, bundle);
     }
 
 }
