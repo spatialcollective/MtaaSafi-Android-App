@@ -265,17 +265,18 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-       mUsername = savedInstanceState.getString(USERNAME_KEY);
-       if (mUsername == null)
-           determineUsername();
+        super.onRestoreInstanceState(savedInstanceState);
+        mUsername = savedInstanceState.getString(USERNAME_KEY);
+        if (mUsername == null)
+            determineUsername();
 
-       mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-       currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
+        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
 
-       if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-           reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-       if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) // NO_REPORT_TO_SEND
-           goToNewReport();
+        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
+            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+//        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) // NO_REPORT_TO_SEND
+//            goToNewReport();
     }
     @Override
     protected void onSaveInstanceState(Bundle bundle){
@@ -283,7 +284,7 @@ public class MainActivity extends ActionBarActivity implements
         bundle.putString(USERNAME_KEY, mUsername);
         bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
         bundle.putInt(CURRENT_FRAGMENT_KEY, currentFragment);
-        if(reportDetailReport != null)
+        if (reportDetailReport != null)
             reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
         bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
     }

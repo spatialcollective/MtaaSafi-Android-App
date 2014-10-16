@@ -85,10 +85,12 @@ public class Report {
         this.timeStamp = savedState.getString(report_key+timeStampKey);
         this.timeElapsed = getElapsedTime(this.timeStamp);
         this.userName = savedState.getString(report_key+userNameKey);
-        this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
         this.latitude = savedState.getDouble(report_key+latKey);
         this.longitude = savedState.getDouble(report_key+lonKey);
-        this.picPaths = savedState.getStringArrayList(report_key+picsKey);
+        if (savedState.getStringArray(report_key+mediaURLsKey) != null)
+            this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
+        if (savedState.getStringArrayList(report_key+picsKey) != null)
+            this.picPaths = savedState.getStringArrayList(report_key+picsKey);
     }
 
     public JSONObject getJsonForText() throws JSONException {
@@ -137,14 +139,13 @@ public class Report {
         outState.putString(report_key+detailsKey, this.details);
         outState.putString(report_key+timeStampKey, this.timeStamp);
         outState.putString(report_key+userNameKey, this.userName);
-        if(mediaURLs != null)
-            outState.putStringArray(report_key+mediaURLsKey,
-                    this.mediaURLs.toArray(new String[mediaURLs.size()]));
         outState.putDouble(report_key+latKey, this.latitude);
         outState.putDouble(report_key+lonKey, this.longitude);
-        if(picPaths != null && !picPaths.isEmpty())
+        if (mediaURLs != null)
+            outState.putStringArray(report_key+mediaURLsKey,
+                    this.mediaURLs.toArray(new String[mediaURLs.size()]));
+        if (picPaths != null && !picPaths.isEmpty())
             outState.putStringArrayList(report_key+picsKey, this.picPaths);
-        Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
     }
 
@@ -172,14 +173,16 @@ public class Report {
     }
 
     public static String getElapsedTime(String timestamp) {
-//        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
-        SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-        try {
-            long postEpochTime = df.parse(timestamp).getTime();
-            long currentEpochTime = System.currentTimeMillis();
-            return getHumanReadableTimeElapsed(currentEpochTime - postEpochTime, df.parse(timestamp));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
+        if (timestamp != null) {
+            SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
+            try {
+                long postEpochTime = df.parse(timestamp).getTime();
+                long currentEpochTime = System.currentTimeMillis();
+                return getHumanReadableTimeElapsed(currentEpochTime - postEpochTime, df.parse(timestamp));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
         return "";
     }

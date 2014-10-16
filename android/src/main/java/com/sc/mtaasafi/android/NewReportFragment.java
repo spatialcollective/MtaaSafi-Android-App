@@ -289,9 +289,8 @@ public class NewReportFragment extends Fragment {
 
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");
-        Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
+        return new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),
                 picPaths);
-        return report;
     }
 
     public void attemptEnableSend() {
@@ -334,7 +333,7 @@ public class NewReportFragment extends Fragment {
             if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
                 nextPendingPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
                 pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
-                beamUpNewReport();
+                // beamUpNewReport();
             }
         }
     }
@@ -344,11 +343,12 @@ public class NewReportFragment extends Fragment {
         super.onSaveInstanceState(bundle);
         if (details != null)
             bundle.putString(DEETS_KEY, details.getText().toString());
-        bundle.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
         bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
-        bundle.putInt(PENDING_PIECE_KEY, nextPendingPieceKey);
-        if (pendingReport != null)
+        bundle.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
+        if (pendingReport != null) {
             pendingReport.saveState(PENDING_REPORT_TYPE_KEY, bundle);
+            bundle.putInt(PENDING_PIECE_KEY, nextPendingPieceKey);
+        }
     }
 
 }
