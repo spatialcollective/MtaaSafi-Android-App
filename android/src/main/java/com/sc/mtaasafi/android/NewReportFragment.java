@@ -44,7 +44,9 @@ public class NewReportFragment extends Fragment {
 
     private final String    DEETS_KEY = "details",
                             PIC_PATHS_KEY = "picPaths",
-                            LASTPREVIEW_KEY = "last_preview";
+                            LASTPREVIEW_KEY = "last_preview",
+                            PENDING_PIECE_KEY ="next_field",
+                            PENDING_REPORT_TYPE_KEY = "report_to_send_id";
 
     AQuery aq;
 
@@ -92,21 +94,6 @@ public class NewReportFragment extends Fragment {
         attachPicsTV = (TextView) view.findViewById(R.id.attachMorePicturesText);
         setListeners();
         return view;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedState) {
-        super.onActivityCreated(savedState);
-        Log.e(LogTags.NEWREPORT, "onActivityCreated");
-
-        
-
-        } else {
-            for (int i = 0; i < TOTAL_PICS; i++)
-                picPaths.add(null);
-        }
-
-        Bundle args = getArguments();
     }
 
     @Override
@@ -333,24 +320,27 @@ public class NewReportFragment extends Fragment {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        String detailsString = savedInstanceState.getString(DEETS_KEY);
-        if (detailsString != null)
-            details.setText(detailsString);
-        lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
-        restorePics();
-        picPaths = new ArrayList(
-                savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
-                .subList(0, TOTAL_PICS));
-        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
-            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
-            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
-            beamUpNewReport(pendingReport);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+//        for (int i = 0; i < TOTAL_PICS; i++)
+//            picPaths.add(null);
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getString(DEETS_KEY) != null)
+                details.setText(savedInstanceState.getString(DEETS_KEY));
+            lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
+            restorePics();
+            if (savedInstanceState.getStringArrayList(PIC_PATHS_KEY) != null)
+                picPaths = new ArrayList(savedInstanceState.getStringArrayList(PIC_PATHS_KEY).subList(0, TOTAL_PICS));
+            if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
+                nextPendingPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
+                pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
+                beamUpNewReport();
+            }
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle){
+    public void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         if (details != null)
             bundle.putString(DEETS_KEY, details.getText().toString());

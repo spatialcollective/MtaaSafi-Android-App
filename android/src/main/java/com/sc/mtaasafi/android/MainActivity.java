@@ -66,7 +66,6 @@ public class MainActivity extends ActionBarActivity implements
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
-                        PENDING_PIECE_KEY ="next_field",
                         PENDING_REPORT_TYPE_KEY = "report_to_send_id",
                         REPORT_DETAIL_KEY = "report_detail";
 
