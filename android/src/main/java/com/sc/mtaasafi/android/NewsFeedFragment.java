@@ -123,6 +123,5 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public void onLoaderReset(Loader<List<Report>> loader) {
-        mAdapter.updateItems(null);
     }
 }

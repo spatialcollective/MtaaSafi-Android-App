@@ -14,13 +14,8 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
     int alertType;
     final int   UPLOAD_FAILED = 0,
                 UPDATE_FAILED = 1;
-    AlertDialogFragment(String alertMessage, String positiveText,
-                        String negativeText, int alertType){
-        super();
-        this.alertMessage = alertMessage;
-        this.positiveText = positiveText;
-        this.negativeText = negativeText;
-        this.alertType = alertType;
+    public AlertDialogFragment(){
+
     }
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

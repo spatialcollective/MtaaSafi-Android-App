@@ -54,45 +54,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         Log.e(LogTags.FEEDITEM, "ReportDetailFrag: onCreateView called");
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
-        mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
-
-        // Make sure the actionbar doesn't block the text of the Report.
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int pixels_per_dp = (int)(metrics.density + 0.5f);
-        int padding_dp = 4;
-        mReportText.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
-
-        mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
-        mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset > 0.2 && mActivity.getSupportActionBar().isShowing())
-                    mActivity.getSupportActionBar().hide();
-                else if (!mActivity.getSupportActionBar().isShowing())
-                    mActivity.getSupportActionBar().show();
-                setActionBarTranslation(mLayout.getCurrentParalaxOffset());
-            }
-
-            @Override
-            public void onPanelExpanded(View panel) {
-                Log.i(LogTags.PANEL_SLIDER, "onPanelExpanded");
-            }
-
-            @Override
-            public void onPanelCollapsed(View panel) {
-                Log.i(LogTags.PANEL_SLIDER, "onPanelCollapsed");
-            }
-
-            @Override
-            public void onPanelAnchored(View panel) {
-                Log.i(LogTags.PANEL_SLIDER, "onPanelAnchored");
-            }
-
-            @Override
-            public void onPanelHidden(View panel) {
-                Log.i(LogTags.PANEL_SLIDER, "onPanelHidden");
-            }
-        });
+        setUpSlidingPanel(view);
 
         detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
         timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
@@ -117,14 +79,42 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
                 flipper.showPrevious();
             }
         });
-
-        if(mReport !=null){
+        if(savedState != null && savedState.getBoolean(hadAReportKey))
+           mReport = new Report(reportKey, savedState);
+        if(mReport !=null)
             updateView(mReport);
-        }
         return view;
     }
 
+    private void setUpSlidingPanel(View view){
+        mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
 
+        // Make sure the actionbar doesn't block the text of the Report.
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int pixels_per_dp = (int)(metrics.density + 0.5f);
+        int padding_dp = 4;
+        mReportText.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
+
+        mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
+        mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                if (slideOffset > 0.2 && mActivity.getSupportActionBar().isShowing())
+                    mActivity.getSupportActionBar().hide();
+                else if (!mActivity.getSupportActionBar().isShowing())
+                    mActivity.getSupportActionBar().show();
+                setActionBarTranslation(mLayout.getCurrentParalaxOffset());
+            }
+            @Override
+            public void onPanelExpanded(View panel){Log.i(LogTags.PANEL_SLIDER, "onPanelExpanded");}
+            @Override
+            public void onPanelCollapsed(View panel){Log.i(LogTags.PANEL_SLIDER, "onPanelCollapsed");}
+            @Override
+            public void onPanelAnchored(View panel){Log.i(LogTags.PANEL_SLIDER, "onPanelAnchored");}
+            @Override
+            public void onPanelHidden(View panel) {Log.i(LogTags.PANEL_SLIDER, "onPanelHidden");}
+        });
+    }
     public void setActionBarTranslation(float y) {
         // Figure out the actionbar height
         // A hack to add the translation to the action bar
