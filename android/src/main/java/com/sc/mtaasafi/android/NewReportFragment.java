@@ -216,7 +216,7 @@ public class NewReportFragment extends Fragment {
         reportBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendReport();
+                beamUpNewReport();
             }
         });
     }
@@ -226,20 +226,22 @@ public class NewReportFragment extends Fragment {
         mActivity.takePicture((NewReportFragment) getParentFragment(), lastPreviewClicked);
     }
 
-    public void sendReport() {
-        mActivity.beamUpNewReport(createNewReport());
+    public void beamUpNewReport() {
+        // pendingReport = report;
+        Log.e(LogTags.BACKEND_W, "Beam it up");
+        new NewReportUploader(this).execute(createNewReport());
         InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(
                 mActivity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(details.getWindowToken(), 0);
         details.setFocusable(false);
         uploadingScreen.setVisibility(View.VISIBLE);
         reportTextProgress.setVisibility(View.VISIBLE);
-        for(int i = 0; i < TOTAL_PICS; i++){
+        for(int i = 0; i < TOTAL_PICS; i++)
             picPreviews[i].setClickable(false);
-        }
     }
-    public void onPostUpdate(int nextField){
-        switch(nextField){
+
+    public void updatePostProgress(int progress){
+        switch(progress){
             case 0:{
                 reportTextProgress.setVisibility(View.VISIBLE);
                 uploadingTV.setText("Uploading report text...");
@@ -270,12 +272,24 @@ public class NewReportFragment extends Fragment {
                 pic3Progress.setVisibility(View.GONE);
                 uploadingTV.setText("Report uploaded!");
                 pic3Uploading.setImageResource(R.drawable.pic3_uploaded);
-                onReportSent();
                 break;
             }
         }
     }
-    public void onReportSent(){
+
+    public void uploadSuccess() {
+        // mActivity.clearNewReportData();
+        clearView();
+    }
+
+    public void uploadFailure(final String failMessage){
+        // mActivity.clearNewReportData();
+//        final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
+//        toast.show();
+        retryUpload();
+    }
+
+    public void clearView(){
         Log.e(LogTags.BACKEND_W, "onReportSent");
         uploadingScreen.setVisibility(View.INVISIBLE);
         details.setText("");
@@ -286,6 +300,11 @@ public class NewReportFragment extends Fragment {
         }
         Toast.makeText(getActivity(), "Report uploaded!", Toast.LENGTH_SHORT);
     }
+
+    public void retryUpload(){
+    //     beamItUp(reportId, nextPieceKey, pendingReport);
+    }
+
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");
         Report report = new Report(details.getText().toString(), mActivity.mUsername, mActivity.getLocation(),

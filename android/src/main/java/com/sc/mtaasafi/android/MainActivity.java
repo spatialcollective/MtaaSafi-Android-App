@@ -111,53 +111,23 @@ public class MainActivity extends ActionBarActivity implements
         return getWindowManager().getDefaultDisplay().getWidth();
     }
 
-    // takes a post written by the user from the feed fragment, pushes it to server
-    public void beamUpNewReport(Report report){
-        pendingReport = report;
-        Log.e(LogTags.BACKEND_W, "Beam it up");
-//        sc.postNewReport(report); // Lifecycle issues. Server Communicator should deal with its own lifecycle, maybe thats a reason to make it a loader.
-    }
-
     public void setNewReportFragmentListener(NewReportFragment nrf){
         newReportFragment = nrf;
-        if(pendingReport != null){
-            for(int i = 0; i < nextPieceKey+1; i++){
-                newReportFragment.onPostUpdate(i);
-            }
-        }
+//        if(pendingReport != null){
+//            for(int i = 0; i < nextPieceKey+1; i++){
+//                newReportFragment.onPostUpdate(i);
+//            }
+//        }
     }
 
-    public void updatePendingReportProgress(final int progress){
-        Log.e("Main Activity", "ReportId: " + " next expected Field: " + progress);
-        newReportFragment.onPostUpdate(progress);
-        this.nextPieceKey = progress;
-    }
-
-    public void onReportUploadSuccess() {
-        clearNewReportData();
-        newReportFragment.onReportSent();
-        newReportFragment = null;
-    }
-
-    public void onUploadFailed(final String failMessage){
-        final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
-        clearNewReportData();
-        runOnUiThread(new Runnable() {
-            public void run() { toast.show(); }
-        });
-    }
-
-    private void clearNewReportData() {
+    public void clearNewReportData() {
         pendingReport = null;
         nextPieceKey = -1; // TRANSACTION_COMPLETE
         picPaths.clear();
         for (int i = 0; i < TOTAL_PICS; i++)
             picPaths.add(null);
         goToFeed();
-    }
-
-    public void retryUpload(){
-    //     beamItUp(reportId, nextPieceKey, pendingReport);
+        newReportFragment = null;
     }
 
     public static class ErrorDialogFragment extends DialogFragment {
