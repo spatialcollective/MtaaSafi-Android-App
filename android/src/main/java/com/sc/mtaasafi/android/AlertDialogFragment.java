@@ -38,10 +38,10 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         switch (alertType){
                             case UPLOAD_FAILED:
-                                mainActivity.retryUpload();
+//                                mainActivity.retryUpload();
                                 break;
                             case UPDATE_FAILED:
-                                mainActivity.updateFeed();
+//                                mainActivity.updateFeed();
                         }
 
                     }
