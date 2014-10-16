@@ -258,6 +258,7 @@ public class NewReportFragment extends Fragment {
         mActivity.clearNewReportData();
         clearData();
         clearView();
+        Toast.makeText(mActivity, "Thank you for your report!", Toast.LENGTH_SHORT).show();
     }
 
     public void uploadFailure(final String failMessage){

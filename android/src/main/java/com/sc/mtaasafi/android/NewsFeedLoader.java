@@ -112,8 +112,10 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
 
     private JSONArray convertStringToJson(String input) throws JSONException {
         JSONArray jsonArray = new JSONArray(input);
-        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null){
             throw new JSONException("Server returned error");
+
+        }
         return jsonArray;
     }
 }

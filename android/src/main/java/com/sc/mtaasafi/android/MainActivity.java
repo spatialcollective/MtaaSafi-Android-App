@@ -200,11 +200,10 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.PHOTO, "takePicture");
         lastPreviewClicked = previewClicked;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = createImageFile(lastPreviewClicked);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } catch (IOException ex){
@@ -214,10 +213,11 @@ public class MainActivity extends ActionBarActivity implements
             Toast.makeText(this, "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
         }
     }
-
-    private File createImageFile() throws IOException {
+// Save the preview clicked in the file path so that you can retrieve it in onActivityResult, which is called
+// before on restore instance state.
+    private File createImageFile(int previewClicked) throws IOException {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timestamp + "_";
+        String imageFileName = "#" + previewClicked + "#" + "JPEG_" + timestamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES
         );
@@ -229,9 +229,11 @@ public class MainActivity extends ActionBarActivity implements
 
     private void onPhotoTaken(){
         File file = new File(mCurrentPhotoPath);
-        if(file != null && file.length() != 0)
-            newReportFragment.picPaths.set(lastPreviewClicked, mCurrentPhotoPath);
-        Log.e(LogTags.PHOTO, newReportFragment.picPaths.toString());
+        String[] pathWithPreviewClicked = mCurrentPhotoPath.split("#");
+        int previewClicked = Integer.parseInt(pathWithPreviewClicked[1]);
+        if(file.length() != 0)
+            picPaths.set(previewClicked, mCurrentPhotoPath);
+        Log.e(LogTags.PHOTO, picPaths.toString());
     }
 
     // ======================Activity Setup:======================
@@ -272,10 +274,10 @@ public class MainActivity extends ActionBarActivity implements
 
         mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
         currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-
+        mPager.setCurrentItem(currentFragment);
         if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
             reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-//        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) // NO_REPORT_TO_SEND
+//        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
 //            goToNewReport();
     }
     @Override
