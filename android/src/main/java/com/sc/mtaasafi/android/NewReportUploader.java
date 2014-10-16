@@ -1,7 +1,6 @@
 package com.sc.mtaasafi.android;
 
 import android.os.AsyncTask;
-import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
@@ -15,7 +14,6 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 
 public class NewReportUploader extends AsyncTask<Report, Integer, Integer> {
 

@@ -130,18 +130,6 @@ public class MainActivity extends ActionBarActivity implements
         newReportFragment = null;
     }
 
-    public static class ErrorDialogFragment extends DialogFragment {
-        private Dialog mDialog;
-        public ErrorDialogFragment() {
-            super();
-            mDialog = null;
-        }
-
-        public void setDialog(Dialog dialog) { mDialog = dialog; }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) { return mDialog; }
-    }
     // ======================Fragment Navigation:======================
     public void goToFeed(){
         mPager.setCurrentItem(FRAGMENT_FEED);
@@ -217,13 +205,6 @@ public class MainActivity extends ActionBarActivity implements
     public Location getLocation() {
         mCurrentLocation = mLocationClient.getLastLocation();
         return mCurrentLocation;
-    }
-
-    private void showErrorFragment(Dialog errorDialog){
-        ErrorDialogFragment errorFragment =
-                new ErrorDialogFragment();
-        errorFragment.setDialog(errorDialog);
-        errorFragment.show(getSupportFragmentManager(), "Location Updates");
     }
 
     // ======================Picture-taking Logic:======================

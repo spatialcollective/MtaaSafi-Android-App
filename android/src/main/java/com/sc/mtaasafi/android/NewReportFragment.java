@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,10 +21,7 @@ import android.widget.Toast;
 
 import com.androidquery.AQuery;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 public class NewReportFragment extends Fragment {
     MainActivity mActivity;
@@ -278,12 +274,12 @@ public class NewReportFragment extends Fragment {
     }
 
     public void uploadSuccess() {
-        // mActivity.clearNewReportData();
+        mActivity.clearNewReportData();
         clearView();
     }
 
     public void uploadFailure(final String failMessage){
-        // mActivity.clearNewReportData();
+        mActivity.clearNewReportData();
 //        final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
 //        toast.show();
         retryUpload();

@@ -35,6 +35,10 @@ public class NewsFeedFragment extends ListFragment
     AQuery aq;
     int index;
     int top;
+
+    public interface ReportSelectedListener {
+        public void goToDetailView(Report report);
+    }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,25 +76,10 @@ public class NewsFeedFragment extends ListFragment
         mCallback.goToDetailView(r);
     }
 
-    public interface ReportSelectedListener {
-        public void goToDetailView(Report report);
-    }
-
-    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-        if (state.isOpened()) {
-        } else if (state.isClosed()) {
-        }
-    }
-
     @Override
     public void onResume(){
         super.onResume();
-
         restoreListPosition();
-        Session session = Session.getActiveSession();
-        if (session != null && (session.isOpened() || session.isClosed())){
-            onSessionStateChange(session, session.getState(), null);
-        }
     }
 
     public void saveListPosition() {

@@ -53,30 +53,29 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
     
     @Override
     protected void onStartLoading() {
+        List<Report> savedReports = getReportsFromFile();
+        if (mReports == null && savedReports.length > 0)
+            mReports = savedReports;
         if (mReports != null)
             deliverResult(mReports);
     }
 
     private List<Report> GET(String url) {
-        String resultString;
-        JSONArray resultJson;
-
         try {
-            resultString = getDataFromServer(url);
-            resultJson = convertStringToJson(resultString);
+            String resultString = getDataFromServer(url);
+            JSONArray resultJson = convertStringToJson(resultString);
             mActivity.backupDataToFile(resultString);
             return createReportsFromJson(resultJson);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            try {
-                resultString = mActivity.getJsonStringFromFile();
-                resultJson = convertStringToJson(resultString);
-                return createReportsFromJson(resultJson);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
         return new ArrayList<Report>();
+    }
+
+    private List<Report> getReportsFromFile() {
+        String resultString = mActivity.getJsonStringFromFile();
+        JSONArray resultJson = convertStringToJson(resultString);
+        return createReportsFromJson(resultJson);
     }
 
     private String getDataFromServer(String url) throws IOException {
