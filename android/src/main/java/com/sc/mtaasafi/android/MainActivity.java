@@ -66,8 +66,8 @@ public class MainActivity extends ActionBarActivity implements
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
                         CURRENT_FRAGMENT_KEY = "current_fragment",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
-                        PENDING_REPORT_TYPE_KEY = "report_to_send_id",
-                        REPORT_DETAIL_KEY = "report_detail";
+                        REPORT_DETAIL_KEY = "report_detail",
+                        PIC_PATHS_KEY = "picPaths";
 
                         // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
@@ -176,8 +176,7 @@ public class MainActivity extends ActionBarActivity implements
             Log.e(LogTags.PHOTO, "onActivityResult");
             onPhotoTaken();
             mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-        }
-        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
+        } else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }
 
@@ -230,10 +229,11 @@ public class MainActivity extends ActionBarActivity implements
     private void onPhotoTaken(){
         File file = new File(mCurrentPhotoPath);
         String[] pathWithPreviewClicked = mCurrentPhotoPath.split("#");
-        int previewClicked = Integer.parseInt(pathWithPreviewClicked[1]);
-        if(file.length() != 0)
-            picPaths.set(previewClicked, mCurrentPhotoPath);
-        Log.e(LogTags.PHOTO, picPaths.toString());
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        if (file.length() != 0)
+            editor.putString(PIC_PATHS_KEY + pathWithPreviewClicked[1], mCurrentPhotoPath);
+        editor.commit();
     }
 
     // ======================Activity Setup:======================
@@ -277,6 +277,7 @@ public class MainActivity extends ActionBarActivity implements
         mPager.setCurrentItem(currentFragment);
         if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
             reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+
 //        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
 //            goToNewReport();
     }

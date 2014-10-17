@@ -1,5 +1,7 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -24,6 +26,9 @@ import com.androidquery.AQuery;
 import java.util.ArrayList;
 
 public class NewReportFragment extends Fragment {
+
+    private SharedPreferences sharedPref;
+
     MainActivity mActivity;
     Report pendingReport;
     DescriptionEditText details;
@@ -55,10 +60,8 @@ public class NewReportFragment extends Fragment {
         super.onCreate(savedState);
         mActivity = (MainActivity) getActivity();
         aq = new AQuery(mActivity);
-        picPaths = new ArrayList<String>();
-        for(int i = 0; i < TOTAL_PICS; i++)
-            picPaths.add(null);
         picPreviews = new ImageView[TOTAL_PICS];
+        picPaths = new ArrayList<String>();
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
     }
 
@@ -105,21 +108,33 @@ public class NewReportFragment extends Fragment {
     }
 
     private void restorePics() {
+        sharedPref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
+        picPaths = new ArrayList<String>();
+        for (int i = 0; i < TOTAL_PICS; i++) {
+            try {
+                String key = PIC_PATHS_KEY + Integer.toString(i);
+                String path = sharedPref.getString(key, null);
+                if (path != null)
+                    picPaths.add(i, path);
+            } catch (Exception e) {
+
+            }
+        }
+
         int emptyPics = TOTAL_PICS;
         Log.e(LogTags.NEWREPORT, "restorePics size: " + picPaths.size());
         // if picPaths is empty, that means you're in a new newReportFragment
-        if(picPaths.size() != 0){
+        if (picPaths.size() != 0) {
             for (int i = 0; i < TOTAL_PICS; i++) {
-                if (picPaths.get(i)!= null) {
+                if (picPaths.get(i) != null) {
                     aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
                     emptyPics--;
                 } else
                     aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
             }
         } else { 
-            for (int i = 0; i < TOTAL_PICS; i++) {
+            for (int i = 0; i < TOTAL_PICS; i++)
                 aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
-            }
         }
         if (emptyPics > 1)
             attachPicsTV.setText("Attach " + emptyPics + " more pictures:");
@@ -322,15 +337,11 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-//        for (int i = 0; i < TOTAL_PICS; i++)
-//            picPaths.add(null);
         if (savedInstanceState != null) {
             if (savedInstanceState.getString(DEETS_KEY) != null)
                 details.setText(savedInstanceState.getString(DEETS_KEY));
             lastPreviewClicked = savedInstanceState.getInt(LASTPREVIEW_KEY);
             restorePics();
-            if (savedInstanceState.getStringArrayList(PIC_PATHS_KEY) != null)
-                picPaths = new ArrayList(savedInstanceState.getStringArrayList(PIC_PATHS_KEY).subList(0, TOTAL_PICS));
             if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
                 nextPendingPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
                 pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
@@ -344,7 +355,6 @@ public class NewReportFragment extends Fragment {
         super.onSaveInstanceState(bundle);
         if (details != null)
             bundle.putString(DEETS_KEY, details.getText().toString());
-        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
         bundle.putInt(LASTPREVIEW_KEY, lastPreviewClicked);
         if (pendingReport != null) {
             pendingReport.saveState(PENDING_REPORT_TYPE_KEY, bundle);
