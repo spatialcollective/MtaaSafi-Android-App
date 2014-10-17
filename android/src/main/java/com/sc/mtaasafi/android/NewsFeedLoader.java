@@ -53,13 +53,15 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
     
     @Override
     protected void onStartLoading() {
-        List<Report> savedReports = getReportsFromFile();
-        if(savedReports != null){
+        try {
+            List<Report> savedReports = getReportsFromFile();
             if (mReports == null && savedReports.size() > 0)
                 mReports = savedReports;
-            if (mReports != null)
-                deliverResult(mReports);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        if (mReports != null)
+            deliverResult(mReports);
     }
 
     private List<Report> GET(String url) {
@@ -74,18 +76,10 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
         return new ArrayList<Report>();
     }
 
-    private List<Report> getReportsFromFile() {
-        String resultString = null;
-        try {
-            resultString = mActivity.getJsonStringFromFile();
-            JSONArray resultJson = convertStringToJson(resultString);
-            return createReportsFromJson(resultJson);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private List<Report> getReportsFromFile() throws JSONException, IOException {
+        String resultString = mActivity.getJsonStringFromFile();
+        JSONArray resultJson = convertStringToJson(resultString);
+        return createReportsFromJson(resultJson);
     }
 
     private String getDataFromServer(String url) throws IOException {
@@ -118,10 +112,8 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
 
     private JSONArray convertStringToJson(String input) throws JSONException {
         JSONArray jsonArray = new JSONArray(input);
-        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null){
+        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
             throw new JSONException("Server returned error");
-
-        }
         return jsonArray;
     }
 }

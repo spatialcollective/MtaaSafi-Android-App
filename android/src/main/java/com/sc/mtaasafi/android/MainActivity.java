@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private SharedPreferences sharedPref;
-    private Report reportDetailReport, pendingReport;
+    private Report reportDetailReport;
     private NewReportFragment newReportFragment;
     public String mUsername, mCurrentPhotoPath;
     private int currentFragment, nextPieceKey, lastPreviewClicked;
@@ -80,6 +80,92 @@ public class MainActivity extends ActionBarActivity implements
                         FRAGMENT_FEED = 0,
                         FRAGMENT_REPORTDETAIL = 2,
                         FRAGMENT_NEWREPORT = 1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
+        Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+        setContentView(R.layout.activity_main);
+        mLocationClient = new LocationClient(this, this, this);
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        fa = new FragmentAdapter(getSupportFragmentManager());
+        mPager = (NonSwipePager)findViewById(R.id.pager);
+        mPager.setAdapter(fa);
+
+        picPaths = new ArrayList<String>();
+        for(int i = 0; i < TOTAL_PICS; i++)
+            picPaths.add(null);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+
+        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if (locationProviders == null || locationProviders.equals("")) {
+            // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
+            // If they say yes, send them to Location Settings
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        }
+        mLocationClient.connect();
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mUsername = savedInstanceState.getString(USERNAME_KEY);
+        if (mUsername == null)
+            determineUsername();
+
+        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
+        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
+        mPager.setCurrentItem(currentFragment);
+        picPaths = new ArrayList(
+                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
+                    .subList(0, TOTAL_PICS));
+        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
+        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
+            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
+        // if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) // NO_REPORT_TO_SEND
+        //     goToNewReport();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle){
+        super.onSaveInstanceState(bundle);
+        bundle.putString(USERNAME_KEY, mUsername);
+        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
+        bundle.putInt(CURRENT_FRAGMENT_KEY, currentFragment);
+        if (reportDetailReport != null)
+            reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
+        bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
+        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        Log.e(LogTags.MAIN_ACTIVITY, "onResume");
+        determineUsername();
+        mPager.setCurrentItem(currentFragment);
+    }
+    @Override
+    protected void onStop(){
+        // Disconnecting the client invalidates it.
+        Log.e(LogTags.MAIN_ACTIVITY, "onStop");
+        mLocationClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (newReportFragment != null && newReportFragment.pendingReport == null && currentFragment != FRAGMENT_FEED)
+            goToFeed();
+        getSupportActionBar().show();
+    }
 
     // Called by the server communicator if it cannot successfully receive posts from the server
     public void onUpdateFailed() {
@@ -113,16 +199,9 @@ public class MainActivity extends ActionBarActivity implements
 
     public void setNewReportFragmentListener(NewReportFragment nrf){
         newReportFragment = nrf;
-//        if(pendingReport != null){
-//            for(int i = 0; i < nextPieceKey+1; i++){
-//                newReportFragment.onPostUpdate(i);
-//            }
-//        }
     }
 
     public void clearNewReportData() {
-        pendingReport = null;
-        nextPieceKey = -1; // TRANSACTION_COMPLETE
         picPaths.clear();
         for (int i = 0; i < TOTAL_PICS; i++)
             picPaths.add(null);
@@ -185,12 +264,11 @@ public class MainActivity extends ActionBarActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
-        if (requestCode == REQUEST_IMAGE_CAPTURE){
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
             Log.e(LogTags.PHOTO, "onActivityResult");
             onPhotoTaken();
             mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-        }
-        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
+        } else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }
 
@@ -244,100 +322,13 @@ public class MainActivity extends ActionBarActivity implements
         File file = new File(mCurrentPhotoPath);
         String[] pathWithPreviewClicked = mCurrentPhotoPath.split("#");
         int previewClicked = Integer.parseInt(pathWithPreviewClicked[1]);
-        if(file.length() != 0){
+        if (file.length() != 0)
             picPaths.set(previewClicked, mCurrentPhotoPath);
-        }
         Log.e(LogTags.PHOTO, picPaths.toString());
     }
 
     public ArrayList<String> getPics(){
         return picPaths;
-    }
-
-    // ======================Activity Setup:======================
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
-        Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        setContentView(R.layout.activity_main);
-        mLocationClient = new LocationClient(this, this, this);
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
-        fa = new FragmentAdapter(getSupportFragmentManager());
-        mPager = (NonSwipePager)findViewById(R.id.pager);
-        mPager.setAdapter(fa);
-
-        picPaths = new ArrayList<String>();
-        for(int i = 0; i < TOTAL_PICS; i++)
-            picPaths.add(null);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e(LogTags.MAIN_ACTIVITY, "onStart");
-
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals("")) {
-            // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
-            // If they say yes, send them to Location Settings
-            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-        }
-        mLocationClient.connect();
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        mUsername = savedInstanceState.getString(USERNAME_KEY);
-        if (mUsername == null)
-            determineUsername();
-
-        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-        mPager.setCurrentItem(currentFragment);
-        picPaths = new ArrayList(
-                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
-                    .subList(0, TOTAL_PICS));
-        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
-        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-//        if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) { // NO_REPORT_TO_SEND
-//            goToNewReport();
-//            nextPieceKey = savedInstanceState.getInt(PENDING_PIECE_KEY);
-//            pendingReport = new Report(PENDING_REPORT_TYPE_KEY, savedInstanceState);
-//            beamUpNewReport(pendingReport);
-//        }
-    }
-    @Override
-    protected void onSaveInstanceState(Bundle bundle){
-        super.onSaveInstanceState(bundle);
-        bundle.putString(USERNAME_KEY, mUsername);
-        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-        bundle.putInt(CURRENT_FRAGMENT_KEY, currentFragment);
-        if(reportDetailReport != null){
-            reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
-        }
-        bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
-        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
-        bundle.putInt(PENDING_PIECE_KEY, nextPieceKey);
-        if (pendingReport != null)
-            pendingReport.saveState(PENDING_REPORT_TYPE_KEY, bundle);
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.e(LogTags.MAIN_ACTIVITY, "onResume");
-        determineUsername();
-        mPager.setCurrentItem(currentFragment);
-    }
-    @Override
-    protected void onStop(){
-        // Disconnecting the client invalidates it.
-        Log.e(LogTags.MAIN_ACTIVITY, "onStop");
-        mLocationClient.disconnect();
-        super.onStop();
     }
 
     @Override
@@ -357,13 +348,6 @@ public class MainActivity extends ActionBarActivity implements
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(pendingReport == null && currentFragment != FRAGMENT_FEED)
-            goToFeed();
-        getSupportActionBar().show();
     }
 
     public int getActionBarHeight(){
