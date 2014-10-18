@@ -8,7 +8,7 @@ import android.view.MotionEvent;
 /**
  * Created by Agree on 10/6/2014.
  */
-public class NonSwipePager extends android.support.v4.view.ViewPager {
+public class NonSwipePager extends ViewPager {
 
     public NonSwipePager(Context context) {
         super(context);

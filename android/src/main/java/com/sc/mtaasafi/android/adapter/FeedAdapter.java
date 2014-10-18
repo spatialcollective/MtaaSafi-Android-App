@@ -28,9 +28,6 @@ import java.util.List;
 public class FeedAdapter extends BaseAdapter {
     List<FeedItemView> posts;
     AQuery aq;
-    ListView mListView;
-    int index;
-    int top;
     NewsFeedFragment mFragment;
     Context context;
     
@@ -76,9 +73,10 @@ public class FeedAdapter extends BaseAdapter {
         List<FeedItemView> items = new ArrayList<FeedItemView>();
         for (int i = 0; i < allReports.size(); i++) {
             Report report = allReports.get(i);
-            Log.d("updateFeed", "report title is " + report.title);
-            FeedItemView fItemView = new FeedItemView(context, report, i);
-            items.add(fItemView);
+            if(report.mediaURLs != null && report.mediaURLs.size() > 2){
+                FeedItemView fItemView = new FeedItemView(context, report, i);
+                items.add(fItemView);
+            }
         }
         mReports = allReports;
         posts = items;

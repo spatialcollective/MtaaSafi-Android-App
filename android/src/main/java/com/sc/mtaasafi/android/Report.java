@@ -15,6 +15,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +30,7 @@ import java.util.List;
  * Data class for passing data about posts
  */
 public class Report {
-    public int id;
+    public int id, nextPiece;
     public double latitude, longitude;
     public ArrayList<String> picPaths;
     public String title, details, timeStamp, timeElapsed, userName;
@@ -42,7 +45,8 @@ public class Report {
                             picsKey = "picPaths",
                             mediaURLsKey = "mediaURLs",
                             latKey = "latitude",
-                            lonKey = "longitude";
+                            lonKey = "longitude",
+                            idKey = "id";
 
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
@@ -57,6 +61,7 @@ public class Report {
                 picPaths.get(0).toString() + ". " +
                 picPaths.get(1).toString() +". " +
                 picPaths.get(2).toString());
+        this.id = 0;
     }
 
     public Report(JSONObject jsonServerData) {
@@ -72,6 +77,7 @@ public class Report {
                 mediaURLs.add(mediaURLsInJSON.get(i).toString());
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
+            this.id = 0;
         } catch (JSONException e) {
             e.printStackTrace();
            Log.e(LogTags.JSON, "Failed to convert data from JSON");
@@ -79,6 +85,7 @@ public class Report {
     }
 
     public Report(String report_key, Bundle savedState) {
+        this.id = savedState.getInt(report_key+idKey);
         this.title = savedState.getString(report_key+titleKey);
         this.details = savedState.getString(report_key+detailsKey);
         this.timeStamp = savedState.getString(report_key+timeStampKey);
@@ -102,38 +109,27 @@ public class Report {
         return json;
     }
 
-    public JSONObject getJsonForPic(int i) throws JSONException, FileNotFoundException, IOException {
-        return convertPicFileToJson(new JSONObject(), new File(picPaths.get(i - 1)));
+    public JSONObject getJsonForPic(int i) throws JSONException, IOException {
+        return new JSONObject().accumulate(picsKey, getEncodedBytesForPic(i));
     }
 
-    public JSONObject getJson() {
-        try {
-            JSONObject json = getJsonForText();
-            Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
-            for (int i = 0; i < picPaths.size(); i++)
-                json = convertPicFileToJson(json, new File(picPaths.get(i)));
-            return json;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private String getEncodedBytesForPic(int i) throws IOException {
+        String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
+        Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
+        return encoded;
     }
-
-    private JSONObject convertPicFileToJson(JSONObject json, File file) throws IOException, JSONException {
+    private byte[] getBytesForPic(int i) throws IOException {
+        File file = new File(picPaths.get(i));
+        Log.e(LogTags.NEWREPORT, "File size: " + file.length());
         byte[] b = new byte[(int) file.length()];
         BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         inputStream.read(b);
-        json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
         inputStream.close();
-        return json;
+        return b;
     }
 
     public Bundle saveState(String report_key, Bundle outState) {
+        outState.putInt(report_key+idKey, this.id);
         outState.putString(report_key+titleKey, this.title);
         outState.putString(report_key+detailsKey, this.details);
         outState.putString(report_key+timeStampKey, this.timeStamp);
@@ -172,8 +168,29 @@ public class Report {
         return "just now";
     }
 
+    // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android
+    public String getSHA1forPic(int i) throws IOException, NoSuchAlgorithmException {
+        String toHash = getEncodedBytesForPic(i);
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        md.update(toHash.getBytes("iso-8859-1"), 0, toHash.length());
+        byte[] sha1hash = md.digest();
+        return convertToHex(sha1hash);
+    }
+
+    private String convertToHex(byte[] data) {
+        StringBuilder buf = new StringBuilder();
+        for (byte b : data) {
+            int halfbyte = (b >>> 4) & 0x0F;
+            int two_halfs = 0;
+            do {
+                buf.append((0 <= halfbyte) && (halfbyte <= 9) ? (char) ('0' + halfbyte) : (char) ('a' + (halfbyte - 10)));
+                halfbyte = b & 0x0F;
+            } while (two_halfs++ < 1);
+        }
+        return buf.toString();
+    }
+
     public static String getElapsedTime(String timestamp) {
-//        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
         if (timestamp != null) {
             SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
             try {

@@ -5,23 +5,31 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.sc.mtaasafi.android.MainActivity;
 import com.sc.mtaasafi.android.NewReportFragment;
 import com.sc.mtaasafi.android.NewsFeedFragment;
+import com.sc.mtaasafi.android.NonSwipePager;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.ReportDetailFragment;
 
 /**
  * Created by Agree on 10/6/2014.
  */
-public class FragmentAdapter extends FragmentPagerAdapter{
+public class FragmentAdapter extends FragmentStatePagerAdapter {
 
-    FragmentManager fm;
+    MainActivity mContext;
+    NonSwipePager mPager;
+
     NewsFeedFragment nff;
     NewReportFragment nrf;
     ReportDetailFragment rdf;
-    public FragmentAdapter(FragmentManager fm){
-        super(fm);
-        this.fm = fm;
+
+    public FragmentAdapter(MainActivity activity, NonSwipePager pager) {
+        super(activity.getSupportFragmentManager());
+        mContext = activity;
+        mPager = pager;
+        mPager.setAdapter(this);
+
         nff = new NewsFeedFragment();
         rdf = new ReportDetailFragment();
         nrf = new NewReportFragment();

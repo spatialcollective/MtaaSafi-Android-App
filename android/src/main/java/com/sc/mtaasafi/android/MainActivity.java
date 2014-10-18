@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -53,15 +54,14 @@ public class MainActivity extends ActionBarActivity implements
     private Location mCurrentLocation;
     private SharedPreferences sharedPref;
     private Report reportDetailReport;
-    private NewReportFragment newReportFragment;
     public String mUsername, mCurrentPhotoPath;
-    private int currentFragment, nextPieceKey, lastPreviewClicked;
+    private int lastPreviewClicked;
     ArrayList<String> picPaths;
 
     private final int TOTAL_PICS = 3;
 
     NonSwipePager mPager;
-    FragmentAdapter fa;
+    FragmentAdapter mFragmentAdapter;
 
     static final String USERNAME_KEY = "username",
                         CURRENT_PHOTO_PATH_KEY = "photo_path",
@@ -70,6 +70,7 @@ public class MainActivity extends ActionBarActivity implements
                         PIC_PATHS_KEY = "picPaths",
                         PENDING_PIECE_KEY ="next_field",
                         PENDING_REPORT_TYPE_KEY = "report_to_send_id",
+                        IS_REPORT_PENDING_KEY = "report_pending",
                         REPORT_DETAIL_KEY = "report_detail";
 
                         // onActivityResult
@@ -90,9 +91,12 @@ public class MainActivity extends ActionBarActivity implements
         setContentView(R.layout.activity_main);
         mLocationClient = new LocationClient(this, this, this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        fa = new FragmentAdapter(getSupportFragmentManager());
-        mPager = (NonSwipePager)findViewById(R.id.pager);
-        mPager.setAdapter(fa);
+
+
+        mPager = new NonSwipePager(this);
+        mPager.setId(R.id.pager);
+        setContentView(mPager);
+        mFragmentAdapter = new FragmentAdapter(this, mPager);
 
         picPaths = new ArrayList<String>();
         for(int i = 0; i < TOTAL_PICS; i++)
@@ -100,17 +104,15 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        Log.e(LogTags.MAIN_ACTIVITY, "onStart");
-
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals("")) {
-            // TODO: show a dialog fragment that will say you need to turn on location to make this thing work
-            // If they say yes, send them to Location Settings
-            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-        }
-        mLocationClient.connect();
+    protected void onSaveInstanceState(Bundle bundle){
+        super.onSaveInstanceState(bundle);
+        bundle.putString(USERNAME_KEY, mUsername);
+        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
+        bundle.putInt(CURRENT_FRAGMENT_KEY, mPager.getCurrentItem());
+        if (reportDetailReport != null)
+            reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
+        bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
+        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
     }
 
     @Override
@@ -121,28 +123,28 @@ public class MainActivity extends ActionBarActivity implements
             determineUsername();
 
         mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-        currentFragment = savedInstanceState.getInt(CURRENT_FRAGMENT_KEY);
-        mPager.setCurrentItem(currentFragment);
+        mPager.setCurrentItem(savedInstanceState.getInt(CURRENT_FRAGMENT_KEY));
         picPaths = new ArrayList(
                     savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
                     .subList(0, TOTAL_PICS));
-        Log.e(LogTags.NEWREPORT, "current item " + currentFragment);
         if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
             reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-        // if (savedInstanceState.getInt(PENDING_REPORT_TYPE_KEY) != -1) // NO_REPORT_TO_SEND
-        //     goToNewReport();
+        if (savedInstanceState.getBoolean(PENDING_REPORT_TYPE_KEY)) {
+            goToNewReport();
+//            NewReportFragment nrf = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
+//            nrf.beamUpReport();
+        }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle){
-        super.onSaveInstanceState(bundle);
-        bundle.putString(USERNAME_KEY, mUsername);
-        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-        bundle.putInt(CURRENT_FRAGMENT_KEY, currentFragment);
-        if (reportDetailReport != null)
-            reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
-        bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
-        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
+    protected void onStart() {
+        super.onStart();
+        Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+
+        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if (locationProviders == null || locationProviders.equals(""))
+            onLocationDisabled();
+        mLocationClient.connect();
     }
 
     @Override
@@ -150,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
-        mPager.setCurrentItem(currentFragment);
+        mPager.setCurrentItem(mPager.getCurrentItem());
     }
     @Override
     protected void onStop(){
@@ -162,19 +164,17 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onBackPressed() {
-        if (newReportFragment != null && newReportFragment.pendingReport == null && currentFragment != FRAGMENT_FEED)
-            goToFeed();
-        getSupportActionBar().show();
+        // if (newReportFragment != null && newReportFragment.pendingReport == null && currentFragment != FRAGMENT_FEED)
+        goToFeed();
+        // getSupportActionBar().show();
     }
 
-    // Called by the server communicator if it cannot successfully receive posts from the server
-    public void onUpdateFailed() {
-        final Toast toast = Toast.makeText(this, "Update failed!", Toast.LENGTH_SHORT);
-        runOnUiThread(new Runnable() {
-            public void run() {
-                toast.show();
-            }
-        });
+    public void launchAlert() {
+        AlertDialogFragment adf = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.UPDATE_FAILED);
+        adf.setArguments(bundle);
+        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
     }
 
     public void backupDataToFile(String dataString) throws IOException {
@@ -197,29 +197,22 @@ public class MainActivity extends ActionBarActivity implements
         return getWindowManager().getDefaultDisplay().getWidth();
     }
 
-    public void setNewReportFragmentListener(NewReportFragment nrf){
-        newReportFragment = nrf;
-    }
-
     public void clearNewReportData() {
         picPaths.clear();
         for (int i = 0; i < TOTAL_PICS; i++)
             picPaths.add(null);
         goToFeed();
-        newReportFragment = null;
     }
 
     // ======================Fragment Navigation:======================
     public void goToFeed(){
         mPager.setCurrentItem(FRAGMENT_FEED);
-        currentFragment = FRAGMENT_FEED;
     }
 
     public void goToDetailView(Report report){
         reportDetailReport = report;
         mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         Log.e("GO TO DETAIL VIEW", report.title);
-        currentFragment = FRAGMENT_REPORTDETAIL;
     }
     public void getReportDetailReport(ReportDetailFragment rdf){
         if (reportDetailReport != null)
@@ -227,8 +220,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToNewReport(){
-        mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-        currentFragment = FRAGMENT_NEWREPORT;
+        mPager.setCurrentItem(FRAGMENT_NEWREPORT, true);
     }
 
     // ======================Google Play Services Setup:======================
@@ -258,7 +250,18 @@ public class MainActivity extends ActionBarActivity implements
             toast.show();
         }
     }
-
+    public boolean isLocationEnabled(){
+        LocationManager locationManager =
+                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    public void onLocationDisabled(){
+        AlertDialogFragment adf = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
+        adf.setArguments(bundle);
+        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -281,7 +284,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public Location getLocation() {
-        mCurrentLocation = mLocationClient.getLastLocation();
+        if(mLocationClient != null)
+            mCurrentLocation = mLocationClient.getLastLocation();
         return mCurrentLocation;
     }
 

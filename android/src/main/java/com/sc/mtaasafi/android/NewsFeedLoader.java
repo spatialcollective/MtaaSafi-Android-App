@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -46,7 +47,8 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
 
     @Override
     public void deliverResult(List<Report> reports) {
-        mReports = reports;
+        if (reports != null)
+            mReports = reports;
         if (isStarted())
             super.deliverResult(reports);
     }
@@ -62,6 +64,12 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
         }
         if (mReports != null)
             deliverResult(mReports);
+    }
+
+    @Override
+    public void onCanceled(List<Report> reports) {
+        deliverResult(mReports);
+//        mActivity.onUpdateFailed();
     }
 
     private List<Report> GET(String url) {
@@ -83,12 +91,16 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
     }
 
     private String getDataFromServer(String url) throws IOException {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-        InputStream inputStream = httpResponse.getEntity().getContent();
-        if (inputStream != null)
-            return convertInputStreamToString(inputStream);
-        return "error";
+        try{
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
+            InputStream inputStream = httpResponse.getEntity().getContent();
+            if (inputStream != null)
+                return convertInputStreamToString(inputStream);
+        } catch (ClientProtocolException e) {
+            cancelLoad();
+        }
+        return null;
     }
 
     private List<Report> createReportsFromJson(JSONArray jsonData) throws JSONException {
