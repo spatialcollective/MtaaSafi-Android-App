@@ -5,6 +5,7 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -27,20 +28,25 @@ public class NewReportActivity extends ActionBarActivity implements
 
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
-    ArrayList<String> picPaths;
-    NewReportFragment mFragment;
 
-
-    static final String CURRENT_PHOTO_PATH_KEY = "photo_path";
+    private NewReportFragment mFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFragment = new NewReportFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(android.R.id.content, mFragment);
-//        transaction.addToBackStack(null);
-        transaction.commit();
+
+        FragmentManager manager = getSupportFragmentManager();
+        if (savedInstanceState != null)
+            mFragment = (NewReportFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
+        else {
+            mFragment = (NewReportFragment) manager.findFragmentByTag("new_report");
+            Log.e("Creating Activity", "fragment was null...");
+            mFragment = new NewReportFragment();
+            manager.beginTransaction()
+                    .replace(android.R.id.content, mFragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit();
+        }
 
         mLocationClient = new LocationClient(this, this, this);
     }
@@ -63,38 +69,11 @@ public class NewReportActivity extends ActionBarActivity implements
         super.onStop();
     }
 
-    // ======================Picture-taking Logic:======================
-    // public void takePicture() {
-    //     Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-    //     if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
-    //         File photoFile = null;
-    //         try {
-    //             photoFile = createImageFile(lastPreviewClicked);
-    //             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-    //             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-    //         } catch (IOException ex){
-    //             Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
-    //         }
-    //     } else {
-    //         Toast.makeText(this, "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
-    //     }
-    // }
-// Save the preview clicked in the file path so that you can retrieve it in onActivityResult, which is called
-// before on restore instance state.
-    // private File createImageFile(int previewClicked) throws IOException {
-    //     String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-    //     String imageFileName = "#" + previewClicked + "#" + "JPEG_" + timestamp + "_";
-    //     File storageDir = Environment.getExternalStoragePublicDirectory(
-    //             Environment.DIRECTORY_PICTURES
-    //     );
-    //     File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-    //     mCurrentPhotoPath = image.getAbsolutePath();
-    //     return image;
-    // }
-
-    public ArrayList<String> getPics(){
-        return picPaths;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // store the data in the fragment
+//        dataFragment.setData(collectMyLoadedData());
     }
 
     public Location getLocation() {
@@ -145,6 +124,7 @@ public class NewReportActivity extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
+        getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
 //        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
 //        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
     }
@@ -152,7 +132,6 @@ public class NewReportActivity extends ActionBarActivity implements
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-
 //        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
 //        picPaths = new ArrayList(
 //                    savedInstanceState.getStringArrayList(mFragment.PIC_PATHS_KEY)
