@@ -30,14 +30,11 @@ import java.util.List;
  * Data class for passing data about posts
  */
 public class Report {
-    public int id, nextPiece;
+    public int id;
     public double latitude, longitude;
     public ArrayList<String> picPaths;
     public String title, details, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaURLs;
-    public int voteCount;
-    public boolean iUpvoted;
-    private final static int FIELD_TEXT = 0;
     public final static String titleKey = "title",
                             detailsKey = "details",
                             timeStampKey = "timestamp",
@@ -49,13 +46,13 @@ public class Report {
                             idKey = "id";
 
     // for Report objects created by the user to send to the server
-    public Report(String details, String userName, Location location,
+    public Report(String details, String userName, String location,
                   ArrayList<String> picPaths) {
         this.details = details;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
-        this.latitude = location.getLatitude();
-        this.longitude =  location.getLongitude();
+//        this.latitude = location.getLatitude();
+//        this.longitude =  location.getLongitude();
         this.picPaths = picPaths;
         Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
                 picPaths.get(0).toString() + ". " +

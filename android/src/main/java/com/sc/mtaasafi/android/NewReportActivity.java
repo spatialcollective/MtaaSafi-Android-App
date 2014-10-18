@@ -10,21 +10,15 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
-import com.sc.mtaasafi.android.R;
-
-import java.util.ArrayList;
 
 public class NewReportActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
-//        NewReportFragment.PictureTakenListener {
 
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
@@ -47,7 +41,6 @@ public class NewReportActivity extends ActionBarActivity implements
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .commit();
         }
-
         mLocationClient = new LocationClient(this, this, this);
     }
 
@@ -63,17 +56,12 @@ public class NewReportActivity extends ActionBarActivity implements
     }
     @Override
     protected void onStop(){
-        // Disconnecting the client invalidates it.
-        Log.e(LogTags.MAIN_ACTIVITY, "onStop");
         mLocationClient.disconnect();
         super.onStop();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // store the data in the fragment
-//        dataFragment.setData(collectMyLoadedData());
+    public int getScreenWidth(){
+        return getWindowManager().getDefaultDisplay().getWidth();
     }
 
     public Location getLocation() {
@@ -125,39 +113,5 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
-//        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-//        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-//        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-//        picPaths = new ArrayList(
-//                    savedInstanceState.getStringArrayList(mFragment.PIC_PATHS_KEY)
-//                    .subList(0, mFragment.pic_count));
-//        if (savedInstanceState.getBoolean(mFragment.HAS_PENDING_REPORT)) {
-//            NewReportFragment nrf = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
-//            nrf.beamUpReport();
-//        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.new_report, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

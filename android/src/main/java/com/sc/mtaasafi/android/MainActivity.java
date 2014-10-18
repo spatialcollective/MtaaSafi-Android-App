@@ -2,22 +2,11 @@ package com.sc.mtaasafi.android;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.Dialog;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.content.pm.ActivityInfo;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -29,22 +18,14 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
 import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
 import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -125,12 +106,8 @@ public class MainActivity extends ActionBarActivity implements
         // getSupportActionBar().show();
     }
 
-    public void launchAlert() {
-        AlertDialogFragment adf = new AlertDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.UPDATE_FAILED);
-        adf.setArguments(bundle);
-        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    public int getScreenWidth(){
+        return getWindowManager().getDefaultDisplay().getWidth();
     }
 
     public void backupDataToFile(String dataString) throws IOException {
@@ -149,8 +126,12 @@ public class MainActivity extends ActionBarActivity implements
         return jsonString.toString();
     }
 
-    public int getScreenWidth(){
-        return getWindowManager().getDefaultDisplay().getWidth();
+    public void launchAlert() {
+        AlertDialogFragment adf = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.UPDATE_FAILED);
+        adf.setArguments(bundle);
+        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
     }
 
     public void clearNewReportData() {

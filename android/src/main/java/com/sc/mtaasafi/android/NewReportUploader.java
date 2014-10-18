@@ -41,11 +41,8 @@ public class NewReportUploader extends AsyncTask<Report, Integer, Integer> {
 
 	@Override
 	protected void onPostExecute(Integer result) {
-		Log.e(LogTags.BACKEND_W, "onPostExecute");
-		if (result == -1)
-		   mFragment.uploadSuccess();
-		else
-		   mFragment.uploadFailure("Unknown Error");
+       mFragment.uploadSuccess();
+//		   mFragment.uploadFailure("Unknown Error");
 	}
 
 	private int writeReportToServer(Report report) throws JSONException, IOException {

@@ -1,25 +1,16 @@
 package com.sc.mtaasafi.android;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.support.v4.content.AsyncTaskLoader;
-import android.util.Log;
-
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -69,7 +60,7 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
     @Override
     public void onCanceled(List<Report> reports) {
         deliverResult(mReports);
-//        mActivity.onUpdateFailed();
+//        mActivity.launchAlert();
     }
 
     private List<Report> GET(String url) {
