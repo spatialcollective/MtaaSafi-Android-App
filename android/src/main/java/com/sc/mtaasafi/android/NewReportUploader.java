@@ -72,7 +72,7 @@ public class NewReportUploader extends AsyncTask<Report, Integer, Integer> {
 		publishProgress(progress);
 	}
 
-	private JSONObject writePieceToServer(Report report, int nextPieceKey) throws JSONException, IOException, FileNotFoundException {
+	private JSONObject writePieceToServer(Report report, int nextPieceKey) throws JSONException, IOException {
 		HttpResponse response = sendRequest(report.id, report.getJsonForPic(nextPieceKey).toString());
 		updateProgress(nextPieceKey);
 		return processResponse(response);

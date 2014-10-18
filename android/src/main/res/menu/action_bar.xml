@@ -4,7 +4,7 @@
     tools:context="com.sc.mtaasafi.android.HomeScreen" >
 
     <item android:id="@+id/_action_report"
-        android:title="@string/new_post"
+        android:title="@string/new_report"
         android:icon="@drawable/pencil_icon_white"
         app:showAsAction="ifRoom" />
 </menu>

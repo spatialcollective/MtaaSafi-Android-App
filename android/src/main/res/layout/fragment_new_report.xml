@@ -29,7 +29,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:clickable="false" />
         <include layout="@layout/attach_pic_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,15 +40,28 @@
             android:layout_marginBottom="15dp"
             android:id="@+id/include" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout android:id="@+id/addPicsButtonLayout"
+        style="@android:style/Widget.Button"
         android:layout_height="wrap_content"
-        android:text="Attach 3 more pictures:"
-        android:id="@+id/attachMorePicturesText"
+        android:layout_width="fill_parent"
         android:layout_above="@+id/include"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp">
+        <TextView android:id="@+id/addPicsStatic"
+            android:text="@string/add_pics"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/black" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/addPicsStatic"
+            android:layout_centerHorizontal="true"
+            android:text="Need 3 more"
+            android:id="@+id/attachMorePicturesText" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="fill_parent"

@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -46,73 +48,42 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
-        GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
         NewsFeedFragment.ReportSelectedListener {
 
-    private LocationClient mLocationClient;
-    private Location mCurrentLocation;
     private SharedPreferences sharedPref;
     private Report reportDetailReport;
-    public String mUsername, mCurrentPhotoPath;
-    private int lastPreviewClicked;
-    ArrayList<String> picPaths;
-
-    private final int TOTAL_PICS = 3;
+    public String mUsername;
 
     NonSwipePager mPager;
+    NewsFeedFragment newsfeedFragment;
     FragmentAdapter mFragmentAdapter;
 
     static final String USERNAME_KEY = "username",
-                        CURRENT_PHOTO_PATH_KEY = "photo_path",
-                        CURRENT_FRAGMENT_KEY = "current_fragment",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
-                        PIC_PATHS_KEY = "picPaths",
-                        PENDING_PIECE_KEY ="next_field",
-                        PENDING_REPORT_TYPE_KEY = "report_to_send_id",
-                        IS_REPORT_PENDING_KEY = "report_pending",
                         REPORT_DETAIL_KEY = "report_detail";
 
                         // onActivityResult
-    static final int    REQUEST_CODE_PICK_ACCOUNT = 1000,
-                        REQUEST_IMAGE_CAPTURE = 1,
-
-                        // FragmentPager
-                        FRAGMENT_FEED = 0,
-                        FRAGMENT_REPORTDETAIL = 2,
-                        FRAGMENT_NEWREPORT = 1;
+    static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
+//        Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        setContentView(R.layout.activity_main);
-        mLocationClient = new LocationClient(this, this, this);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
 
-
-        mPager = new NonSwipePager(this);
-        mPager.setId(R.id.pager);
-        setContentView(mPager);
-        mFragmentAdapter = new FragmentAdapter(this, mPager);
-
-        picPaths = new ArrayList<String>();
-        for(int i = 0; i < TOTAL_PICS; i++)
-            picPaths.add(null);
+        setContentView(R.layout.activity_main);
+        newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
-        bundle.putString(CURRENT_PHOTO_PATH_KEY, mCurrentPhotoPath);
-        bundle.putInt(CURRENT_FRAGMENT_KEY, mPager.getCurrentItem());
         if (reportDetailReport != null)
             reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
         bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
-        bundle.putStringArrayList(PIC_PATHS_KEY, picPaths);
     }
 
     @Override
@@ -122,29 +93,15 @@ public class MainActivity extends ActionBarActivity implements
         if (mUsername == null)
             determineUsername();
 
-        mCurrentPhotoPath = savedInstanceState.getString(CURRENT_PHOTO_PATH_KEY);
-        mPager.setCurrentItem(savedInstanceState.getInt(CURRENT_FRAGMENT_KEY));
-        picPaths = new ArrayList(
-                    savedInstanceState.getStringArrayList(PIC_PATHS_KEY)
-                    .subList(0, TOTAL_PICS));
+        // mPager.setCurrentItem(savedInstanceState.getInt(CURRENT_FRAGMENT_KEY));
         if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
             reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
-        if (savedInstanceState.getBoolean(PENDING_REPORT_TYPE_KEY)) {
-            goToNewReport();
-//            NewReportFragment nrf = (NewReportFragment) fa.getItem(mPager.getCurrentItem());
-//            nrf.beamUpReport();
-        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
-
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals(""))
-            onLocationDisabled();
-        mLocationClient.connect();
     }
 
     @Override
@@ -152,13 +109,12 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
-        mPager.setCurrentItem(mPager.getCurrentItem());
+//        mPager.setCurrentItem(mPager.getCurrentItem());
     }
     @Override
     protected void onStop(){
         // Disconnecting the client invalidates it.
         Log.e(LogTags.MAIN_ACTIVITY, "onStop");
-        mLocationClient.disconnect();
         super.onStop();
     }
 
@@ -198,20 +154,17 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void clearNewReportData() {
-        picPaths.clear();
-        for (int i = 0; i < TOTAL_PICS; i++)
-            picPaths.add(null);
         goToFeed();
     }
 
     // ======================Fragment Navigation:======================
     public void goToFeed(){
-        mPager.setCurrentItem(FRAGMENT_FEED);
+//        mPager.setCurrentItem(FRAGMENT_FEED);
     }
 
     public void goToDetailView(Report report){
         reportDetailReport = report;
-        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
+//        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         Log.e("GO TO DETAIL VIEW", report.title);
     }
     public void getReportDetailReport(ReportDetailFragment rdf){
@@ -220,58 +173,19 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToNewReport(){
-        mPager.setCurrentItem(FRAGMENT_NEWREPORT, true);
+        Intent intent = new Intent();
+        intent.setClass(this, NewReportActivity.class);
+        // intent.putExtra("index", index);
+        startActivity(intent);
     }
 
-    // ======================Google Play Services Setup:======================
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        mCurrentLocation = mLocationClient.getLastLocation();
-    }
-
-    @Override
-    public void onDisconnected() {
-        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try { // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-            } catch (IntentSender.SendIntentException e) { // Thrown if Google Play services canceled the original PendingIntent
-                e.printStackTrace();
-            }
-        } else { // If no resolution is available, display a dialog to the user with the error.
-            CharSequence text = "Google play connection failed, no resolution";
-            Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }
-    public boolean isLocationEnabled(){
-        LocationManager locationManager =
-                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-    public void onLocationDisabled(){
-        AlertDialogFragment adf = new AlertDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
-        adf.setArguments(bundle);
-        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            Log.e(LogTags.PHOTO, "onActivityResult");
-            onPhotoTaken();
-            mPager.setCurrentItem(FRAGMENT_NEWREPORT);
-        } else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
+        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             setUserName(data);
     }
 
@@ -281,58 +195,6 @@ public class MainActivity extends ActionBarActivity implements
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(USERNAME_KEY, retrievedUserName);
         editor.commit();
-    }
-
-    public Location getLocation() {
-        if(mLocationClient != null)
-            mCurrentLocation = mLocationClient.getLastLocation();
-        return mCurrentLocation;
-    }
-
-    // ======================Picture-taking Logic:======================
-    // Called by the new report fragment to launch a take picture activity.
-    public void takePicture(NewReportFragment nrf, int previewClicked){
-        Log.e(LogTags.PHOTO, "takePicture");
-        lastPreviewClicked = previewClicked;
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(this.getPackageManager()) != null){
-            File photoFile = null;
-            try {
-                photoFile = createImageFile(lastPreviewClicked);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } catch (IOException ex){
-                Toast.makeText(this, "Couldn't create file", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
-        }
-    }
-// Save the preview clicked in the file path so that you can retrieve it in onActivityResult, which is called
-// before on restore instance state.
-    private File createImageFile(int previewClicked) throws IOException {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "#" + previewClicked + "#" + "JPEG_" + timestamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES
-        );
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private void onPhotoTaken(){
-        File file = new File(mCurrentPhotoPath);
-        String[] pathWithPreviewClicked = mCurrentPhotoPath.split("#");
-        int previewClicked = Integer.parseInt(pathWithPreviewClicked[1]);
-        if (file.length() != 0)
-            picPaths.set(previewClicked, mCurrentPhotoPath);
-        Log.e(LogTags.PHOTO, picPaths.toString());
-    }
-
-    public ArrayList<String> getPics(){
-        return picPaths;
     }
 
     @Override
