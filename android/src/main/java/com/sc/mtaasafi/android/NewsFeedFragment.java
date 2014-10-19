@@ -37,7 +37,7 @@ public class NewsFeedFragment extends ListFragment
     int top;
 
     public interface ReportSelectedListener {
-        public void goToDetailView(Report report);
+        public void goToDetailView(Report report, int position);
     }
     
     @Override
@@ -73,7 +73,7 @@ public class NewsFeedFragment extends ListFragment
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
         Report r = mAdapter.mReports.get(position);
-        mCallback.goToDetailView(r);
+        mCallback.goToDetailView(r, position);
     }
 
     @Override

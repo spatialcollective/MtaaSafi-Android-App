@@ -33,15 +33,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class NewReportFragment extends Fragment {
+
     Report pendingReport;
     int nextPendingPiece;
-
-    Button reportBtn;
-    RelativeLayout addPicButton, uploadingScreen;
-    LinearLayout picPreviewContainer;
-    ProgressBar reportTextProgress;
-    DescriptionEditText detailsView;
-
     private ArrayList<String> picPaths;
     private String detailsText;
 
@@ -59,43 +53,21 @@ public class NewReportFragment extends Fragment {
         super.onCreate(savedState);
         picPaths = new ArrayList<String>();
         setRetainInstance(true);
-
-        Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-
-        uploadingScreen = (RelativeLayout) view.findViewById(R.id.uploading_screen);
-        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
-
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         detailsText = "";
-        picPreviewContainer = (LinearLayout) view.findViewById(R.id.picPreviewContainer);
-        addPicButton = (RelativeLayout) view.findViewById(R.id.addPicsButtonLayout);
-        reportBtn = (Button) view.findViewById(R.id.reportButton);
-
-        setListeners();
+        setListeners(view);
         return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
-
-        if (savedState != null) {
-            detailsText = savedState.getString(DEETS_KEY);
-            if (detailsText != null)
-                detailsView.setText(detailsText);
-            updatePicPreviews();
-            attemptEnableSend();
-            if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
-                nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
-                pendingReport = new Report(PENDING_REPORT_ID, savedState);
-                beamUpReport(pendingReport);
-            }
-        }
+        // if (savedState != null && savedState.getBoolean(HAS_PENDING_REPORT_KEY))
+        //     beamUpReport(pendingReport);
     }
 
     @Override
@@ -132,6 +104,7 @@ public class NewReportFragment extends Fragment {
             i++;
         }
 
+        RelativeLayout addPicButton = (RelativeLayout) getView().findViewById(R.id.addPicsButtonLayout);
         if (emptyPics == 0) {
             addPicButton.setVisibility(View.INVISIBLE);
         } else {
@@ -166,7 +139,9 @@ public class NewReportFragment extends Fragment {
         return BitmapFactory.decodeFile(picPath, options);
     }
 
-    private void setListeners() {
+    private void setListeners(View view) {
+        final DescriptionEditText detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
+
         detailsView.addTextChangedListener(new TextWatcher() {
             @Override public void afterTextChanged(Editable s) {}
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -178,10 +153,11 @@ public class NewReportFragment extends Fragment {
             }
         });
 
-        reportBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                beamUpNewReport();
-            }
+        view.findViewById(R.id.reportButton)
+            .setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View view) {
+                    beamUpNewReport();
+                }
         });
 
         View.OnClickListener picLauncher = new View.OnClickListener() {
@@ -189,7 +165,8 @@ public class NewReportFragment extends Fragment {
                 takePicture();
             }
         };
-        addPicButton.setOnClickListener(picLauncher);
+        view.findViewById(R.id.addPicsButtonLayout).setOnClickListener(picLauncher);
+        // (LinearLayout) picPreviewContainer = view.findViewById(R.id.picPreviewContainer);
 //        picPreviewContainer.setOnClickListener(picLauncher);
 //        for (int i = 0; i < REQUIRED_PIC_COUNT - 1; i++)
 //            picPreviewContainer.getChildAt(i).setOnClickListener(picLauncher);
@@ -234,7 +211,8 @@ public class NewReportFragment extends Fragment {
     }
 
     public void beamUpNewReport() {
-        pendingReport = createNewReport();
+        pendingReport = new Report(detailsText, "", "", //mActivity.mUsername, mActivity.getLocation(),
+                picPaths);
         beamUpReport(pendingReport);
     }
 
@@ -243,51 +221,43 @@ public class NewReportFragment extends Fragment {
         new NewReportUploader(this).execute(pendingReport);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                 getActivity().INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(detailsView.getWindowToken(), 0);
-        detailsView.setFocusable(false);
-        uploadingScreen.setVisibility(View.VISIBLE);
-        reportTextProgress.setVisibility(View.VISIBLE);
-        addPicButton.setClickable(false);
-    }
-
-    public Report createNewReport() {
-        Log.e(LogTags.NEWREPORT, "createNewReport");
-        return new Report(detailsText, "", "", //mActivity.mUsername, mActivity.getLocation(),
-                picPaths);
+        imm.hideSoftInputFromWindow(getView().findViewById(R.id.newReportDetails).getWindowToken(), 0);
+        getView().findViewById(R.id.uploading_screen).setVisibility(View.VISIBLE);
     }
 
     public void updatePostProgress(int progress){
+        View view = getView();
         nextPendingPiece = progress;
         switch (progress) {
             case 0:
-                updateProgressView(0, 0, R.id.progressBarReportText, 0);
+                updateProgressView(view, 0, 0, R.id.progressBarReportText, 0);
                 break;
             case 1:
-                updateProgressView(R.id.progressBarReportText, R.id.reportUploadingIcon, R.id.progressBarPic1, R.drawable.report_uploaded);
+                updateProgressView(view, R.id.progressBarReportText, R.id.reportUploadingIcon, R.id.progressBarPic1, R.drawable.report_uploaded);
                 break;
             case 2:
-                updateProgressView(R.id.progressBarPic1, R.id.pic1UploadingIcon, R.id.progressBarPic2, R.drawable.pic1_uploaded);
+                updateProgressView(view, R.id.progressBarPic1, R.id.pic1UploadingIcon, R.id.progressBarPic2, R.drawable.pic1_uploaded);
                 break;
             case 3:
-                updateProgressView(R.id.progressBarPic2, R.id.pic2UploadingIcon, R.id.progressBarPic3, R.drawable.pic2_uploaded);
+                updateProgressView(view, R.id.progressBarPic2, R.id.pic2UploadingIcon, R.id.progressBarPic3, R.drawable.pic2_uploaded);
                 break;
             case -1:
-                updateProgressView(R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
+                updateProgressView(view, R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
                 break;
         }
     }
 
-    private void updateProgressView(int doneProgressId, int doneViewId, int workingId, int drawable) {
+    private void updateProgressView(View view, int doneProgressId, int doneViewId, int workingId, int drawable) {
         if (doneProgressId != 0) {
-            ProgressBar done = (ProgressBar) getView().findViewById(doneProgressId);
+            ProgressBar done = (ProgressBar) view.findViewById(doneProgressId);
             done.setVisibility(View.GONE);
         }
         if (doneViewId != 0 && drawable != 0) {
-            ImageView doneView = (ImageView) getView().findViewById(doneViewId);
+            ImageView doneView = (ImageView) view.findViewById(doneViewId);
             doneView.setImageResource(drawable);
         }
         if (workingId != 0) {
-            ProgressBar working = (ProgressBar) getView().findViewById(workingId);
+            ProgressBar working = (ProgressBar) view.findViewById(workingId);
             working.setVisibility(View.VISIBLE);
         }
     }
@@ -297,18 +267,16 @@ public class NewReportFragment extends Fragment {
         clearData();
         clearView();
         getActivity().finish();
-//        mActivity.clearNewReportData();
     }
 
     public void uploadFailure(final String failMessage){
-//        final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
-//        toast.show();
+        Toast.makeText(getActivity(), "Failed to upload post!", Toast.LENGTH_SHORT).show();
         retryUpload();
-//        mActivity.clearNewReportData();
     }
 
     public void clearView() {
-        uploadingScreen.setVisibility(View.INVISIBLE);
+        DescriptionEditText detailsView = (DescriptionEditText) getView().findViewById(R.id.newReportDetails);
+        getView().findViewById(R.id.uploading_screen).setVisibility(View.INVISIBLE);
         updatePicPreviews();
         detailsText = "";
         detailsView.setText("");
@@ -325,19 +293,20 @@ public class NewReportFragment extends Fragment {
     }
 
     public void attemptEnableSend() {
+        Button reportBtn = (Button) getView().findViewById(R.id.reportButton);
         boolean hasDetails = !detailsText.isEmpty();
         if (!hasDetails || picPaths == null || picPaths.isEmpty() || picPaths.size() < REQUIRED_PIC_COUNT)
-            disableSend();
+            disableSend(reportBtn);
         else if (hasDetails && picPaths.size() == REQUIRED_PIC_COUNT)
-            enableSend();
+            enableSend(reportBtn);
     }
 
-    private void enableSend() {
+    private void enableSend(Button reportBtn) {
         reportBtn.setClickable(true);
         reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
     }
 
-    private void disableSend() {
+    private void disableSend(Button reportBtn) {
         reportBtn.setClickable(false);
         reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
     }

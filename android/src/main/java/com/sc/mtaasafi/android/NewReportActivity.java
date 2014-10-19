@@ -32,8 +32,7 @@ public class NewReportActivity extends ActionBarActivity implements
         FragmentManager manager = getSupportFragmentManager();
         if (savedInstanceState != null)
             mFragment = (NewReportFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
-        else {
-            mFragment = (NewReportFragment) manager.findFragmentByTag("new_report");
+        if (mFragment == null) {
             Log.e("Creating Activity", "fragment was null...");
             mFragment = new NewReportFragment();
             manager.beginTransaction()

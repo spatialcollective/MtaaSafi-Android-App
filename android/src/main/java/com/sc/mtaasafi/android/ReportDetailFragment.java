@@ -1,22 +1,15 @@
 package com.sc.mtaasafi.android;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.AttributeSet;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -31,21 +24,19 @@ import java.text.SimpleDateFormat;
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
     final String hadAReportKey = "hadareport",
                  reportKey = "report";
-    Button previous, next;
-    ViewFlipper flipper;
-    TextView titleTV, detailsTV, timeStampTV, userNameTV;
-    ProgressBar progress;
+
     private SlidingUpPanelLayout mLayout;
     private RelativeLayout mReportText;
 
-    MainActivity mActivity;
-    AQuery aq;
     Report mReport;
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        mActivity = (MainActivity) getActivity();
-        if(savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey))
+        Bundle args = getArguments();
+        if (args != null)
+            mReport = new Report("some_key", args);
+        else if (savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey))
             mReport = new Report(reportKey, savedInstanceState);
     }
 
@@ -55,74 +46,67 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         setUpSlidingPanel(view);
 
-        detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
-        timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
-        userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
-
-        aq = new AQuery(view);
-        previous = (Button) view.findViewById(R.id.buttonPrevious);
-
-        flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
-        titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
-
+        Button previous = (Button) view.findViewById(R.id.buttonPrevious);
+        final ViewFlipper flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 flipper.showPrevious();
             }
         });
-        next = (Button) view.findViewById(R.id.buttonNext);
+        Button next = (Button) view.findViewById(R.id.buttonNext);
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 flipper.showPrevious();
             }
         });
-        if(savedState != null && savedState.getBoolean(hadAReportKey))
-           mReport = new Report(reportKey, savedState);
-        if(mReport !=null)
-            updateView(mReport);
+        // if(savedState != null && savedState.getBoolean(hadAReportKey))
+        //    mReport = new Report(reportKey, savedState);
+        // if(mReport !=null)
+        updateView(mReport, view);
         return view;
     }
 
     private void setUpSlidingPanel(View view){
+        final ActionBar actionbar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
 
         // Make sure the actionbar doesn't block the text of the Report.
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         int pixels_per_dp = (int)(metrics.density + 0.5f);
         int padding_dp = 4;
-        mReportText.setPadding(0, pixels_per_dp * padding_dp + mActivity.getActionBarHeight(), 0, 0);
+        mReportText.setPadding(0, pixels_per_dp * padding_dp + actionbar.getHeight(), 0, 0);
 
         mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset > 0.2 && mActivity.getSupportActionBar().isShowing())
-                    mActivity.getSupportActionBar().hide();
-                else if (!mActivity.getSupportActionBar().isShowing())
-                    mActivity.getSupportActionBar().show();
-                setActionBarTranslation(mLayout.getCurrentParalaxOffset());
+                if (slideOffset > 0.2 && actionbar.isShowing())
+                    actionbar.hide();
+                else if (!actionbar.isShowing())
+                    actionbar.show();
+                setActionBarTranslation(mLayout.getCurrentParalaxOffset(), actionbar.getHeight());
             }
             @Override
-            public void onPanelExpanded(View panel){Log.i(LogTags.PANEL_SLIDER, "onPanelExpanded");}
+            public void onPanelExpanded(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelExpanded"); }
             @Override
-            public void onPanelCollapsed(View panel){Log.i(LogTags.PANEL_SLIDER, "onPanelCollapsed");}
+            public void onPanelCollapsed(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelCollapsed"); }
             @Override
-            public void onPanelAnchored(View panel){Log.i(LogTags.PANEL_SLIDER, "onPanelAnchored");}
+            public void onPanelAnchored(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelAnchored"); }
             @Override
-            public void onPanelHidden(View panel) {Log.i(LogTags.PANEL_SLIDER, "onPanelHidden");}
+            public void onPanelHidden(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelHidden"); }
         });
     }
-    public void setActionBarTranslation(float y) {
+    public void setActionBarTranslation(float y, int height) {
         // Figure out the actionbar height
         // A hack to add the translation to the action bar
-        ViewGroup content = ((ViewGroup) mActivity.findViewById(android.R.id.content).getParent());
+        ViewGroup content = ((ViewGroup) getActivity().findViewById(android.R.id.content).getParent());
         int children = content.getChildCount();
         for (int i = 0; i < children; i++) {
             View child = content.getChildAt(i);
             if (child.getId() != android.R.id.content) {
-                if (y <= -mActivity.getActionBarHeight()) {
+                if (y <= -height) {
                     child.setVisibility(View.GONE);
                 } else {
                     child.setVisibility(View.VISIBLE);
@@ -136,29 +120,34 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public void updateView(Report report) {
+    public void updateView(Report report, View view) {
+        TextView detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
+        TextView timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
+        TextView userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
+
         mReport = report;
-        Log.e(LogTags.FEEDITEM, "UpdateView's report: " + mReport.title);
-        aq = new AQuery(mActivity);
-        aq.id(R.id.reportViewTitle).text(mReport.title);
-        aq.id(R.id.reportViewDetails).text(mReport.details);
-        aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
-        aq.id(R.id.reportViewUsername).text(mReport.userName);
-        if (mReport.mediaURLs.size() > 0)
-            aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
-        if (mReport.mediaURLs.size() > 1)
-            aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
-        if (mReport.mediaURLs.size() > 2)
-            aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
-        detailsTV.setText(mReport.details);
-        timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
-        userNameTV.setText(mReport.userName);
+        if (mReport != null) {
+            Log.e(LogTags.FEEDITEM, "UpdateView's report: " + mReport.title);
+            AQuery aq = new AQuery(getActivity());
+            aq.id(R.id.reportViewTitle).text(mReport.title);
+            aq.id(R.id.reportViewDetails).text(mReport.details);
+            aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
+            aq.id(R.id.reportViewUsername).text(mReport.userName);
+            if (mReport.mediaURLs.size() > 0)
+                aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
+            if (mReport.mediaURLs.size() > 1)
+                aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
+            if (mReport.mediaURLs.size() > 2)
+                aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
+            detailsTV.setText(mReport.details);
+            timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
+            userNameTV.setText(mReport.userName);
+        }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        mActivity.getReportDetailReport(this);
     }
 
     @Override

@@ -32,7 +32,6 @@ public class MainActivity extends ActionBarActivity implements
         NewsFeedFragment.ReportSelectedListener {
 
     private SharedPreferences sharedPref;
-    private Report reportDetailReport;
     public String mUsername;
 
     NonSwipePager mPager;
@@ -62,21 +61,11 @@ public class MainActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
-        if (reportDetailReport != null)
-            reportDetailReport.saveState(REPORT_DETAIL_KEY, bundle);
-        bundle.putBoolean(HAS_REPORT_DETAIL_KEY, reportDetailReport != null);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mUsername = savedInstanceState.getString(USERNAME_KEY);
-        if (mUsername == null)
-            determineUsername();
-
-        // mPager.setCurrentItem(savedInstanceState.getInt(CURRENT_FRAGMENT_KEY));
-        if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
-            reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
     }
 
     @Override
@@ -97,13 +86,6 @@ public class MainActivity extends ActionBarActivity implements
         // Disconnecting the client invalidates it.
         Log.e(LogTags.MAIN_ACTIVITY, "onStop");
         super.onStop();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // if (newReportFragment != null && newReportFragment.pendingReport == null && currentFragment != FRAGMENT_FEED)
-        goToFeed();
-        // getSupportActionBar().show();
     }
 
     public int getScreenWidth(){
@@ -134,32 +116,29 @@ public class MainActivity extends ActionBarActivity implements
         adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
     }
 
-    public void clearNewReportData() {
-        goToFeed();
-    }
+    public void goToDetailView(Report report, int position) {
+        // Bundle args = new Bundle();
+        // args = report.saveState("some_key", args);
+        // ReportDetailFragment reportFrag = new ReportDetailFragment();
+        // reportFrag.setArguments(args);
 
-    // ======================Fragment Navigation:======================
-    public void goToFeed(){
-//        mPager.setCurrentItem(FRAGMENT_FEED);
-    }
+        // getSupportFragmentManager()
+        //     .beginTransaction()
+        //     .replace(R.id.fragment_container, reportFrag, "reportDetailView")
+        //     .addToBackStack(null)
+        //     .commit();
 
-    public void goToDetailView(Report report){
-        reportDetailReport = report;
-//        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
-        Log.e("GO TO DETAIL VIEW", report.title);
-    }
-    public void getReportDetailReport(ReportDetailFragment rdf){
-        if (reportDetailReport != null)
-            rdf.updateView(reportDetailReport);
+        Intent intent = new Intent();
+        intent.setClass(this, ReportDetailActivity.class);
+        intent.putExtra("index", position);
+        startActivity(intent);
     }
 
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
-        // intent.putExtra("index", index);
         startActivity(intent);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
