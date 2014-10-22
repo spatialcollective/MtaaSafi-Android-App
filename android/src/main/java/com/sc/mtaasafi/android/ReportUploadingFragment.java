@@ -23,17 +23,31 @@ public class ReportUploadingFragment extends Fragment {
     Button cancelButton, resendButton, sendLaterButton, abandonButton;
     LinearLayout uploadInterrupted;
     ReportUploader uploader;
-    ProgressBar reportTextProgress, pic1Progress, pic2Progress, pic3Progress;
+    ProgressBar[] progressBars;
     TextView uploadingTV;
     Report pendingReport;
     NewReportActivity mActivity;
+    int reportsToUpload, currentReport;
+    boolean isUploadingSavedReports;
 
     @Override
     public void onCreate(Bundle instate){
         super.onCreate(instate);
+        progressBars = new ProgressBar[4];
+        reportsToUpload = 1;
         mActivity = (NewReportActivity) getActivity();
+        currentReport = 1;
         if(getArguments() != null)
-            pendingReport = new Report(mActivity.REPORT_KEY, getArguments());
+            if(getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)){
+                // fragment was called to upload saved reports
+                reportsToUpload = mActivity.getSavedReportCount();
+                isUploadingSavedReports = true;
+            }
+            else{
+                pendingReport = new Report(mActivity.REPORT_KEY, getArguments());
+                reportsToUpload = 1;
+                // fragment was called to upload a new report
+            }
 
     }
 
@@ -51,10 +65,10 @@ public class ReportUploadingFragment extends Fragment {
         pic2Uploading = (ImageView) view.findViewById(R.id.pic2UploadingIcon);
         pic3Uploading = (ImageView) view.findViewById(R.id.pic3UploadingIcon);
         cancelButton = (Button) view.findViewById(R.id.cancelButton);
-        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
-        pic1Progress = (ProgressBar) view.findViewById(R.id.progressBarPic1);
-        pic2Progress = (ProgressBar) view.findViewById(R.id.progressBarPic2);
-        pic3Progress = (ProgressBar) view.findViewById(R.id.progressBarPic3);
+        progressBars[0] = (ProgressBar) view.findViewById(R.id.progressBarReportText);
+        progressBars[1] = (ProgressBar) view.findViewById(R.id.progressBarPic1);
+        progressBars[2] = (ProgressBar) view.findViewById(R.id.progressBarPic2);
+        progressBars[3] = (ProgressBar) view.findViewById(R.id.progressBarPic3);
         uploadingTV = (TextView) view.findViewById(R.id.uploadingText);
         setUploadInterruptedLayout(view);
         setListeners();
@@ -78,7 +92,15 @@ public class ReportUploadingFragment extends Fragment {
         abandonButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                // cancel report, clear it all out
+                mActivity.finish();
+            }
+        });
+        sendLaterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View view){
+                mActivity.saveReport(pendingReport);
+                Toast.makeText(mActivity, "Report saved for later!", Toast.LENGTH_SHORT);
+                mActivity.finish();
             }
         });
         cancelButton.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +124,8 @@ public class ReportUploadingFragment extends Fragment {
         if(uploader != null){
             uploader.cancel(true);
         }
+        for(ProgressBar progress : progressBars)
+            progress.setVisibility(View.INVISIBLE);
         uploadingTV.setText("Upload cancelled!");
         uploadInterrupted.setVisibility(View.VISIBLE);
     }
@@ -130,6 +154,13 @@ public class ReportUploadingFragment extends Fragment {
 
     public void uploadSuccess() {
         Toast.makeText(getActivity(), "Thank you for your report!", Toast.LENGTH_SHORT).show();
+        if(isUploadingSavedReports){
+            Report nextReport = mActivity.getNextSavedReport();
+            currentReport++;
+            uploadingTV.setText("Uploading Report (" + currentReport + "/" + reportsToUpload + ")");
+            if(nextReport != null)
+                beamUpReport(nextReport);
+        }
     }
 
     // called by the uploader if there was a 404 or some shit

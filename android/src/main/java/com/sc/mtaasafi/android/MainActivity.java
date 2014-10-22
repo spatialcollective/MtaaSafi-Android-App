@@ -24,10 +24,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
-        NewsFeedFragment.ReportSelectedListener {
+        NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener {
 
     private SharedPreferences sharedPref;
     private Report reportDetailReport;
@@ -49,6 +50,12 @@ public class MainActivity extends ActionBarActivity implements
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
         newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
+        if(savedReports != null && !savedReports.isEmpty()){
+            launchAlert(AlertDialogFragment.SAVED_REPORTS);
+        }
+
     }
 
     @Override
@@ -119,12 +126,25 @@ public class MainActivity extends ActionBarActivity implements
         return jsonString.toString();
     }
 
-    public void launchAlert() {
+    public void launchAlert(int alertCode) {
         AlertDialogFragment adf = new AlertDialogFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.UPDATE_FAILED);
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, alertCode);
         adf.setArguments(bundle);
+        adf.setAlertDialogListener(this);
         adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    }
+
+    @Override
+    public void onAlertButtonPressed(String eventKey) {
+        if(eventKey == AlertDialogFragment.RE_FETCH_FEED){
+
+        } else if(eventKey == AlertDialogFragment.SEND_SAVED_REPORTS){
+            Intent intent = new Intent().setClass(this, NewReportActivity.class)
+                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true);
+            startActivity(intent);
+        }
+
     }
 
     public void clearNewReportData() {

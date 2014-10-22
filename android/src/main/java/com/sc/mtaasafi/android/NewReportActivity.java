@@ -32,7 +32,8 @@ public class NewReportActivity extends ActionBarActivity implements
     private List<String> savedReportKeys;
     public final static String  REPORT_KEY = "pendingReport",
                                 PREF_KEY = "myPrefs",
-                                SAVED_REPORT_KEY_KEY = "savedReportKeys";
+                                SAVED_REPORT_KEY_KEY = "savedReportKeys",
+                                UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports";
     public String userName;
 
     @Override
@@ -66,6 +67,10 @@ public class NewReportActivity extends ActionBarActivity implements
         if (locationProviders == null || locationProviders.equals(""))
             onLocationDisabled();
         mLocationClient.connect();
+        if(getIntent() != null){
+            if(getIntent().getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
+                uploadSavedReports();
+        }
     }
     @Override
     protected void onStop(){
@@ -140,7 +145,6 @@ public class NewReportActivity extends ActionBarActivity implements
                 .replace(android.R.id.content, uploadingFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
-
     }
 
     public boolean isOnline() {
@@ -162,11 +166,24 @@ public class NewReportActivity extends ActionBarActivity implements
     public void clearNewReportData(){
 //        a;dsljfas;lfdkjas;dlfkjas;dlfjas;lkfdjasjasd;lfkjasdf
     }
-
+    public int getSavedReportCount(){
+        return savedReportKeys.size();
+    }
     public Report getNextSavedReport(){
         return cp.getObject(savedReportKeys.get(0), Report.class);
     }
+    private void uploadSavedReports(){
+        FragmentManager manager = getSupportFragmentManager();
+        ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(UPLOAD_SAVED_REPORTS_KEY, true);
+        uploadingFragment.setArguments(bundle);
+        manager.beginTransaction()
+                .replace(android.R.id.content, uploadingFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
 
+    }
     public void removeTopSavedReport(){
         cp.remove(savedReportKeys.get(0));
         savedReportKeys.remove(0);
