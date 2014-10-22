@@ -6,13 +6,13 @@
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     android.permission.AUTHENTICATE_ACCOUNTS
-
     <uses-sdk
         android:minSdkVersion="9"
         android:targetSdkVersion="19" />
@@ -37,6 +37,9 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="5089000" />
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="6f93595b646ee4fdb2be81b10b3f4019e5d5fcd5" />
 
         <activity
             android:name=".MainActivity"
@@ -44,21 +47,14 @@
             android:windowSoftInputMode="stateHidden|adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name="com.facebook.LoginActivity" />
-
-        <meta-data
-            android:name="com.crashlytics.ApiKey"
-            android:value="6f93595b646ee4fdb2be81b10b3f4019e5d5fcd5" />
-
         <activity
             android:name=".NewReportActivity"
             android:label="@string/new_report"
             android:parentActivityName=".MainActivity" >
-
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -80,15 +76,22 @@
             android:syncable="true" >
         </provider>
 
-        <service
-            android:name=".AuthenticatorService">
+        <service android:name=".adapter.SyncService"
+                 android:exported="true">
             <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                       android:resource="@xml/syncadapter" />
+        </service>
+
+        <service android:name=".AuthenticatorService" >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
     </application>
-
 </manifest>

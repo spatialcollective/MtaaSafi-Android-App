@@ -14,6 +14,9 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -32,10 +35,10 @@ import java.util.List;
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private ReportsDataSource datasource;
     SimpleCursorAdapter mAdapter;
     private Object mSyncObserverHandle;
     ListView mListView;
+    private Menu mOptionsMenu;
 
     private ProgressBar progressBar;
     ReportSelectedListener mCallback;
@@ -73,6 +76,7 @@ public class NewsFeedFragment extends ListFragment
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
         mActivity = (MainActivity) getActivity();
+        setHasOptionsMenu(true);
         // getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
@@ -108,7 +112,7 @@ public class NewsFeedFragment extends ListFragment
             0                           // No flags
         );
 
-        For use in setting view values that are not straighforward (e.g. timestamp)
+//        For use in setting view values that are not straighforward (e.g. timestamp)
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
@@ -192,6 +196,17 @@ public class NewsFeedFragment extends ListFragment
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // If the user clicks the "Refresh" button.
+            case R.id.menu_refresh:
+                SyncUtils.TriggerRefresh();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 //        return new NewsFeedLoader(getActivity());
         return new CursorLoader(
@@ -211,8 +226,6 @@ public class NewsFeedFragment extends ListFragment
 //                datasource.createReport(data.get(i).saveState(args));
 //        }
 //
-//        datasource = new ReportsDataSource(getActivity());
-//        datasource.open();
 //        List<Report> values = datasource.getAllReports();
 
         // mAdapter.updateItems(data);
@@ -236,16 +249,17 @@ public class NewsFeedFragment extends ListFragment
                  */
                 @Override
                 public void run() {
+                    Log.d("GETing", "Begin network synchronization in frag");
                     // Create a handle to the account that was created by
                     // SyncService.CreateSyncAccount(). This will be used to query the system to
                     // see how the sync status has changed.
                     Account account = AuthenticatorService.GetAccount();
-                    if (account == null) {
+//                    if (account == null) {
                         // GetAccount() returned an invalid value. This shouldn't happen, but
                         // we'll set the status to "not refreshing".
 //                        setRefreshActionButtonState(false);
-                        return;
-                    }
+//                        return;
+//                    }
 
                     // Test the ContentResolver to see if the sync adapter is active or pending.
                     // Set the state of the refresh button accordingly.
