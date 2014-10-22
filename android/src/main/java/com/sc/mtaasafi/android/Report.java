@@ -46,13 +46,13 @@ public class Report {
                             idKey = "id";
 
     // for Report objects created by the user to send to the server
-    public Report(String details, String userName, String location,
+    public Report(String details, String userName, Location location,
                   ArrayList<String> picPaths) {
         this.details = details;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
-//        this.latitude = location.getLatitude();
-//        this.longitude =  location.getLongitude();
+        this.latitude = location.getLatitude();
+        this.longitude =  location.getLongitude();
         this.picPaths = picPaths;
         Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
                 picPaths.get(0).toString() + ". " +

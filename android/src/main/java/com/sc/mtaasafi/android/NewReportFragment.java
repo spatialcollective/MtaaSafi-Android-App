@@ -129,15 +129,14 @@ public class NewReportFragment extends Fragment {
 
     private void updatePicPreviews() {
         AQuery aq = new AQuery(getActivity());
-        int emptyPics = 0;
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
             if(picPaths.get(i) != null)
                 aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
             else{
                 aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
-                emptyPics++;
             }
         }
+        int emptyPics = getEmptyPics();
         if (emptyPics == 0) {
             getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
         } else {
@@ -170,7 +169,14 @@ public class NewReportFragment extends Fragment {
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(picPath, options);
     }
-
+    private int getEmptyPics(){
+        int emptyPics = 0;
+        for(int i = 0; i < TOTAL_PICS; i++){
+            if(picPaths.get(i) == null)
+                emptyPics++;
+        }
+        return emptyPics;
+    }
     private void setListeners() {
         detailsView.addTextChangedListener(new TextWatcher() {
             @Override public void afterTextChanged(Editable s) {}
@@ -185,14 +191,14 @@ public class NewReportFragment extends Fragment {
 
         reportBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                beamUpNewReport();
+                attemptSend();
             }
         });
 
         saveButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                saveReport();
+                attemptSave();
             }
         });
         picPreviews[PIC1].setOnClickListener(new View.OnClickListener() {
@@ -215,7 +221,8 @@ public class NewReportFragment extends Fragment {
                 previewClicked = PIC3;
                 takePicture(PIC3);
             }
-        });    }
+        });
+    }
 
     public void takePicture(int previewClicked) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -266,8 +273,10 @@ public class NewReportFragment extends Fragment {
     }
 
     private void saveReport(){
-        mActivity.saveReport(createNewReport());
-        Toast.makeText(getActivity(), "Report saved!", Toast.LENGTH_SHORT).show();
+        if(createNewReport() != null){
+            mActivity.saveReport(createNewReport());
+            Toast.makeText(getActivity(), "Report saved!", Toast.LENGTH_SHORT).show();
+        }
         mActivity.finish();
     }
 
@@ -280,34 +289,46 @@ public class NewReportFragment extends Fragment {
 
     public Report createNewReport() {
         Log.e(LogTags.NEWREPORT, "createNewReport");
-        return new Report(detailsText, "", "", //mActivity.mUsername, mActivity.getLocation(),
+        return new Report(detailsText, mActivity.userName, mActivity.getLocation(),
                 picPaths);
     }
 
-
     public void attemptEnableSendSave() {
-        boolean hasDetails = !detailsText.isEmpty();
-        String errorText = "";
-        disableSave();
-        if(!hasDetails){
-            errorText = "Add details to your report first!";
-        }
-        else if(picPaths == null || picPaths.isEmpty() || picPaths.size() < REQUIRED_PIC_COUNT){
-            errorText = "Add more pictures to your report before you send it";
-        }
-        else if (!mActivity.isOnline()){
-            errorText = "Connect to a network to send your report";
-            enableSave();
-        }
-        else if (hasDetails && picPaths.size() == REQUIRED_PIC_COUNT){
+        if(detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0){
+            disableSend();
+            disableSave();
+        } else{
             enableSave();
             enableSend();
-            return;
         }
-        Toast.makeText(mActivity, errorText, Toast.LENGTH_SHORT);
-        disableSend();
+
     }
 
+    private void attemptSend(){
+        String error;
+        if (!mActivity.isOnline()){
+            error = "Connect to a network to send your report";
+        } else if(mActivity.getLocation() == null){
+            error = "Cannot access location, make sure location services enabled";
+        } else{
+            mActivity.beamUpReport(createNewReport());
+            return;
+        }
+        Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
+    }
+
+    private void attemptSave(){
+        String error;
+        if(mActivity.getLocation() == null){
+            error = "Cannot access location, make sure location services enabled";
+        } else{
+            mActivity.saveReport(createNewReport());
+            mActivity.finish();
+            return;
+        }
+        Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
+
+    }
     private void enableSend() {
         reportBtn.setClickable(true);
         reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
