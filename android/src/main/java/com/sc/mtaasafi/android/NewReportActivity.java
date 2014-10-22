@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,19 +18,27 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NewReportActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener {
 
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
-
+    private ComplexPreferences cp;
     private NewReportFragment mFragment;
+    private List<String> savedReportKeys;
+    public final static String  REPORT_KEY = "pendingReport",
+                                PREF_KEY = "myPrefs",
+                                SAVED_REPORT_KEY_KEY = "savedReportKeys";
+    public String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        userName = getPreferences(Context.MODE_PRIVATE).getString(MainActivity.USERNAME_KEY, "");
         FragmentManager manager = getSupportFragmentManager();
         if (savedInstanceState != null)
             mFragment = (NewReportFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
@@ -42,13 +52,16 @@ public class NewReportActivity extends ActionBarActivity implements
                     .commit();
         }
         mLocationClient = new LocationClient(this, this, this);
+        cp = ComplexPreferences.getComplexPreferences(this, PREF_KEY, MODE_PRIVATE);
+        savedReportKeys = cp.getObject(SAVED_REPORT_KEY_KEY, List.class);
+        if(savedReportKeys == null)
+            savedReportKeys = new ArrayList<String>();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
-
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals(""))
             onLocationDisabled();
@@ -113,5 +126,49 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
+        cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
+        cp.commit();
+    }
+
+    public void beamUpReport(Report report){
+        FragmentManager manager = getSupportFragmentManager();
+        ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
+        Bundle bundle = new Bundle();
+        report.saveState(REPORT_KEY, bundle);
+        uploadingFragment.setArguments(bundle);
+        manager.beginTransaction()
+                .replace(android.R.id.content, uploadingFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+            return true;
+        }
+        return false;
+    }
+
+    public void saveReport(Report report){
+        savedReportKeys.add(report.timeStamp);
+        cp.putObject(report.timeStamp, report);
+        cp.commit();
+        Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details);
+    }
+    public void clearNewReportData(){
+//        a;dsljfas;lfdkjas;dlfkjas;dlfjas;lkfdjasjasd;lfkjasdf
+    }
+
+    public Report getNextSavedReport(){
+        return cp.getObject(savedReportKeys.get(0), Report.class);
+    }
+
+    public void removeTopSavedReport(){
+        cp.remove(savedReportKeys.get(0));
+        savedReportKeys.remove(0);
     }
 }

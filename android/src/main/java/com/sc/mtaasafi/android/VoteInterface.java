@@ -26,9 +26,5 @@ public class VoteInterface extends LinearLayout {
     }
 
     public void update(Report report){
-        if(report.iUpvoted)
-            upvote.setImageResource(R.drawable.button_upvote_clicked);
-        else
-            upvote.setImageResource(R.drawable.button_upvote_unclicked);
     }
 }

@@ -36,15 +36,17 @@ public class NewReportFragment extends Fragment {
     Report pendingReport;
     int nextPendingPiece;
 
-    Button reportBtn;
-    RelativeLayout addPicButton, uploadingScreen;
+    Button reportBtn, saveButton;
+    ImageView[] picPreviews;
+
     LinearLayout picPreviewContainer;
     ProgressBar reportTextProgress;
     DescriptionEditText detailsView;
+    NewReportActivity mActivity;
 
     private ArrayList<String> picPaths;
     private String detailsText;
-
+    private int previewClicked;
     public final int REQUIRED_PIC_COUNT = 3;
 
     public final String DEETS_KEY = "details",
@@ -52,30 +54,37 @@ public class NewReportFragment extends Fragment {
             PENDING_REPORT_ID = "report_to_send_id",
             HAS_PENDING_REPORT_KEY = "has_pending_key";
             
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int    REQUEST_IMAGE_CAPTURE = 1,
+                        PIC1 = 0,
+                        PIC2 = 1,
+                        PIC3 = 2,
+                        TOTAL_PICS = 3;
 
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         picPaths = new ArrayList<String>();
+        for(int i = 0; i < TOTAL_PICS; i++)
+            picPaths.add(null);
         setRetainInstance(true);
-
+        mActivity = (NewReportActivity) getActivity();
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
+        picPreviews = new ImageView[TOTAL_PICS];
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
 
-        uploadingScreen = (RelativeLayout) view.findViewById(R.id.uploading_screen);
         reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
-
+        picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
+        picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
+        picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         detailsText = "";
         picPreviewContainer = (LinearLayout) view.findViewById(R.id.picPreviewContainer);
-        addPicButton = (RelativeLayout) view.findViewById(R.id.addPicsButtonLayout);
         reportBtn = (Button) view.findViewById(R.id.reportButton);
-
+        saveButton = (Button) view.findViewById(R.id.saveButton);
         setListeners();
         return view;
     }
@@ -89,7 +98,7 @@ public class NewReportFragment extends Fragment {
             if (detailsText != null)
                 detailsView.setText(detailsText);
             updatePicPreviews();
-            attemptEnableSend();
+            attemptEnableSendSave();
             if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
                 nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
                 pendingReport = new Report(PENDING_REPORT_ID, savedState);
@@ -115,29 +124,25 @@ public class NewReportFragment extends Fragment {
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
         updatePicPreviews();
-        attemptEnableSend();
+        attemptEnableSendSave();
     }
 
     private void updatePicPreviews() {
         AQuery aq = new AQuery(getActivity());
-        int i = 0, emptyPics = 0;
-        while (i < REQUIRED_PIC_COUNT) {
-            ImageView picPreview = (ImageView) getView().findViewWithTag(String.valueOf(i));
-            if (picPaths.size() > i)
-                aq.id(picPreview).image(getThumbnail(picPaths.get(i)));
-            else {
-                aq.id(picPreview).image(R.drawable.pic_placeholder);
+        int emptyPics = 0;
+        for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
+            if(picPaths.get(i) != null)
+                aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
+            else{
+                aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
                 emptyPics++;
             }
-            i++;
         }
-
         if (emptyPics == 0) {
-            addPicButton.setVisibility(View.INVISIBLE);
+            getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
         } else {
-            TextView attachPicsTV = (TextView) getView().findViewById(R.id.attachMorePicturesText);
+            TextView attachPicsTV = (TextView) getView().findViewById(R.id.attachPicsTV);
             attachPicsTV.setText("Need " + emptyPics + " more");
-            addPicButton.setClickable(true);
         }
     }
 
@@ -174,7 +179,7 @@ public class NewReportFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 detailsText = detailsView.getText().toString();
-                attemptEnableSend();
+                attemptEnableSendSave();
             }
         });
 
@@ -184,23 +189,40 @@ public class NewReportFragment extends Fragment {
             }
         });
 
-        View.OnClickListener picLauncher = new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                takePicture();
+        saveButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                saveReport();
             }
-        };
-        addPicButton.setOnClickListener(picLauncher);
-//        picPreviewContainer.setOnClickListener(picLauncher);
-//        for (int i = 0; i < REQUIRED_PIC_COUNT - 1; i++)
-//            picPreviewContainer.getChildAt(i).setOnClickListener(picLauncher);
-    }
+        });
+        picPreviews[PIC1].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                previewClicked = PIC1;
+                takePicture(PIC1);
+            }
+        });
+        picPreviews[PIC2].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                previewClicked = PIC2;
+                takePicture(PIC2);
+            }
+        });
+        picPreviews[PIC3].setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                previewClicked = PIC3;
+                takePicture(PIC3);
+            }
+        });    }
 
-    public void takePicture() {
+    public void takePicture(int previewClicked) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null){
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = createImageFile(previewClicked);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } catch (IOException ex){
@@ -215,39 +237,45 @@ public class NewReportFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            File file = new File(picPaths.get(picPaths.size() - 1));
+            File file = new File(picPaths.get(previewClicked));
             if (file.length() == 0)
-                picPaths.remove(picPaths.size() - 1);
+                picPaths.set(previewClicked, null);
             updatePicPreviews();
         }
     }
 
-    private File createImageFile() throws IOException {
+    private File createImageFile(int previewClicked) throws IOException {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
         String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-        picPaths.add(image.getAbsolutePath());
+        picPaths.set(previewClicked, image.getAbsolutePath());
         return image;
     }
 
     public void beamUpNewReport() {
         pendingReport = createNewReport();
-        beamUpReport(pendingReport);
+        mActivity.beamUpReport(pendingReport);
     }
 
     public void beamUpReport(Report report) {
         Log.e(LogTags.BACKEND_W, "Beam it up");
-        new NewReportUploader(this).execute(pendingReport);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
                 getActivity().INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(detailsView.getWindowToken(), 0);
-        detailsView.setFocusable(false);
-        uploadingScreen.setVisibility(View.VISIBLE);
-        reportTextProgress.setVisibility(View.VISIBLE);
-        addPicButton.setClickable(false);
+    }
+
+    private void saveReport(){
+        mActivity.saveReport(createNewReport());
+        Toast.makeText(getActivity(), "Report saved!", Toast.LENGTH_SHORT).show();
+        mActivity.finish();
+    }
+
+    public void clearView() {
+        updatePicPreviews();
+        detailsText = "";
+        detailsView.setText("");
+        detailsView.setFocusable(true);
     }
 
     public Report createNewReport() {
@@ -256,89 +284,44 @@ public class NewReportFragment extends Fragment {
                 picPaths);
     }
 
-    public void updatePostProgress(int progress){
-        nextPendingPiece = progress;
-        switch (progress) {
-            case 0:
-                updateProgressView(0, 0, R.id.progressBarReportText, 0);
-                break;
-            case 1:
-                updateProgressView(R.id.progressBarReportText, R.id.reportUploadingIcon, R.id.progressBarPic1, R.drawable.report_uploaded);
-                break;
-            case 2:
-                updateProgressView(R.id.progressBarPic1, R.id.pic1UploadingIcon, R.id.progressBarPic2, R.drawable.pic1_uploaded);
-                break;
-            case 3:
-                updateProgressView(R.id.progressBarPic2, R.id.pic2UploadingIcon, R.id.progressBarPic3, R.drawable.pic2_uploaded);
-                break;
-            case -1:
-                updateProgressView(R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
-                break;
-        }
-    }
 
-    private void updateProgressView(int doneProgressId, int doneViewId, int workingId, int drawable) {
-        if (doneProgressId != 0) {
-            ProgressBar done = (ProgressBar) getView().findViewById(doneProgressId);
-            done.setVisibility(View.GONE);
-        }
-        if (doneViewId != 0 && drawable != 0) {
-            ImageView doneView = (ImageView) getView().findViewById(doneViewId);
-            doneView.setImageResource(drawable);
-        }
-        if (workingId != 0) {
-            ProgressBar working = (ProgressBar) getView().findViewById(workingId);
-            working.setVisibility(View.VISIBLE);
-        }
-    }
-
-    public void uploadSuccess() {
-        Toast.makeText(getActivity(), "Thank you for your report!", Toast.LENGTH_SHORT).show();
-        clearData();
-        clearView();
-        getActivity().finish();
-//        mActivity.clearNewReportData();
-    }
-
-    public void uploadFailure(final String failMessage){
-//        final Toast toast = Toast.makeText(this, "Failed to upload post!", Toast.LENGTH_SHORT);
-//        toast.show();
-        retryUpload();
-//        mActivity.clearNewReportData();
-    }
-
-    public void clearView() {
-        uploadingScreen.setVisibility(View.INVISIBLE);
-        updatePicPreviews();
-        detailsText = "";
-        detailsView.setText("");
-        detailsView.setFocusable(true);
-    }
-
-    public void clearData() {
-        pendingReport = null;
-        picPaths.clear();
-    }
-
-    public void retryUpload() {
-    //     beamItUp(reportId, nextPieceKey, pendingReport);
-    }
-
-    public void attemptEnableSend() {
+    public void attemptEnableSendSave() {
         boolean hasDetails = !detailsText.isEmpty();
-        if (!hasDetails || picPaths == null || picPaths.isEmpty() || picPaths.size() < REQUIRED_PIC_COUNT)
-            disableSend();
-        else if (hasDetails && picPaths.size() == REQUIRED_PIC_COUNT)
+        String errorText = "";
+        disableSave();
+        if(!hasDetails){
+            errorText = "Add details to your report first!";
+        }
+        else if(picPaths == null || picPaths.isEmpty() || picPaths.size() < REQUIRED_PIC_COUNT){
+            errorText = "Add more pictures to your report before you send it";
+        }
+        else if (!mActivity.isOnline()){
+            errorText = "Connect to a network to send your report";
+            enableSave();
+        }
+        else if (hasDetails && picPaths.size() == REQUIRED_PIC_COUNT){
+            enableSave();
             enableSend();
+            return;
+        }
+        Toast.makeText(mActivity, errorText, Toast.LENGTH_SHORT);
+        disableSend();
     }
 
     private void enableSend() {
         reportBtn.setClickable(true);
         reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
     }
-
+    private void enableSave(){
+        saveButton.setClickable(true);
+        saveButton.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
+    }
     private void disableSend() {
         reportBtn.setClickable(false);
         reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
+    }
+    private void disableSave(){
+        saveButton.setClickable(false);
+        saveButton.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
     }
 }

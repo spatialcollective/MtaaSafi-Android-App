@@ -2,7 +2,6 @@ package com.sc.mtaasafi.android;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
-import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -34,12 +32,9 @@ public class MainActivity extends ActionBarActivity implements
     private SharedPreferences sharedPref;
     private Report reportDetailReport;
     public String mUsername;
-
-    NonSwipePager mPager;
     NewsFeedFragment newsfeedFragment;
-    FragmentAdapter mFragmentAdapter;
 
-    static final String USERNAME_KEY = "username",
+    public static final String USERNAME_KEY = "username",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
                         REPORT_DETAIL_KEY = "report_detail";
 
@@ -49,11 +44,9 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-
         setContentView(R.layout.activity_main);
         newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
     }
