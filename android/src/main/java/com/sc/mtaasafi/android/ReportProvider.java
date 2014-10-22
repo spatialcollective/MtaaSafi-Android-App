@@ -10,7 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-public class StubProvider extends ContentProvider {
+public class ReportProvider extends ContentProvider {
     ReportDatabase mDatabaseHelper;
     private static final String AUTHORITY = ReportContract.CONTENT_AUTHORITY;
     public static final int ROUTE_ENTRIES = 1;

@@ -77,18 +77,12 @@ public class NewsFeedFragment extends ListFragment
         aq = new AQuery(getActivity());
         mActivity = (MainActivity) getActivity();
         setHasOptionsMenu(true);
-        // getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-
         mListView = (ListView) view.findViewById(android.R.id.list);
-
-        // mListView.setAdapter(mAdapter);
-
-        // mListView = (RelativeLayout) view.findViewById(R.id.news_feed);
         // mListView.setPadding(0, mActivity.getActionBarHeight(), 0, 0);
         progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
         progressBar.setVisibility(View.VISIBLE);
@@ -102,17 +96,10 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
+            null, FROM_COLUMNS, TO_FIELDS, 0);
 
-        mAdapter = new SimpleCursorAdapter(
-            getActivity(),              // Current context
-            R.layout.feed_item_view,    // Layout for individual rows
-            null,                       // Cursor
-            FROM_COLUMNS,               // Cursor columns to use
-            TO_FIELDS,                  // Layout fields to use
-            0                           // No flags
-        );
-
-//        For use in setting view values that are not straighforward (e.g. timestamp)
+//        For use in setting view values that are not straighforward (e.g. time elapsed)
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
@@ -130,7 +117,6 @@ public class NewsFeedFragment extends ListFragment
         });
 
         setListAdapter(mAdapter);
-        // setEmptyText(getText(R.string.loading));
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -150,13 +136,9 @@ public class NewsFeedFragment extends ListFragment
     public void onResume(){
         super.onResume();
         mSyncStatusObserver.onStatusChanged(0);
-
-        // Watch for sync state changes
         final int mask = ContentResolver.SYNC_OBSERVER_TYPE_PENDING |
                 ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE;
         mSyncObserverHandle = ContentResolver.addStatusChangeListener(mask, mSyncStatusObserver);
-
-        // datasource.open();
         // restoreListPosition();
     }
     @Override
@@ -166,7 +148,6 @@ public class NewsFeedFragment extends ListFragment
             ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
             mSyncObserverHandle = null;
         }
-        // datasource.close();
         // saveListPosition();
     }
 
@@ -198,7 +179,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // If the user clicks the "Refresh" button.
             case R.id.menu_refresh:
                 SyncUtils.TriggerRefresh();
                 return true;
@@ -208,27 +188,12 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        return new NewsFeedLoader(getActivity());
-        return new CursorLoader(
-             getActivity(),   // Parent activity context
-             ReportContract.Entry.CONTENT_URI,        // Table to query
-             PROJECTION,     // Projection to return
-             null,            // No selection clause
-             null,            // No selection arguments
-             null);
+        return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
+            PROJECTION, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-//        Bundle args = new Bundle();
-//        for (int i = 0; i < data.size(); i++) {
-//            if (data.get(i) != null)
-//                datasource.createReport(data.get(i).saveState(args));
-//        }
-//
-//        List<Report> values = datasource.getAllReports();
-
-        // mAdapter.updateItems(data);
         mAdapter.changeCursor(cursor);
         progressBar.setVisibility(View.INVISIBLE);
     }
@@ -239,20 +204,12 @@ public class NewsFeedFragment extends ListFragment
     }
 
     private SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
-        /** Callback invoked with the sync adapter status changes. */
         @Override
         public void onStatusChanged(int which) {
             getActivity().runOnUiThread(new Runnable() {
-                /**
-                 * The SyncAdapter runs on a background thread. To update the UI, onStatusChanged()
-                 * runs on the UI thread.
-                 */
                 @Override
                 public void run() {
                     Log.d("GETing", "Begin network synchronization in frag");
-                    // Create a handle to the account that was created by
-                    // SyncService.CreateSyncAccount(). This will be used to query the system to
-                    // see how the sync status has changed.
                     Account account = AuthenticatorService.GetAccount();
 //                    if (account == null) {
                         // GetAccount() returned an invalid value. This shouldn't happen, but

@@ -12,11 +12,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Helper for building selection clauses for {@link SQLiteDatabase}. Each
+
+/* Helper for building selection clauses for {@link SQLiteDatabase}. Each
  * appended clause is combined using {@code AND}. This class is <em>not</em>
- * thread safe.
- */
+ * thread safe. */
 public class SelectionBuilder {
     private static final String TAG = "basicsyncadapter";
 
@@ -25,9 +24,6 @@ public class SelectionBuilder {
     private StringBuilder mSelection = new StringBuilder();
     private ArrayList<String> mSelectionArgs = new ArrayList();
 
-    /**
-     * Reset any internal state, allowing this builder to be recycled.
-     */
     public SelectionBuilder reset() {
         mTable = null;
         mSelection.setLength(0);
@@ -35,29 +31,22 @@ public class SelectionBuilder {
         return this;
     }
 
-    /**
-     * Append the given selection clause to the internal state. Each clause is
-     * surrounded with parenthesis and combined using {@code AND}.
-     */
+    // Append the given selection clause to the internal state. Each clause is
+    // surrounded with parenthesis and combined using {@code AND}.
     public SelectionBuilder where(String selection, String... selectionArgs) {
         if (TextUtils.isEmpty(selection)) {
-            if (selectionArgs != null && selectionArgs.length > 0) {
-                throw new IllegalArgumentException(
-                        "Valid selection required when including arguments=");
-            }
-
+            if (selectionArgs != null && selectionArgs.length > 0)
+                throw new IllegalArgumentException("Valid selection required when including arguments=");
             // Shortcut when clause is empty
             return this;
         }
 
-        if (mSelection.length() > 0) {
+        if (mSelection.length() > 0)
             mSelection.append(" AND ");
-        }
 
         mSelection.append("(").append(selection).append(")");
-        if (selectionArgs != null) {
+        if (selectionArgs != null)
             Collections.addAll(mSelectionArgs, selectionArgs);
-        }
 
         return this;
     }
@@ -83,20 +72,10 @@ public class SelectionBuilder {
         return this;
     }
 
-    /**
-     * Return selection string for current internal state.
-     *
-     * @see #getSelectionArgs()
-     */
     public String getSelection() {
         return mSelection.toString();
     }
 
-    /**
-     * Return selection arguments for current internal state.
-     *
-     * @see #getSelection()
-     */
     public String[] getSelectionArgs() {
         return mSelectionArgs.toArray(new String[mSelectionArgs.size()]);
     }
@@ -116,16 +95,12 @@ public class SelectionBuilder {
                 + ", selectionArgs=" + Arrays.toString(getSelectionArgs()) + "]";
     }
 
-    /**
-     * Execute query using the current internal state as {@code WHERE} clause.
-     */
+    // Execute query using the current internal state as {@code WHERE} clause.
     public Cursor query(SQLiteDatabase db, String[] columns, String orderBy) {
         return query(db, columns, null, null, orderBy, null);
     }
 
-    /**
-     * Execute query using the current internal state as {@code WHERE} clause.
-     */
+    // Execute query using the current internal state as {@code WHERE} clause.
     public Cursor query(SQLiteDatabase db, String[] columns, String groupBy,
                         String having, String orderBy, String limit) {
         assertTable();
@@ -135,18 +110,14 @@ public class SelectionBuilder {
                 orderBy, limit);
     }
 
-    /**
-     * Execute update using the current internal state as {@code WHERE} clause.
-     */
+    // Execute update using the current internal state as {@code WHERE} clause.
     public int update(SQLiteDatabase db, ContentValues values) {
         assertTable();
         Log.v(TAG, "update() " + this);
         return db.update(mTable, values, getSelection(), getSelectionArgs());
     }
 
-    /**
-     * Execute delete using the current internal state as {@code WHERE} clause.
-     */
+    // Execute delete using the current internal state as {@code WHERE} clause.
     public int delete(SQLiteDatabase db) {
         assertTable();
         Log.v(TAG, "delete() " + this);

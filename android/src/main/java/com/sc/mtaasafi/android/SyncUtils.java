@@ -8,19 +8,12 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-/**
- * Created by david on 10/21/14.
- */
 public class SyncUtils {
-    private static final long SYNC_FREQUENCY = 60 * 60;  // 1 hour (in seconds)
+    private static final long SYNC_FREQUENCY = 60 * 60; // 1 hour
     private static final String CONTENT_AUTHORITY = ReportContract.CONTENT_AUTHORITY;
     private static final String PREF_SETUP_COMPLETE = "setup_complete";
 
-    /**
-     * Create an entry for this application in the system account list, if it isn't already there.
-     *
-     * @param context Context
-     */
+    // Create an entry for this application in the system account list, if it isn't already there.
     public static void CreateSyncAccount(Context context) {
         Log.i("SyncUtils", "creating account");
         boolean newAccount = false;
@@ -54,21 +47,12 @@ public class SyncUtils {
         }
     }
 
-    /**
-     * Helper method to trigger an immediate sync ("refresh").
-     *
-     * <p>This should only be used when we need to preempt the normal sync schedule. Typically, this
-     * means the user has pressed the "refresh" button.
-     *
-     * Note that SYNC_EXTRAS_MANUAL will cause an immediate sync, without any optimization to
-     * preserve battery life. If you know new data is available (perhaps via a GCM notification),
-     * but the user is not actively waiting for that data, you should omit this flag; this will give
-     * the OS additional freedom in scheduling your sync request.
-     */
+    // Helper method to trigger an immediate sync ("refresh").
+    // Typically, this means the user has pressed the "refresh" button.
     public static void TriggerRefresh() {
         Log.i("SyncUtils", "Requesting Sync");
         Bundle b = new Bundle();
-        // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW!
+        // Disable sync backoff and ignore sync preferences. In other words...perform sync NOW! Omit for background syncs
         b.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(

@@ -70,7 +70,7 @@
         </activity>
 
         <provider
-            android:name=".StubProvider"
+            android:name=".ReportProvider"
             android:authorities="com.sc.mtaasafi.android"
             android:exported="false"
             android:syncable="true" >

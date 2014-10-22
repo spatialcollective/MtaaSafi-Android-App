@@ -1,19 +1,3 @@
-/*
- * Copyright 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.sc.mtaasafi.android.adapter;
 
 import android.accounts.Account;
@@ -53,15 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Define a sync adapter for the app.
- *
- * <p>This class is instantiated in {@link SyncService}, which also binds SyncAdapter to the system.
- * SyncAdapter should only be initialized in SyncService, never anywhere else.
- *
- * <p>The system calls onPerformSync() via an RPC call through the IBinder object supplied by
- * SyncService.
- */
+/* This class is instantiated in {@link SyncService}, which also binds SyncAdapter to the system.
+ * SyncAdapter should only be initialized in SyncService, never anywhere else. */
 class SyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String TAG = "SyncAdapter";
     private static final String FEED_URL = "http://app.spatialcollective.com/get_posts/" + 400; //screenwidth;
@@ -106,7 +83,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         mContentResolver = context.getContentResolver();
     }
 
-    // <p>The syncResult argument allows you to pass information back to the method that triggered the sync.
+    // The syncResult argument allows you to pass information back to the method that triggered the sync.
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
@@ -119,8 +96,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.i(TAG, "Streaming data from network: " + location);
                 stream = downloadUrl(FEED_URL);
                 updateLocalFeedData(stream, syncResult);
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
             } finally {
                 if (stream != null)
                     stream.close();
@@ -177,26 +152,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             throws IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException {
 
-        // final FeedParser feedParser = new FeedParser();
         final ContentResolver contentResolver = getContext().getContentResolver();
-
-        // Log.i(TAG, "Parsing stream as Atom feed");
-        // final List<FeedParser.Entry> entries = feedParser.parse(stream);
-        // Log.i(TAG, "Parsing complete. Found " + entries.size() + " entries");
-
-
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-
-        // // Build hash table of incoming entries
-        // HashMap<String, FeedParser.Entry> entryMap = new HashMap<String, FeedParser.Entry>();
-        // for (FeedParser.Entry e : entries) {
-        //     entryMap.put(e.id, e);
-        // }
 
         // Get list of all items
         Log.i(TAG, "Fetching local entries for merge");
-        Uri uri = ReportContract.Entry.CONTENT_URI; // Get all entries
-        Cursor c = contentResolver.query(uri, PROJECTION, null, null, null);
+        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, PROJECTION, null, null, null); // Get all entries
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
 
@@ -245,7 +206,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
         c.close();
 
-        // Add new items
         try {
             String serverString = convertInputStreamToString(stream);
             JSONArray jsonData = convertStringToJson(serverString);
@@ -264,61 +224,25 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     .withValue(ReportContract.Entry.COLUMN_PICS, "")
                     .withValue(ReportContract.Entry.COLUMN_MEDIAURLS, "")
                     .build());
-                Log.i(TAG, "Entry: " + entry.toString());
                 syncResult.stats.numInserts++;
             }
         } catch (Exception e) {
-            Log.i(TAG, "Some sort of failure: ");
             e.printStackTrace();
         }
-        // for (FeedParser.Entry e : entryMap.values()) {
-        //     Log.i(TAG, "Scheduling insert: entry_id=" + e.id);
-        //     batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
-        //             .withValue(ReportContract.Entry.COLUMN_ENTRY_ID, e.id)
-        //             .withValue(ReportContract.Entry.COLUMN_TITLE, e.title)
-        //             .withValue(ReportContract.Entry.COLUMN_DETAILS, e.link)
-        //             .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, e.published)
-        //             .build());
-        //     syncResult.stats.numInserts++;
-        // }
         Log.i(TAG, "Merge solution ready. Applying batch update");
         mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-        mContentResolver.notifyChange(
-                ReportContract.Entry.CONTENT_URI, // URI where data was modified
-                null,                           // No local observer
-                false);                         // IMPORTANT: Do not sync to network
+        mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false); // IMPORTANT: Do not sync to network (last arg)
         // This sample doesn't support uploads, but if *your* code does, make sure you set
         // syncToNetwork=false in the line above to prevent duplicate syncs.
     }
 
 
     private InputStream downloadUrl(String url) throws IOException {
-           HttpClient httpClient = new DefaultHttpClient();
-           HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-           InputStream inputStream = httpResponse.getEntity().getContent();
-           return inputStream;
-           // if (inputStream != null)
-           //     return convertInputStreamToString(inputStream);
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
+        InputStream inputStream = httpResponse.getEntity().getContent();
+        return inputStream;
     }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-       BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-       StringBuilder result = new StringBuilder(inputStream.available());
-       String line;
-
-       while((line = bufferedReader.readLine()) != null)
-           result.append(line);
-       inputStream.close();
-       return result.toString();
-   }
-
-   private JSONArray convertStringToJson(String input) throws JSONException {
-       JSONArray jsonArray = new JSONArray(input);
-       if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-           throw new JSONException("Server returned error");
-       return jsonArray;
-   }
-
     // Given a string representation of a URL, sets up a connection and gets an input stream.
     // private InputStream downloadUrl(final URL url) throws IOException {
     //     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -330,4 +254,22 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     //     conn.connect();
     //     return conn.getInputStream();
     // }
+
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+        StringBuilder result = new StringBuilder(inputStream.available());
+        String line;
+
+        while((line = bufferedReader.readLine()) != null)
+            result.append(line);
+        inputStream.close();
+        return result.toString();
+    }
+
+    private JSONArray convertStringToJson(String input) throws JSONException {
+        JSONArray jsonArray = new JSONArray(input);
+        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
+            throw new JSONException("Server returned error");
+        return jsonArray;
+    }
 }
