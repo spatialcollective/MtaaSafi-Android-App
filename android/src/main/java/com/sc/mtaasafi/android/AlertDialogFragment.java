@@ -12,16 +12,26 @@ import android.provider.Settings;
  * Created by Agree on 9/26/2014.
  */
 public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
+    public interface AlertDialogListener{
+        void onAlertButtonPressed(String eventKey);
+    }
     String alertMessage, positiveText, negativeText;
     int alertType;
     public static final int UPDATE_FAILED = 0,
                             LOCATION_FAILED = 1,
                             CONNECTION_FAILED = 2,
-                            UPLOAD_FAILED = 3;
-    public static final String ALERT_KEY = "alert";
+                            UPLOAD_FAILED = 3,
+                            SAVED_REPORTS = 4;
+    public static final String  ALERT_KEY = "alert",
+                                RE_FETCH_FEED = "refetch",
+                                SEND_SAVED_REPORTS = "sendSavedReports",
+                                RE_UPLOAD_POST = "reupload";
+    private AlertDialogListener listener;
     public AlertDialogFragment(){
     }
-
+    public void setAlertDialogListener(AlertDialogListener adl){
+        this.listener = adl;
+    }
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
@@ -41,7 +51,7 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                         })
                         .setNegativeButton("Try again", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                // TODO: method to tell mainActivity to try to update the feed.
+                                listener.onAlertButtonPressed(RE_FETCH_FEED);
                             }
                         });
                 break;
@@ -66,7 +76,9 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                             }
                         })
                         .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {}
+                            public void onClick(DialogInterface dialog, int id) {
+                                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                            }
                         });
                 break;
             case UPLOAD_FAILED:
@@ -78,11 +90,23 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                         })
                         .setNegativeButton("Retry", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                // TODO: method to tell mainactivity to upload report
+                                listener.onAlertButtonPressed(RE_UPLOAD_POST);
                             }
                         });
                 break;
-
+            case SAVED_REPORTS:
+                builder.setMessage("You have saved reports left over! Send them now?")
+                        .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // accept failure, and therefore defeat.
+                            }
+                        })
+                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(SEND_SAVED_REPORTS);
+                            }
+                        });
+                break;
 
         }
         // Create the AlertDialog object and return it

@@ -16,5 +16,4 @@ public class LogTags {
                                 PAGER = "PAGER",
                                 MAIN_ACTIVITY = "MAIN ACTIVITY",
                                 PANEL_SLIDER = "PANEL SLIDER";
-    
 }

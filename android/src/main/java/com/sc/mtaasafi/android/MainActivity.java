@@ -2,7 +2,6 @@ package com.sc.mtaasafi.android;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.support.v4.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
-import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -30,14 +28,13 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
-        NewsFeedFragment.ReportSelectedListener {
+        NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener {
 
     private SharedPreferences sharedPref;
     public String mUsername;
-
     NewsFeedFragment newsfeedFragment;
 
-    static final String USERNAME_KEY = "username",
+    public static final String USERNAME_KEY = "username",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
                         REPORT_DETAIL_KEY = "report_detail";
 
@@ -47,13 +44,17 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-
         setContentView(R.layout.activity_main);
         newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
+        if(savedReports != null && !savedReports.isEmpty()){
+            launchAlert(AlertDialogFragment.SAVED_REPORTS);
+        }
+
     }
 
     @Override
@@ -111,19 +112,30 @@ public class MainActivity extends ActionBarActivity implements
         return jsonString.toString();
     }
 
-    public void launchAlert() {
+    public void launchAlert(int alertCode) {
         AlertDialogFragment adf = new AlertDialogFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.UPDATE_FAILED);
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, alertCode);
         adf.setArguments(bundle);
+        adf.setAlertDialogListener(this);
         adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
     }
 
-    public void goToDetailView(Report report, int position) {
-        // Bundle args = new Bundle();
-        // args = report.saveState("some_key", args);
-        // ReportDetailFragment reportFrag = new ReportDetailFragment();
-        // reportFrag.setArguments(args);
+    @Override
+    public void onAlertButtonPressed(String eventKey) {
+        if(eventKey == AlertDialogFragment.RE_FETCH_FEED){
+
+        } else if(eventKey == AlertDialogFragment.SEND_SAVED_REPORTS){
+            Intent intent = new Intent().setClass(this, NewReportActivity.class)
+                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true);
+            startActivity(intent);
+        }
+
+    }
+
+    public void clearNewReportData() {
+        goToFeed();
+    }
 
         // getSupportFragmentManager()
         //     .beginTransaction()

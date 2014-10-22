@@ -8,6 +8,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/pic1"
         android:tag="0"
         android:src="@drawable/pic_placeholder"
         android:layout_centerVertical="true"
@@ -17,6 +18,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/pic2"
         android:tag="1"
         android:src="@drawable/pic_placeholder"
         android:layout_alignParentTop="true"
@@ -27,6 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:tag="2"
+        android:id="@+id/pic3"
         android:src="@drawable/pic_placeholder"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/pic2"
