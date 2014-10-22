@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -34,9 +35,7 @@ public class MainActivity extends ActionBarActivity implements
     private SharedPreferences sharedPref;
     public String mUsername;
 
-    NonSwipePager mPager;
     NewsFeedFragment newsfeedFragment;
-    FragmentAdapter mFragmentAdapter;
 
     static final String USERNAME_KEY = "username",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
@@ -80,6 +79,10 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
 //        mPager.setCurrentItem(mPager.getCurrentItem());
+    }
+    @Override
+    protected void onPause(){
+        super.onResume();
     }
     @Override
     protected void onStop(){

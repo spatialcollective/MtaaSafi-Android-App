@@ -47,7 +47,7 @@ public class NewReportUploader extends AsyncTask<Report, Integer, Integer> {
 
 	private int writeReportToServer(Report report) throws JSONException, IOException {
 		try {
-			HttpResponse response = sendRequest(0, report.getJsonForText().toString());
+			HttpResponse response = sendRequest(new Long(0), report.getJsonForText().toString());
 			JSONObject jsonResponse = processResponse(response);
 			int nextPieceKey = jsonResponse.getInt(NEXT_REPORT_PIECE_KEY);
 			report.id = jsonResponse.getInt(REPORT_ID_KEY);
@@ -85,7 +85,7 @@ public class NewReportUploader extends AsyncTask<Report, Integer, Integer> {
 		return new JSONObject(responseString);
 	}
 
-	private HttpResponse sendRequest(int reportId, String contents) throws IOException {
+	private HttpResponse sendRequest(Long reportId, String contents) throws IOException {
 		HttpClient httpclient = new DefaultHttpClient();
 		String writeUrl = BASE_WRITE_URL;
 		if (reportId != 0)

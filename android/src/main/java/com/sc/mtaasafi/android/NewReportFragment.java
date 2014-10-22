@@ -78,7 +78,7 @@ public class NewReportFragment extends Fragment {
         outState.putInt(PENDING_PIECE_KEY, nextPendingPiece);
         if (pendingReport != null) {
             outState.putBoolean(HAS_PENDING_REPORT_KEY, true);
-            pendingReport.saveState(PENDING_REPORT_ID, outState);
+            pendingReport.saveState(outState);
         }
     }
 

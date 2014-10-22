@@ -35,9 +35,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         if (args != null)
-            mReport = new Report("some_key", args);
+            mReport = new Report(args);
         else if (savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey))
-            mReport = new Report(reportKey, savedInstanceState);
+            mReport = new Report(savedInstanceState);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         if (mReport != null){
-            outState = mReport.saveState(reportKey, outState);
+            outState = mReport.saveState(outState);
             outState.putBoolean(hadAReportKey, true);
         }
         else
