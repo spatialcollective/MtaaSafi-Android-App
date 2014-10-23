@@ -24,6 +24,7 @@ import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.androidquery.AQuery;
 import com.facebook.Session;
@@ -103,23 +104,16 @@ public class NewsFeedFragment extends ListFragment
         mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
             null, FROM_COLUMNS, TO_FIELDS, 0);
 
-//        For use in setting view values that are not straighforward (e.g. time elapsed)
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
-                // if (i == COLUMN_PUBLISHED) {
-                //     // Convert timestamp to human-readable date
-                //     Time t = new Time();
-                //     t.set(cursor.getLong(i));
-                //     ((TextView) view).setText(t.format("%Y-%m-%d %H:%M"));
-                //     return true;
-                // } else {
-                    // Let SimpleCursorAdapter handle other fields automatically
+                if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
+                    ((TextView)view).setText(Report.getElapsedTime(cursor.getString(i)));
+                else
                     return false;
-                // }
+                return true;
             }
         });
-
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
     }
