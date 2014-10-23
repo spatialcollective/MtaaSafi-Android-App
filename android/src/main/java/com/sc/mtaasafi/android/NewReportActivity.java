@@ -40,13 +40,12 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userName = getPreferences(Context.MODE_PRIVATE).getString(MainActivity.USERNAME_KEY, "");
-        FragmentManager manager = getSupportFragmentManager();
         if (savedInstanceState != null)
             mFragment = (NewReportFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
         if (mFragment == null) {
             Log.e("Creating Activity", "fragment was null...");
             mFragment = new NewReportFragment();
-            manager.beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .replace(android.R.id.content, mFragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .commit();

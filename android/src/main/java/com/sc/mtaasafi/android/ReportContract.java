@@ -28,6 +28,8 @@ public class ReportContract {
             COLUMN_LNG = "longitude",
             COLUMN_USERNAME = "user",
             COLUMN_PICS = "picPaths",
-            COLUMN_MEDIAURLS = "mediaUrls";
+            COLUMN_MEDIAURL1 = "mediaUrl1",
+            COLUMN_MEDIAURL2 = "mediaUrl2",
+            COLUMN_MEDIAURL3 = "mediaUrl3";
     }
 }

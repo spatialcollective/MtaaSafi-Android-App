@@ -57,8 +57,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         ReportContract.Entry.COLUMN_LNG,
         ReportContract.Entry.COLUMN_USERNAME,
         ReportContract.Entry.COLUMN_PICS,
-        ReportContract.Entry.COLUMN_MEDIAURLS };
-
+        ReportContract.Entry.COLUMN_MEDIAURL1,
+        ReportContract.Entry.COLUMN_MEDIAURL2,
+        ReportContract.Entry.COLUMN_MEDIAURL3
+    };
     // Constants representing column positions from PROJECTION.
     public static final int COLUMN_ID = 0,
         COLUMN_ENTRY_ID = 1,
@@ -69,7 +71,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         COLUMN_LNG = 6,
         COLUMN_USERNAME = 7,
         COLUMN_PICS = 8,
-        COLUMN_MEDIAURLS = 9;
+        COLUMN_MEDIAURL1 = 9,
+        COLUMN_MEDIAURL2 = 10,
+        COLUMN_MEDIAURL3 = 11;
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -214,6 +218,16 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             for (int i = 0; i < len; i++) {
                 JSONObject entry = jsonData.getJSONObject(i);
                 Log.i(TAG, "Entry: " + entry.toString());
+
+                JSONArray mediaURLsJSON = entry.getJSONArray("mediaURLs");
+                ArrayList<String> mediaURLs = new ArrayList<String>();
+                for (int j = 0; j < 3; j++) {
+                    String urlString = "";
+                    if (mediaURLsJSON.length() > j)
+                        urlString = mediaURLsJSON.get(j).toString();
+                    mediaURLs.add(urlString);
+                }
+
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
                     .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
                     .withValue(ReportContract.Entry.COLUMN_DETAILS, entry.getString(ReportContract.Entry.COLUMN_DETAILS))
@@ -222,7 +236,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     .withValue(ReportContract.Entry.COLUMN_LNG, entry.getString(ReportContract.Entry.COLUMN_LNG))
                     .withValue(ReportContract.Entry.COLUMN_USERNAME, entry.getString(ReportContract.Entry.COLUMN_USERNAME))
                     .withValue(ReportContract.Entry.COLUMN_PICS, "")
-                    .withValue(ReportContract.Entry.COLUMN_MEDIAURLS, "")
+                    .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, mediaURLs.get(0))
+                    .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
+                    .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))
                     .build());
                 syncResult.stats.numInserts++;
             }

@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android;
 
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -22,11 +24,13 @@ import java.text.SimpleDateFormat;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
+
     final String hadAReportKey = "hadareport",
                  reportKey = "report";
 
     private SlidingUpPanelLayout mLayout;
     private RelativeLayout mReportText;
+    private Cursor mCursor;
 
     Report mReport;
 
@@ -39,6 +43,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         else if (savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey))
             mReport = new Report(savedInstanceState);
     }
+
+    public void setCursor(Cursor c) { this.mCursor = c; }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
@@ -64,7 +70,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         // if(savedState != null && savedState.getBoolean(hadAReportKey))
         //    mReport = new Report(reportKey, savedState);
         // if(mReport !=null)
-        updateView(mReport, view);
+        updateView(view);
         return view;
     }
 
@@ -98,6 +104,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             public void onPanelHidden(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelHidden"); }
         });
     }
+
     public void setActionBarTranslation(float y, int height) {
         // Figure out the actionbar height
         // A hack to add the translation to the action bar
@@ -120,29 +127,23 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public void updateView(Report report, View view) {
-        TextView detailsTV = (TextView) view.findViewById(R.id.reportViewDetails);
-        TextView timeStampTV = (TextView) view.findViewById(R.id.reportViewTimeStamp);
-        TextView userNameTV = (TextView) view.findViewById(R.id.reportViewUsername);
+    public void updateView(View view) {
+        AQuery aq = new AQuery(getActivity());
 
-        mReport = report;
-        if (mReport != null) {
-            Log.e(LogTags.FEEDITEM, "UpdateView's report: " + mReport.title);
-            AQuery aq = new AQuery(getActivity());
-            aq.id(R.id.reportViewTitle).text(mReport.title);
-            aq.id(R.id.reportViewDetails).text(mReport.details);
-            aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
-            aq.id(R.id.reportViewUsername).text(mReport.userName);
-            if (mReport.mediaURLs.size() > 0)
-                aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
-            if (mReport.mediaURLs.size() > 1)
-                aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
-            if (mReport.mediaURLs.size() > 2)
-                aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
-            detailsTV.setText(mReport.details);
-            timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
-            userNameTV.setText(mReport.userName);
-        }
+        ((TextView)view.findViewById(R.id.reportViewTitle)).setText(
+                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_TITLE)));
+        ((TextView)view.findViewById(R.id.reportViewDetails)).setText(
+                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS)));
+        ((TextView)view.findViewById(R.id.reportViewTimeStamp)).setText(
+                getSimpleTimeStamp(mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))));
+        ((TextView)view.findViewById(R.id.reportViewUsername)).setText(
+                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME)));
+        aq.id(view.findViewById(R.id.media1)).image(
+                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1)));
+        aq.id(view.findViewById(R.id.media2)).image(
+                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2)));
+        aq.id(view.findViewById(R.id.media3)).image(
+                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3)));
     }
 
     @Override
@@ -161,8 +162,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         if (mReport != null){
             outState = mReport.saveState(outState);
             outState.putBoolean(hadAReportKey, true);
-        }
-        else
+        } else
             outState.putBoolean(hadAReportKey, false);
     }
 

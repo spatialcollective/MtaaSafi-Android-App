@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -31,7 +33,7 @@ public class MainActivity extends ActionBarActivity implements
 
     private SharedPreferences sharedPref;
     public String mUsername;
-    NewsFeedFragment newsfeedFragment;
+    ReportDetailFragment mFragment;
 
     public static final String USERNAME_KEY = "username",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
@@ -46,14 +48,17 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
+        
         setContentView(R.layout.activity_main);
-        newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.fragment_container, new NewsFeedFragment())
+            .commit();
+        
         ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
         List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
-        if(savedReports != null && !savedReports.isEmpty()){
+        if (savedReports != null && !savedReports.isEmpty())
             launchAlert(AlertDialogFragment.SAVED_REPORTS);
-        }
-
     }
 
     @Override
@@ -141,14 +146,14 @@ public class MainActivity extends ActionBarActivity implements
 //        mPager.setCurrentItem(FRAGMENT_FEED);
     }
 
-    public void goToDetailView(Report report, int id){
-//        reportDetailReport = report;
-//        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
-        Log.e("GO TO DETAIL VIEW", report.title);
-    }
-    public void getReportDetailReport(ReportDetailFragment rdf){
-//        if (reportDetailReport != null)
-//            rdf.updateView(reportDetailReport);
+    public void goToDetailView(Cursor c, int position) {
+        mFragment = new ReportDetailFragment();
+        mFragment.setCursor(c);
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.fragment_container, mFragment)
+            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            .addToBackStack(null)
+            .commit();
     }
 
     public void goToNewReport(){

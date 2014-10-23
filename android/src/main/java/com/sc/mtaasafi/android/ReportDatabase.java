@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "mtaasafi.db";
 
     private static final String DATABASE_CREATE = "create table "
@@ -19,7 +19,9 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + ReportContract.Entry.COLUMN_LNG + " text not null, "
             + ReportContract.Entry.COLUMN_USERNAME + " text not null, "
             + ReportContract.Entry.COLUMN_PICS + " text not null, "
-            + ReportContract.Entry.COLUMN_MEDIAURLS + " text not null "
+            + ReportContract.Entry.COLUMN_MEDIAURL1 + " text not null, "
+            + ReportContract.Entry.COLUMN_MEDIAURL2 + " text not null, "
+            + ReportContract.Entry.COLUMN_MEDIAURL3 + " text not null "
             + ")";
 
     public ReportDatabase(Context context) {

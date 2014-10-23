@@ -38,11 +38,9 @@ public class NewsFeedFragment extends ListFragment
     SimpleCursorAdapter mAdapter;
     private Object mSyncObserverHandle;
     ListView mListView;
-    private Menu mOptionsMenu;
 
     private ProgressBar progressBar;
     ReportSelectedListener mCallback;
-    MainActivity mActivity;
     AQuery aq;
     int index;
     int top;
@@ -51,7 +49,14 @@ public class NewsFeedFragment extends ListFragment
         ReportContract.Entry._ID,
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP
+        ReportContract.Entry.COLUMN_TIMESTAMP,
+        ReportContract.Entry.COLUMN_LAT,
+        ReportContract.Entry.COLUMN_LNG,
+        ReportContract.Entry.COLUMN_USERNAME,
+        ReportContract.Entry.COLUMN_PICS,
+        ReportContract.Entry.COLUMN_MEDIAURL1,
+        ReportContract.Entry.COLUMN_MEDIAURL2,
+        ReportContract.Entry.COLUMN_MEDIAURL3
     };
     public String[] FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_TITLE,
@@ -67,7 +72,7 @@ public class NewsFeedFragment extends ListFragment
     public NewsFeedFragment() {}
         
     public interface ReportSelectedListener {
-        public void goToDetailView(Report report, int position);
+        public void goToDetailView(Cursor c, int position);
     }
     
     @Override
@@ -75,7 +80,6 @@ public class NewsFeedFragment extends ListFragment
         index = top = 0;
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
-        mActivity = (MainActivity) getActivity();
         setHasOptionsMenu(true);
     }
 
@@ -124,13 +128,12 @@ public class NewsFeedFragment extends ListFragment
         super.onActivityCreated(savedInstanceState);
     }
 
-//    @Override
-//    public void onListItemClick(ListView l, View view, int position, long id) {
-//        super.onListItemClick(l, view, position, id);
-//        Cursor c = (Cursor) mAdapter.getItem(position);
-//
-////        mCallback.goToDetailView(c, position);
-//    }
+   @Override
+   public void onListItemClick(ListView l, View view, int position, long id) {
+       super.onListItemClick(l, view, position, id);
+       Cursor c = (Cursor) mAdapter.getItem(position);
+       mCallback.goToDetailView(c, position);
+   }
 
     @Override
     public void onResume(){
