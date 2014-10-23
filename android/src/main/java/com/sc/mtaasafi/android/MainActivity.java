@@ -87,7 +87,7 @@ public class MainActivity extends ActionBarActivity implements
     }
     @Override
     protected void onPause(){
-        super.onResume();
+        super.onPause();
     }
     @Override
     protected void onStop(){
