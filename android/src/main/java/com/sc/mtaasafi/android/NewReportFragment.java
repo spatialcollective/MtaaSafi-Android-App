@@ -40,8 +40,6 @@ public class NewReportFragment extends Fragment {
     Button reportBtn, saveButton;
     ImageView[] picPreviews;
 
-    LinearLayout picPreviewContainer;
-    ProgressBar reportTextProgress;
     DescriptionEditText detailsView;
     NewReportActivity mActivity;
 
@@ -76,13 +74,11 @@ public class NewReportFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
         picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         detailsText = "";
-        picPreviewContainer = (LinearLayout) view.findViewById(R.id.picPreviewContainer);
         reportBtn = (Button) view.findViewById(R.id.reportButton);
         saveButton = (Button) view.findViewById(R.id.saveButton);
         setListeners();
