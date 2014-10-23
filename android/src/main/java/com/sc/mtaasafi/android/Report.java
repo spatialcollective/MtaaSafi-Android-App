@@ -115,7 +115,7 @@ public class Report {
         Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
         return encoded;
     }
-    private byte[] getBytesForPic(int i) throws IOException {
+    public byte[] getBytesForPic(int i) throws IOException {
         File file = new File(picPaths.get(i));
         Log.e(LogTags.NEWREPORT, "File size: " + file.length());
         byte[] b = new byte[(int) file.length()];

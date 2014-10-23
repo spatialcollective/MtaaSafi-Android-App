@@ -15,8 +15,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
@@ -25,7 +33,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     Report pendingReport;
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
-            REPORT_ID_KEY = "pid",
+            REPORT_ID_KEY = "id",
             PIC_HASHES_KEY = "pic_hashes";
 
     public ReportUploader(ReportUploadingFragment fragment, Report report) {
@@ -66,6 +74,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             writeNewReport(pendingReport);
         else
             writeInterruptedReport(pendingReport, picHashes.toString());
+
         return -1;
     }
 
@@ -120,20 +129,26 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         updateProgress(pieceKey);
         if(pieceKey == -1)
             return;
-        else if (pieceKey == 0)
+        else if (pieceKey == 0){
             piece = report.getJsonForText();
-        else
-            piece = report.getJsonForPic(pieceKey-1);
-        HttpResponse response = sendPiece(report.id, piece.toString());
-        JSONObject responseJSON = processResponse(response);
-        report.id = responseJSON.getInt(REPORT_ID_KEY);
-        pieceKey = responseJSON.getInt(NEXT_REPORT_PIECE_KEY);
-        writeNextPieceToServer(report, pieceKey);
+            JSONObject responseJSON = sendPiece(report.id, piece.toString());
+            report.id = responseJSON.getInt(REPORT_ID_KEY);
+            pieceKey = responseJSON.getInt(NEXT_REPORT_PIECE_KEY);
+            writeNextPieceToServer(report, pieceKey);
+        }
+        else{
+            byte[] picBytes = report.getBytesForPic(pieceKey - 1);
+            JSONObject responseJSON = sendPiece(report.id, picBytes);
+            report.id = responseJSON.getInt(REPORT_ID_KEY);
+            pieceKey = responseJSON.getInt(NEXT_REPORT_PIECE_KEY);
+            writeNextPieceToServer(report, pieceKey);
+        }
     }
 
     // For each picture in the interrupted report, check if it was uploaded to the server previously.
     // if not, upload it.
     private void writeInterruptedReport(Report report, String picHashes){
+        Log.e(LogTags.BACKEND_W, "Interrupted report with " + picHashes + " pic hashes");
         int progress = picHashes.length() + 1;
         for(int i = 0; i < progress + 1; i++) // make the uploading interface reflect how many pics left to upload
             updateProgress(i);
@@ -141,7 +156,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             for(int i = 0; i < report.picPaths.size(); i++){
                 // if the server's pic hashes don't contain the SHA1 for picture i, send the picture
                 if(!picHashes.contains(report.getSHA1forPic(i))){
-                    sendPiece(report.id, report.getJsonForPic(i).toString());
+                    sendPiece(report.id, report.getBytesForPic(i));
                     progress++;
                     updateProgress(progress);
                 }
@@ -159,7 +174,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     // sends the piece to the server at the report's write url
     // upon success the server sends back as a response the report's id and the next piece it expects
-    private HttpResponse sendPiece(int reportId, String piece) throws IOException {
+    private JSONObject sendPiece(int reportId, String piece) throws IOException, JSONException {
         HttpClient httpclient = new DefaultHttpClient();
         String writeUrl = BASE_WRITE_URL;
         if (reportId != 0)
@@ -168,7 +183,30 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(new StringEntity(piece));
-        return httpclient.execute(httpPost);
+        return processResponse(httpclient.execute(httpPost));
+    }
+
+    private JSONObject sendPiece(int reportId, byte[] pic) throws IOException, JSONException {
+        String urlString = BASE_WRITE_URL + "_from_stream/" + reportId + "/";
+        URL url = new URL(urlString);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        try{
+            urlConnection.setInstanceFollowRedirects(false);
+            urlConnection.setConnectTimeout(15000);
+            urlConnection.setDoOutput(true);
+            urlConnection.setChunkedStreamingMode(0);
+            urlConnection.connect();
+            DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
+            out.write(pic);
+            out.flush();
+            out.close();
+            int responseCode = urlConnection.getResponseCode();
+        } finally {
+            urlConnection.disconnect();
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpResponse httpResponse = httpClient.execute(new HttpGet(urlString));
+            return processResponse(httpResponse);
+        }
     }
 
     // checks the response from the server for errors. If none, returns the JSON object the server sent back

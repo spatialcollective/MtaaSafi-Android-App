@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
 import java.util.ArrayList;
@@ -33,7 +34,9 @@ public class NewReportActivity extends ActionBarActivity implements
     public final static String  REPORT_KEY = "pendingReport",
                                 PREF_KEY = "myPrefs",
                                 SAVED_REPORT_KEY_KEY = "savedReportKeys",
-                                UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports";
+                                UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports",
+                                LAT_KEY = "lat",
+                                LON_KEY = "lon";
     public String userName;
 
     @Override
@@ -62,14 +65,15 @@ public class NewReportActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if (locationProviders == null || locationProviders.equals("")){
+            onLocationDisabled();
+        }
+        mLocationClient.connect();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
     }
     protected  void onResume(){
         super.onResume();
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals(""))
-            onLocationDisabled();
-        mLocationClient.connect();
         if(getIntent() != null){
             if(getIntent().getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
                 uploadSavedReports();
@@ -81,13 +85,15 @@ public class NewReportActivity extends ActionBarActivity implements
         super.onStop();
     }
 
-    public int getScreenWidth(){
-        return getWindowManager().getDefaultDisplay().getWidth();
+    public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
+    public int getScreenHeight(){
+        return getWindowManager().getDefaultDisplay().getHeight();
     }
 
     public Location getLocation() {
-        if(mLocationClient != null)
+        if(mLocationClient != null && mLocationClient.isConnected()){
             mCurrentLocation = mLocationClient.getLastLocation();
+        }
         return mCurrentLocation;
     }
 
@@ -137,7 +143,10 @@ public class NewReportActivity extends ActionBarActivity implements
         cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
         cp.commit();
     }
-
+    @Override
+    protected void onRestoreInstanceState(Bundle bundle){
+        super.onRestoreInstanceState(bundle);
+    }
     public void beamUpReport(Report report){
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
@@ -167,16 +176,12 @@ public class NewReportActivity extends ActionBarActivity implements
         cp.commit();
         Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details + " Saved reports: " + cp.getObject(SAVED_REPORT_KEY_KEY, List.class).size());
     }
-    public void clearNewReportData(){
-//        a;dsljfas;lfdkjas;dlfkjas;dlfjas;lkfdjasjasd;lfkjasdf
-    }
     public int getSavedReportCount(){
         return savedReportKeys.size();
     }
     public Report getNextSavedReport(){
         return cp.getObject(savedReportKeys.get(0), Report.class);
     }
-
     public void uploadSavedReports(){
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
@@ -196,4 +201,22 @@ public class NewReportActivity extends ActionBarActivity implements
         cp.commit();
         Log.e(LogTags.BACKEND_W, "SavedReportsRemaining: " + cp.getObject(SAVED_REPORT_KEY_KEY, List.class).size());
     }
+    public boolean servicesConnected() {
+        // Check that Google Play services is available
+        int resultCode =
+                GooglePlayServicesUtil.
+                        isGooglePlayServicesAvailable(this);
+        // If Google Play services is available
+        if (ConnectionResult.SUCCESS == resultCode) {
+            // In debug mode, log the status
+            Log.d("Location Updates",
+                    "Google Play services is available.");
+            return true;
+            // Google Play services was not available for some reason.
+            // resultCode holds the error code.
+        } else {
+            return false;
+        }
+    }
+
 }

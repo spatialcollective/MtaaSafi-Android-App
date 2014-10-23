@@ -34,6 +34,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     Button previous, next;
     ViewFlipper flipper;
     TextView titleTV, detailsTV, timeStampTV, userNameTV;
+    ImageView media1, media2, media3;
     ProgressBar progress;
     private SlidingUpPanelLayout mLayout;
     private RelativeLayout mReportText;
@@ -47,6 +48,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         mActivity = (MainActivity) getActivity();
         if(savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey))
             mReport = new Report(reportKey, savedInstanceState);
+        if(getArguments() != null)
+            mReport = new Report(MainActivity.REPORT_DETAIL_KEY, getArguments());
     }
 
     @Override
@@ -64,6 +67,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
         flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
         titleTV = (TextView) view.findViewById(R.id.reportViewTitle);
+        media1 = (ImageView) view.findViewById(R.id.media1);
+        media2 = (ImageView) view.findViewById(R.id.media2);
+        media3 = (ImageView) view.findViewById(R.id.media3);
 
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +88,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
            mReport = new Report(reportKey, savedState);
         if(mReport !=null)
             updateView(mReport);
+
         return view;
     }
 
@@ -145,11 +152,11 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         aq.id(R.id.reportViewTimeStamp).text(getSimpleTimeStamp(mReport.timeStamp));
         aq.id(R.id.reportViewUsername).text(mReport.userName);
         if (mReport.mediaURLs.size() > 0)
-            aq.id(R.id.media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
+            aq.id(media1).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(0));
         if (mReport.mediaURLs.size() > 1)
-            aq.id(R.id.media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
+            aq.id(media2).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(1));
         if (mReport.mediaURLs.size() > 2)
-            aq.id(R.id.media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
+            aq.id(media3).progress(R.id.reportDetailProgress).image(mReport.mediaURLs.get(2));
         detailsTV.setText(mReport.details);
         timeStampTV.setText(getSimpleTimeStamp(mReport.timeStamp));
         userNameTV.setText(mReport.userName);

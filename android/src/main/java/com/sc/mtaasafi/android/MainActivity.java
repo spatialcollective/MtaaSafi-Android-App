@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -47,7 +49,13 @@ public class MainActivity extends ActionBarActivity implements
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
-        newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        FragmentManager manager = getSupportFragmentManager();
+        newsfeedFragment = new NewsFeedFragment();
+        manager.beginTransaction()
+                .replace(R.id.fragment_container, newsfeedFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+
     }
 
     @Override
@@ -63,9 +71,8 @@ public class MainActivity extends ActionBarActivity implements
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         mUsername = savedInstanceState.getString(USERNAME_KEY);
-        if (mUsername == null)
+        if (mUsername == null || mUsername.equals(""))
             determineUsername();
-
         // mPager.setCurrentItem(savedInstanceState.getInt(CURRENT_FRAGMENT_KEY));
         if (savedInstanceState.getBoolean(HAS_REPORT_DETAIL_KEY))
             reportDetailReport = new Report(REPORT_DETAIL_KEY, savedInstanceState);
@@ -155,6 +162,16 @@ public class MainActivity extends ActionBarActivity implements
 
     public void goToDetailView(Report report){
         reportDetailReport = report;
+        FragmentManager manager = getSupportFragmentManager();
+        ReportDetailFragment rdf = new ReportDetailFragment();
+        Bundle args = new Bundle();
+        reportDetailReport.saveState(REPORT_DETAIL_KEY, args);
+        rdf.setArguments(args);
+        manager.beginTransaction()
+                .replace(R.id.fragment_container, rdf)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+
 //        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
         Log.e("GO TO DETAIL VIEW", report.title);
     }
