@@ -15,9 +15,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
-import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -50,12 +48,6 @@ public class MainActivity extends ActionBarActivity implements
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         setContentView(R.layout.activity_main);
         newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
-        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
-        if(savedReports != null && !savedReports.isEmpty()){
-            launchAlert(AlertDialogFragment.SAVED_REPORTS);
-        }
-
     }
 
     @Override
@@ -90,6 +82,11 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
+        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
+        if(savedReports != null && !savedReports.isEmpty()) {
+            launchAlert(AlertDialogFragment.SAVED_REPORTS);
+        }
 //        mPager.setCurrentItem(mPager.getCurrentItem());
     }
     @Override

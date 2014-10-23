@@ -24,7 +24,7 @@ public class ReportUploadingFragment extends Fragment {
     LinearLayout uploadInterrupted;
     ReportUploader uploader;
     ProgressBar[] progressBars;
-    TextView uploadingTV;
+    TextView uploadingTV, detailText;
     Report pendingReport;
     NewReportActivity mActivity;
     int reportsToUpload, currentReport;
@@ -69,10 +69,15 @@ public class ReportUploadingFragment extends Fragment {
         progressBars[1] = (ProgressBar) view.findViewById(R.id.progressBarPic1);
         progressBars[2] = (ProgressBar) view.findViewById(R.id.progressBarPic2);
         progressBars[3] = (ProgressBar) view.findViewById(R.id.progressBarPic3);
+        detailText = (TextView) view.findViewById(R.id.detailText);
         uploadingTV = (TextView) view.findViewById(R.id.uploadingText);
+        uploadingTV.setText("Uploading report (" + currentReport + "/" + reportsToUpload + ")");
         setUploadInterruptedLayout(view);
         setListeners();
-        beamUpReport(pendingReport);
+        if(isUploadingSavedReports)
+            beamUpReport(mActivity.getNextSavedReport());
+        else
+            beamUpReport(pendingReport);
     }
 
     private void setUploadInterruptedLayout(View view){
@@ -113,23 +118,37 @@ public class ReportUploadingFragment extends Fragment {
 
     public void beamUpReport(Report report) {
         uploadInterrupted.setVisibility(View.INVISIBLE);
+        refreshInterface();
         Log.e(LogTags.BACKEND_W, "Beam it up");
         uploader = new ReportUploader(this, report);
         uploader.execute();
-        uploadingTV.setText("Uploading...");
         resendButton.setClickable(false);
         resendButton.setBackgroundColor(getResources().getColor((R.color.report_button_unclickable)));
+        if(isUploadingSavedReports)
+            mActivity.removeTopSavedReport();
+        detailText.setText(report.details);
+
+    }
+    private void refreshInterface(){
+        clearProgressBars();
+        reportTextUploading.setImageResource(R.drawable.report_loading);
+        pic1Uploading.setImageResource(R.drawable.pic1_uploading);
+        pic2Uploading.setImageResource(R.drawable.pic2_uploading);
+        pic3Uploading.setImageResource(R.drawable.pic3_uploading);
+        detailText.setText("");
     }
     private void cancelReport(){
         if(uploader != null){
             uploader.cancel(true);
         }
-        for(ProgressBar progress : progressBars)
-            progress.setVisibility(View.INVISIBLE);
+        clearProgressBars();
         uploadingTV.setText("Upload cancelled!");
         uploadInterrupted.setVisibility(View.VISIBLE);
     }
-
+    public void clearProgressBars(){
+        for(ProgressBar progress : progressBars)
+            progress.setVisibility(View.INVISIBLE);
+    }
     public void updatePostProgress(int progress, Report report){
         pendingReport = report;
         Log.e(LogTags.NEWREPORT, "pending report id: " + pendingReport.id);
@@ -153,16 +172,28 @@ public class ReportUploadingFragment extends Fragment {
     }
 
     public void uploadSuccess() {
-        Toast.makeText(getActivity(), "Thank you for your report!", Toast.LENGTH_SHORT).show();
+        String toastMessage;
         if(isUploadingSavedReports){
-            Report nextReport = mActivity.getNextSavedReport();
-            currentReport++;
-            uploadingTV.setText("Uploading Report (" + currentReport + "/" + reportsToUpload + ")");
-            if(nextReport != null)
-                beamUpReport(nextReport);
-        }
+            if(currentReport != reportsToUpload){
+                Report nextReport = mActivity.getNextSavedReport();
+                if(nextReport != null){
+                    uploadingTV.setText("Uploading Report (" + currentReport + "/" + reportsToUpload + ")");
+                    beamUpReport(nextReport);
+                }
+                toastMessage = "Report " + currentReport + " uploaded";
+                currentReport++;
+                Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+                return;
+            } else{
+                toastMessage = "All saved reports uploaded";
+                Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+            }
+        } else
+            toastMessage = "Thank you for your report!";
+        Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
+        refreshInterface();
+        mActivity.finish();
     }
-
     // called by the uploader if there was a 404 or some shit
     public void uploadFailure(final String failMessage){
         uploader.cancel(true);
@@ -172,6 +203,7 @@ public class ReportUploadingFragment extends Fragment {
     public void onFailure(String failMessage){
         uploadingTV.setText("Upload failed!" + failMessage);
         uploadInterrupted.setVisibility(View.VISIBLE);
+        clearProgressBars();
     }
 
     private void updateProgressView(int doneProgressId, int doneViewId, int workingId, int drawable) {
