@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 
 import java.io.BufferedReader;
@@ -63,6 +62,7 @@ public class MainActivity extends ActionBarActivity implements
         List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
         if (savedReports != null && !savedReports.isEmpty())
             launchAlert(AlertDialogFragment.SAVED_REPORTS);
+        //newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
     }
 
     @Override
@@ -89,6 +89,11 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
+        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
+        if(savedReports != null && !savedReports.isEmpty()) {
+            launchAlert(AlertDialogFragment.SAVED_REPORTS);
+        }
 //        mPager.setCurrentItem(mPager.getCurrentItem());
     }
     @Override

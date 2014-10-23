@@ -99,7 +99,6 @@ public class NewReportFragment extends Fragment {
             }
         }
     }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -116,8 +115,33 @@ public class NewReportFragment extends Fragment {
     public void onResume(){
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
+        if(mActivity.getSavedReportCount() > 0)
+            addSendSavedReportButton(mActivity.getSavedReportCount());
         updatePicPreviews();
         attemptEnableSendSave();
+    }
+    private void addSendSavedReportButton(int savedReportCount){
+        RelativeLayout mLayout = (RelativeLayout) getView().findViewById(R.id.new_report);
+        Button sendSavedReport = new Button(getActivity());
+        sendSavedReport.setBackgroundColor(getResources().getColor(R.color.Coral));
+        String buttonText = "Send " + savedReportCount + " saved report";
+        if(savedReportCount > 1)
+            buttonText +="s";
+        sendSavedReport.setText(buttonText);
+        sendSavedReport.setTextColor(getResources().getColor(R.color.White));
+        sendSavedReport.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mActivity.uploadSavedReports();
+            }
+        });
+        RelativeLayout.LayoutParams buttonParams =
+                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                                                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        sendSavedReport.setLayoutParams(buttonParams);
+        LinearLayout ll = (LinearLayout) mLayout.findViewById(R.id.top_layout);
+        ll.addView(sendSavedReport, 0);
     }
 
     private void updatePicPreviews() {

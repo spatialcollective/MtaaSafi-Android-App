@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:id="@+id/uploading_screen"
-    android:background="@color/Gray"
-    android:layout_alignParentTop="true"
-    android:layout_alignParentLeft="true"
-    android:layout_alignParentStart="true">
+    android:layout_height="fill_parent">
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/uploading_screen"
+        android:background="@color/Gray"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +54,8 @@
                 android:layout_alignBottom="@+id/reportUploadingIcon"
                 android:layout_centerHorizontal="true"
                 android:visibility="invisible"
-                android:paddingBottom="5dp" />
+                android:paddingBottom="5dp"
+                android:indeterminate="false" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -156,4 +162,13 @@
         android:padding="5dp"
         android:textSize="12dp" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Detail..."
+        android:id="@+id/detailText"
+        android:layout_below="@+id/linearLayout"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white" />
 </RelativeLayout>
+</LinearLayout>

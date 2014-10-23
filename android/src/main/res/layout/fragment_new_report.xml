@@ -6,6 +6,15 @@
     android:id="@+id/new_report"
     android:tag="new_report">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/top_layout">
+
         <com.sc.mtaasafi.android.DescriptionEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -17,8 +26,9 @@
             android:textSize="18dp"
             android:paddingTop="8dp"
             android:imeOptions="actionDone"/>
+    </LinearLayout>
 
-        <Button
+    <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/report_button_text"

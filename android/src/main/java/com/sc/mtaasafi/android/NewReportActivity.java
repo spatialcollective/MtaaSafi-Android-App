@@ -61,6 +61,9 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+    }
+    protected  void onResume(){
+        super.onResume();
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals(""))
             onLocationDisabled();
@@ -158,8 +161,9 @@ public class NewReportActivity extends ActionBarActivity implements
     public void saveReport(Report report){
         savedReportKeys.add(report.timeStamp);
         cp.putObject(report.timeStamp, report);
+        cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
         cp.commit();
-        Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details);
+        Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details + " Saved reports: " + cp.getObject(SAVED_REPORT_KEY_KEY, List.class).size());
     }
     public void clearNewReportData(){
 //        a;dsljfas;lfdkjas;dlfkjas;dlfjas;lkfdjasjasd;lfkjasdf
@@ -170,7 +174,8 @@ public class NewReportActivity extends ActionBarActivity implements
     public Report getNextSavedReport(){
         return cp.getObject(savedReportKeys.get(0), Report.class);
     }
-    private void uploadSavedReports(){
+
+    public void uploadSavedReports(){
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
         Bundle bundle = new Bundle();
@@ -185,5 +190,8 @@ public class NewReportActivity extends ActionBarActivity implements
     public void removeTopSavedReport(){
         cp.remove(savedReportKeys.get(0));
         savedReportKeys.remove(0);
+        cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
+        cp.commit();
+        Log.e(LogTags.BACKEND_W, "SavedReportsRemaining: " + cp.getObject(SAVED_REPORT_KEY_KEY, List.class).size());
     }
 }
