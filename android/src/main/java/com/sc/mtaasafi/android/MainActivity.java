@@ -50,10 +50,14 @@ public class MainActivity extends ActionBarActivity implements
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         
         setContentView(R.layout.activity_main);
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.fragment_container, new NewsFeedFragment())
-            .commit();
+        if (savedInstanceState != null)
+            mFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
+        if (mFragment == null) {
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new NewsFeedFragment())
+                .commit();
+        }
         
         ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
         List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
@@ -65,6 +69,8 @@ public class MainActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
+        if (mFragment != null)
+            getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
     }
 
     @Override
@@ -137,18 +143,9 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
-    public void clearNewReportData() {
-        goToFeed();
-    }
-
-    // ======================Fragment Navigation:======================
-    public void goToFeed(){
-//        mPager.setCurrentItem(FRAGMENT_FEED);
-    }
-
     public void goToDetailView(Cursor c, int position) {
         mFragment = new ReportDetailFragment();
-        mFragment.setCursor(c);
+        mFragment.setData(c);
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.fragment_container, mFragment)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)

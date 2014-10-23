@@ -25,58 +25,36 @@ import java.text.SimpleDateFormat;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
-    final String hadAReportKey = "hadareport",
-                 reportKey = "report";
-
-    private SlidingUpPanelLayout mLayout;
-    private RelativeLayout mReportText;
-    private Cursor mCursor;
-
-    Report mReport;
+    private String title, details, time, user, mediaUrl1, mediaUrl2, mediaUrl3;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        Bundle args = getArguments();
-        if (args != null)
-            mReport = new Report(args);
-        else if (savedInstanceState != null && savedInstanceState.getBoolean(hadAReportKey))
-            mReport = new Report(savedInstanceState);
+        setRetainInstance(true);
     }
 
-    public void setCursor(Cursor c) { this.mCursor = c; }
+    public void setData(Cursor c) {
+        title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
+        details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
+        time = getSimpleTimeStamp(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP)));
+        user = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
+        mediaUrl1 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1));
+        mediaUrl2 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2));
+        mediaUrl3 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
-        Log.e(LogTags.FEEDITEM, "ReportDetailFrag: onCreateView called");
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
-        setUpSlidingPanel(view);
-
-        Button previous = (Button) view.findViewById(R.id.buttonPrevious);
-        final ViewFlipper flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
-        previous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                flipper.showPrevious();
-            }
-        });
-        Button next = (Button) view.findViewById(R.id.buttonNext);
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                flipper.showPrevious();
-            }
-        });
-        // if(savedState != null && savedState.getBoolean(hadAReportKey))
-        //    mReport = new Report(reportKey, savedState);
-        // if(mReport !=null)
+        setUpSlidingPanel(view);   
+        setClickListeners(view);
         updateView(view);
         return view;
     }
 
     private void setUpSlidingPanel(View view){
         final ActionBar actionbar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
+        RelativeLayout mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
 
         // Make sure the actionbar doesn't block the text of the Report.
         DisplayMetrics metrics = getResources().getDisplayMetrics();
@@ -84,7 +62,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         int padding_dp = 4;
         mReportText.setPadding(0, pixels_per_dp * padding_dp + actionbar.getHeight(), 0, 0);
 
-        mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
+        final SlidingUpPanelLayout mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
         mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
@@ -103,6 +81,31 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             @Override
             public void onPanelHidden(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelHidden"); }
         });
+    }
+
+    private void setClickListeners(View view) {
+        final ViewFlipper flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
+        ((Button) view.findViewById(R.id.buttonPrevious))
+            .setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { flipper.showPrevious(); }
+        });
+        ((Button) view.findViewById(R.id.buttonNext))
+            .setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { flipper.showPrevious(); }
+        });
+    }
+
+    public void updateView(View view) {
+        ((TextView) view.findViewById(R.id.reportViewTitle)).setText(title);
+        ((TextView) view.findViewById(R.id.reportViewDetails)).setText(details);
+        ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(time);
+        ((TextView) view.findViewById(R.id.reportViewUsername)).setText(user);
+        AQuery aq = new AQuery(getActivity());
+        aq.id(view.findViewById(R.id.media1)).image(mediaUrl1);
+        aq.id(view.findViewById(R.id.media2)).image(mediaUrl2);
+        aq.id(view.findViewById(R.id.media3)).image(mediaUrl3);
     }
 
     public void setActionBarTranslation(float y, int height) {
@@ -127,43 +130,14 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    public void updateView(View view) {
-        AQuery aq = new AQuery(getActivity());
-
-        ((TextView)view.findViewById(R.id.reportViewTitle)).setText(
-                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_TITLE)));
-        ((TextView)view.findViewById(R.id.reportViewDetails)).setText(
-                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS)));
-        ((TextView)view.findViewById(R.id.reportViewTimeStamp)).setText(
-                getSimpleTimeStamp(mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))));
-        ((TextView)view.findViewById(R.id.reportViewUsername)).setText(
-                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME)));
-        aq.id(view.findViewById(R.id.media1)).image(
-                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1)));
-        aq.id(view.findViewById(R.id.media2)).image(
-                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2)));
-        aq.id(view.findViewById(R.id.media3)).image(
-                mCursor.getString(mCursor.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3)));
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
-        if (mReport != null){
-            outState = mReport.saveState(outState);
-            outState.putBoolean(hadAReportKey, true);
-        } else
-            outState.putBoolean(hadAReportKey, false);
+        // if (mReport != null){
+        //     outState = mReport.saveState(outState);
+        //     outState.putBoolean(hadAReportKey, true);
+        // } else
+        //     outState.putBoolean(hadAReportKey, false);
     }
 
     private String getSimpleTimeStamp(String timestamp) {
