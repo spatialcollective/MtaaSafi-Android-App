@@ -72,7 +72,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     // ask the server if it has a (partially) uploaded report with id reportId
     // returns null if there's no such report on server
     // returns an array of hashes of the report's pictures on the server if the server has the report
-    private JSONArray queryServerFor(int reportId){
+    private JSONArray queryServerFor(long reportId){
         try {
             HttpResponse response = new DefaultHttpClient()
                     .execute(new HttpGet(BASE_WRITE_URL + "/" + reportId + "/"));
@@ -159,7 +159,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     // sends the piece to the server at the report's write url
     // upon success the server sends back as a response the report's id and the next piece it expects
-    private HttpResponse sendPiece(int reportId, String piece) throws IOException {
+    private HttpResponse sendPiece(long reportId, String piece) throws IOException {
         HttpClient httpclient = new DefaultHttpClient();
         String writeUrl = BASE_WRITE_URL;
         if (reportId != 0)

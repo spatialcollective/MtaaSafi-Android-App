@@ -98,7 +98,7 @@ public class NewReportFragment extends Fragment {
             attemptEnableSendSave();
             if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
                 nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
-                pendingReport = new Report(PENDING_REPORT_ID, savedState);
+                pendingReport = new Report(savedState);
                 beamUpReport(pendingReport);
             }
         }

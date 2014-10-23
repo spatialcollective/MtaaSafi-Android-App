@@ -138,7 +138,7 @@ public class NewReportActivity extends ActionBarActivity implements
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
         Bundle bundle = new Bundle();
-        report.saveState(REPORT_KEY, bundle);
+        report.saveState(bundle);
         uploadingFragment.setArguments(bundle);
         manager.beginTransaction()
                 .replace(android.R.id.content, uploadingFragment)

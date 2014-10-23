@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
-import com.sc.mtaasafi.android.adapter.FragmentAdapter;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -137,21 +136,25 @@ public class MainActivity extends ActionBarActivity implements
         goToFeed();
     }
 
-        // getSupportFragmentManager()
-        //     .beginTransaction()
-        //     .replace(R.id.fragment_container, reportFrag, "reportDetailView")
-        //     .addToBackStack(null)
-        //     .commit();
+    // ======================Fragment Navigation:======================
+    public void goToFeed(){
+//        mPager.setCurrentItem(FRAGMENT_FEED);
+    }
 
-        Intent intent = new Intent();
-        intent.setClass(this, ReportDetailActivity.class);
-        intent.putExtra("index", position);
-        startActivity(intent);
+    public void goToDetailView(Report report, int id){
+//        reportDetailReport = report;
+//        mPager.setCurrentItem(FRAGMENT_REPORTDETAIL);
+        Log.e("GO TO DETAIL VIEW", report.title);
+    }
+    public void getReportDetailReport(ReportDetailFragment rdf){
+//        if (reportDetailReport != null)
+//            rdf.updateView(reportDetailReport);
     }
 
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
+        // intent.putExtra("index", index);
         startActivity(intent);
     }
 
