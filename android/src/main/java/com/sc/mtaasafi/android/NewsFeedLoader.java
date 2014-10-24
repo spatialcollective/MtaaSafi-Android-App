@@ -71,6 +71,11 @@ public class NewsFeedLoader extends AsyncTaskLoader<List<Report>> {
             return createReportsFromJson(resultJson);
         } catch (Exception ex) {
             ex.printStackTrace();
+            try {
+                return getReportsFromFile();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return new ArrayList<Report>();
     }
