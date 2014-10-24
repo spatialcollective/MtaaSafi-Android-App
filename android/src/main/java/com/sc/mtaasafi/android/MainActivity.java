@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -37,11 +36,7 @@ public class MainActivity extends ActionBarActivity implements
     public String mUsername;
     ReportDetailFragment mFragment;
 
-    public static final String USERNAME_KEY = "username",
-                        HAS_REPORT_DETAIL_KEY = "report_detail",
-                        REPORT_DETAIL_KEY = "report_detail",
-                        FEED_FRAG_TAG = "feed",
-                        DETAIl_FRAG_TAG = "detail";
+    public static final String USERNAME_KEY = "username";
 
                         // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
@@ -65,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements
         }
         
         ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
-        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
         if (savedReports != null && !savedReports.isEmpty())
             launchAlert(AlertDialogFragment.SAVED_REPORTS);
         //newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
@@ -75,7 +70,7 @@ public class MainActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         bundle.putString(USERNAME_KEY, mUsername);
-        if (mFragment != null)
+        if (mFragment != null && mFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
     }
 
@@ -180,13 +175,6 @@ public class MainActivity extends ActionBarActivity implements
         startActivity(intent);
     }
 
-    public void refreshFeed(){
-        goToFeed();
-        FragmentManager manager = getSupportFragmentManager();
-        NewsFeedFragment nff = (NewsFeedFragment) manager.findFragmentByTag(FEED_FRAG_TAG);
-        nff.refreshFeed();
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -219,7 +207,7 @@ public class MainActivity extends ActionBarActivity implements
                 goToNewReport();
                 return true;
             case R.id.action_refresh:
-                refreshFeed();
+                SyncUtils.TriggerRefresh();
             default:
                 return super.onOptionsItemSelected(item);
         }

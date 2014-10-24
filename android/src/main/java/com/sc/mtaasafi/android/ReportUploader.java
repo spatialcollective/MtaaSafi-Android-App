@@ -184,7 +184,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     // sends the piece to the server at the report's write url
     // upon success the server sends back as a response the report's id and the next piece it expects
-    private JSONObject sendPiece(int reportId, String piece) throws IOException, JSONException {
+    private JSONObject sendPiece(long reportId, String piece) throws IOException, JSONException {
         HttpClient httpclient = new DefaultHttpClient();
         String writeUrl = BASE_WRITE_URL;
         if (reportId != 0)
@@ -196,7 +196,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         return processResponse(httpclient.execute(httpPost));
     }
 
-    private JSONObject sendPiece(int reportId, byte[] pic) throws IOException, JSONException {
+    private JSONObject sendPiece(long reportId, byte[] pic) throws IOException, JSONException {
         String urlString = BASE_WRITE_URL + "_from_stream/" + reportId + "/";
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

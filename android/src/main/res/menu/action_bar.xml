@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sc.mtaasafi.android.MainActivity" >
 
-    <item android:id="@+id/menu_refresh"
-          android:icon="@drawable/ic_action_refresh"
-          android:title="@string/description_refresh"
-          android:orderInCategory="0"
-          android:showAsAction="ifRoom" />
-
     <item android:id="@+id/_action_report"
         android:title="@string/new_report"
         android:icon="@drawable/pencil_icon_white"

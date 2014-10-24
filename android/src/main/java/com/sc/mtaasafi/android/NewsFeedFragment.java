@@ -11,38 +11,20 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.androidquery.AQuery;
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.model.GraphObject;
-
-import java.util.List;
 
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     SimpleCursorAdapter mAdapter;
     private Object mSyncObserverHandle;
-    ListView mListView;
 
-    private ProgressBar progressBar;
     ReportSelectedListener mCallback;
-    AQuery aq;
     int index;
     int top;
 
@@ -80,21 +62,17 @@ public class NewsFeedFragment extends ListFragment
     public void onCreate(Bundle savedInstanceState) {
         index = top = 0;
         super.onCreate(savedInstanceState);
-        aq = new AQuery(getActivity());
-        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        mListView = (ListView) view.findViewById(android.R.id.list);
-        // mListView.setPadding(0, mActivity.getActionBarHeight(), 0, 0);
-        progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
-        progressBar.setVisibility(View.VISIBLE);
-        // if (savedInstanceState != null) {
-        //     index = savedInstanceState.getInt("index");
-        //     top = savedInstanceState.getInt("top");
-        // }
+        ListView mListView = (ListView) view.findViewById(android.R.id.list);
+        mListView.setPadding(0, ((MainActivity) getActivity()).getActionBarHeight(), 0, 0);
+        if (savedInstanceState != null) {
+             index = savedInstanceState.getInt("index");
+             top = savedInstanceState.getInt("top");
+        }
         return view;
     }
 
@@ -174,16 +152,6 @@ public class NewsFeedFragment extends ListFragment
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_refresh:
-                SyncUtils.TriggerRefresh();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
             PROJECTION, null, null, null);
@@ -192,7 +160,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
-        progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override
