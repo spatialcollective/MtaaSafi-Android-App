@@ -88,9 +88,11 @@ public class NewReportActivity extends ActionBarActivity implements
     }
     protected  void onResume(){
         super.onResume();
-        if(getIntent() != null){
-            if(getIntent().getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
+        Intent intent = getIntent();
+        if(intent != null){
+            if(intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
                 uploadSavedReports();
+            userName = intent.getStringExtra(MainActivity.USERNAME_KEY);
         }
     }
     @Override

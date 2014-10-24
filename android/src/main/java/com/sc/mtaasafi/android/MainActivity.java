@@ -89,7 +89,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
-        Intent intent = getIntent();
+//        Intent intent = getIntent();
         // If activity wasn't launched after a saveReport event & user has saved reports pending,
         // remind them
 //        if(intent == null || intent.getBooleanExtra(NewReportActivity.SAVED_REPORTS_KEY, false)){
@@ -147,7 +147,8 @@ public class MainActivity extends ActionBarActivity implements
 
         } else if(eventKey == AlertDialogFragment.SEND_SAVED_REPORTS){
             Intent intent = new Intent().setClass(this, NewReportActivity.class)
-                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true);
+                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
+                                        .putExtra(USERNAME_KEY, mUsername);
             startActivity(intent);
         }
 
@@ -186,6 +187,7 @@ public class MainActivity extends ActionBarActivity implements
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
+        intent.putExtra(USERNAME_KEY, mUsername);
         // intent.putExtra("index", index);
         startActivity(intent);
     }
@@ -249,7 +251,10 @@ public class MainActivity extends ActionBarActivity implements
             else
                 mUsername = savedUserName;
         }
-        Toast.makeText(this, mUsername, Toast.LENGTH_SHORT);
+        Toast.makeText(this, "UserName:" + mUsername, Toast.LENGTH_SHORT).show();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(USERNAME_KEY, mUsername);
+        editor.commit();
     }
 
     private void pickUserAccount() {
