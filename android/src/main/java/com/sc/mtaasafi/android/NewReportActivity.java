@@ -175,7 +175,7 @@ public class NewReportActivity extends ActionBarActivity implements
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
         Bundle bundle = new Bundle();
-        report.saveState(bundle);
+        report.saveState(REPORT_KEY, bundle);
         uploadingFragment.setArguments(bundle);
         manager.beginTransaction()
                 .replace(android.R.id.content, uploadingFragment, UPLOAD_TAG)
@@ -218,7 +218,7 @@ public class NewReportActivity extends ActionBarActivity implements
         bundle.putBoolean(UPLOAD_SAVED_REPORTS_KEY, true);
         uploadingFragment.setArguments(bundle);
         manager.beginTransaction()
-                .replace(android.R.id.content, uploadingFragment)
+                .replace(android.R.id.content, uploadingFragment, UPLOAD_TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
 

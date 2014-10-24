@@ -45,7 +45,7 @@ public class ReportUploadingFragment extends Fragment {
                 isUploadingSavedReports = true;
                 pendingReport = mActivity.getNextSavedReport();
             } else {// fragment was called to upload a new report
-                pendingReport = new Report(getArguments());
+                pendingReport = new Report(NewReportActivity.REPORT_KEY, getArguments());
                 reportsToUpload = 1;
             }
         if(instate != null){

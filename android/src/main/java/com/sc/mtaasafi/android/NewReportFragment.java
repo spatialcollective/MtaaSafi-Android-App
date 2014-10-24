@@ -34,13 +34,14 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class NewReportFragment extends Fragment {
-
     Report pendingReport;
     int nextPendingPiece;
 
     Button reportBtn, saveButton;
     ImageView[] picPreviews;
 
+    LinearLayout picPreviewContainer;
+    ProgressBar reportTextProgress;
     DescriptionEditText detailsView;
 
     private ArrayList<String> picPaths;
@@ -52,13 +53,13 @@ public class NewReportFragment extends Fragment {
             PENDING_PIECE_KEY ="next_field",
             PENDING_REPORT_ID = "report_to_send_id",
             HAS_PENDING_REPORT_KEY = "has_pending_key";
-            
+
     static final int    REQUEST_IMAGE_CAPTURE = 1,
-                        PIC1 = 0,
-                        PIC2 = 1,
-                        PIC3 = 2,
-                        TOTAL_PICS = 3,
-                        SAVED_REPORT_BUTTON_ID = 100;
+            PIC1 = 0,
+            PIC2 = 1,
+            PIC3 = 2,
+            TOTAL_PICS = 3,
+            SAVED_REPORT_BUTTON_ID = 100;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -74,11 +75,14 @@ public class NewReportFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
+
+        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
         picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         detailsText = "";
+        picPreviewContainer = (LinearLayout) view.findViewById(R.id.picPreviewContainer);
         reportBtn = (Button) view.findViewById(R.id.reportButton);
         saveButton = (Button) view.findViewById(R.id.saveButton);
         setListeners();
@@ -88,15 +92,17 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedState) {
         super.onActivityCreated(savedState);
-        detailsView.setText(detailsText);
         if (savedState != null) {
+            detailsText = savedState.getString(DEETS_KEY);
+            if (detailsText != null)
+                detailsView.setText(detailsText);
             updatePicPreviews();
             attemptEnableSendSave();
-            if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
-                nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
-                pendingReport = new Report(savedState);
-                beamUpReport(pendingReport);
-            }
+//            if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
+//                nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
+//                pendingReport = new Report(PENDING_REPORT_ID, savedState);
+//                beamUpReport(pendingReport);
+//            }
         }
     }
     @Override
@@ -105,10 +111,10 @@ public class NewReportFragment extends Fragment {
         if (detailsText != null)
             outState.putString(DEETS_KEY, detailsText);
         outState.putInt(PENDING_PIECE_KEY, nextPendingPiece);
-        if (pendingReport != null) {
-            outState.putBoolean(HAS_PENDING_REPORT_KEY, true);
-            pendingReport.saveState(outState);
-        }
+//        if (pendingReport != null) {
+//            outState.putBoolean(HAS_PENDING_REPORT_KEY, true);
+//            pendingReport.saveState(PENDING_REPORT_ID, outState);
+//        }
     }
 
     @SuppressWarnings("ResourceType")
@@ -138,12 +144,13 @@ public class NewReportFragment extends Fragment {
         sendSavedReport.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                uploadSavedReports();
+                if(canSend())
+                    uploadSavedReports();
             }
         });
         RelativeLayout.LayoutParams buttonParams =
                 new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                                                RelativeLayout.LayoutParams.WRAP_CONTENT);
+                        RelativeLayout.LayoutParams.WRAP_CONTENT);
         buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
         sendSavedReport.setLayoutParams(buttonParams);
         LinearLayout ll = (LinearLayout) mLayout.findViewById(R.id.top_layout);
@@ -226,7 +233,10 @@ public class NewReportFragment extends Fragment {
 
         reportBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
-                attemptSend();
+                if(canSend()){
+                    NewReportActivity mActivity = (NewReportActivity) getActivity();
+                    mActivity.beamUpReport(createNewReport());
+                }
             }
         });
 
@@ -295,18 +305,12 @@ public class NewReportFragment extends Fragment {
         return image;
     }
 
-    public void beamUpNewReport() {
-        pendingReport = createNewReport();
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
-        mActivity.beamUpReport(pendingReport);
-    }
-
-    public void beamUpReport(Report report) {
-        Log.e(LogTags.BACKEND_W, "Beam it up");
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
-                getActivity().INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(detailsView.getWindowToken(), 0);
-    }
+//    public void beamUpReport(Report report) {
+//        Log.e(LogTags.BACKEND_W, "Beam it up");
+//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
+//                getActivity().INPUT_METHOD_SERVICE);
+//        imm.hideSoftInputFromWindow(detailsView.getWindowToken(), 0);
+//    }
 
     public void clearView() {
         updatePicPreviews();
@@ -332,18 +336,20 @@ public class NewReportFragment extends Fragment {
         }
     }
 
-    private void attemptSend(){
-        String error;
+    private boolean canSend(){
+        String error ="";
         NewReportActivity mActivity = (NewReportActivity) getActivity();
+        boolean canSend = false;
         if (!mActivity.isOnline()){
             error = "Connect to a network to send your report";
         } else if(mActivity.getLocation() == null){
             error = "Cannot access location, make sure location services enabled";
         } else{
-            mActivity.beamUpReport(createNewReport());
-            return;
+            canSend = true;
         }
-        Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
+        if(!canSend)
+            Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
+        return canSend;
     }
 
     private void attemptSave(){

@@ -1,7 +1,9 @@
 package com.sc.mtaasafi.android;
 
+import android.accounts.NetworkErrorException;
 import android.content.Entity;
 import android.os.AsyncTask;
+import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
@@ -95,13 +97,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                 return jsonResponse.getJSONArray(PIC_HASHES_KEY);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(LogTags.BACKEND_W, "IO Exception!!!!");
-            // tell the user there was a IOException
+            ioException(e);
         } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(LogTags.JSON, "JSON Exception!!!!");
-            // tell the user there was a JSON error
+            jsonException(e);
         }
         return null;
     }
@@ -111,13 +109,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             Log.e(LogTags.BACKEND_W, "Writing a new report...");
             writeNextPieceToServer(report, 0);
         } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(LogTags.BACKEND_W, "JSON FAILURE");
-            mFragment.uploadFailure("JSON");
+            jsonException(e);
         } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(LogTags.BACKEND_W, "IO FAILURE");
-            mFragment.uploadFailure("IO");
+            ioException(e);
+        } catch (NetworkErrorException e){
+            networkErrorException(e);
         }
     }
 
@@ -133,7 +129,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
 
     // recursive function that sends a new report to the server one piece at a time
-    private void writeNextPieceToServer(Report report, int pieceKey) throws JSONException, IOException, FileNotFoundException {
+    private void writeNextPieceToServer(Report report, int pieceKey) throws JSONException, IOException, NetworkErrorException {
         JSONObject piece;
         pendingReport = report;
         updateProgress(pieceKey);
@@ -173,9 +169,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             }
             updateProgress(-1);
         } catch (JSONException e) {
-            e.printStackTrace();
+            jsonException(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            ioException(e);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -229,5 +225,21 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
         return new JSONObject(responseString);
     }
+    private void jsonException(JSONException e){
+        e.printStackTrace();
+        Log.e(LogTags.BACKEND_W, "JSON FAILURE");
+        mFragment.uploadFailure("JSON error");
 
+    }
+    private void networkErrorException(NetworkErrorException e){
+        e.printStackTrace();
+        Log.e(LogTags.BACKEND_W, "NETWORK FAILURE");
+        mFragment.uploadFailure("Network error");
+
+    }
+    private void ioException(IOException e){
+        e.printStackTrace();
+        Log.e(LogTags.BACKEND_W, "IO FAILURE");
+        mFragment.uploadFailure("IO");
+    }
 }

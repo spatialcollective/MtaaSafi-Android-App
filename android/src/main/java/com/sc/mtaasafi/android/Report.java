@@ -1,6 +1,5 @@
 package com.sc.mtaasafi.android;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -14,9 +13,7 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -24,24 +21,26 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
-// Created by Agree on 9/4/2014.
+/**
+ * Created by Agree on 9/4/2014.
+ * Data class for passing data about posts
+ */
 public class Report {
-    public long id;
+    public int id;
     public double latitude, longitude;
     public ArrayList<String> picPaths;
     public String title, details, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaURLs;
-    public final static String TITLE_KEY = "title",
-                            DETAILS_KEY = "details",
-                            TIMESTAMP_KEY = "timestamp",
-                            USERNAME_KEY = "user",
-                            PICS_KEY = "picPaths",
-                            MEDIAURLS_KEY = "mediaURLs",
-                            LAT_KEY = "latitude",
-                            LNG_KEY = "longitude",
-                            ID_KEY = "id";
+    public final static String titleKey = "title",
+            detailsKey = "details",
+            timeStampKey = "timestamp",
+            userNameKey = "user",
+            picsKey = "picPaths",
+            mediaURLsKey = "mediaURLs",
+            latKey = "latitude",
+            lonKey = "longitude",
+            idKey = "id";
 
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
@@ -59,66 +58,53 @@ public class Report {
         this.id = 0;
     }
 
-    public Report(Cursor cursor) {
-        this.id = cursor.getLong(0);
-        this.title = cursor.getString(cursor.getColumnIndex(TITLE_KEY));
-        this.details = cursor.getString(cursor.getColumnIndex(DETAILS_KEY));
-        this.timeStamp = cursor.getString(cursor.getColumnIndex(TIMESTAMP_KEY));
-        this.userName = cursor.getString(cursor.getColumnIndex(USERNAME_KEY));
-        this.latitude = cursor.getLong(cursor.getColumnIndex(LAT_KEY));
-        this.longitude = cursor.getLong(cursor.getColumnIndex(LNG_KEY));
-
-        this.timeElapsed = getElapsedTime(this.timeStamp);
-    }
-
     public Report(JSONObject jsonServerData) {
         try {
-            this.id = 0;
-            this.title = jsonServerData.getString(TITLE_KEY);
-            this.details = jsonServerData.getString(DETAILS_KEY);
-            this.timeStamp = jsonServerData.getString(TIMESTAMP_KEY);
+            this.title = jsonServerData.getString(titleKey);
+            this.details = jsonServerData.getString(detailsKey);
+            this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
-            this.userName = jsonServerData.getString(USERNAME_KEY);
-            this.latitude = jsonServerData.getLong(LAT_KEY);
-            this.longitude = jsonServerData.getLong(LNG_KEY);
-
-            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(MEDIAURLS_KEY);
+            this.userName = jsonServerData.getString(userNameKey);
+            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
             mediaURLs = new ArrayList<String>();
             for(int i = 0; i < mediaURLsInJSON.length(); i++)
                 mediaURLs.add(mediaURLsInJSON.get(i).toString());
+            this.latitude = jsonServerData.getLong(latKey);
+            this.longitude = jsonServerData.getLong(lonKey);
+            this.id = 0;
         } catch (JSONException e) {
             e.printStackTrace();
-           Log.e(LogTags.JSON, "Failed to convert data from JSON");
+            Log.e(LogTags.JSON, "Failed to convert data from JSON");
         }
     }
 
-    public Report(Bundle savedState) {
-        this.id = savedState.getLong(ID_KEY);
-        this.title = savedState.getString(TITLE_KEY);
-        this.details = savedState.getString(DETAILS_KEY);
-        this.timeStamp = savedState.getString(TIMESTAMP_KEY);
+    public Report(String report_key, Bundle savedState) {
+        this.id = savedState.getInt(report_key+idKey);
+        this.title = savedState.getString(report_key+titleKey);
+        this.details = savedState.getString(report_key+detailsKey);
+        this.timeStamp = savedState.getString(report_key+timeStampKey);
         this.timeElapsed = getElapsedTime(this.timeStamp);
-        this.userName = savedState.getString(USERNAME_KEY);
-        this.latitude = savedState.getDouble(LAT_KEY);
-        this.longitude = savedState.getDouble(LNG_KEY);
-        if (savedState.getStringArray(MEDIAURLS_KEY) != null)
-            this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(MEDIAURLS_KEY)));
-        if (savedState.getStringArrayList(PICS_KEY) != null)
-            this.picPaths = savedState.getStringArrayList(PICS_KEY);
+        this.userName = savedState.getString(report_key+userNameKey);
+        this.latitude = savedState.getDouble(report_key+latKey);
+        this.longitude = savedState.getDouble(report_key+lonKey);
+        if (savedState.getStringArray(report_key+mediaURLsKey) != null)
+            this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
+        if (savedState.getStringArrayList(report_key+picsKey) != null)
+            this.picPaths = savedState.getStringArrayList(report_key+picsKey);
     }
 
     public JSONObject getJsonForText() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put(DETAILS_KEY, this.details);
-        json.put(TIMESTAMP_KEY, this.timeStamp);
-        json.put(USERNAME_KEY, this.userName);
-        json.put(LAT_KEY, this.latitude);
-        json.put(LNG_KEY, this.longitude);
+        json.put(detailsKey, this.details);
+        json.put(timeStampKey, this.timeStamp);
+        json.put(userNameKey, this.userName);
+        json.put(latKey, this.latitude);
+        json.put(lonKey, this.longitude);
         return json;
     }
 
     public JSONObject getJsonForPic(int i) throws JSONException, IOException {
-        return new JSONObject().accumulate(PICS_KEY, getEncodedBytesForPic(i));
+        return new JSONObject().accumulate(picsKey, getEncodedBytesForPic(i));
     }
 
     private String getEncodedBytesForPic(int i) throws IOException {
@@ -135,21 +121,44 @@ public class Report {
         return b;
     }
 
-    public Bundle saveState(Bundle outState) {
-        outState.putLong(ID_KEY, this.id);
-        outState.putString(TITLE_KEY, this.title);
-        outState.putString(DETAILS_KEY, this.details);
-        outState.putString(TIMESTAMP_KEY, this.timeStamp);
-        outState.putString(USERNAME_KEY, this.userName);
+    public Bundle saveState(String report_key, Bundle outState) {
+        outState.putInt(report_key+idKey, this.id);
+        outState.putString(report_key+titleKey, this.title);
+        outState.putString(report_key+detailsKey, this.details);
+        outState.putString(report_key+timeStampKey, this.timeStamp);
+        outState.putString(report_key+userNameKey, this.userName);
         if (mediaURLs != null)
-            outState.putStringArray(MEDIAURLS_KEY,
+            outState.putStringArray(report_key+mediaURLsKey,
                     this.mediaURLs.toArray(new String[mediaURLs.size()]));
-        outState.putDouble(LAT_KEY, this.latitude);
-        outState.putDouble(LNG_KEY, this.longitude);
+        outState.putDouble(report_key+latKey, this.latitude);
+        outState.putDouble(report_key+lonKey, this.longitude);
         if(picPaths != null && !picPaths.isEmpty())
-            outState.putStringArrayList(PICS_KEY, this.picPaths);
-        Log.e("REPORT", "SaveState: " + outState.getString(TIMESTAMP_KEY));
+            outState.putStringArrayList(report_key+picsKey, this.picPaths);
+        Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
+    }
+
+    public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
+        long second = 1000,
+                minute = 60 * second,
+                hour = 60* minute,
+                day = 24 * hour,
+                week = 7 * day,
+                year = 365 * day;
+
+        if (timeElapsed > year)
+            return new SimpleDateFormat("dd LLL yy").format(date);
+        else if (timeElapsed > week)
+            return new SimpleDateFormat("dd LLL").format(date);
+        else if (timeElapsed > 1.5 * day)
+            return (long) Math.floor(timeElapsed/day) + " days";
+        else if (timeElapsed > day)
+            return "1 day";
+        else if (timeElapsed > hour)
+            return (long) Math.floor(timeElapsed/hour) + " hours";
+        else if (timeElapsed > minute)
+            return (long) Math.floor(timeElapsed/minute) + " min";
+        return "just now";
     }
 
     // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android
@@ -172,29 +181,6 @@ public class Report {
             } while (two_halfs++ < 1);
         }
         return buf.toString();
-    }
-
-    public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
-        long second = 1000,
-            minute = 60 * second,
-            hour = 60* minute,
-            day = 24 * hour,
-            week = 7 * day,
-            year = 365 * day;
-
-        if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL yy").format(date);
-        else if (timeElapsed > week)
-            return new SimpleDateFormat("dd LLL").format(date);
-        else if (timeElapsed > 1.5 * day)
-            return (long) Math.floor(timeElapsed/day) + " days";
-        else if (timeElapsed > day)
-            return "1 day";
-        else if (timeElapsed > hour)
-            return (long) Math.floor(timeElapsed/hour) + " hours";
-        else if (timeElapsed > minute)
-            return (long) Math.floor(timeElapsed/minute) + " min";
-        return "just now";
     }
 
     public static String getElapsedTime(String timestamp) {
