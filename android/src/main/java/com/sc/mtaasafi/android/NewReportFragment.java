@@ -58,7 +58,8 @@ public class NewReportFragment extends Fragment {
                         PIC1 = 0,
                         PIC2 = 1,
                         PIC3 = 2,
-                        TOTAL_PICS = 3;
+                        TOTAL_PICS = 3,
+                        SAVED_REPORT_BUTTON_ID = 100;
 
     @Override
     public void onCreate(Bundle savedState) {
@@ -117,19 +118,24 @@ public class NewReportFragment extends Fragment {
         }
     }
 
+    @SuppressWarnings("ResourceType")
     @Override
     public void onResume(){
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
         NewReportActivity mActivity = (NewReportActivity) getActivity();
-        if(mActivity.getSavedReportCount() > 0)
+        if(mActivity.getSavedReportCount() > 0
+                && getView().findViewById(SAVED_REPORT_BUTTON_ID) == null)
             addSendSavedReportButton(mActivity.getSavedReportCount());
         updatePicPreviews();
         attemptEnableSendSave();
     }
+
+    @SuppressWarnings("ResourceType")
     private void addSendSavedReportButton(int savedReportCount){
         RelativeLayout mLayout = (RelativeLayout) getView().findViewById(R.id.new_report);
         Button sendSavedReport = new Button(getActivity());
+        sendSavedReport.setId(SAVED_REPORT_BUTTON_ID);
         sendSavedReport.setBackgroundColor(getResources().getColor(R.color.Coral));
         String buttonText = "Send " + savedReportCount + " saved report";
         if(savedReportCount > 1)
@@ -169,7 +175,10 @@ public class NewReportFragment extends Fragment {
             getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
         } else {
             TextView attachPicsTV = (TextView) getView().findViewById(R.id.attachPicsTV);
-            attachPicsTV.setText("Need " + emptyPics + " more");
+            String needMoreString = "Need " + emptyPics + " more picture";
+            if(emptyPics > 1)
+                needMoreString +="s";
+            attachPicsTV.setText(needMoreString);
         }
     }
 

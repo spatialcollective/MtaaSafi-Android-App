@@ -20,7 +20,7 @@
     <string name="dialog_update_failed">Failed to update feed</string>
     <string name="dialog_update_failed_ok">Ok</string>
     <string name="dialog_update_failed_retry">Retry</string>
-
+    <string name="action_refresh">Refresh</string>
     <integer name="google_play_services_version">5208000</integer>
 
     <string name="title_activity_new_report">NewReportActivity</string>

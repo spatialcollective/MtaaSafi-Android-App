@@ -5,21 +5,15 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.androidquery.AQuery;
-import com.facebook.Session;
-import com.facebook.SessionState;
-import com.facebook.model.GraphObject;
 import com.sc.mtaasafi.android.adapter.FeedAdapter;
 
 import java.util.List;
@@ -27,9 +21,7 @@ import java.util.List;
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<List<Report>> {
 
-    private ProgressBar progressBar;
     FeedAdapter mAdapter;
-    RelativeLayout mLayout;
     ReportSelectedListener mCallback;
     MainActivity mActivity;
     AQuery aq;
@@ -48,20 +40,18 @@ public class NewsFeedFragment extends ListFragment
         mActivity = (MainActivity) getActivity();
         mAdapter = new FeedAdapter(mActivity, this);
         setListAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this).forceLoad();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
+        RelativeLayout mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
         mLayout.setPadding(0, mActivity.getActionBarHeight(), 0, 0);
-        progressBar = (ProgressBar) view.findViewById(R.id.feedProgress);
-        progressBar.setVisibility(View.VISIBLE);
         if (savedInstanceState != null) {
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
         }
+        refreshFeed();
         return view;
     }
 
@@ -95,6 +85,7 @@ public class NewsFeedFragment extends ListFragment
     public void restoreListPosition() {
         getListView().setSelectionFromTop(index, top);
     }
+
     public void onPause() {
         super.onPause();
         saveListPosition();
@@ -109,6 +100,9 @@ public class NewsFeedFragment extends ListFragment
             throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
         }
     }
+    public void refreshFeed(){
+        getLoaderManager().initLoader(0, null, this).forceLoad();
+    }
 
     @Override
     public Loader<List<Report>> onCreateLoader(int id, Bundle args) {
@@ -118,7 +112,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<List<Report>> loader, List<Report> data) {
         mAdapter.updateItems(data);
-        progressBar.setVisibility(View.INVISIBLE);
     }
 
     @Override

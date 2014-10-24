@@ -31,6 +31,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     ReportUploadingFragment mFragment;
     Report pendingReport;
+    boolean fragmentDestroyed;
+
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
             REPORT_ID_KEY = "id",
@@ -39,6 +41,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     public ReportUploader(ReportUploadingFragment fragment, Report report) {
         mFragment = fragment;
         pendingReport = report;
+        fragmentDestroyed = false;
     }
 
     @Override
@@ -105,6 +108,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     private void writeNewReport(Report report){
         try {
+            Log.e(LogTags.BACKEND_W, "Writing a new report...");
             writeNextPieceToServer(report, 0);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -117,9 +121,15 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         }
     }
 
+    // called by the reportUploadingFragment when it gets destroyed
+    public void fragmentDestroyed(){
+        fragmentDestroyed = true;
+    }
+
     @Override
     public void onCancelled(){
-        mFragment.onFailure("");
+        if(!fragmentDestroyed)
+            mFragment.onFailure("", this);
     }
 
     // recursive function that sends a new report to the server one piece at a time
