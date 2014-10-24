@@ -30,7 +30,6 @@ public class ReportUploadingFragment extends Fragment {
     ProgressBar[] progressBars;
     TextView uploadingTV, detailText;
     Report pendingReport;
-    NewReportActivity mActivity;
     int reportsToUpload, currentReport, progress;
     boolean isUploadingSavedReports;
     final static private String PROGRESS_KEY = "progress";
@@ -41,7 +40,7 @@ public class ReportUploadingFragment extends Fragment {
         setRetainInstance(true);
         progressBars = new ProgressBar[4];
         reportsToUpload = 1;
-        mActivity = (NewReportActivity) getActivity();
+        NewReportActivity mActivity = (NewReportActivity) getActivity();
         currentReport = 1;
         if(getArguments() != null)
             if (getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)) {
@@ -104,7 +103,7 @@ public class ReportUploadingFragment extends Fragment {
             public void onClick(View view){
                 uploadingTV.setText("Abandoning report...");
                 uploadingTV.setTextColor(getResources().getColor(R.color.DarkRed));
-                mActivity.finish();
+                getActivity().finish();
             }
         });
         sendLaterButton.setOnClickListener(new View.OnClickListener() {
@@ -112,6 +111,7 @@ public class ReportUploadingFragment extends Fragment {
             public void onClick (View view){
                 uploadingTV.setText("Saving report...");
                 uploadingTV.setTextColor(getResources().getColor(R.color.White));
+                NewReportActivity mActivity = (NewReportActivity) getActivity();
                 mActivity.saveReport(pendingReport);
                 Toast.makeText(mActivity, "Report saved for later!", Toast.LENGTH_SHORT).show();
                 mActivity.finish();
@@ -133,6 +133,16 @@ public class ReportUploadingFragment extends Fragment {
         }
     }
 
+    public void onStop(){
+        super.onStop();
+        reportTextUploading = pic1Uploading = pic2Uploading = pic3Uploading = null;
+        cancelButton = resendButton = sendLaterButton = abandonButton = null;
+        uploadInterrupted = null;
+        for(ProgressBar pb : progressBars)
+            pb = null;
+        uploadingTV = detailText = null;
+
+    }
     public void beamUpReport(Report report) {
         uploadInterrupted.setVisibility(View.INVISIBLE);
         if(report.id == 0)
@@ -142,6 +152,7 @@ public class ReportUploadingFragment extends Fragment {
         uploadingTV.setTextColor(getResources().getColor(R.color.White));
         uploader = new ReportUploader(this, report);
         uploader.execute();
+        NewReportActivity mActivity = (NewReportActivity) getActivity();
         if(isUploadingSavedReports)
             mActivity.removeTopSavedReport();
         detailText.setText(report.details);
@@ -193,6 +204,8 @@ public class ReportUploadingFragment extends Fragment {
 
     public void uploadSuccess() {
         String toastMessage;
+        uploader = null;
+        NewReportActivity mActivity = (NewReportActivity) getActivity();
         if(isUploadingSavedReports){
             if(currentReport < reportsToUpload){ // if there are more reports to upload
                 Report nextReport = mActivity.getNextSavedReport();
