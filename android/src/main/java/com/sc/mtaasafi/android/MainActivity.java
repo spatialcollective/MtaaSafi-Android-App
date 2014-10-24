@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
@@ -19,6 +20,9 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.sc.mtaasafi.android.NewReport.NewReportActivity;
 
 import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
@@ -48,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
-        
+
         setContentView(R.layout.activity_main);
         if (savedInstanceState != null)
             mFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
@@ -58,12 +62,10 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragment_container, new NewsFeedFragment())
                 .commit();
         }
-        
         ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
         List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
         if (savedReports != null && !savedReports.isEmpty())
             launchAlert(AlertDialogFragment.SAVED_REPORTS);
-        //newsfeedFragment = (NewsFeedFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
     }
 
     @Override
@@ -86,6 +88,21 @@ public class MainActivity extends ActionBarActivity implements
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+        int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        switch(gPlayCode){
+            case ConnectionResult.SERVICE_MISSING:
+                launchAlert(AlertDialogFragment.GPLAY_MISSING);
+                break;
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+                launchAlert(AlertDialogFragment.GPLAY_UPDATE);
+                break;
+            case ConnectionResult.SERVICE_DISABLED:
+                launchAlert(AlertDialogFragment.GPLAY_DISABLED);
+                break;
+            case ConnectionResult.SERVICE_INVALID:
+                launchAlert(AlertDialogFragment.GPLAY_INVALID);
+                break;
+        }
     }
 
     @Override
@@ -145,16 +162,23 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onAlertButtonPressed(String eventKey) {
-        if(eventKey == AlertDialogFragment.RE_FETCH_FEED){
-
-        } else if(eventKey == AlertDialogFragment.SEND_SAVED_REPORTS){
-            Intent intent = new Intent().setClass(this, NewReportActivity.class)
-                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
-                                        .putExtra(USERNAME_KEY, mUsername);
-            startActivity(intent);
+    public void onAlertButtonPressed(int eventKey) {
+        switch(eventKey){
+            case AlertDialogFragment.RE_FETCH_FEED:
+                break;
+            case AlertDialogFragment.SEND_SAVED_REPORTS:
+                Intent intent = new Intent().setClass(this, NewReportActivity.class)
+                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
+                        .putExtra(USERNAME_KEY, mUsername);
+                startActivity(intent);
+                break;
+            case AlertDialogFragment.INSTALL_GPLAY:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                break;
+            case AlertDialogFragment.UPDATE_GPLAY:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                break;
         }
-
     }
 
     public void goToDetailView(Cursor c, int position) {
@@ -228,7 +252,6 @@ public class MainActivity extends ActionBarActivity implements
             else
                 mUsername = savedUserName;
         }
-        Toast.makeText(this, "UserName:" + mUsername, Toast.LENGTH_SHORT).show();
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(USERNAME_KEY, mUsername);
         editor.commit();

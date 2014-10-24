@@ -1,10 +1,11 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.NewReport;
 
 import android.accounts.NetworkErrorException;
-import android.content.Entity;
 import android.os.AsyncTask;
-import android.os.NetworkOnMainThreadException;
 import android.util.Log;
+
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.Report;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -17,15 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 

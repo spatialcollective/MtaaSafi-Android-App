@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.NewReport;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,15 +8,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +23,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidquery.AQuery;
+import com.sc.mtaasafi.android.DescriptionEditText;
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.NewReport.NewReportActivity;
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.Report;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,14 +36,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class NewReportFragment extends Fragment {
-    Report pendingReport;
     int nextPendingPiece;
 
     Button reportBtn, saveButton;
     ImageView[] picPreviews;
 
     LinearLayout picPreviewContainer;
-    ProgressBar reportTextProgress;
     DescriptionEditText detailsView;
 
     private ArrayList<String> picPaths;
@@ -75,8 +75,6 @@ public class NewReportFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-
-        reportTextProgress = (ProgressBar) view.findViewById(R.id.progressBarReportText);
         picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
@@ -129,7 +127,16 @@ public class NewReportFragment extends Fragment {
         updatePicPreviews();
         attemptEnableSendSave();
     }
+    public void onStop(){
+        super.onStop();
+        for(ImageView picPreview : picPreviews)
+            picPreview = null;
+        reportBtn = saveButton = null;
+        picPreviewContainer = null;
+        detailsView = null;
 
+
+    }
     @SuppressWarnings("ResourceType")
     private void addSendSavedReportButton(int savedReportCount){
         RelativeLayout mLayout = (RelativeLayout) getView().findViewById(R.id.new_report);
@@ -221,8 +228,13 @@ public class NewReportFragment extends Fragment {
     }
     private void setListeners() {
         detailsView.addTextChangedListener(new TextWatcher() {
-            @Override public void afterTextChanged(Editable s) {}
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {

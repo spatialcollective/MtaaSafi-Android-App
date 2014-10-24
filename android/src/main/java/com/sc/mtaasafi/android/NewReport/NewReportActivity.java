@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.NewReport;
 
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +19,11 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaasafi.android.AlertDialogFragment;
+import com.sc.mtaasafi.android.ComplexPreferences;
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.MainActivity;
+import com.sc.mtaasafi.android.Report;
 
 import java.util.ArrayList;
 import java.util.List;

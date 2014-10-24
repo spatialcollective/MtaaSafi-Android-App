@@ -13,7 +13,7 @@ import android.provider.Settings;
  */
 public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
     public interface AlertDialogListener{
-        void onAlertButtonPressed(String eventKey);
+        void onAlertButtonPressed(int eventKey);
     }
     String alertMessage, positiveText, negativeText;
     int alertType;
@@ -21,11 +21,21 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                             LOCATION_FAILED = 1,
                             CONNECTION_FAILED = 2,
                             UPLOAD_FAILED = 3,
-                            SAVED_REPORTS = 4;
-    public static final String  ALERT_KEY = "alert",
-                                RE_FETCH_FEED = "refetch",
-                                SEND_SAVED_REPORTS = "sendSavedReports",
-                                RE_UPLOAD_POST = "reupload";
+                            SAVED_REPORTS = 4,
+                            GPLAY_UPDATE = 5,
+                            GPLAY_MISSING = 6,
+                            GPLAY_DISABLED = 7,
+                            GPLAY_INVALID = 8,
+
+                            RE_FETCH_FEED = 100,
+                            SEND_SAVED_REPORTS = 200,
+                            RE_UPLOAD_POST = 300,
+                            UPDATE_GPLAY = 400,
+                            INSTALL_GPLAY = 500,
+                            ENABLE_GPLAY = 600;
+
+    public static final String ALERT_KEY = "alert";
+
     private AlertDialogListener listener;
     public AlertDialogFragment(){
     }
@@ -107,6 +117,59 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                             }
                         });
                 break;
+            case GPLAY_UPDATE:
+                builder.setMessage("You need to update Google Play Services to use Mtaa Safi!")
+                        .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // accept failure, and therefore defeat.
+                            }
+                        })
+                        .setNegativeButton("Update", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(UPDATE_GPLAY);
+                            }
+                        });
+                break;
+            case GPLAY_DISABLED:
+                builder.setMessage("Enable Google Play Services to use Mtaa Safi!")
+                        .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // accept failure, and therefore defeat.
+                            }
+                        })
+                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(ENABLE_GPLAY);
+                            }
+                        });
+                break;
+            case GPLAY_MISSING:
+                builder.setMessage("Install Google Play Services to use Mtaa Safi!")
+                        .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // accept failure, and therefore defeat.
+                            }
+                        })
+                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(INSTALL_GPLAY);
+                            }
+                        });
+                break;
+            case GPLAY_INVALID:
+                builder.setMessage("Mtaa Safi detected invalid Google Play Services on this phone")
+                        .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // accept failure, and therefore defeat.
+                            }
+                        })
+                        .setNegativeButton("Reinstall", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(INSTALL_GPLAY);
+                            }
+                        });
+                break;
+
 
         }
         // Create the AlertDialog object and return it

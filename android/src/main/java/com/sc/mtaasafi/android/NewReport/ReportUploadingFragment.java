@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.NewReport;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,9 +10,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.NewReport.NewReportActivity;
+import com.sc.mtaasafi.android.NewReport.ReportUploader;
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.Report;
 
 /**
  * Created by Agree on 10/21/2014.
