@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Location;
 import android.location.LocationManager;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 
 import java.util.ArrayList;
@@ -28,49 +30,69 @@ public class NewReportActivity extends ActionBarActivity implements
     private LocationClient mLocationClient;
     private Location mCurrentLocation;
     private ComplexPreferences cp;
-    private NewReportFragment mFragment;
     private List<String> savedReportKeys;
     public final static String  REPORT_KEY = "pendingReport",
                                 PREF_KEY = "myPrefs",
-                                SAVED_REPORT_KEY_KEY = "savedReportKeys",
-                                UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports";
+                                SAVED_REPORTS_KEY = "savedReportKeys",
+                                UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports",
+                                UPLOAD_TAG= "upload",
+                                NEW_REPORT_TAG= "newreport";
     public String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userName = getPreferences(Context.MODE_PRIVATE).getString(MainActivity.USERNAME_KEY, "");
-        if (savedInstanceState != null)
-            mFragment = (NewReportFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
-        if (mFragment == null) {
-            Log.e("Creating Activity", "fragment was null...");
-            mFragment = new NewReportFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(android.R.id.content, mFragment)
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .commit();
-        }
+        restoreFragment(savedInstanceState);
         mLocationClient = new LocationClient(this, this, this);
         cp = ComplexPreferences.getComplexPreferences(this, PREF_KEY, MODE_PRIVATE);
-        savedReportKeys = cp.getObject(SAVED_REPORT_KEY_KEY, List.class);
+        savedReportKeys = cp.getObject(SAVED_REPORTS_KEY, List.class);
         if(savedReportKeys == null)
             savedReportKeys = new ArrayList<String>();
     }
-
+    // Restore the previous fragment from the savedInstanceState
+    private void restoreFragment(Bundle savedInstanceState){
+        NewReportFragment nrf;
+        FragmentManager manager = getSupportFragmentManager();
+        if(savedInstanceState != null){
+            ReportUploadingFragment ruf;
+            nrf = (NewReportFragment) getSupportFragmentManager().getFragment(savedInstanceState, NEW_REPORT_TAG);
+            ruf = (ReportUploadingFragment) getSupportFragmentManager().getFragment(savedInstanceState, UPLOAD_TAG);
+            if(ruf != null){ // last session ended w a report uploading
+                manager.beginTransaction()
+                        .replace(android.R.id.content, ruf, UPLOAD_TAG)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .commit();
+                return;
+            } else if(nrf == null){ // edge case handling
+                nrf = new NewReportFragment();
+            }
+        } else{
+            Log.e("Creating Activity", "fragment was null...");
+            nrf = new NewReportFragment();
+        }
+        manager.beginTransaction()
+                .replace(android.R.id.content, nrf, NEW_REPORT_TAG)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .commit();
+    }
     @Override
     protected void onStart() {
         super.onStart();
+        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+        if (locationProviders == null || locationProviders.equals("")){
+            onLocationDisabled();
+        }
+        mLocationClient.connect();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
     }
     protected  void onResume(){
         super.onResume();
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals(""))
-            onLocationDisabled();
-        mLocationClient.connect();
-        if(getIntent() != null){
-            if(getIntent().getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
+        Intent intent = getIntent();
+        if(intent != null){
+            if(intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
                 uploadSavedReports();
+            userName = intent.getStringExtra(MainActivity.USERNAME_KEY);
         }
     }
     @Override
@@ -79,13 +101,16 @@ public class NewReportActivity extends ActionBarActivity implements
         super.onStop();
     }
 
-    public int getScreenWidth(){
-        return getWindowManager().getDefaultDisplay().getWidth();
+    public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
+
+    public int getScreenHeight(){
+        return getWindowManager().getDefaultDisplay().getHeight();
     }
 
     public Location getLocation() {
-        if(mLocationClient != null)
+        if(mLocationClient != null && mLocationClient.isConnected()){
             mCurrentLocation = mLocationClient.getLastLocation();
+        }
         return mCurrentLocation;
     }
 
@@ -131,9 +156,19 @@ public class NewReportActivity extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
-        getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
-        cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
+        FragmentManager manager = getSupportFragmentManager();
+        NewReportFragment nrf = (NewReportFragment) manager.findFragmentByTag(NEW_REPORT_TAG);
+        ReportUploadingFragment ruf = (ReportUploadingFragment) manager.findFragmentByTag(UPLOAD_TAG);
+        if(nrf != null)
+            getSupportFragmentManager().putFragment(bundle, NEW_REPORT_TAG, nrf);
+        else if (ruf != null)
+            getSupportFragmentManager().putFragment(bundle, UPLOAD_TAG, ruf);
+        cp.putObject(SAVED_REPORTS_KEY, savedReportKeys);
         cp.commit();
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle bundle){
+        super.onRestoreInstanceState(bundle);
     }
 
     public void beamUpReport(Report report){
@@ -143,7 +178,7 @@ public class NewReportActivity extends ActionBarActivity implements
         report.saveState(bundle);
         uploadingFragment.setArguments(bundle);
         manager.beginTransaction()
-                .replace(android.R.id.content, uploadingFragment)
+                .replace(android.R.id.content, uploadingFragment, UPLOAD_TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
     }
@@ -157,16 +192,18 @@ public class NewReportActivity extends ActionBarActivity implements
         }
         return false;
     }
-
+    // save the report to the complex preferences and then go back to the main activity
     public void saveReport(Report report){
         savedReportKeys.add(report.timeStamp);
         cp.putObject(report.timeStamp, report);
-        cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
+        cp.putObject(SAVED_REPORTS_KEY, savedReportKeys);
         cp.commit();
-        Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details + " Saved reports: " + cp.getObject(SAVED_REPORT_KEY_KEY, List.class).size());
-    }
-    public void clearNewReportData(){
-//        a;dsljfas;lfdkjas;dlfkjas;dlfjas;lkfdjasjasd;lfkjasdf
+        Intent intent = new Intent();
+        intent.setClass(this, MainActivity.class)
+              .putExtra(SAVED_REPORTS_KEY, true);
+
+        startActivity(intent);
+        Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details + " Saved reports: " + cp.getObject(SAVED_REPORTS_KEY, List.class).size());
     }
     public int getSavedReportCount(){
         return savedReportKeys.size();
@@ -174,7 +211,6 @@ public class NewReportActivity extends ActionBarActivity implements
     public Report getNextSavedReport(){
         return cp.getObject(savedReportKeys.get(0), Report.class);
     }
-
     public void uploadSavedReports(){
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
@@ -190,8 +226,8 @@ public class NewReportActivity extends ActionBarActivity implements
     public void removeTopSavedReport(){
         cp.remove(savedReportKeys.get(0));
         savedReportKeys.remove(0);
-        cp.putObject(SAVED_REPORT_KEY_KEY, savedReportKeys);
+        cp.putObject(SAVED_REPORTS_KEY, savedReportKeys);
         cp.commit();
-        Log.e(LogTags.BACKEND_W, "SavedReportsRemaining: " + cp.getObject(SAVED_REPORT_KEY_KEY, List.class).size());
+        Log.e(LogTags.BACKEND_W, "SavedReportsRemaining: " + cp.getObject(SAVED_REPORTS_KEY, List.class).size());
     }
 }

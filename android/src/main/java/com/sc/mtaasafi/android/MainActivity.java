@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -17,8 +18,10 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 
+import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,7 +39,9 @@ public class MainActivity extends ActionBarActivity implements
 
     public static final String USERNAME_KEY = "username",
                         HAS_REPORT_DETAIL_KEY = "report_detail",
-                        REPORT_DETAIL_KEY = "report_detail";
+                        REPORT_DETAIL_KEY = "report_detail",
+                        FEED_FRAG_TAG = "feed",
+                        DETAIl_FRAG_TAG = "detail";
 
                         // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
@@ -44,6 +49,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         sharedPref = getPreferences(Context.MODE_PRIVATE);
@@ -76,6 +82,9 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        mUsername = savedInstanceState.getString(USERNAME_KEY);
+        if (mUsername == null || mUsername.equals(""))
+            determineUsername();
     }
 
     @Override
@@ -89,12 +98,16 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         Log.e(LogTags.MAIN_ACTIVITY, "onResume");
         determineUsername();
-        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
-        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORT_KEY_KEY, List.class);
-        if(savedReports != null && !savedReports.isEmpty()) {
-            launchAlert(AlertDialogFragment.SAVED_REPORTS);
-        }
-//        mPager.setCurrentItem(mPager.getCurrentItem());
+//        Intent intent = getIntent();
+        // If activity wasn't launched after a saveReport event & user has saved reports pending,
+        // remind them
+//        if(intent == null || intent.getBooleanExtra(NewReportActivity.SAVED_REPORTS_KEY, false)){
+//            ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
+//            List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
+//            if(savedReports != null && !savedReports.isEmpty()) {
+//                launchAlert(AlertDialogFragment.SAVED_REPORTS);
+//            }
+//        }
     }
     @Override
     protected void onPause(){
@@ -142,7 +155,8 @@ public class MainActivity extends ActionBarActivity implements
 
         } else if(eventKey == AlertDialogFragment.SEND_SAVED_REPORTS){
             Intent intent = new Intent().setClass(this, NewReportActivity.class)
-                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true);
+                                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
+                                        .putExtra(USERNAME_KEY, mUsername);
             startActivity(intent);
         }
 
@@ -161,8 +175,16 @@ public class MainActivity extends ActionBarActivity implements
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
+        intent.putExtra(USERNAME_KEY, mUsername);
         // intent.putExtra("index", index);
         startActivity(intent);
+    }
+
+    public void refreshFeed(){
+        goToFeed();
+        FragmentManager manager = getSupportFragmentManager();
+        NewsFeedFragment nff = (NewsFeedFragment) manager.findFragmentByTag(FEED_FRAG_TAG);
+        nff.refreshFeed();
     }
 
     @Override
@@ -196,6 +218,8 @@ public class MainActivity extends ActionBarActivity implements
             case R.id._action_report:
                 goToNewReport();
                 return true;
+            case R.id.action_refresh:
+                refreshFeed();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -216,6 +240,10 @@ public class MainActivity extends ActionBarActivity implements
             else
                 mUsername = savedUserName;
         }
+        Toast.makeText(this, "UserName:" + mUsername, Toast.LENGTH_SHORT).show();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(USERNAME_KEY, mUsername);
+        editor.commit();
     }
 
     private void pickUserAccount() {

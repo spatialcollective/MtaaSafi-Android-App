@@ -18,7 +18,6 @@ import android.widget.Toast;
  * Created by Agree on 10/21/2014.
  */
 public class ReportUploadingFragment extends Fragment {
-    RelativeLayout uploadingScreen;
     ImageView reportTextUploading, pic1Uploading, pic2Uploading, pic3Uploading;
     Button cancelButton, resendButton, sendLaterButton, abandonButton;
     LinearLayout uploadInterrupted;
@@ -27,28 +26,31 @@ public class ReportUploadingFragment extends Fragment {
     TextView uploadingTV, detailText;
     Report pendingReport;
     NewReportActivity mActivity;
-    int reportsToUpload, currentReport;
+    int reportsToUpload, currentReport, progress;
     boolean isUploadingSavedReports;
+    final static private String PROGRESS_KEY = "progress";
 
     @Override
     public void onCreate(Bundle instate){
         super.onCreate(instate);
+        setRetainInstance(true);
         progressBars = new ProgressBar[4];
         reportsToUpload = 1;
         mActivity = (NewReportActivity) getActivity();
         currentReport = 1;
         if(getArguments() != null)
-            if(getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)){
+            if (getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)) {
                 // fragment was called to upload saved reports
                 reportsToUpload = mActivity.getSavedReportCount();
                 isUploadingSavedReports = true;
-            }
-            else{
-                pendingReport = new Report(getArguments());
+                pendingReport = mActivity.getNextSavedReport();
+            } else {// fragment was called to upload a new report
+                pendingReport = new Report(mActivity.REPORT_KEY, getArguments());
                 reportsToUpload = 1;
-                // fragment was called to upload a new report
             }
-
+        if(instate != null){
+            progress = instate.getInt(PROGRESS_KEY);
+        }
     }
 
     @Override
@@ -71,15 +73,9 @@ public class ReportUploadingFragment extends Fragment {
         progressBars[3] = (ProgressBar) view.findViewById(R.id.progressBarPic3);
         detailText = (TextView) view.findViewById(R.id.detailText);
         uploadingTV = (TextView) view.findViewById(R.id.uploadingText);
-        uploadingTV.setText("Uploading report (" + currentReport + "/" + reportsToUpload + ")");
         setUploadInterruptedLayout(view);
         setListeners();
-        if(isUploadingSavedReports)
-            beamUpReport(mActivity.getNextSavedReport());
-        else
-            beamUpReport(pendingReport);
     }
-
     private void setUploadInterruptedLayout(View view){
         uploadInterrupted = (LinearLayout) view.findViewById(R.id.uploadInterrupted);
         resendButton = (Button) view.findViewById(R.id.resendButton);
@@ -91,20 +87,28 @@ public class ReportUploadingFragment extends Fragment {
         resendButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+                Log.e(LogTags.BACKEND_W, "Resend called");
+                uploadingTV.setText("Resending...");
+                uploadingTV.setTextColor(getResources().getColor(R.color.White));
+                updatePostProgress(progress, pendingReport);
                 beamUpReport(pendingReport);
             }
         });
         abandonButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
+                uploadingTV.setText("Abandoning report...");
+                uploadingTV.setTextColor(getResources().getColor(R.color.DarkRed));
                 mActivity.finish();
             }
         });
         sendLaterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View view){
+                uploadingTV.setText("Saving report...");
+                uploadingTV.setTextColor(getResources().getColor(R.color.White));
                 mActivity.saveReport(pendingReport);
-                Toast.makeText(mActivity, "Report saved for later!", Toast.LENGTH_SHORT);
+                Toast.makeText(mActivity, "Report saved for later!", Toast.LENGTH_SHORT).show();
                 mActivity.finish();
             }
         });
@@ -115,22 +119,31 @@ public class ReportUploadingFragment extends Fragment {
             }
         });
     }
+    public void onStart(){
+        super.onStart();
+        beamUpReport(pendingReport);
+        // restore uploading interface to previous state
+        for(int i = 0; i < progress+1; i++){
+            updatePostProgress(progress, pendingReport);
+        }
+    }
 
     public void beamUpReport(Report report) {
         uploadInterrupted.setVisibility(View.INVISIBLE);
-        refreshInterface();
-        Log.e(LogTags.BACKEND_W, "Beam it up");
+        if(report.id == 0)
+            refreshInterface();
+        Log.e(LogTags.BACKEND_W, "Beaming it up, baby!");
+        uploadingTV.setText("Uploading report (" + currentReport + "/" + reportsToUpload + ")");
+        uploadingTV.setTextColor(getResources().getColor(R.color.White));
         uploader = new ReportUploader(this, report);
         uploader.execute();
-        resendButton.setClickable(false);
-        resendButton.setBackgroundColor(getResources().getColor((R.color.report_button_unclickable)));
         if(isUploadingSavedReports)
             mActivity.removeTopSavedReport();
         detailText.setText(report.details);
-
     }
     private void refreshInterface(){
         clearProgressBars();
+        progress = 0;
         reportTextUploading.setImageResource(R.drawable.report_loading);
         pic1Uploading.setImageResource(R.drawable.pic1_uploading);
         pic2Uploading.setImageResource(R.drawable.pic2_uploading);
@@ -143,6 +156,7 @@ public class ReportUploadingFragment extends Fragment {
         }
         clearProgressBars();
         uploadingTV.setText("Upload cancelled!");
+        uploadingTV.setTextColor(getResources().getColor(R.color.Red));
         uploadInterrupted.setVisibility(View.VISIBLE);
     }
     public void clearProgressBars(){
@@ -150,6 +164,7 @@ public class ReportUploadingFragment extends Fragment {
             progress.setVisibility(View.INVISIBLE);
     }
     public void updatePostProgress(int progress, Report report){
+        this.progress = progress;
         pendingReport = report;
         Log.e(LogTags.NEWREPORT, "pending report id: " + pendingReport.id);
         switch (progress) {
@@ -174,7 +189,7 @@ public class ReportUploadingFragment extends Fragment {
     public void uploadSuccess() {
         String toastMessage;
         if(isUploadingSavedReports){
-            if(currentReport != reportsToUpload){
+            if(currentReport < reportsToUpload){ // if there are more reports to upload
                 Report nextReport = mActivity.getNextSavedReport();
                 if(nextReport != null){
                     uploadingTV.setText("Uploading Report (" + currentReport + "/" + reportsToUpload + ")");
@@ -200,16 +215,23 @@ public class ReportUploadingFragment extends Fragment {
     }
 
     // called by the uploader in onCancelled so that the failure is reflected in the UI thread
-    public void onFailure(String failMessage){
-        uploadingTV.setText("Upload failed!" + failMessage);
-        uploadInterrupted.setVisibility(View.VISIBLE);
-        clearProgressBars();
+    public void onFailure(String failMessage, ReportUploader uploader){
+        if(this.uploader.equals(uploader)){
+        // only update the UI if we're working with the same uploading session
+        // if the user chose to resend before the previous uploader called onFailure, don't overwrite
+        // the interface updates made by the resend event
+            uploadingTV.setText("Upload failed!" + failMessage);
+            uploadingTV.setTextColor(getResources().getColor(R.color.Red));
+            uploadInterrupted.setVisibility(View.VISIBLE);
+            clearProgressBars();
+        }
     }
 
-    private void updateProgressView(int doneProgressId, int doneViewId, int workingId, int drawable) {
+    private void updateProgressView(int doneProgressId, int doneViewId,
+                                    int workingId, int drawable) {
         if (doneProgressId != 0) {
             ProgressBar done = (ProgressBar) getView().findViewById(doneProgressId);
-            done.setVisibility(View.GONE);
+            done.setVisibility(View.INVISIBLE);
         }
         if (doneViewId != 0 && drawable != 0) {
             ImageView doneView = (ImageView) getView().findViewById(doneViewId);
@@ -221,13 +243,13 @@ public class ReportUploadingFragment extends Fragment {
         }
     }
 
-
     public void clearData() {
         pendingReport = null;
     }
-
-    public void retryUpload() {
-        //     beamItUp(reportId, nextPieceKey, pendingReport);
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        uploader.fragmentDestroyed();
+        uploader.cancel(true);
     }
-
 }
