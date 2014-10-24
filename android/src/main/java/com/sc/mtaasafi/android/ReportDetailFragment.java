@@ -130,16 +130,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         }
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState){
-        super.onSaveInstanceState(outState);
-        // if (mReport != null){
-        //     outState = mReport.saveState(outState);
-        //     outState.putBoolean(hadAReportKey, true);
-        // } else
-        //     outState.putBoolean(hadAReportKey, false);
-    }
-
     private String getSimpleTimeStamp(String timestamp) {
         SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
         SimpleDateFormat displayFormat = new SimpleDateFormat("K:mm a  d MMM yy");
