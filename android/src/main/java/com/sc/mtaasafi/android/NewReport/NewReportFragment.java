@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android.NewReport;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,10 +39,7 @@ import java.util.Date;
 public class NewReportFragment extends Fragment {
     int nextPendingPiece;
 
-    Button reportBtn, saveButton;
     ImageView[] picPreviews;
-
-    LinearLayout picPreviewContainer;
     DescriptionEditText detailsView;
 
     private ArrayList<String> picPaths;
@@ -80,9 +78,8 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         detailsText = "";
-        picPreviewContainer = (LinearLayout) view.findViewById(R.id.picPreviewContainer);
-        reportBtn = (Button) view.findViewById(R.id.reportButton);
-        saveButton = (Button) view.findViewById(R.id.saveButton);
+        attemptEnableSendSave(view);
+        updatePicPreviews(view);
         setListeners();
         return view;
     }
@@ -94,8 +91,6 @@ public class NewReportFragment extends Fragment {
             detailsText = savedState.getString(DEETS_KEY);
             if (detailsText != null)
                 detailsView.setText(detailsText);
-            updatePicPreviews();
-            attemptEnableSendSave();
 //            if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
 //                nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
 //                pendingReport = new Report(PENDING_REPORT_ID, savedState);
@@ -124,19 +119,15 @@ public class NewReportFragment extends Fragment {
         if(mActivity.getSavedReportCount() > 0
                 && getView().findViewById(SAVED_REPORT_BUTTON_ID) == null)
             addSendSavedReportButton(mActivity.getSavedReportCount());
-        updatePicPreviews();
-        attemptEnableSendSave();
     }
+    @Override
     public void onStop(){
         super.onStop();
         for(ImageView picPreview : picPreviews)
             picPreview = null;
-        reportBtn = saveButton = null;
-        picPreviewContainer = null;
         detailsView = null;
-
-
     }
+
     @SuppressWarnings("ResourceType")
     private void addSendSavedReportButton(int savedReportCount){
         RelativeLayout mLayout = (RelativeLayout) getView().findViewById(R.id.new_report);
@@ -168,20 +159,19 @@ public class NewReportFragment extends Fragment {
         mActivity.uploadSavedReports();
     }
 
-    private void updatePicPreviews() {
+    private void updatePicPreviews(View view) {
         AQuery aq = new AQuery(getActivity());
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
             if(picPaths.get(i) != null)
                 aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
-            else{
+            else
                 aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
-            }
         }
         int emptyPics = getEmptyPics();
         if (emptyPics == 0) {
-            getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
+            view.findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
         } else {
-            TextView attachPicsTV = (TextView) getView().findViewById(R.id.attachPicsTV);
+            TextView attachPicsTV = (TextView) view.findViewById(R.id.attachPicsTV);
             String needMoreString = "Need " + emptyPics + " more picture";
             if(emptyPics > 1)
                 needMoreString +="s";
@@ -229,35 +219,17 @@ public class NewReportFragment extends Fragment {
     private void setListeners() {
         detailsView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void afterTextChanged(Editable s) {
-            }
-
+            public void afterTextChanged(Editable s) { }
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 detailsText = detailsView.getText().toString();
-                attemptEnableSendSave();
+                attemptEnableSendSave(null);
             }
         });
 
-        reportBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                if(canSend()){
-                    NewReportActivity mActivity = (NewReportActivity) getActivity();
-                    mActivity.beamUpReport(createNewReport());
-                }
-            }
-        });
-
-        saveButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                attemptSave();
-            }
-        });
         picPreviews[PIC1].setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -304,7 +276,7 @@ public class NewReportFragment extends Fragment {
             File file = new File(picPaths.get(previewClicked));
             if (file.length() == 0)
                 picPaths.set(previewClicked, null);
-            updatePicPreviews();
+            updatePicPreviews(getView());
         }
     }
 
@@ -324,27 +296,20 @@ public class NewReportFragment extends Fragment {
 //        imm.hideSoftInputFromWindow(detailsView.getWindowToken(), 0);
 //    }
 
-    public void clearView() {
-        updatePicPreviews();
-        detailsText = "";
-        detailsView.setText("");
-        detailsView.setFocusable(true);
-    }
-
-    public Report createNewReport() {
+    public Report createNewReport(String userName, Location location) {
         Log.e(LogTags.NEWREPORT, "createNewReport");
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
-        return new Report(detailsText, mActivity.userName, mActivity.getLocation(),
-                picPaths);
+        return new Report(detailsText, userName, location, picPaths);
     }
 
-    public void attemptEnableSendSave() {
-        if(detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0){
-            disableSend();
-            disableSave();
-        } else{
-            enableSave();
-            enableSend();
+    public void attemptEnableSendSave(View view) {
+        if (view == null)
+            view = getView();
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
+            disableButton((Button) view.findViewById(R.id.sendButton));
+            disableButton((Button) view.findViewById(R.id.saveButton));
+        } else {
+            enableButton((Button) view.findViewById(R.id.sendButton));
+            enableButton((Button) view.findViewById(R.id.saveButton));
         }
     }
 
@@ -364,33 +329,12 @@ public class NewReportFragment extends Fragment {
         return canSend;
     }
 
-    private void attemptSave(){
-        String error;
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
-        if(mActivity.getLocation() == null){
-            error = "Cannot access location, make sure location services enabled";
-        } else{
-            mActivity.saveReport(createNewReport());
-            mActivity.finish();
-            return;
-        }
-        Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
-
+    private void enableButton(Button btn) {
+        btn.setClickable(true);
+        btn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
     }
-    private void enableSend() {
-        reportBtn.setClickable(true);
-        reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
-    }
-    private void enableSave(){
-        saveButton.setClickable(true);
-        saveButton.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
-    }
-    private void disableSend() {
-        reportBtn.setClickable(false);
-        reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
-    }
-    private void disableSave(){
-        saveButton.setClickable(false);
-        saveButton.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
+    private void disableButton(Button btn) {
+        btn.setClickable(false);
+        btn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
     }
 }

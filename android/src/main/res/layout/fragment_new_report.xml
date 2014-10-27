@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/report_button_text"
-            android:id="@+id/reportButton"
+            android:id="@+id/sendButton"
             android:layout_gravity="right"
             android:background="@color/report_button_unclickable"
             android:textColor="@color/white"
@@ -41,7 +41,9 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:clickable="false" />
+            android:clickable="false"
+            android:onClick="beamUpReport" />
+
         <include layout="@layout/attach_pic_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,13 +58,14 @@
         android:layout_height="wrap_content"
         android:text="Save"
         android:id="@+id/saveButton"
-        android:layout_above="@+id/reportButton"
+        android:layout_above="@+id/sendButton"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:background="@color/report_button_unclickable"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:onClick="attemptSave" />
 
     <ImageView
         android:layout_width="match_parent"
@@ -70,7 +73,7 @@
         android:background="#999999"
         android:paddingTop="10dp"
         android:layout_weight="23.13"
-        android:layout_alignTop="@+id/reportButton"
+        android:layout_alignTop="@+id/sendButton"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

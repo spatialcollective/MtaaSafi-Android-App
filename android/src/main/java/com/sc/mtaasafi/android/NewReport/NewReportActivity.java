@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -176,8 +177,10 @@ public class NewReportActivity extends ActionBarActivity implements
         super.onRestoreInstanceState(bundle);
     }
 
-    public void beamUpReport(Report report){
+    public void beamUpReport(View view) {
         FragmentManager manager = getSupportFragmentManager();
+        NewReportFragment nrf = (NewReportFragment) manager.findFragmentByTag(NEW_REPORT_TAG);
+        Report report = nrf.createNewReport(userName, getLocation());
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
         Bundle bundle = new Bundle();
         report.saveState(REPORT_KEY, bundle);
@@ -186,6 +189,16 @@ public class NewReportActivity extends ActionBarActivity implements
                 .replace(android.R.id.content, uploadingFragment, UPLOAD_TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
+    }
+
+    public void attemptSave(View view) {
+        NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+        if (getLocation() == null) {
+            Toast.makeText(this, "Cannot access location, make sure location services enabled", Toast.LENGTH_SHORT).show();
+        } else {
+            saveReport(nrf.createNewReport(userName, getLocation()));
+            finish();
+        }
     }
 
     public boolean isOnline() {
