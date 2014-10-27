@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.adapter;
 
 import android.accounts.Account;
+import android.app.Activity;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
@@ -14,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
@@ -171,6 +173,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         c.close();
         // for each id from the server, if it is in the local DB,
         // remove the id from both the DB ids and the server ids
+        showToast("Added to dbIds: " + dbIds.size() + " entries");
         Log.i(LogTags.BACKEND_W, "Added to dbIds: " + dbIds.size() + " entries");
         for(int i = 0; i < serverIds.size(); i++) {
             if(dbIds.remove(serverIds.get(i))){
@@ -178,6 +181,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
         Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
+        showToast("Deleting " + dbIds.size() + " DB entries");
         // delete all of the reports in the DB which the server didn't also have
         Integer dbIdToDelete = dbIds.pollFirst();
         Uri toDeleteUri;
@@ -198,6 +202,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             throws RemoteException, OperationApplicationException {
         try {
             Log.i(TAG, "Got " + newReports.length() + " Json objects in response");
+            showToast("Got " + newReports.length() + " Json objects in response");
             for (int i = 0; i < newReports.length(); i++) {
                 JSONObject entry = newReports.getJSONObject(i);
                 JSONArray mediaURLsJSON = entry.getJSONArray("mediaURLs");
@@ -224,10 +229,18 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             e.printStackTrace();
         }
         Log.i(TAG, "Merge solution ready. Applying batch update");
+        showToast("Merge solution ready. Applying batch update.");
         mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
         mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
     }
-
+    private void showToast(final String message){
+//        Activity ac = (Activity) getContext();
+//                ac.runOnUiThread(new Runnable() {
+//            public void run() {
+//                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+//            }
+//        });
+    }
 // retrieves from server a list of the objects
     private JSONArray getNewReportsFromServer(ArrayList serverIds) throws IOException, JSONException{
         String fetchReportsURL = FEED_URL + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
