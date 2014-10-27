@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.feed;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
@@ -22,7 +22,12 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.sc.mtaasafi.android.NewReport.NewReportActivity;
+import com.sc.mtaasafi.android.AlertDialogFragment;
+import com.sc.mtaasafi.android.ComplexPreferences;
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.database.SyncUtils;
+import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;

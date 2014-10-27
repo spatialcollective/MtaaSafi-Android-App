@@ -2,11 +2,12 @@ package com.sc.mtaasafi.android;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+
+import com.sc.mtaasafi.android.feed.MainActivity;
 
 /**
  * Created by Agree on 9/26/2014.

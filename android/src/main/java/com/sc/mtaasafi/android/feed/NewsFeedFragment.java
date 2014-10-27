@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.feed;
 
 import android.accounts.Account;
 import android.app.Activity;
@@ -17,6 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.database.AuthenticatorService;
+import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.SyncUtils;
+import com.sc.mtaasafi.android.feed.MainActivity;
 
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {

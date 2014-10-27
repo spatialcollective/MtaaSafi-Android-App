@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.feed;
 
 import android.database.Cursor;
 import android.os.Build;
@@ -11,13 +11,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.androidquery.AQuery;
 import com.nineoldandroids.view.animation.AnimatorProxy;
+import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.database.ReportContract;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.text.SimpleDateFormat;

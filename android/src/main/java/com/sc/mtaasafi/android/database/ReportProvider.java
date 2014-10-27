@@ -1,14 +1,12 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.database;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
 
 public class ReportProvider extends ContentProvider {
     ReportDatabase mDatabaseHelper;

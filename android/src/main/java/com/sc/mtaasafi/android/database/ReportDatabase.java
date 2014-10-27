@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

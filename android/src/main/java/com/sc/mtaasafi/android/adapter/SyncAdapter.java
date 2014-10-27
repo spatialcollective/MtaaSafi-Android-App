@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.sc.mtaasafi.android.ReportContract;
+import com.sc.mtaasafi.android.database.ReportContract;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -29,13 +29,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /* This class is instantiated in {@link SyncService}, which also binds SyncAdapter to the system.
  * SyncAdapter should only be initialized in SyncService, never anywhere else. */
