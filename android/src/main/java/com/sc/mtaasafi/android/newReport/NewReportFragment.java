@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.NewReport;
+package com.sc.mtaasafi.android.newReport;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,17 +16,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidquery.AQuery;
-import com.sc.mtaasafi.android.DescriptionEditText;
-import com.sc.mtaasafi.android.LogTags;
-import com.sc.mtaasafi.android.NewReport.NewReportActivity;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 
@@ -38,7 +34,7 @@ import java.util.Date;
 
 public class NewReportFragment extends Fragment {
     ImageView[] picPreviews;
-    DescriptionEditText detailsView;
+    EditText detailsView;
 
     public String detailsText;
     public ArrayList<String> picPaths;
@@ -70,7 +66,7 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
+        detailsView = (EditText) view.findViewById(R.id.newReportDetails);
         setListeners();
         return view;
     }

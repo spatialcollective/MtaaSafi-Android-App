@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.feed;
 
 import android.accounts.Account;
 import android.app.Activity;
@@ -15,8 +15,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.database.AuthenticatorService;
+import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.SyncUtils;
+import com.sc.mtaasafi.android.newReport.NewReportActivity;
+
+import java.util.List;
 
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -27,7 +40,7 @@ public class NewsFeedFragment extends ListFragment
     ReportSelectedListener mCallback;
     int index;
     int top;
-
+    private final static int SAVED_REPORT_BUTTON_ID = 100;
     public String[] PROJECTION = new String[] {
         ReportContract.Entry._ID,
         ReportContract.Entry.COLUMN_TITLE,
@@ -67,13 +80,44 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        ListView mListView = (ListView) view.findViewById(android.R.id.list);
-        mListView.setPadding(0, ((MainActivity) getActivity()).getActionBarHeight(), 0, 0);
+        LinearLayout feedLL = (LinearLayout) view.findViewById(R.id.feedLL);
+        feedLL.setPadding(0, ((MainActivity) getActivity()).getActionBarHeight(), 0, 0);
+        view.findViewById(R.id.savedReportsButton).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public  void onClick(View view){
+                ((MainActivity) getActivity()).uploadSavedReports();
+            }
+        });
         if (savedInstanceState != null) {
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
         return view;
+    }
+
+    @SuppressWarnings("ResourceType")
+    private void addSendSavedReportButton(int savedReportCount, View view){
+//        RelativeLayout mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
+//        Button sendSavedReport = new Button(getActivity());
+//        sendSavedReport.setId(SAVED_REPORT_BUTTON_ID);
+//        sendSavedReport.setBackgroundColor(getResources().getColor(R.color.Coral));
+//        String buttonText = "Send " + savedReportCount + " saved report";
+//        if(savedReportCount > 1)
+//            buttonText +="s";
+//        sendSavedReport.setText(buttonText);
+//        sendSavedReport.setTextColor(getResources().getColor(R.color.White));
+//        sendSavedReport.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View view) {
+//            }
+//        });
+//        RelativeLayout.LayoutParams buttonParams =
+//                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+//                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+//        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+//        sendSavedReport.setLayoutParams(buttonParams);
+//        LinearLayout ll = (LinearLayout) mLayout.findViewById(R.id.feedLL);
+//        ll.addView(sendSavedReport, 0);
     }
 
     @Override
@@ -94,6 +138,18 @@ public class NewsFeedFragment extends ListFragment
         });
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
+        ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
+        if (savedReports != null && !savedReports.isEmpty()){
+            Button uploadSavedBtn = (Button) view.findViewById(R.id.savedReportsButton);
+            uploadSavedBtn.setVisibility(View.VISIBLE);
+            String buttonText = "Send " + savedReports.size() + " saved report";
+            if(savedReports.size() > 1)
+                buttonText += "s";
+            uploadSavedBtn.setText(buttonText);
+        }
+        else
+            view.findViewById(R.id.savedReportsButton).setVisibility(View.GONE);
     }
 
     @Override public void onActivityCreated(Bundle savedInstanceState) {

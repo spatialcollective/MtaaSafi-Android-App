@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.NewReport;
+package com.sc.mtaasafi.android.newReport;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,12 +18,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
-import com.sc.mtaasafi.android.AlertDialogFragment;
-import com.sc.mtaasafi.android.ComplexPreferences;
-import com.sc.mtaasafi.android.LogTags;
-import com.sc.mtaasafi.android.MainActivity;
+import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
+import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.feed.MainActivity;
 import com.sc.mtaasafi.android.Report;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class NewReportActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userName = getPreferences(Context.MODE_PRIVATE).getString(MainActivity.USERNAME_KEY, "");
+        userName = getPreferences(Context.MODE_PRIVATE).getString(PrefUtils.USERNAME, "");
         restoreFragment(savedInstanceState);
         
         mLocationClient = new LocationClient(this, this, this);
@@ -100,7 +100,7 @@ public class NewReportActivity extends ActionBarActivity implements
         if(intent != null){
             if(intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
                 uploadSavedReports();
-            userName = intent.getStringExtra(MainActivity.USERNAME_KEY);
+            userName = intent.getStringExtra(PrefUtils.USERNAME);
         }
     }
     @Override

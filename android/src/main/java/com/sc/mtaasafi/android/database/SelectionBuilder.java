@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -47,7 +47,6 @@ public class SelectionBuilder {
         mSelection.append("(").append(selection).append(")");
         if (selectionArgs != null)
             Collections.addAll(mSelectionArgs, selectionArgs);
-
         return this;
     }
 

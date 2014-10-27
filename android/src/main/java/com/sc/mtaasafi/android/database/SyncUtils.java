@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.database;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -7,6 +7,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.sc.mtaasafi.android.database.AuthenticatorService;
+import com.sc.mtaasafi.android.database.ReportContract;
 
 public class SyncUtils {
     private static final long SYNC_FREQUENCY = 60 * 60; // 1 hour

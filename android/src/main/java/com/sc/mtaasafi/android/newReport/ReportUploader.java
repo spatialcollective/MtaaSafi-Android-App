@@ -1,10 +1,10 @@
-package com.sc.mtaasafi.android.NewReport;
+package com.sc.mtaasafi.android.newReport;
 
 import android.accounts.NetworkErrorException;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.sc.mtaasafi.android.LogTags;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
 
 import org.apache.http.HttpResponse;

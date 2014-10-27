@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.database;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -20,7 +20,7 @@ public class ReportContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ENTRIES).build();
         public static final String TABLE_NAME = "reports",
         	COLUMN_ID = "_id",
-        	COLUMN_ENTRY_ID = "report_id",
+        	COLUMN_ENTRY_ID = "unique_id",
         	COLUMN_TITLE = "title",
 	        COLUMN_DETAILS = "details",
 	        COLUMN_TIMESTAMP = "timestamp",

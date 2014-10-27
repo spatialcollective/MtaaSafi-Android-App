@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.SystemUtils;
 
 /**
  * Created by lenovo on 9/4/2014.
