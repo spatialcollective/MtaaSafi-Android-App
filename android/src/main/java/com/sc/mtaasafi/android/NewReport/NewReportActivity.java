@@ -50,12 +50,14 @@ public class NewReportActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         userName = getPreferences(Context.MODE_PRIVATE).getString(MainActivity.USERNAME_KEY, "");
         restoreFragment(savedInstanceState);
+        
         mLocationClient = new LocationClient(this, this, this);
         cp = ComplexPreferences.getComplexPreferences(this, PREF_KEY, MODE_PRIVATE);
         savedReportKeys = cp.getObject(SAVED_REPORTS_KEY, List.class);
         if(savedReportKeys == null)
             savedReportKeys = new ArrayList<String>();
     }
+
     // Restore the previous fragment from the savedInstanceState
     private void restoreFragment(Bundle savedInstanceState){
         NewReportFragment nrf;
@@ -201,13 +203,22 @@ public class NewReportActivity extends ActionBarActivity implements
         }
     }
 
+    public boolean canSend() {
+        if (!isOnline())
+            Toast.makeText(this, "Connect to a network to send your report", Toast.LENGTH_SHORT).show();
+        else if (getLocation() == null)
+            Toast.makeText(this, "Cannot access location, make sure location services enabled", Toast.LENGTH_SHORT).show();
+        else
+            return true;
+        return false;
+    }
+
     public boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
             return true;
-        }
         return false;
     }
     // save the report to the complex preferences and then go back to the main activity
@@ -229,7 +240,11 @@ public class NewReportActivity extends ActionBarActivity implements
     public Report getNextSavedReport(){
         return cp.getObject(savedReportKeys.get(0), Report.class);
     }
-    public void uploadSavedReports(){
+    public void attemptUpload(View view) {
+        if (canSend())
+            uploadSavedReports();
+    }
+    public void uploadSavedReports() {
         FragmentManager manager = getSupportFragmentManager();
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
         Bundle bundle = new Bundle();
@@ -239,7 +254,6 @@ public class NewReportActivity extends ActionBarActivity implements
                 .replace(android.R.id.content, uploadingFragment, UPLOAD_TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
-
     }
     public void removeTopSavedReport(){
         cp.remove(savedReportKeys.get(0));

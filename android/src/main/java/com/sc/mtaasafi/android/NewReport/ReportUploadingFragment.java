@@ -267,7 +267,7 @@ public class ReportUploadingFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        uploader.fragmentDestroyed();
-        uploader.cancel(true);
+//        uploader.fragmentDestroyed();
+//        uploader.cancel(true);
     }
 }
