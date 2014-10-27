@@ -16,12 +16,12 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.ReportContract;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -31,16 +31,12 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeSet;
 
 /* This class is instantiated in {@link SyncService}, which also binds SyncAdapter to the system.
@@ -57,6 +53,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     // Project used when querying content provider. Returns all known fields.
     private static final String[] PROJECTION = new String[] {
         ReportContract.Entry._ID,
+        ReportContract.Entry.COLUMN_ENTRY_ID,
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
         ReportContract.Entry.COLUMN_TIMESTAMP,
@@ -102,11 +99,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider, SyncResult syncResult) {
         Log.i(TAG, "Beginning network synchronization");
         try {
-            try {
-                Log.i(TAG, "Streaming data from network: " + FEED_URL);
-                updateLocalFeedData(getServerIds(), syncResult);
-            } finally {
-            }
+            Log.i(TAG, "Streaming data from network: " + FEED_URL);
+            updateLocalFeedData(getServerIds(), syncResult);
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Feed URL is malformed", e);
             syncResult.stats.numParseExceptions++;
@@ -169,36 +163,33 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, PROJECTION, null, null, null); // Get all entries
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
-
-        // Find stale data
-        int id;
-        String entryId;
-        String title;
-        String details;
-        long published;
         TreeSet<Integer> dbIds = new TreeSet<Integer>();
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
-            dbIds.add(c.getInt(COLUMN_ID));
+            dbIds.add(c.getInt(COLUMN_ENTRY_ID));
         }
         c.close();
-        // for each id from the server, remove the id from both the DB ids and the server ids
+        // for each id from the server, if it is in the local DB,
+        // remove the id from both the DB ids and the server ids
+        Log.i(LogTags.BACKEND_W, "Added to dbIds: " + dbIds.size() + " entries");
         for(int i = 0; i < serverIds.size(); i++) {
-            if(dbIds.remove(serverIds.get(i)))
+            if(dbIds.remove(serverIds.get(i))){
                 serverIds.remove(i);
+            }
         }
-
+        Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
         // delete all of the reports in the DB which the server didn't also have
         Integer dbIdToDelete = dbIds.pollFirst();
         Uri toDeleteUri;
         while(dbIdToDelete != null) {
-            toDeleteUri = ReportContract.Entry.CONTENT_URI.buildUpon()
-                    .appendPath(Integer.toString(dbIdToDelete)).build();
-            batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
-            Log.i(TAG, "Scheduled delete: " + toDeleteUri);
-            syncResult.stats.numDeletes++;
+                toDeleteUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+                        .appendPath(Integer.toString(dbIdToDelete)).build();
+                batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
+                Log.i(TAG, "Scheduled delete: " + toDeleteUri);
+                syncResult.stats.numDeletes++;
             dbIdToDelete = dbIds.pollFirst();
         }
+        // fetch the new reports, which the local DB didn't have, from the server and write them to DB
         writeNewReportsToDB(getNewReportsFromServer(serverIds), batch, syncResult);
     }
 
@@ -209,13 +200,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             Log.i(TAG, "Got " + newReports.length() + " Json objects in response");
             for (int i = 0; i < newReports.length(); i++) {
                 JSONObject entry = newReports.getJSONObject(i);
-                Log.i(TAG, "Entry: " + entry.toString());
                 JSONArray mediaURLsJSON = entry.getJSONArray("mediaURLs");
                 ArrayList<String> mediaURLs = new ArrayList<String>();
                 for (int j = 0; j < mediaURLsJSON.length(); j++) {
                     mediaURLs.add(mediaURLsJSON.get(j).toString());
                 }
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
+                        .withValue(ReportContract.Entry.COLUMN_ENTRY_ID, entry.getString(ReportContract.Entry.COLUMN_ENTRY_ID))
                         .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
                         .withValue(ReportContract.Entry.COLUMN_DETAILS, entry.getString(ReportContract.Entry.COLUMN_DETAILS))
                         .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, entry.getString(ReportContract.Entry.COLUMN_TIMESTAMP))
@@ -239,9 +230,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 // retrieves from server a list of the objects
     private JSONArray getNewReportsFromServer(ArrayList serverIds) throws IOException, JSONException{
-//        JSONArray idsToFetch = new JSONArray(serverIds);
-//        for(int i = 0; i < serverIds.size(); i++)
-//            idsToFetch.put(serverIds.get(i));
         String fetchReportsURL = FEED_URL + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
         return convertStringToJson(getFromServer(fetchReportsURL, serverIds.toString()));
     }
