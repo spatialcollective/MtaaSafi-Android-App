@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.SystemUtils;
 
 import java.lang.reflect.Type;
 import android.content.Context;
@@ -66,6 +66,9 @@ public class ComplexPreferences {
 			}
 		}
 	}
+    public String getString(String key, String defaultValue){
+        return preferences.getString(key, defaultValue);
+    }
     public void remove(String key){
         editor.remove(key);
     }

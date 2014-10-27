@@ -6,6 +6,8 @@ import android.util.Log;
 
 import android.location.Location;
 
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

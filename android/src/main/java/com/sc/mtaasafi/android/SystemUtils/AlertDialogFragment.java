@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.SystemUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

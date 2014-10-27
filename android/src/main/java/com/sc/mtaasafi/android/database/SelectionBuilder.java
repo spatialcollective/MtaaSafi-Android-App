@@ -47,7 +47,6 @@ public class SelectionBuilder {
         mSelection.append("(").append(selection).append(")");
         if (selectionArgs != null)
             Collections.addAll(mSelectionArgs, selectionArgs);
-
         return this;
     }
 

@@ -3,9 +3,12 @@ package com.sc.mtaasafi.android.feed;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
@@ -21,11 +24,14 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.sc.mtaasafi.android.AlertDialogFragment;
-import com.sc.mtaasafi.android.ComplexPreferences;
-import com.sc.mtaasafi.android.LogTags;
+import com.google.android.gms.location.LocationClient;
+import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
+import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
@@ -39,14 +45,15 @@ import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
-        NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener {
+        NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener,
+        GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener{
 
-    private SharedPreferences sharedPref;
     public String mUsername;
     ReportDetailFragment mFragment;
-
-    public static final String USERNAME_KEY = "username";
-
+    private LocationClient mLocationClient;
+    private Location mCurrentLocation;
+    ComplexPreferences cp;
                         // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
 
@@ -56,8 +63,7 @@ public class MainActivity extends ActionBarActivity implements
         Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
-
+        mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
         if (savedInstanceState != null)
             mFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
@@ -67,7 +73,7 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragment_container, new NewsFeedFragment())
                 .commit();
         }
-        ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
+        cp = PrefUtils.getPrefs(this);
         List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
         if (savedReports != null && !savedReports.isEmpty())
             launchAlert(AlertDialogFragment.SAVED_REPORTS);
@@ -76,7 +82,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
-        bundle.putString(USERNAME_KEY, mUsername);
+        bundle.putString(PrefUtils.USERNAME, mUsername);
         if (mFragment != null && mFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
     }
@@ -84,7 +90,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mUsername = savedInstanceState.getString(USERNAME_KEY);
+        mUsername = savedInstanceState.getString(PrefUtils.USERNAME);
         if (mUsername == null || mUsername.equals(""))
             determineUsername();
     }
@@ -93,6 +99,8 @@ public class MainActivity extends ActionBarActivity implements
     protected void onStart() {
         super.onStart();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
+        cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
+        cp.commit();
         int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         switch(gPlayCode){
             case ConnectionResult.SERVICE_MISSING:
@@ -106,6 +114,9 @@ public class MainActivity extends ActionBarActivity implements
                 break;
             case ConnectionResult.SERVICE_INVALID:
                 launchAlert(AlertDialogFragment.GPLAY_INVALID);
+                break;
+            case ConnectionResult.SUCCESS:
+                mLocationClient.connect();
                 break;
         }
     }
@@ -135,10 +146,6 @@ public class MainActivity extends ActionBarActivity implements
         // Disconnecting the client invalidates it.
         Log.e(LogTags.MAIN_ACTIVITY, "onStop");
         super.onStop();
-    }
-
-    public int getScreenWidth(){
-        return getWindowManager().getDefaultDisplay().getWidth();
     }
 
     public void backupDataToFile(String dataString) throws IOException {
@@ -174,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements
             case AlertDialogFragment.SEND_SAVED_REPORTS:
                 Intent intent = new Intent().setClass(this, NewReportActivity.class)
                         .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
-                        .putExtra(USERNAME_KEY, mUsername);
+                        .putExtra(PrefUtils.USERNAME, mUsername);
                 startActivity(intent);
                 break;
             case AlertDialogFragment.INSTALL_GPLAY:
@@ -199,7 +206,7 @@ public class MainActivity extends ActionBarActivity implements
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
-        intent.putExtra(USERNAME_KEY, mUsername);
+        intent.putExtra(PrefUtils.USERNAME, mUsername);
         // intent.putExtra("index", index);
         startActivity(intent);
     }
@@ -216,9 +223,8 @@ public class MainActivity extends ActionBarActivity implements
     private void setUserName(Intent data) {
         String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
         mUsername = retrievedUserName;
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(USERNAME_KEY, retrievedUserName);
-        editor.commit();
+        cp.putObject(PrefUtils.USERNAME, mUsername);
+        cp.commit();
     }
 
     @Override
@@ -251,15 +257,12 @@ public class MainActivity extends ActionBarActivity implements
 
     private void determineUsername() {
         if (mUsername == null || mUsername.equals("")) {
-            String savedUserName = sharedPref.getString(USERNAME_KEY, "");
+            String savedUserName = cp.getString(PrefUtils.USERNAME, "");
             if (savedUserName.equals(""))
                 pickUserAccount();
             else
                 mUsername = savedUserName;
         }
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(USERNAME_KEY, mUsername);
-        editor.commit();
     }
 
     private void pickUserAccount() {
@@ -267,4 +270,57 @@ public class MainActivity extends ActionBarActivity implements
         Intent intent = AccountPicker.newChooseAccountIntent(null, null, accountTypes, false, null, null, null, null);
         startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
+
+    public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
+
+    public int getScreenHeight(){
+        return getWindowManager().getDefaultDisplay().getHeight();
+    }
+    // ======================Google Play Services:======================
+    public Location getLocation() {
+        if(mLocationClient != null && mLocationClient.isConnected()){
+            mCurrentLocation = mLocationClient.getLastLocation();
+            cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
+        }
+        return mCurrentLocation;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        getLocation();
+    }
+    @Override
+    public void onDisconnected() {
+        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
+    }
+
+    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try { // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+            } catch (IntentSender.SendIntentException e) { // Thrown if Google Play services canceled the original PendingIntent
+                e.printStackTrace();
+            }
+        } else { // If no resolution is available, display a dialog to the user with the error.
+            CharSequence text = "Google play connection failed, no resolution";
+            Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+    public boolean isLocationEnabled(){
+        LocationManager locationManager =
+                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    public void onLocationDisabled(){
+        AlertDialogFragment adf = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
+        adf.setArguments(bundle);
+        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    }
+
 }
