@@ -17,6 +17,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
@@ -180,17 +181,19 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 serverIds.remove(i);
             }
         }
+
         Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
-        showToast("Deleting " + dbIds.size() + " DB entries");
         // delete all of the reports in the DB which the server didn't also have
         Integer dbIdToDelete = dbIds.pollFirst();
         Uri toDeleteUri;
         while(dbIdToDelete != null) {
+            if(dbIdToDelete != 0){
                 toDeleteUri = ReportContract.Entry.CONTENT_URI.buildUpon()
                         .appendPath(Integer.toString(dbIdToDelete)).build();
                 batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
                 Log.i(TAG, "Scheduled delete: " + toDeleteUri);
                 syncResult.stats.numDeletes++;
+            }
             dbIdToDelete = dbIds.pollFirst();
         }
         // fetch the new reports, which the local DB didn't have, from the server and write them to DB
@@ -202,6 +205,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             throws RemoteException, OperationApplicationException {
         try {
             Log.i(TAG, "Got " + newReports.length() + " Json objects in response");
+
             showToast("Got " + newReports.length() + " Json objects in response");
             for (int i = 0; i < newReports.length(); i++) {
                 JSONObject entry = newReports.getJSONObject(i);
@@ -280,17 +284,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         is.close();
         return responseString;
     }
-    // Given a string representation of a URL, sets up a connection and gets an input stream.
-    // private InputStream downloadUrl(final URL url) throws IOException {
-    //     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    //     conn.setReadTimeout(NET_READ_TIMEOUT_MILLIS /* milliseconds */);
-    //     conn.setConnectTimeout(NET_CONNECT_TIMEOUT_MILLIS /* milliseconds */);
-    //     conn.setRequestMethod("GET");
-    //     conn.setDoInput(true);
-    //     // Starts the query
-    //     conn.connect();
-    //     return conn.getInputStream();
-    // }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));

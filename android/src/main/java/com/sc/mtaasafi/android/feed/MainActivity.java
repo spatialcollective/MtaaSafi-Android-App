@@ -4,7 +4,6 @@ import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
@@ -41,7 +40,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -74,9 +72,6 @@ public class MainActivity extends ActionBarActivity implements
                 .commit();
         }
         cp = PrefUtils.getPrefs(this);
-        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
-        if (savedReports != null && !savedReports.isEmpty())
-            launchAlert(AlertDialogFragment.SAVED_REPORTS);
     }
 
     @Override
@@ -179,10 +174,7 @@ public class MainActivity extends ActionBarActivity implements
             case AlertDialogFragment.RE_FETCH_FEED:
                 break;
             case AlertDialogFragment.SEND_SAVED_REPORTS:
-                Intent intent = new Intent().setClass(this, NewReportActivity.class)
-                        .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
-                        .putExtra(PrefUtils.USERNAME, mUsername);
-                startActivity(intent);
+                uploadSavedReports();
                 break;
             case AlertDialogFragment.INSTALL_GPLAY:
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
@@ -207,7 +199,6 @@ public class MainActivity extends ActionBarActivity implements
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
         intent.putExtra(PrefUtils.USERNAME, mUsername);
-        // intent.putExtra("index", index);
         startActivity(intent);
     }
 
@@ -271,6 +262,12 @@ public class MainActivity extends ActionBarActivity implements
         startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
 
+    public void uploadSavedReports(){
+        Intent intent = new Intent().setClass(this, NewReportActivity.class)
+                .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
+                .putExtra(PrefUtils.USERNAME, mUsername);
+        startActivity(intent);
+    }
     public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
 
     public int getScreenHeight(){

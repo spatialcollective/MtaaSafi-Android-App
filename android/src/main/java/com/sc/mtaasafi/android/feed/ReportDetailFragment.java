@@ -43,7 +43,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         mediaUrl1 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1));
         mediaUrl2 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2));
         mediaUrl3 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3));
-        getView().findViewById(R.id.reportDetailProgress).setVisibility(View.INVISIBLE);
     }
 
     @Override
