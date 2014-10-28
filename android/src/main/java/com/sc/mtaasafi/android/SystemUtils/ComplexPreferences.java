@@ -14,14 +14,12 @@ public class ComplexPreferences {
 	private SharedPreferences preferences;
 	private SharedPreferences.Editor editor;
 	private static Gson GSON = new Gson();
-	Type typeOfObject = new TypeToken<Object>() {
-	}.getType();
+	Type typeOfObject = new TypeToken<Object>() {}.getType();
 
 	private ComplexPreferences(Context context, String namePreferences, int mode) {
 		this.context = context;
-		if (namePreferences == null || namePreferences.equals("")) {
+		if (namePreferences == null || namePreferences.equals(""))
 			namePreferences = "complex_preferences";
-		}
 		preferences = context.getSharedPreferences(namePreferences, mode);
 		editor = preferences.edit();
 	}

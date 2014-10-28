@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.NewReport;
+package com.sc.mtaasafi.android.newReport;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,17 +16,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidquery.AQuery;
-import com.sc.mtaasafi.android.DescriptionEditText;
-import com.sc.mtaasafi.android.LogTags;
-import com.sc.mtaasafi.android.NewReport.NewReportActivity;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 
@@ -37,20 +33,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class NewReportFragment extends Fragment {
-    int nextPendingPiece;
-
     ImageView[] picPreviews;
-    DescriptionEditText detailsView;
+    EditText detailsView;
 
-    private ArrayList<String> picPaths;
-    private String detailsText;
+    public String detailsText;
+    public ArrayList<String> picPaths;
     private int previewClicked;
     public final int REQUIRED_PIC_COUNT = 3;
-
-    public final String DEETS_KEY = "details",
-            PENDING_PIECE_KEY ="next_field",
-            PENDING_REPORT_ID = "report_to_send_id",
-            HAS_PENDING_REPORT_KEY = "has_pending_key";
 
     static final int    REQUEST_IMAGE_CAPTURE = 1,
             PIC1 = 0,
@@ -62,6 +51,7 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+        detailsText = "";
         picPaths = new ArrayList<String>();
         for(int i = 0; i < TOTAL_PICS; i++)
             picPaths.add(null);
@@ -76,38 +66,16 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
-        detailsText = "";
-        attemptEnableSendSave(view);
-        updatePicPreviews(view);
+        detailsView = (EditText) view.findViewById(R.id.newReportDetails);
         setListeners();
         return view;
     }
-
     @Override
-    public void onActivityCreated(Bundle savedState) {
-        super.onActivityCreated(savedState);
-        if (savedState != null) {
-            detailsText = savedState.getString(DEETS_KEY);
-            if (detailsText != null)
-                detailsView.setText(detailsText);
-//            if (savedState.getBoolean(HAS_PENDING_REPORT_KEY)) {
-//                nextPendingPiece = savedState.getInt(PENDING_PIECE_KEY);
-//                pendingReport = new Report(PENDING_REPORT_ID, savedState);
-//                beamUpReport(pendingReport);
-//            }
-        }
-    }
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (detailsText != null)
-            outState.putString(DEETS_KEY, detailsText);
-        outState.putInt(PENDING_PIECE_KEY, nextPendingPiece);
-//        if (pendingReport != null) {
-//            outState.putBoolean(HAS_PENDING_REPORT_KEY, true);
-//            pendingReport.saveState(PENDING_REPORT_ID, outState);
-//        }
+    public void onViewCreated(View view, Bundle savedState) {
+        if (detailsText != null && detailsText != "")
+            detailsView.setText(detailsText);
+        attemptEnableSendSave();
+        updatePicPreviews();
     }
 
     @SuppressWarnings("ResourceType")
@@ -128,50 +96,38 @@ public class NewReportFragment extends Fragment {
         detailsView = null;
     }
 
-    @SuppressWarnings("ResourceType")
-    private void addSendSavedReportButton(int savedReportCount){
-        RelativeLayout mLayout = (RelativeLayout) getView().findViewById(R.id.new_report);
-        Button sendSavedReport = new Button(getActivity());
-        sendSavedReport.setId(SAVED_REPORT_BUTTON_ID);
-        sendSavedReport.setBackgroundColor(getResources().getColor(R.color.Coral));
-        String buttonText = "Send " + savedReportCount + " saved report";
-        if(savedReportCount > 1)
-            buttonText +="s";
-        sendSavedReport.setText(buttonText);
-        sendSavedReport.setTextColor(getResources().getColor(R.color.White));
-        sendSavedReport.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                if(canSend())
-                    uploadSavedReports();
-            }
-        });
-        RelativeLayout.LayoutParams buttonParams =
-                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                        RelativeLayout.LayoutParams.WRAP_CONTENT);
-        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        sendSavedReport.setLayoutParams(buttonParams);
-        LinearLayout ll = (LinearLayout) mLayout.findViewById(R.id.top_layout);
-        ll.addView(sendSavedReport, 0);
-    }
-    private void uploadSavedReports(){
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
-        mActivity.uploadSavedReports();
+    public Report createNewReport(String userName, Location location) {
+        Log.e("New Report Frag", "Creating new report");
+        return new Report(detailsText, userName, location, picPaths);
     }
 
-    private void updatePicPreviews(View view) {
+    @SuppressWarnings("ResourceType")
+    private void addSendSavedReportButton(int savedReportCount){
+        Button sendSavedReport = (Button) getView().findViewById(R.id.upload_saved);
+        String buttonText = "Send " + savedReportCount + " saved report";
+        if (savedReportCount > 1)
+            buttonText +="s";
+        sendSavedReport.setText(buttonText);
+        sendSavedReport.setVisibility(View.VISIBLE);
+//        RelativeLayout.LayoutParams buttonParams =
+//                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+//                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+//        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+    }
+
+    private void updatePicPreviews() {
         AQuery aq = new AQuery(getActivity());
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
-            if(picPaths.get(i) != null)
+            if (picPaths.get(i) != null)
                 aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
             else
                 aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
         }
         int emptyPics = getEmptyPics();
         if (emptyPics == 0) {
-            view.findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
+            getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
         } else {
-            TextView attachPicsTV = (TextView) view.findViewById(R.id.attachPicsTV);
+            TextView attachPicsTV = (TextView) getView().findViewById(R.id.attachPicsTV);
             String needMoreString = "Need " + emptyPics + " more picture";
             if(emptyPics > 1)
                 needMoreString +="s";
@@ -226,7 +182,7 @@ public class NewReportFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 detailsText = detailsView.getText().toString();
-                attemptEnableSendSave(null);
+                attemptEnableSendSave();
             }
         });
 
@@ -276,7 +232,8 @@ public class NewReportFragment extends Fragment {
             File file = new File(picPaths.get(previewClicked));
             if (file.length() == 0)
                 picPaths.set(previewClicked, null);
-            updatePicPreviews(getView());
+            updatePicPreviews();
+            attemptEnableSendSave();
         }
     }
 
@@ -289,21 +246,8 @@ public class NewReportFragment extends Fragment {
         return image;
     }
 
-//    public void beamUpReport(Report report) {
-//        Log.e(LogTags.BACKEND_W, "Beam it up");
-//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
-//                getActivity().INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(detailsView.getWindowToken(), 0);
-//    }
-
-    public Report createNewReport(String userName, Location location) {
-        Log.e(LogTags.NEWREPORT, "createNewReport");
-        return new Report(detailsText, userName, location, picPaths);
-    }
-
-    public void attemptEnableSendSave(View view) {
-        if (view == null)
-            view = getView();
+    public void attemptEnableSendSave() {
+        View view = getView();
         if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
             disableButton((Button) view.findViewById(R.id.sendButton));
             disableButton((Button) view.findViewById(R.id.saveButton));
@@ -311,22 +255,6 @@ public class NewReportFragment extends Fragment {
             enableButton((Button) view.findViewById(R.id.sendButton));
             enableButton((Button) view.findViewById(R.id.saveButton));
         }
-    }
-
-    private boolean canSend(){
-        String error ="";
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
-        boolean canSend = false;
-        if (!mActivity.isOnline()){
-            error = "Connect to a network to send your report";
-        } else if(mActivity.getLocation() == null){
-            error = "Cannot access location, make sure location services enabled";
-        } else{
-            canSend = true;
-        }
-        if(!canSend)
-            Toast.makeText(mActivity, error, Toast.LENGTH_SHORT).show();
-        return canSend;
     }
 
     private void enableButton(Button btn) {

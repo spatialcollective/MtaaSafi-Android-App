@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.NewReport;
+package com.sc.mtaasafi.android.newReport;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,9 +13,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sc.mtaasafi.android.LogTags;
-import com.sc.mtaasafi.android.NewReport.NewReportActivity;
-import com.sc.mtaasafi.android.NewReport.ReportUploader;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 
@@ -91,7 +88,7 @@ public class ReportUploadingFragment extends Fragment {
         resendButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                Log.e(LogTags.BACKEND_W, "Resend called");
+                Log.e("Resend btn", "Resend called");
                 uploadingTV.setText("Resending...");
                 uploadingTV.setTextColor(getResources().getColor(R.color.White));
                 updatePostProgress(progress, pendingReport);
@@ -147,7 +144,7 @@ public class ReportUploadingFragment extends Fragment {
         uploadInterrupted.setVisibility(View.INVISIBLE);
         if(report.id == 0)
             refreshInterface();
-        Log.e(LogTags.BACKEND_W, "Beaming it up, baby!");
+        Log.e("uploader frag", "Beaming it up, baby!");
         uploadingTV.setText("Uploading report (" + currentReport + "/" + reportsToUpload + ")");
         uploadingTV.setTextColor(getResources().getColor(R.color.White));
         uploader = new ReportUploader(this, report);
@@ -182,7 +179,7 @@ public class ReportUploadingFragment extends Fragment {
     public void updatePostProgress(int progress, Report report){
         this.progress = progress;
         pendingReport = report;
-        Log.e(LogTags.NEWREPORT, "pending report id: " + pendingReport.id);
+        Log.e("Upload Frag", "pending report id: " + pendingReport.id);
         switch (progress) {
             case 0:
                 updateProgressView(0, 0, R.id.progressBarReportText, 0);
@@ -267,7 +264,7 @@ public class ReportUploadingFragment extends Fragment {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        uploader.fragmentDestroyed();
-        uploader.cancel(true);
+//        uploader.fragmentDestroyed();
+//        uploader.cancel(true);
     }
 }

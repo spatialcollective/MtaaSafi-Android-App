@@ -37,7 +37,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -47,7 +49,7 @@ import java.util.TreeSet;
 class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final String TAG = "SyncAdapter";
-    private static final String FEED_URL = "http://app.spatialcollective.com/fetch_reports/"; //screenwidth;
+    private static final String FEED_URL = "http://app.spatialcollective.com/fetch_reports/";
     private static final int NET_CONNECT_TIMEOUT_MILLIS = 15000;  // 15 seconds
     private static final int NET_READ_TIMEOUT_MILLIS = 10000;  // 10 seconds
 
@@ -134,26 +136,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Network synchronization complete");
     }
 
-    /**
-     * <p>This is where incoming data is persisted, committing the results of a sync. In order to
-     * minimize (expensive) disk operations, we compare incoming data with what's already in our
-     * database, and compute a merge. Only changes (insert/update/delete) will result in a database
-     * write.
-     *
-     * <p>As an additional optimization, we use a batch operation to perform all database writes at
-     * once.
-     *
-     * <p>Merge strategy:
-     * 1. Get cursor to all items in feed<br/>
-     * 2. For each item, check if it's in the incoming data.<br/>
-     *    a. YES: Remove from "incoming" list. Check if data has mutated, if so, perform
-     *            database UPDATE.<br/>
-     *    b. NO: Schedule DELETE from database.<br/>
-     * (At this point, incoming database only contains missing items.)<br/>
-     * 3. For any items remaining in incoming list, ADD to database.
-     */
-
-    // Above is ideal situation. For now just drop the db and re-add everything.
     public void updateLocalFeedData(final ArrayList serverIds, final SyncResult syncResult)
             throws IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException, JSONException {
@@ -211,9 +193,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 JSONObject entry = newReports.getJSONObject(i);
                 JSONArray mediaURLsJSON = entry.getJSONArray("mediaURLs");
                 ArrayList<String> mediaURLs = new ArrayList<String>();
-                for (int j = 0; j < mediaURLsJSON.length(); j++) {
+                for (int j = 0; j < mediaURLsJSON.length(); j++)
                     mediaURLs.add(mediaURLsJSON.get(j).toString());
-                }
+
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
                         .withValue(ReportContract.Entry.COLUMN_ENTRY_ID, entry.getString(ReportContract.Entry.COLUMN_ENTRY_ID))
                         .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
@@ -275,14 +257,21 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(new StringEntity(entity));
         HttpResponse response = httpClient.execute(httpPost);
-        int statusCode = response.getStatusLine().getStatusCode();
-        if(statusCode > 400){ // error checking
-            // TODO: alert for statuses > 400
-        }
+        if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
         InputStream is = response.getEntity().getContent();
         String responseString = convertInputStreamToString(is);
         is.close();
         return responseString;
+        // final URL location = new URL(url);
+        // HttpURLConnection conn = (HttpURLConnection) location.openConnection();
+        // conn.setReadTimeout(NET_READ_TIMEOUT_MILLIS /* milliseconds */);
+        // conn.setConnectTimeout(NET_CONNECT_TIMEOUT_MILLIS /* milliseconds */);
+        // conn.setRequestMethod("POST");
+        // conn.setDoInput(true);
+        // conn.connect();
+        // String responseString = convertInputStreamToString(conn.getInputStream());
+        // conn.disconnect();
+        // return responseString;
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException {

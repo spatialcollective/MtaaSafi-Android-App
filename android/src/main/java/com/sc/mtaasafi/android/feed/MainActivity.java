@@ -47,13 +47,12 @@ public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener{
 
-    public String mUsername;
     ReportDetailFragment mFragment;
     private LocationClient mLocationClient;
-    private Location mCurrentLocation;
     ComplexPreferences cp;
                         // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
+    private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +60,15 @@ public class MainActivity extends ActionBarActivity implements
         Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
+        restoreFragment(savedInstanceState);
+        cp = PrefUtils.getPrefs(this);
+        determineUsername();
+    }
+
+    private void restoreFragment(Bundle savedInstanceState) {
         if (savedInstanceState != null)
             mFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
         if (mFragment == null) {
@@ -77,17 +83,8 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
-        bundle.putString(PrefUtils.USERNAME, mUsername);
         if (mFragment != null && mFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        mUsername = savedInstanceState.getString(PrefUtils.USERNAME);
-        if (mUsername == null || mUsername.equals(""))
-            determineUsername();
     }
 
     @Override
@@ -114,49 +111,6 @@ public class MainActivity extends ActionBarActivity implements
                 mLocationClient.connect();
                 break;
         }
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
-        Log.e(LogTags.MAIN_ACTIVITY, "onResume");
-        determineUsername();
-//        Intent intent = getIntent();
-        // If activity wasn't launched after a saveReport event & user has saved reports pending,
-        // remind them
-//        if(intent == null || intent.getBooleanExtra(NewReportActivity.SAVED_REPORTS_KEY, false)){
-//            ComplexPreferences cp = ComplexPreferences.getComplexPreferences(this, NewReportActivity.PREF_KEY, MODE_PRIVATE);
-//            List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
-//            if(savedReports != null && !savedReports.isEmpty()) {
-//                launchAlert(AlertDialogFragment.SAVED_REPORTS);
-//            }
-//        }
-    }
-    @Override
-    protected void onPause(){
-        super.onPause();
-    }
-    @Override
-    protected void onStop(){
-        // Disconnecting the client invalidates it.
-        Log.e(LogTags.MAIN_ACTIVITY, "onStop");
-        super.onStop();
-    }
-
-    public void backupDataToFile(String dataString) throws IOException {
-        FileOutputStream outputStream = openFileOutput("serverBackup.json", Context.MODE_PRIVATE);
-        outputStream.write(dataString.getBytes());
-        outputStream.close();
-    }
-
-    public String getJsonStringFromFile() throws IOException {
-        FileInputStream jsonFileStream = openFileInput("serverBackup.json");
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(jsonFileStream));
-        StringBuilder jsonString = new StringBuilder();
-        String line;
-        while ((line = bufferedReader.readLine()) != null)
-            jsonString.append(line);
-        return jsonString.toString();
     }
 
     public void launchAlert(int alertCode) {
@@ -198,7 +152,6 @@ public class MainActivity extends ActionBarActivity implements
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
-        intent.putExtra(PrefUtils.USERNAME, mUsername);
         startActivity(intent);
     }
 
@@ -208,19 +161,11 @@ public class MainActivity extends ActionBarActivity implements
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
-            setUserName(data);
-    }
-
-    private void setUserName(Intent data) {
-        String retrievedUserName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-        mUsername = retrievedUserName;
-        cp.putObject(PrefUtils.USERNAME, mUsername);
-        cp.commit();
+            saveUserName(data);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         // Inflate the menu items for use in the action bar
          MenuInflater inflater = getMenuInflater();
          inflater.inflate(R.menu.action_bar, menu);
          return super.onCreateOptionsMenu(menu);
@@ -247,13 +192,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void determineUsername() {
-        if (mUsername == null || mUsername.equals("")) {
-            String savedUserName = cp.getString(PrefUtils.USERNAME, "");
-            if (savedUserName.equals(""))
-                pickUserAccount();
-            else
-                mUsername = savedUserName;
-        }
+        String savedUserName = cp.getString(PrefUtils.USERNAME, "");
+        if (savedUserName == null || savedUserName.equals(""))
+            pickUserAccount();
     }
 
     private void pickUserAccount() {
@@ -262,29 +203,32 @@ public class MainActivity extends ActionBarActivity implements
         startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
     }
 
+    private void saveUserName(Intent data) {
+        cp.putObject(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
+        cp.commit();
+    }
+
     public void uploadSavedReports(){
-        if(mCurrentLocation != null){
+        if(getLocation() != null){
             Intent intent = new Intent().setClass(this, NewReportActivity.class)
                     .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
-                    .putExtra(PrefUtils.USERNAME, mUsername);
             startActivity(intent);
         } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
     }
-    public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
+    public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
+    public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
-    public int getScreenHeight(){
-        return getWindowManager().getDefaultDisplay().getHeight();
-    }
     // ======================Google Play Services:======================
     public Location getLocation() {
         if(mLocationClient != null && mLocationClient.isConnected()){
-            mCurrentLocation = mLocationClient.getLastLocation();
+            Location mCurrentLocation = mLocationClient.getLastLocation();
             cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
             cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
             cp.commit();
+            return mCurrentLocation;
         }
-        return mCurrentLocation;
+        return null;
     }
 
     @Override
@@ -295,9 +239,6 @@ public class MainActivity extends ActionBarActivity implements
     public void onDisconnected() {
         Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
     }
-
-    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         if (connectionResult.hasResolution()) {
@@ -312,17 +253,4 @@ public class MainActivity extends ActionBarActivity implements
             toast.show();
         }
     }
-    public boolean isLocationEnabled(){
-        LocationManager locationManager =
-                (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
-    public void onLocationDisabled(){
-        AlertDialogFragment adf = new AlertDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
-        adf.setArguments(bundle);
-        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
-    }
-
 }
