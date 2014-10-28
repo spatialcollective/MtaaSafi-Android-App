@@ -34,7 +34,6 @@ public class NewReportActivity extends ActionBarActivity implements
         GooglePlayServicesClient.OnConnectionFailedListener {
 
     private LocationClient mLocationClient;
-    private Location mCurrentLocation;
     private ComplexPreferences cp;
     private List<String> savedReportKeys;
     public final static String  REPORT_KEY = "pendingReport",
@@ -43,12 +42,9 @@ public class NewReportActivity extends ActionBarActivity implements
                                 UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports",
                                 UPLOAD_TAG= "upload",
                                 NEW_REPORT_TAG= "newreport";
-    public String userName;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userName = getPreferences(Context.MODE_PRIVATE).getString(PrefUtils.USERNAME, "");
         restoreFragment(savedInstanceState);
         
         mLocationClient = new LocationClient(this, this, this);
@@ -88,20 +84,16 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onStart() {
         super.onStart();
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (locationProviders == null || locationProviders.equals("")){
+        if (locationProviders == null || locationProviders.equals(""))
             onLocationDisabled();
-        }
         mLocationClient.connect();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
     }
     protected  void onResume(){
         super.onResume();
         Intent intent = getIntent();
-        if(intent != null){
-            if(intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
-                uploadSavedReports();
-            userName = intent.getStringExtra(PrefUtils.USERNAME);
-        }
+        if(intent != null && intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
+            uploadSavedReports();
     }
     @Override
     protected void onStop(){
@@ -109,31 +101,25 @@ public class NewReportActivity extends ActionBarActivity implements
         super.onStop();
     }
 
-    public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
+    public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
 
-    public int getScreenHeight(){
-        return getWindowManager().getDefaultDisplay().getHeight();
-    }
+    public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
     public Location getLocation() {
-        if(mLocationClient != null && mLocationClient.isConnected()){
-            mCurrentLocation = mLocationClient.getLastLocation();
-        }
-        return mCurrentLocation;
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        mCurrentLocation = mLocationClient.getLastLocation();
-    }
-    @Override
-    public void onDisconnected() {
-        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
+        if (mLocationClient != null && mLocationClient.isConnected())
+            return mLocationClient.getLastLocation();
+        return null; // should return location from complexprefs
     }
 
     // ======================Google Play Services Setup:======================
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
+    @Override
+    public void onConnected(Bundle bundle) { }
+    @Override
+    public void onDisconnected() {
+        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
+    }
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         if (connectionResult.hasResolution()) {
@@ -182,7 +168,7 @@ public class NewReportActivity extends ActionBarActivity implements
     public void beamUpReport(View view) {
         FragmentManager manager = getSupportFragmentManager();
         NewReportFragment nrf = (NewReportFragment) manager.findFragmentByTag(NEW_REPORT_TAG);
-        Report report = nrf.createNewReport(userName, getLocation());
+        Report report = nrf.createNewReport(cp.getString(PrefUtils.USERNAME, ""), getLocation());
         ReportUploadingFragment uploadingFragment = new ReportUploadingFragment();
         Bundle bundle = new Bundle();
         report.saveState(REPORT_KEY, bundle);
@@ -198,7 +184,7 @@ public class NewReportActivity extends ActionBarActivity implements
         if (getLocation() == null) {
             Toast.makeText(this, "Cannot access location, make sure location services enabled", Toast.LENGTH_SHORT).show();
         } else {
-            saveReport(nrf.createNewReport(userName, getLocation()));
+            saveReport(nrf.createNewReport(cp.getString(PrefUtils.USERNAME, ""), getLocation()));
             finish();
         }
     }
