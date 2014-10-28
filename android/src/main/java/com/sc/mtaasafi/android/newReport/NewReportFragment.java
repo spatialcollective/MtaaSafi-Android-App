@@ -25,6 +25,7 @@ import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,8 +67,24 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
-        detailsView = (EditText) view.findViewById(R.id.newReportDetails);
-        setListeners();
+        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
+        detailsText = "";
+        Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
+        sendSavedReports.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                uploadSavedReports();
+            }
+        });
+        int savedReportCt = ((NewReportActivity) getActivity()).getSavedReportCount();
+        if(savedReportCt > 0){
+            sendSavedReports.setVisibility(View.VISIBLE);
+            String buttonText = "Send " + savedReportCt + " saved report";
+            if(savedReportCt > 1)
+                buttonText += "s";
+            sendSavedReports.setText(buttonText);
+        } else
+            sendSavedReports.setVisibility(View.GONE);
         return view;
     }
     @Override
@@ -76,6 +93,8 @@ public class NewReportFragment extends Fragment {
             detailsView.setText(detailsText);
         attemptEnableSendSave();
         updatePicPreviews();
+        updatePicPreviews();
+        setListeners();
     }
 
     @SuppressWarnings("ResourceType")
@@ -84,9 +103,6 @@ public class NewReportFragment extends Fragment {
         super.onResume();
         Log.e(LogTags.NEWREPORT, "onResume");
         NewReportActivity mActivity = (NewReportActivity) getActivity();
-        if(mActivity.getSavedReportCount() > 0
-                && getView().findViewById(SAVED_REPORT_BUTTON_ID) == null)
-            addSendSavedReportButton(mActivity.getSavedReportCount());
     }
     @Override
     public void onStop(){
@@ -96,6 +112,11 @@ public class NewReportFragment extends Fragment {
         detailsView = null;
     }
 
+    private void uploadSavedReports(){
+        NewReportActivity mActivity = (NewReportActivity) getActivity();
+        mActivity.uploadSavedReports();
+    }
+    
     public Report createNewReport(String userName, Location location) {
         Log.e("New Report Frag", "Creating new report");
         return new Report(detailsText, userName, location, picPaths);
@@ -167,7 +188,7 @@ public class NewReportFragment extends Fragment {
     private int getEmptyPics(){
         int emptyPics = 0;
         for(int i = 0; i < TOTAL_PICS; i++){
-            if(picPaths.get(i) == null)
+            if(picPaths.get(i) == null || picPaths.get(i).equals(""))
                 emptyPics++;
         }
         return emptyPics;
