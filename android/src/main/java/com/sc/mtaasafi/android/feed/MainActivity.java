@@ -263,10 +263,13 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void uploadSavedReports(){
-        Intent intent = new Intent().setClass(this, NewReportActivity.class)
-                .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
-                .putExtra(PrefUtils.USERNAME, mUsername);
-        startActivity(intent);
+        if(mCurrentLocation != null){
+            Intent intent = new Intent().setClass(this, NewReportActivity.class)
+                    .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true)
+                    .putExtra(PrefUtils.USERNAME, mUsername);
+            startActivity(intent);
+        } else
+            Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
     }
     public int getScreenWidth(){return getWindowManager().getDefaultDisplay().getWidth();}
 
@@ -278,6 +281,8 @@ public class MainActivity extends ActionBarActivity implements
         if(mLocationClient != null && mLocationClient.isConnected()){
             mCurrentLocation = mLocationClient.getLastLocation();
             cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
+            cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
+            cp.commit();
         }
         return mCurrentLocation;
     }

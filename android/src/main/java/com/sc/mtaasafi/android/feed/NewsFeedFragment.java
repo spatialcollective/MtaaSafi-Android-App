@@ -95,37 +95,12 @@ public class NewsFeedFragment extends ListFragment
         return view;
     }
 
-    @SuppressWarnings("ResourceType")
-    private void addSendSavedReportButton(int savedReportCount, View view){
-//        RelativeLayout mLayout = (RelativeLayout) view.findViewById(R.id.news_feed);
-//        Button sendSavedReport = new Button(getActivity());
-//        sendSavedReport.setId(SAVED_REPORT_BUTTON_ID);
-//        sendSavedReport.setBackgroundColor(getResources().getColor(R.color.Coral));
-//        String buttonText = "Send " + savedReportCount + " saved report";
-//        if(savedReportCount > 1)
-//            buttonText +="s";
-//        sendSavedReport.setText(buttonText);
-//        sendSavedReport.setTextColor(getResources().getColor(R.color.White));
-//        sendSavedReport.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View view) {
-//            }
-//        });
-//        RelativeLayout.LayoutParams buttonParams =
-//                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-//                        RelativeLayout.LayoutParams.WRAP_CONTENT);
-//        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-//        sendSavedReport.setLayoutParams(buttonParams);
-//        LinearLayout ll = (LinearLayout) mLayout.findViewById(R.id.feedLL);
-//        ll.addView(sendSavedReport, 0);
-    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
             null, FROM_COLUMNS, TO_FIELDS, 0);
-
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
@@ -138,18 +113,6 @@ public class NewsFeedFragment extends ListFragment
         });
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
-        ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
-        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
-        if (savedReports != null && !savedReports.isEmpty()){
-            Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
-            sendSavedReports.setVisibility(View.VISIBLE);
-            String buttonText = "Send " + savedReports.size() + " saved report";
-            if(savedReports.size() > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-        }
-        else
-            view.findViewById(R.id.savedReportsButton).setVisibility(View.GONE);
     }
 
     @Override public void onActivityCreated(Bundle savedInstanceState) {
@@ -166,6 +129,19 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onResume(){
         super.onResume();
+        ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
+        View view = getView();
+        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
+        if (savedReports != null && !savedReports.isEmpty()){
+            Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
+            sendSavedReports.setVisibility(View.VISIBLE);
+            String buttonText = "Send " + savedReports.size() + " saved report";
+            if(savedReports.size() > 1)
+                buttonText += "s";
+            sendSavedReports.setText(buttonText);
+        }
+        else
+            view.findViewById(R.id.savedReportsButton).setVisibility(View.GONE);
         mSyncStatusObserver.onStatusChanged(0);
         final int mask = ContentResolver.SYNC_OBSERVER_TYPE_PENDING |
                 ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE;
