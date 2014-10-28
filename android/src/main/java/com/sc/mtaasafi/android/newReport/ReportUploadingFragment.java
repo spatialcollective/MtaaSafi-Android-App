@@ -106,7 +106,8 @@ public class ReportUploadingFragment extends Fragment {
                 uploadingTV.setText("Saving report...");
                 uploadingTV.setTextColor(getResources().getColor(R.color.White));
                 // if the pendingReport was a saved one, remove the old version before saving the new one
-                if(pendingReport.timeStamp.equals(mActivity.getTopSavedReport().timeStamp)){
+                Report cachedReport = mActivity.getTopSavedReport();
+                if(cachedReport != null && pendingReport.timeStamp.equals(cachedReport.timeStamp)){
                     mActivity.removeTopSavedReport();
                 }
                 mActivity.saveReport(pendingReport);
@@ -124,31 +125,26 @@ public class ReportUploadingFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle instate){
         super.onActivityCreated(instate);
-        if(instate != null){
-            progress = instate.getInt(PROGRESS_KEY);
-            pendingReport = new Report(PENDING_REPORT_KEY, instate);
-            reportSummaries = instate.getStringArrayList(REPORT_SUMMARIES_KEY);
-        }
-        else{
-            if(getArguments() != null){
-                if(getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)){
-                    // fragment was called to upload saved report(s)
-                    if(pendingReport == null)
-                        pendingReport = mActivity.getTopSavedReport();
-                    if(reportSummaries == null)
-                        reportSummaries = mActivity.getSavedReportSummaries();
-                    Log.e("REPORT SUMMARIES" , "Summary " + 0 + ": " + pendingReport.details);
-                } else{// fragment was called to upload a single new report
-                    pendingReport = new Report(mActivity.REPORT_KEY, getArguments());
-                    reportSummaries = new ArrayList<String>();
-                    reportSummaries.add(pendingReport.details);
-                }
+        if(getArguments() != null){
+            if(getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)){
+                // fragment was called to upload saved report(s)
+                if(pendingReport == null)
+                    pendingReport = mActivity.getTopSavedReport();
+                if(reportSummaries == null)
+                    reportSummaries = mActivity.getSavedReportSummaries();
+                Log.e("REPORT SUMMARIES" , "Summary " + 0 + ": " + pendingReport.details);
+            } else{// fragment was called to upload a single new report
+                pendingReport = new Report(mActivity.REPORT_KEY, getArguments());
+                reportSummaries = new ArrayList<String>();
+                reportSummaries.add(pendingReport.details);
             }
         }
-        uploadingList.setUp(getCurrentReport(pendingReport), reportSummaries);
     }
+
     public void onStart(){
         super.onStart();
+        uploadingTV.setText("Uploading report (" + (getCurrentReport(pendingReport)+1) + "/" + reportSummaries.size() + ")");
+        uploadingList.setUp(getCurrentReport(pendingReport), reportSummaries);
         if(uploader == null)
             beamUpReport(pendingReport);
         else
@@ -164,13 +160,15 @@ public class ReportUploadingFragment extends Fragment {
         if(report.id == 0)
             refreshInterface();
         Log.e(LogTags.BACKEND_W, "Beaming it up, baby! Report id: " + report.id);
-        uploadingTV.setText("Uploading report (" + (+1) + "/" + reportSummaries.size() + ")");
-        Log.e("uploader frag", "Beaming it up, baby!");
+        uploadingTV.setText("Uploading report (" + (getCurrentReport(report)+1) + "/" + reportSummaries.size() + ")");
         uploadingTV.setTextColor(getResources().getColor(R.color.White));
         uploader = new ReportUploader(this, report);
         uploader.execute();
+        uploader.setfragmentAvailable(true);
+        mActivity.setUploader(uploader);
         detailText.setText(report.details);
     }
+
     private void refreshInterface(){
         clearProgressBars();
         progress = 0;
@@ -196,8 +194,7 @@ public class ReportUploadingFragment extends Fragment {
     public void updatePostProgress(int progress, Report report){
         this.progress = progress;
         pendingReport = report;
-        Log.e(LogTags.NEWREPORT, "pending report id: " + pendingReport.id + " progress: " + progress);
-        Log.e("Upload Frag", "pending report id: " + pendingReport.id);
+        Log.e("Upload Frag", "pending report id: " + pendingReport.id + " progress: " + progress);
         switch (progress) {
             case -1:
                 updateProgressView(R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
@@ -210,6 +207,12 @@ public class ReportUploadingFragment extends Fragment {
             case 0:
                 updateProgressView(0, 0, R.id.progressBarReportText, 0);
         }
+        if(progress > -1){
+            for(int i = 0; i < progress; i++){
+                progressBars[i].setVisibility(View.INVISIBLE);
+            }
+        } else
+            clearProgressBars();
     }
 
     public void uploadSuccess() {
@@ -261,17 +264,19 @@ public class ReportUploadingFragment extends Fragment {
 
     private void updateProgressView(int doneProgressId, int doneViewId,
                                     int workingId, int drawable) {
-        if (doneProgressId != 0) {
-            ProgressBar done = (ProgressBar) getView().findViewById(doneProgressId);
-            done.setVisibility(View.INVISIBLE);
-        }
-        if (doneViewId != 0 && drawable != 0) {
-            ImageView doneView = (ImageView) getView().findViewById(doneViewId);
-            doneView.setImageResource(drawable);
-        }
-        if (workingId != 0) {
-            ProgressBar working = (ProgressBar) getView().findViewById(workingId);
-            working.setVisibility(View.VISIBLE);
+        if(getView()!= null){
+//            if (doneProgressId != 0) {
+//                ProgressBar done = (ProgressBar) getView().findViewById(doneProgressId);
+//                done.setVisibility(View.INVISIBLE);
+//            }
+            if (doneViewId != 0 && drawable != 0) {
+                ImageView doneView = (ImageView) getView().findViewById(doneViewId);
+                doneView.setImageResource(drawable);
+            }
+            if (workingId != 0) {
+                ProgressBar working = (ProgressBar) getView().findViewById(workingId);
+                working.setVisibility(View.VISIBLE);
+            }
         }
     }
 

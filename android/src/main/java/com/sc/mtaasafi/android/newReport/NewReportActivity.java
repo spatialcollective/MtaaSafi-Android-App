@@ -43,6 +43,8 @@ public class NewReportActivity extends ActionBarActivity implements
                                 UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports",
                                 UPLOAD_TAG= "upload",
                                 NEW_REPORT_TAG= "newreport";
+    private ReportUploader uploader;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,14 +98,12 @@ public class NewReportActivity extends ActionBarActivity implements
         if(intent != null){
             if(intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)){
                 // the activity is supposed to upload its saved reports
-                ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager()                                                .findFragmentByTag(UPLOAD_TAG);
-                if(ruf == null){
+                ReportUploadingFragment ruf =
+                        (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
+                if(ruf == null)
                     uploadSavedReports();
-                }
             }
         }
-        if(intent != null && intent.getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false)) // the activity is supposed to upload its saved reports
-            uploadSavedReports();
     }
 
     @Override
@@ -111,7 +111,12 @@ public class NewReportActivity extends ActionBarActivity implements
         mLocationClient.disconnect();
         super.onStop();
     }
-
+    @Override
+    public void finish(){
+        super.finish();
+        if(uploader!=null)
+            uploader.cancel(true);
+    }
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
 
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
@@ -120,7 +125,7 @@ public class NewReportActivity extends ActionBarActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
     public Location getLocation() {
-        Location mCurrentLocation;
+        Location mCurrentLocation = null;
         if(mLocationClient != null && mLocationClient.isConnected()){
             mCurrentLocation = mLocationClient.getLastLocation();
             if(mCurrentLocation != null){
@@ -134,7 +139,7 @@ public class NewReportActivity extends ActionBarActivity implements
                 return cp.getObject(PrefUtils.LOCATION, Location.class);
             }
         }
-        return null;
+        return mCurrentLocation;
     }
 
     @Override
@@ -279,7 +284,7 @@ public class NewReportActivity extends ActionBarActivity implements
         }
 
     }
-    
+
     public void uploadSavedReports(){
         if(canSend()){
             FragmentManager manager = getSupportFragmentManager();
@@ -303,5 +308,8 @@ public class NewReportActivity extends ActionBarActivity implements
             summaries.add(details);
         }
         return summaries;
+    }
+    public void setUploader(ReportUploader uploader){
+        this.uploader = uploader;
     }
 }

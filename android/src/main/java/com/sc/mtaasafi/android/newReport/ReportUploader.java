@@ -39,6 +39,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mFragment = fragment;
         pendingReport = report;
         fragmentAvailable = true;
+        Log.e("FRAG AVAIL", "Fragment is available: " + fragmentAvailable);
     }
 
     @Override
@@ -119,6 +120,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     // called by the reportUploadingFragment when it gets destroyed
     public void setfragmentAvailable(boolean isIt){
         fragmentAvailable = isIt;
+        Log.e("FRAG AVAIL", "FRAG IS AVAILABLE CALLED!!!!!!!!!!!" + fragmentAvailable);
         if(fragmentAvailable){
             Integer[] progressUpdate = new Integer[1];
             progressUpdate[0] = this.progress;
@@ -137,7 +139,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         JSONObject piece;
         pendingReport = report;
         updateProgress(pieceKey);
-        Log.e("PIECE 2 SERVER", "Writing piece to server! Piece: " + pieceKey);
+        Log.e("PIECE 2 SERVER", "Writing piece to server! Piece: " + pieceKey + " is fragment available: " + fragmentAvailable);
         if(pieceKey == -1)
             return;
         else if (pieceKey == 0){
@@ -156,42 +158,43 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         }
     }
 
+    // TODO: Fix when the SHA1 hashes are ready
     // For each picture in the interrupted report, check if it was uploaded to the server previously.
     // if not, upload it.
     private void writeInterruptedReport(Report report, String picHashes){
-        Log.e(LogTags.BACKEND_W, "Interrupted report with " + picHashes + " pic hashes");
-        progress = (picHashes.length() - picHashes.replace(",", "").length())+1;
-        if(progress > 3){
-            updateProgress(-1);
-            return;
-        }
-        for(int i = 0; i < progress + 1; i++) // make the uploading interface reflect how many pics left to upload
-            updateProgress(i);
-        try {
-            Log.e("INTERRUPTED", "Pic paths found: " + report.picPaths.size());
-            int i = 0;
-            while(progress != -1 && i < report.picPaths.size()){
-                // if the server's pic hashes don't contain the SHA1 for picture i, send the picture
-                Log.e("INTERRUPTED", "Enterred interrrupted loop!");
-                if(!picHashes.contains(report.getSHA1forPic(i))){
-                    JSONObject responseJson = sendPiece(report.id, report.getBytesForPic(progress));
-                    Log.e("INTERRUPTED", "Server said: " + responseJson.getInt(NEXT_REPORT_PIECE_KEY));
-                    progress = responseJson.getInt(NEXT_REPORT_PIECE_KEY);
-                    updateProgress(progress);
-                    if(responseJson.getInt(NEXT_REPORT_PIECE_KEY) == -1){
-                        updateProgress(-1);
-                        break;
-                    }
-                }
-                i++;
-            }
-        } catch (JSONException e) {
-            jsonException(e);
-        } catch (IOException e) {
-            ioException(e);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+        updateProgress(-1);
+//        Log.e(LogTags.BACKEND_W, "Interrupted report with " + picHashes + " pic hashes");
+//        progress = (picHashes.length() - picHashes.replace(",", "").length())+1;
+//        if(progress > 3){
+//            updateProgress(-1);
+//            return;
+//        }
+//        for(int i = 0; i < progress + 1; i++) // make the uploading interface reflect how many pics left to upload
+//            updateProgress(i);
+//        try {
+//            Log.e("INTERRUPTED", "Pic paths found: " + report.picPaths.size());
+//            while(progress != -1 && progress < 4){
+//                // if the server's pic hashes don't contain the SHA1 for picture i, send the picture
+//                Log.e("INTERRUPTED", "Enterred interrrupted loop!");
+//                if(!picHashes.contains(report.getSHA1forPic(i))){
+//                    JSONObject responseJson = sendPiece(report.id, report.getBytesForPic(progress));
+//                    Log.e("INTERRUPTED", "Server said: " + responseJson.getInt(NEXT_REPORT_PIECE_KEY));
+//                    progress = responseJson.getInt(NEXT_REPORT_PIECE_KEY);
+//                    updateProgress(progress);
+//                    if(responseJson.getInt(NEXT_REPORT_PIECE_KEY) == -1){
+//                        updateProgress(-1);
+//                        break;
+//                    }
+//                }
+//                i++;
+//            }
+//        } catch (JSONException e) {
+//            jsonException(e);
+//        } catch (IOException e) {
+//            ioException(e);
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
     }
 
     // sends the piece to the server at the report's write url
