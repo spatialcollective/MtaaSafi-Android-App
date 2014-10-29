@@ -49,7 +49,6 @@ public class NewsFeedFragment extends ListFragment
         ReportContract.Entry.COLUMN_LAT,
         ReportContract.Entry.COLUMN_LNG,
         ReportContract.Entry.COLUMN_USERNAME,
-        ReportContract.Entry.COLUMN_PICS,
         ReportContract.Entry.COLUMN_MEDIAURL1,
         ReportContract.Entry.COLUMN_MEDIAURL2,
         ReportContract.Entry.COLUMN_MEDIAURL3
@@ -131,12 +130,12 @@ public class NewsFeedFragment extends ListFragment
         super.onResume();
         ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
         View view = getView();
-        List<String> savedReports = cp.getObject(NewReportActivity.SAVED_REPORTS_KEY, List.class);
-        if (savedReports != null && !savedReports.isEmpty()){
+        int savedReports = NewReportActivity.getSavedReportCount(getActivity());
+        if (savedReports > 0){
             Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
             sendSavedReports.setVisibility(View.VISIBLE);
-            String buttonText = "Send " + savedReports.size() + " saved report";
-            if(savedReports.size() > 1)
+            String buttonText = "Send " + savedReports + " saved report";
+            if(savedReports > 1)
                 buttonText += "s";
             sendSavedReports.setText(buttonText);
         }
@@ -182,15 +181,26 @@ public class NewsFeedFragment extends ListFragment
             throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
         }
     }
-
+    public void startRefresh(){
+        if(getView() != null){
+            getView().findViewById(R.id.refreshingFeedView).setVisibility(View.VISIBLE);
+        }
+    }
+    public void endRefresh(){
+        if(getView() != null){
+            getView().findViewById(R.id.refreshingFeedView).setVisibility(View.GONE);
+        }
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        startRefresh();
         return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
             PROJECTION, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        endRefresh();
         mAdapter.changeCursor(cursor);
     }
 

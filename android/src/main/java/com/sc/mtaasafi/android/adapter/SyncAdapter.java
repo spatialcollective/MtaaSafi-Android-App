@@ -18,6 +18,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
@@ -56,33 +57,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private final ContentResolver mContentResolver;
     private ComplexPreferences cp;
     // Project used when querying content provider. Returns all known fields.
-    private static final String[] PROJECTION = new String[] {
-        ReportContract.Entry._ID,
-        ReportContract.Entry.COLUMN_ENTRY_ID,
-        ReportContract.Entry.COLUMN_TITLE,
-        ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_LAT,
-        ReportContract.Entry.COLUMN_LNG,
-        ReportContract.Entry.COLUMN_USERNAME,
-        ReportContract.Entry.COLUMN_PICS,
-        ReportContract.Entry.COLUMN_MEDIAURL1,
-        ReportContract.Entry.COLUMN_MEDIAURL2,
-        ReportContract.Entry.COLUMN_MEDIAURL3
-    };
     // Constants representing column positions from PROJECTION.
-    public static final int COLUMN_ID = 0,
-        COLUMN_ENTRY_ID = 1, // currently unused
-        COLUMN_TITLE = 2,
-        COLUMN_DETAILS = 3,
-        COLUMN_TIMESTAMP = 4,
-        COLUMN_LAT = 5,
-        COLUMN_LNG = 6,
-        COLUMN_USERNAME = 7,
-        COLUMN_PICS = 8,
-        COLUMN_MEDIAURL1 = 9,
-        COLUMN_MEDIAURL2 = 10,
-        COLUMN_MEDIAURL3 = 11;
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -145,13 +120,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         // Get list of all items
         Log.i(TAG, "Fetching local entries for merge");
-        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, PROJECTION, null, null, null); // Get all entries
+        String[] projection = new String[1];
+        projection[0] = ReportContract.Entry.COLUMN_SERVER_ID;
+        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection, null, null, null); // Get all entries
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
         TreeSet<Integer> dbIds = new TreeSet<Integer>();
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
-            dbIds.add(c.getInt(COLUMN_ENTRY_ID));
+            dbIds.add(c.getInt(0));
         }
         c.close();
         // for each id from the server, if it is in the local DB,
@@ -197,14 +174,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     mediaURLs.add(mediaURLsJSON.get(j).toString());
 
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
-                        .withValue(ReportContract.Entry.COLUMN_ENTRY_ID, entry.getString(ReportContract.Entry.COLUMN_ENTRY_ID))
+                        .withValue(ReportContract.Entry.COLUMN_SERVER_ID, entry.getString(ReportContract.Entry.COLUMN_SERVER_ID))
                         .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
                         .withValue(ReportContract.Entry.COLUMN_DETAILS, entry.getString(ReportContract.Entry.COLUMN_DETAILS))
                         .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, entry.getString(ReportContract.Entry.COLUMN_TIMESTAMP))
                         .withValue(ReportContract.Entry.COLUMN_LAT, entry.getString(ReportContract.Entry.COLUMN_LAT))
                         .withValue(ReportContract.Entry.COLUMN_LNG, entry.getString(ReportContract.Entry.COLUMN_LNG))
                         .withValue(ReportContract.Entry.COLUMN_USERNAME, entry.getString(ReportContract.Entry.COLUMN_USERNAME))
-                        .withValue(ReportContract.Entry.COLUMN_PICS, "")
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, mediaURLs.get(0))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))

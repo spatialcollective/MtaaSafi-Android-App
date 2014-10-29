@@ -27,13 +27,16 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                             GPLAY_MISSING = 6,
                             GPLAY_DISABLED = 7,
                             GPLAY_INVALID = 8,
+                            LEAVING_UPLOAD = 9,
 
                             RE_FETCH_FEED = 100,
                             SEND_SAVED_REPORTS = 200,
                             RE_UPLOAD_POST = 300,
                             UPDATE_GPLAY = 400,
                             INSTALL_GPLAY = 500,
-                            ENABLE_GPLAY = 600;
+                            ENABLE_GPLAY = 600,
+                            SAVE_REPORTS = 700,
+                            ABANDON_REPORTS = 800;
 
     public static final String ALERT_KEY = "alert";
 
@@ -46,9 +49,7 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
-        final MainActivity mainActivity = (MainActivity) getActivity();
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(mainActivity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         Bundle arguments = getArguments();
         if(getArguments() != null)
             alertType = arguments.getInt(ALERT_KEY);
@@ -67,7 +68,7 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                         });
                 break;
             case LOCATION_FAILED:
-                builder.setMessage("We need your location to use the app!")
+                builder.setMessage("We couldn't access your location. Enable to continue.")
                         .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // accept failure, and therefore defeat.
@@ -170,8 +171,19 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                             }
                         });
                 break;
-
-
+            case LEAVING_UPLOAD:
+                builder.setMessage("Save your report(s) to send later?")
+                        .setPositiveButton("Abandon", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(ABANDON_REPORTS);
+                            }
+                        })
+                        .setNegativeButton("Save", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                listener.onAlertButtonPressed(SAVE_REPORTS);
+                            }
+                        });
+                break;
         }
         // Create the AlertDialog object and return it
         return builder.create();

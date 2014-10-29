@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.newReport;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,9 +34,9 @@ public class ReportUploadingFragment extends Fragment {
     ProgressBar[] progressBars;
     TextView uploadingTV, detailText;
     Report pendingReport;
+    ArrayList<Report> reportsToUpload;
     NewReportActivity mActivity;
     UploadingReportsList uploadingList;
-    ArrayList<String> reportSummaries;
     int progress;
     final static private String
             PROGRESS_KEY = "progress",
@@ -97,6 +98,8 @@ public class ReportUploadingFragment extends Fragment {
             public void onClick(View view){
                 uploadingTV.setText("Abandoning report...");
                 uploadingTV.setTextColor(getResources().getColor(R.color.DarkRed));
+                // TODO: delete report from DB if it's there
+                mActivity.deleteReport(pendingReport);
                 getActivity().finish();
             }
         });
@@ -106,11 +109,7 @@ public class ReportUploadingFragment extends Fragment {
                 uploadingTV.setText("Saving report...");
                 uploadingTV.setTextColor(getResources().getColor(R.color.White));
                 // if the pendingReport was a saved one, remove the old version before saving the new one
-                Report cachedReport = mActivity.getTopSavedReport();
-                if(cachedReport != null && pendingReport.timeStamp.equals(cachedReport.timeStamp)){
-                    mActivity.removeTopSavedReport();
-                }
-                mActivity.saveReport(pendingReport);
+                mActivity.saveReport(pendingReport, progress);
                 Toast.makeText(mActivity, "Report saved for later!", Toast.LENGTH_SHORT).show();
                 mActivity.finish();
             }
@@ -128,39 +127,46 @@ public class ReportUploadingFragment extends Fragment {
         if(getArguments() != null){
             if(getArguments().getBoolean(mActivity.UPLOAD_SAVED_REPORTS_KEY, false)){
                 // fragment was called to upload saved report(s)
-                if(pendingReport == null)
-                    pendingReport = mActivity.getTopSavedReport();
-                if(reportSummaries == null)
-                    reportSummaries = mActivity.getSavedReportSummaries();
-                Log.e("REPORT SUMMARIES" , "Summary " + 0 + ": " + pendingReport.details);
+                if(pendingReport == null){
+                    reportsToUpload = mActivity.getSavedReports();
+                    pendingReport = reportsToUpload.get(0);
+                }
             } else{// fragment was called to upload a single new report
                 pendingReport = new Report(mActivity.REPORT_KEY, getArguments());
-                reportSummaries = new ArrayList<String>();
-                reportSummaries.add(pendingReport.details);
+                reportsToUpload = new ArrayList<Report>();
+                reportsToUpload.add(pendingReport);
             }
+        } else { // TODO: generic error message
         }
     }
 
     public void onStart(){
         super.onStart();
-        uploadingTV.setText("Uploading report (" + (getCurrentReport(pendingReport)+1) + "/" + reportSummaries.size() + ")");
-        uploadingList.setUp(getCurrentReport(pendingReport), reportSummaries);
-        if(uploader == null)
+        uploadingTV.setText("Uploading report (" + (getReportIndex(pendingReport)+1) + "/" + reportsToUpload.size() + ")");
+        uploadingList.setUp(getReportIndex(pendingReport), getReportSummaries());
+        for(int i = 0; i < progress+1; i++) // make UI reflect current status
+            updateUI(progress);
+        clearProgressBars(); // session was cancelled
+        progressBars[progress].setVisibility(View.VISIBLE);
+        if(uploader == null) // no session running, user didn't want session cancelled
             beamUpReport(pendingReport);
-        else
+        else if(!uploader.isCancelled()){ // session was interrupted
             uploader.setfragmentAvailable(true);
-        // restore uploading interface to previous state
-        for(int i = 0; i < progress+1; i++){
-            updatePostProgress(progress, pendingReport);
+        } else{ // there is an uploader and it was cancelled
+            clearProgressBars();
+            uploadingTV.setText("Upload cancelled");
+            uploadingTV.setTextColor(getResources().getColor(R.color.Red));
+            uploadInterrupted.setVisibility(View.VISIBLE);
         }
+        // restore uploading interface to previous state
     }
 
     private void beamUpReport(Report report) {
         uploadInterrupted.setVisibility(View.INVISIBLE);
-        if(report.id == 0)
+        if(report.serverId == 0)
             refreshInterface();
-        Log.e(LogTags.BACKEND_W, "Beaming it up, baby! Report id: " + report.id);
-        uploadingTV.setText("Uploading report (" + (getCurrentReport(report)+1) + "/" + reportSummaries.size() + ")");
+        Log.e(LogTags.BACKEND_W, "Beaming it up, baby! Report id: " + report.serverId);
+        uploadingTV.setText("Uploading report (" + (getReportIndex(report) + 1) + "/" + reportsToUpload.size() + ")");
         uploadingTV.setTextColor(getResources().getColor(R.color.White));
         uploader = new ReportUploader(this, report);
         uploader.execute();
@@ -183,7 +189,13 @@ public class ReportUploadingFragment extends Fragment {
             uploader.cancel(true);
         }
         clearProgressBars();
-        uploadingTV.setText("Upload cancelled!");
+        uploadingTV.setText("Cancelling...");
+        uploadingTV.setTextColor(getResources().getColor(R.color.DarkGray));
+    }
+
+    // Called by the report uploader when it realizes the thread has been cancelled
+    public void cancelConfirmed(){
+        uploadingTV.setText("Upload canceled");
         uploadingTV.setTextColor(getResources().getColor(R.color.Red));
         uploadInterrupted.setVisibility(View.VISIBLE);
     }
@@ -191,10 +203,20 @@ public class ReportUploadingFragment extends Fragment {
         for(ProgressBar progress : progressBars)
             progress.setVisibility(View.INVISIBLE);
     }
+    // progress 0 = uploading text; 1 = text uploaded, uploading pic1;
+    // 2 = pic1 uploaded, uploading pic2; 3 = pic2 uploaded, uploading pic3;
+    // -1 = pic3 uploaded, report fully received
     public void updatePostProgress(int progress, Report report){
         this.progress = progress;
         pendingReport = report;
-        Log.e("Upload Frag", "pending report id: " + pendingReport.id + " progress: " + progress);
+        Log.e("RUF.updatePostProgress", " Progress: " + progress);
+        updateUI(progress);
+        mActivity.uploadProgress(progress, report);
+    }
+    // NOTE: Do not consolidate this f(x) and the one above
+    // below f(x) deliberately lacks break statements so cases (progress --> 0) can be executed in succession
+    // calling mActivity after each call of updateProgressView will cause errors in the DB
+    public void updateUI(int progress){
         switch (progress) {
             case -1:
                 updateProgressView(R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
@@ -217,16 +239,17 @@ public class ReportUploadingFragment extends Fragment {
 
     public void uploadSuccess() {
         String toastMessage;
-        uploadingList.onReportUploaded(getCurrentReport(pendingReport));
-        mActivity.removeTopSavedReport();
+        int uploadedReportIndex = getReportIndex(pendingReport);
+        uploadingList.onReportUploaded(uploadedReportIndex);
+        mActivity.uploadProgress(-1, pendingReport);
         // if we are uploading multiple reports and there are still reports to be uploaded
-        if(reportSummaries.size() > 1 && getCurrentReport(pendingReport) < reportSummaries.size() -1){
-            Report nextReport = mActivity.getTopSavedReport();
-            int currentReport = getCurrentReport(nextReport);
+        if(reportsToUpload.size() > 1 && uploadedReportIndex < reportsToUpload.size() -1){
+            int currentReport = uploadedReportIndex+1;
+            Report nextReport = reportsToUpload.get(currentReport);
             if(nextReport != null){ // if there are more reports to upload
                 if(nextReport != null){
                     uploadingTV.setText("Uploading Report (" + (currentReport+1)
-                                        + "/" + reportSummaries.size() + ")");
+                                        + "/" + reportsToUpload.size() + ")");
                     beamUpReport(nextReport);
                 }
                 return;
@@ -235,14 +258,40 @@ public class ReportUploadingFragment extends Fragment {
                 Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
             }
         } else
-            toastMessage = "Thank you for your report!";
+            toastMessage = "Report received!";
         Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_SHORT).show();
         refreshInterface();
         mActivity.finish();
     }
-    // returns the 
-    private int getCurrentReport(Report report){
-        return reportSummaries.indexOf(report.details);
+
+    // called by the uploader if it was cancelled but still managed to upload the report
+    public void stillUploaded(){
+        Handler mainHandler = new Handler(getActivity().getMainLooper());
+        Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+                uploadSuccess();
+            }
+        };
+        mainHandler.post(myRunnable);
+    }
+
+    // returns the current pending report
+    private int getReportIndex(Report report){
+        for(int i = 0; i < reportsToUpload.size(); i++){
+            if(reportsToUpload.get(i).timeStamp != null && report.timeStamp != null){
+                if(reportsToUpload.get(i).timeStamp.equals(report.timeStamp))
+                    return i;
+            } else
+                Log.e("REPORT INDEX", "ERROR!!! Report "  + i + " has no fucking time stamp");
+        }
+        return -1;
+    }
+    private ArrayList<String> getReportSummaries(){
+        ArrayList<String> reportSummaries = new ArrayList<String>();
+        for(Report report : reportsToUpload)
+            reportSummaries.add(report.details);
+        return reportSummaries;
     }
     // called by the uploader if there was a 404 or some shit
     public void uploadFailure(final String failMessage){
@@ -278,6 +327,16 @@ public class ReportUploadingFragment extends Fragment {
                 working.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        for(ProgressBar pb : progressBars)
+            pb = null;
+        uploadingTV = null;
+        uploadingList = null;
+        reportTextUploading = pic1Uploading = pic2Uploading = pic3Uploading = null;
     }
 
     @Override

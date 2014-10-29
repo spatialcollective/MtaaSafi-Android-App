@@ -76,7 +76,7 @@ public class NewReportFragment extends Fragment {
                 uploadSavedReports();
             }
         });
-        int savedReportCt = ((NewReportActivity) getActivity()).getSavedReportCount();
+        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
         if(savedReportCt > 0){
             sendSavedReports.setVisibility(View.VISIBLE);
             String buttonText = "Send " + savedReportCt + " saved report";
@@ -92,7 +92,6 @@ public class NewReportFragment extends Fragment {
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptEnableSendSave();
-        updatePicPreviews();
         updatePicPreviews();
         setListeners();
     }
@@ -120,20 +119,6 @@ public class NewReportFragment extends Fragment {
     public Report createNewReport(String userName, Location location) {
         Log.e("New Report Frag", "Creating new report");
         return new Report(detailsText, userName, location, picPaths);
-    }
-
-    @SuppressWarnings("ResourceType")
-    private void addSendSavedReportButton(int savedReportCount){
-        Button sendSavedReport = (Button) getView().findViewById(R.id.upload_saved);
-        String buttonText = "Send " + savedReportCount + " saved report";
-        if (savedReportCount > 1)
-            buttonText +="s";
-        sendSavedReport.setText(buttonText);
-        sendSavedReport.setVisibility(View.VISIBLE);
-//        RelativeLayout.LayoutParams buttonParams =
-//                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-//                        RelativeLayout.LayoutParams.WRAP_CONTENT);
-//        buttonParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
     }
 
     private void updatePicPreviews() {
@@ -202,7 +187,8 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                detailsText = detailsView.getText().toString();
+                if(detailsView != null && detailsView.getText() != null)
+                    detailsText = detailsView.getText().toString();
                 attemptEnableSendSave();
             }
         });

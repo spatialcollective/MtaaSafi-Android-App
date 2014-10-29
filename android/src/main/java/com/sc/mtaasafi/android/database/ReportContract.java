@@ -20,16 +20,16 @@ public class ReportContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ENTRIES).build();
         public static final String TABLE_NAME = "reports",
         	COLUMN_ID = "_id",
-        	COLUMN_ENTRY_ID = "unique_id",
+        	COLUMN_SERVER_ID = "unique_id",
         	COLUMN_TITLE = "title",
 	        COLUMN_DETAILS = "details",
 	        COLUMN_TIMESTAMP = "timestamp",
             COLUMN_LAT = "latitude",
             COLUMN_LNG = "longitude",
             COLUMN_USERNAME = "user",
-            COLUMN_PICS = "picPaths",
             COLUMN_MEDIAURL1 = "mediaUrl1",
             COLUMN_MEDIAURL2 = "mediaUrl2",
-            COLUMN_MEDIAURL3 = "mediaUrl3";
+            COLUMN_MEDIAURL3 = "mediaUrl3",
+            COLUMN_PENDINGFLAG = "pending";
     }
 }

@@ -1,12 +1,18 @@
 package com.sc.mtaasafi.android.newReport;
 
+import android.app.Activity;
+import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.OperationApplicationException;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -23,6 +29,7 @@ import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.feed.MainActivity;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.newReport.NewReportFragment;
@@ -33,18 +40,20 @@ import java.util.List;
 
 public class NewReportActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener {
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        AlertDialogFragment.AlertDialogListener {
 
     private LocationClient mLocationClient;
     private ComplexPreferences cp;
     private List<String> savedReportKeys;
+    private int progress;
     public final static String  REPORT_KEY = "pendingReport",
                                 SAVED_REPORTS_KEY = "savedReportKeys",
                                 UPLOAD_SAVED_REPORTS_KEY = "uploadSavedReports",
                                 UPLOAD_TAG= "upload",
                                 NEW_REPORT_TAG= "newreport";
     private ReportUploader uploader;
-
+    private ContentProviderOperation.Builder cpoBuilder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +98,9 @@ public class NewReportActivity extends ActionBarActivity implements
         String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         if (locationProviders == null || locationProviders.equals(""))
             onLocationDisabled();
-        mLocationClient.connect();
+        else{
+            mLocationClient.connect();
+        }
     }
 
     protected  void onResume(){
@@ -100,20 +111,26 @@ public class NewReportActivity extends ActionBarActivity implements
                 // the activity is supposed to upload its saved reports
                 ReportUploadingFragment ruf =
                         (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
-                if(ruf == null)
+                if(ruf == null){
                     uploadSavedReports();
+                    Log.e("RUF" , "Report uploading fragment was null...");
+                }
             }
         }
     }
 
     @Override
     protected void onStop(){
+        // if this was an upload-saved-reports session, save the current progress and changes made to the DB
+        if(getIntent() != null && getIntent().getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false))
+            updateDb();
         mLocationClient.disconnect();
         super.onStop();
     }
     @Override
     public void finish(){
         super.finish();
+        Log.e("NRA.Finish", "Finish called! Cancelling uploading: " + (uploader != null));
         if(uploader!=null)
             uploader.cancel(true);
     }
@@ -153,17 +170,13 @@ public class NewReportActivity extends ActionBarActivity implements
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try { // Start an Activity that tries to resolve the error
+        if (connectionResult.hasResolution()) try { // Start an Activity that tries to resolve the error
                 connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
             } catch (IntentSender.SendIntentException e) { // Thrown if Google Play services canceled the original PendingIntent
                 e.printStackTrace();
             }
-        } else { // If no resolution is available, display a dialog to the user with the error.
-            CharSequence text = "Google play connection failed, no resolution";
-            Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        else // If no resolution is available, display a dialog to the user with the error.
+            Toast.makeText(this, "Google play connection failed, no resolution", Toast.LENGTH_SHORT).show();
     }
     public boolean isLocationEnabled(){
         LocationManager locationManager =
@@ -171,7 +184,7 @@ public class NewReportActivity extends ActionBarActivity implements
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
-    public void onLocationDisabled(){
+    private void onLocationDisabled(){
         AlertDialogFragment adf = new AlertDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
@@ -213,13 +226,13 @@ public class NewReportActivity extends ActionBarActivity implements
                     .commit();
         }
     }
-
+    // called by the new report fragment's "save" button
     public void attemptSave(View view) {
         NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
         if (getLocation() == null) {
             Toast.makeText(this, "Cannot access location, make sure location services enabled", Toast.LENGTH_SHORT).show();
         } else {
-            saveReport(nrf.createNewReport(cp.getString(PrefUtils.USERNAME, ""), getLocation()));
+            saveReport(nrf.createNewReport(cp.getString(PrefUtils.USERNAME, ""), getLocation()), 0);
             finish();
         }
     }
@@ -243,46 +256,78 @@ public class NewReportActivity extends ActionBarActivity implements
         return false;
     }
 
-    // save the report to the complex preferences and then go back to the main activity
-    public void saveReport(Report report){
-        savedReportKeys.add(report.timeStamp);
-        cp.putObject(report.timeStamp, report);
-        cp.putObject(SAVED_REPORTS_KEY, savedReportKeys);
-        cp.commit();
-        Intent intent = new Intent();
-        intent.setClass(this, MainActivity.class)
-              .putExtra(SAVED_REPORTS_KEY, true);
-        startActivity(intent);
-        Log.e("SAVE REPORT", cp.getObject(report.timeStamp, Report.class).details + " Saved reports: " + cp.getObject(SAVED_REPORTS_KEY, List.class).size());
+    public void deleteReport(Report pendingReport){
+        if(dbContains(pendingReport))
+            commitCPO(ContentProviderOperation.newDelete(uriFor(pendingReport)).build());
     }
 
-    public int getSavedReportCount(){ return savedReportKeys.size(); }
-
-//    public Report popSavedReport(){
-//        if(!savedReportKeys.isEmpty()){
-//            Report report = cp.getObject(savedReportKeys.get(0), Report.class);
-//            cp.remove(savedReportKeys.get(0));
-//            cp.commit();
-//            savedReportKeys.remove(0);
-//            return report;
-//        }
-//        return null;
-//    }
-    public Report getTopSavedReport(){
-        if(!savedReportKeys.isEmpty())
-            return cp.getObject(savedReportKeys.get(0), Report.class);
-        return null;
+    private Uri uriFor(Report report){
+        return ReportContract.Entry.CONTENT_URI.buildUpon()
+                .appendPath(Integer.toString(report.dbId)).build();
     }
 
-    public void removeTopSavedReport(){
-        if(!savedReportKeys.isEmpty()){
-            cp.remove(savedReportKeys.get(0));
-            savedReportKeys.remove(0);
-            cp.remove(SAVED_REPORTS_KEY);
-            cp.putObject(SAVED_REPORTS_KEY, savedReportKeys);
-            cp.commit();
+    private boolean dbContains(Report report){
+        String[] projection = new String[1];
+        projection[0] = ReportContract.Entry.COLUMN_ID;
+        Cursor c = getContentResolver().
+                query(ReportContract.Entry.CONTENT_URI,
+                        projection,
+                        ReportContract.Entry.COLUMN_TIMESTAMP + " = " +'\"' + report.timeStamp + '\"', null, null);
+        int instanceCt = c.getCount();
+        c.close();
+        return instanceCt > 0;
+    }
+    // Check if the report is currently in the database
+    // if it is
+    public void saveReport(Report report, int progress){
+        if(progress == 0)
+            progress = 1;
+        if(progress > 3) // assume progress > 3 means it uploaded successfully
+            progress = 0;
+        if(!dbContains(report)){ // add report to DB if it's not there
+                commitCPO(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
+                        .withValue(ReportContract.Entry.COLUMN_SERVER_ID, 0)
+                        .withValue(ReportContract.Entry.COLUMN_TITLE, "")
+                        .withValue(ReportContract.Entry.COLUMN_DETAILS, report.details)
+                        .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, report.timeStamp)
+                        .withValue(ReportContract.Entry.COLUMN_LAT, Double.toString(report.latitude))
+                        .withValue(ReportContract.Entry.COLUMN_LNG, Double.toString(report.longitude))
+                        .withValue(ReportContract.Entry.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
+                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0))
+                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, report.mediaPaths.get(1))
+                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, report.mediaPaths.get(2))
+                        .withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, progress)
+                        .build());
+            } else{ // if it is, current report is the one this cpoBuilder is about (ASSUMED--NOT FULLY CONFIRMED)
+                Log.e("SAVE REPORT", "Report was already in the database, to be updated not saved");
+                updateDb();
+            }
+//            String[] selectionarg = new String[1];
+//            selectionarg[0] = "0";
+//            Cursor c1 = getContentResolver().
+//                    query(ReportContract.Entry.CONTENT_URI,
+//                            Report.PROJECTION,
+//                            ReportContract.Entry.COLUMN_PENDINGFLAG + " > ? ", selectionarg, null);
+////            while(c1.moveToNext()){
+////                Log.e("DATABASE", "Saved report: " + c1.getString(c1.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS)));
+////            }
+//            c1.close();
+    }
+    private void commitCPO(ContentProviderOperation cpo){
+        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+        batch.add(cpo);
+        commitBatch(batch);
+    }
+
+    private void commitBatch(ArrayList<ContentProviderOperation> batch){
+        try {
+            getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
+            getContentResolver().notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        } catch (OperationApplicationException e) {
+            e.printStackTrace();
         }
-
     }
 
     public void uploadSavedReports(){
@@ -299,17 +344,106 @@ public class NewReportActivity extends ActionBarActivity implements
         }
     }
 
-    public ArrayList<String> getSavedReportSummaries(){
-        ArrayList<String> summaries = new ArrayList<String>();
-        cp.remove(SAVED_REPORTS_KEY);
-        for(String key : savedReportKeys){
-            Report r = cp.getObject(key, Report.class);
-            String details = r.details;
-            summaries.add(details);
-        }
-        return summaries;
-    }
     public void setUploader(ReportUploader uploader){
         this.uploader = uploader;
     }
+
+    public ArrayList<Report> getSavedReports(){
+        Cursor c = getContentResolver().
+                query(ReportContract.Entry.CONTENT_URI,
+                        Report.PROJECTION,
+                        ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null); // Get all entries
+        ArrayList<Report> savedReports = new ArrayList<Report>();
+        while(c.moveToNext()){
+            savedReports.add(new Report(c));
+        }
+        c.close();
+        return savedReports;
+    }
+
+    public static int getSavedReportCount(Activity ac){
+        String[] projection = new String[1];
+        projection[0] = ReportContract.Entry.COLUMN_ID;
+        Cursor c = ac.getContentResolver().
+                    query(ReportContract.Entry.CONTENT_URI,
+                          projection,
+                          ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null);
+        int count = c.getCount();
+        c.close();
+        return count;
+    }
+
+    // called by the UploadingFragment on progress update if it's uploading a saved report
+    // updates the pending flag value and overwrites the corresponding value with the output from the server
+    // Once the report is fully uploaded, the local DB treats it like a post it retrieved from the server
+    public void uploadProgress(int progress, Report report){
+        if(getIntent().getBooleanExtra(UPLOAD_SAVED_REPORTS_KEY, false))
+            updateReportData(progress, report);
+    }
+
+    private void updateReportData(int progress, Report report){
+        if(cpoBuilder == null){
+            cpoBuilder = ContentProviderOperation.newUpdate(uriFor(report));
+        }
+        this.progress = progress;
+        switch(progress){
+            case -1:
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(2));
+                Log.e("Activity CPOBuilder", "Server output I got: " + report.mediaPaths.get(2));
+                updateDb();
+                break;
+            case 3:
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(1));
+                Log.e("Activity CPOBuilder", "Server output I got: " + report.mediaPaths.get(1));
+            case 2:
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0));
+                Log.e("Activity CPOBuilder", "Server output I got: "+ report.mediaPaths.get(0));
+            case 1:
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_SERVER_ID, report.serverId);
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_TITLE, report.title);
+                Log.e("Activity CPOBuilder", "Server output I got: "+ report.title + " also server id: " + report.serverId);
+        }
+    }
+    // called after a report has uploaded successfully or if the activity stops
+    private void updateDb(){
+        if(cpoBuilder != null){
+            Log.e("UPDATE DB", " Hey buddy! Update db was called. Proud of you");
+            if(progress != -1)
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, progress+1);
+            else
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, 0);
+            commitCPO(cpoBuilder.build());
+            cpoBuilder = null;
+        }
+    }
+
+    // provide dialog confirming the person wants to abandon their reports
+    // if yes, go back
+    // save the existing reports with save currentUploading
+    @Override
+    public void onBackPressed(){
+        AlertDialogFragment adf = new AlertDialogFragment();
+        adf.setAlertDialogListener(this);
+        Bundle args = new Bundle();
+        args.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LEAVING_UPLOAD);
+        adf.setArguments(args);
+        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    }
+
+    public void onAlertButtonPressed(int eventKey){
+        ReportUploadingFragment ruf =
+                (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
+        if(ruf != null){
+            switch(eventKey){
+                case AlertDialogFragment.ABANDON_REPORTS:
+                    deleteReport(ruf.pendingReport);
+                    break;
+                case AlertDialogFragment.SAVE_REPORTS:
+                    saveReport(ruf.pendingReport, ruf.progress);
+                    break;
+            }
+        }
+        finish();
+    }
+
 }

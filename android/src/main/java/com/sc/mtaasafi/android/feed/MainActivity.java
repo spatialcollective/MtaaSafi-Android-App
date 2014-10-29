@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -47,13 +48,14 @@ public class MainActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener{
 
-    ReportDetailFragment mFragment;
+    ReportDetailFragment detailFragment;
     private LocationClient mLocationClient;
     ComplexPreferences cp;
                         // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-
+    public final static String  NEWSFEED_TAG = "newsFeed",
+                                DETAIL_TAG = "details";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,11 +72,11 @@ public class MainActivity extends ActionBarActivity implements
 
     private void restoreFragment(Bundle savedInstanceState) {
         if (savedInstanceState != null)
-            mFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, "mFragment");
-        if (mFragment == null) {
+            detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
+        if (detailFragment == null) {
             getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, new NewsFeedFragment())
+                .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
                 .commit();
         }
         cp = PrefUtils.getPrefs(this);
@@ -83,8 +85,8 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
-        if (mFragment != null && mFragment.isAdded())
-            getSupportFragmentManager().putFragment(bundle, "mFragment", mFragment);
+        if (detailFragment != null && detailFragment.isAdded())
+            getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
     }
 
     @Override
@@ -108,7 +110,11 @@ public class MainActivity extends ActionBarActivity implements
                 launchAlert(AlertDialogFragment.GPLAY_INVALID);
                 break;
             case ConnectionResult.SUCCESS:
-                mLocationClient.connect();
+                String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+                if (locationProviders == null || locationProviders.equals(""))
+                    onLocationDisabled();
+                else
+                    mLocationClient.connect();
                 break;
         }
     }
@@ -140,15 +146,18 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void goToDetailView(Cursor c, int position) {
-        mFragment = new ReportDetailFragment();
-        mFragment.setData(c);
+        detailFragment = new ReportDetailFragment();
+        detailFragment.setData(c);
         getSupportFragmentManager().beginTransaction()
-            .replace(R.id.fragment_container, mFragment)
+            .replace(R.id.fragment_container, detailFragment, DETAIL_TAG)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack(null)
             .commit();
+        c.close();
     }
-
+    public NewsFeedFragment getNewsFeedFragment(){
+        return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
+    }
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
@@ -179,6 +188,10 @@ public class MainActivity extends ActionBarActivity implements
                 return true;
             case R.id.action_refresh:
                 SyncUtils.TriggerRefresh();
+                NewsFeedFragment nff = getNewsFeedFragment();
+                if(nff != null)
+                    nff.startRefresh();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -223,6 +236,13 @@ public class MainActivity extends ActionBarActivity implements
     public Location getLocation() {
         if(mLocationClient != null && mLocationClient.isConnected()){
             Location mCurrentLocation = mLocationClient.getLastLocation();
+            if(mCurrentLocation == null){
+                AlertDialogFragment adf = new AlertDialogFragment();
+                adf.setAlertDialogListener(this);
+                Bundle bundle = new Bundle();
+                bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
+                adf.setArguments(bundle);
+            }
             cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
             cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
             cp.commit();
@@ -253,4 +273,13 @@ public class MainActivity extends ActionBarActivity implements
             toast.show();
         }
     }
+
+    private void onLocationDisabled(){
+        AlertDialogFragment adf = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
+        adf.setArguments(bundle);
+        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    }
+
 }

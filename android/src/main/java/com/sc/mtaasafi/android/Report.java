@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.location.Location;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.database.ReportContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,21 +31,31 @@ import java.util.Date;
  * Data class for passing data about posts
  */
 public class Report {
-    public int id;
+    public int serverId, dbId;
     public double latitude, longitude;
-    public ArrayList<String> picPaths;
     public String title, details, timeStamp, timeElapsed, userName;
-    public ArrayList<String> mediaURLs;
+    public ArrayList<String> mediaPaths;
     public final static String titleKey = "title",
             detailsKey = "details",
             timeStampKey = "timestamp",
             userNameKey = "user",
-            picsKey = "picPaths",
-            mediaURLsKey = "mediaURLs",
+            mediaPathsKey = "mediaPaths",
             latKey = "latitude",
             lonKey = "longitude",
-            idKey = "id";
-
+            serverIdKey = "id";
+    public static final String[] PROJECTION = new String[] {
+            ReportContract.Entry._ID,
+            ReportContract.Entry.COLUMN_SERVER_ID,
+            ReportContract.Entry.COLUMN_TITLE,
+            ReportContract.Entry.COLUMN_DETAILS,
+            ReportContract.Entry.COLUMN_TIMESTAMP,
+            ReportContract.Entry.COLUMN_LAT,
+            ReportContract.Entry.COLUMN_LNG,
+            ReportContract.Entry.COLUMN_USERNAME,
+            ReportContract.Entry.COLUMN_MEDIAURL1,
+            ReportContract.Entry.COLUMN_MEDIAURL2,
+            ReportContract.Entry.COLUMN_MEDIAURL3
+    };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
                   ArrayList<String> picPaths) {
@@ -52,12 +64,30 @@ public class Report {
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
-        this.picPaths = picPaths;
+        this.mediaPaths = picPaths;
         Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
-                picPaths.get(0).toString() + ". " +
-                picPaths.get(1).toString() +". " +
-                picPaths.get(2).toString());
-        this.id = 0;
+                mediaPaths.get(0).toString() + ". " +
+                mediaPaths.get(1).toString() +". " +
+                mediaPaths.get(2).toString());
+        this.serverId = this.dbId = 0;
+    }
+
+    // Note: remember to close the cursor when you're finished.
+    // Cursor not closed here because it may contain multiple rows of reports
+    public Report(Cursor c){
+        this.title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
+        this.details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
+        this.timeStamp = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP));
+        this.timeElapsed = getElapsedTime(timeStamp);
+        this.userName = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
+        this.latitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LAT)));
+        this.longitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LNG)));
+        this.serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
+        this.dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
+        mediaPaths = new ArrayList<String>();
+        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1)));
+        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2)));
+        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3)));
     }
 
     public Report(JSONObject jsonServerData) {
@@ -67,13 +97,13 @@ public class Report {
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
-            mediaURLs = new ArrayList<String>();
-            for(int i = 0; i < mediaURLsInJSON.length(); i++)
-                mediaURLs.add(mediaURLsInJSON.get(i).toString());
+            JSONArray mediaPathsInJSON = jsonServerData.getJSONArray(mediaPathsKey);
+            mediaPaths = new ArrayList<String>();
+            for(int i = 0; i < mediaPathsInJSON.length(); i++)
+                mediaPaths.add(mediaPathsInJSON.get(i).toString());
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
-            this.id = 0;
+            this.serverId = jsonServerData.getInt(serverIdKey);
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(LogTags.JSON, "Failed to convert data from JSON");
@@ -81,7 +111,7 @@ public class Report {
     }
 
     public Report(String report_key, Bundle savedState) {
-        this.id = savedState.getInt(report_key+idKey);
+        this.serverId = savedState.getInt(report_key+serverIdKey);
         this.title = savedState.getString(report_key+titleKey);
         this.details = savedState.getString(report_key+detailsKey);
         this.timeStamp = savedState.getString(report_key+timeStampKey);
@@ -89,10 +119,10 @@ public class Report {
         this.userName = savedState.getString(report_key+userNameKey);
         this.latitude = savedState.getDouble(report_key+latKey);
         this.longitude = savedState.getDouble(report_key+lonKey);
-        if (savedState.getStringArray(report_key+mediaURLsKey) != null)
-            this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
-        if (savedState.getStringArrayList(report_key+picsKey) != null)
-            this.picPaths = savedState.getStringArrayList(report_key+picsKey);
+        if (savedState.getStringArray(report_key+mediaPathsKey) != null)
+            this.mediaPaths = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaPathsKey)));
+        if (savedState.getStringArrayList(report_key+mediaPathsKey) != null)
+            this.mediaPaths = savedState.getStringArrayList(report_key+mediaPathsKey);
     }
 
     public JSONObject getJsonForText() throws JSONException {
@@ -106,7 +136,7 @@ public class Report {
     }
 
     public JSONObject getJsonForPic(int i) throws JSONException, IOException {
-        return new JSONObject().accumulate(picsKey, getEncodedBytesForPic(i));
+        return new JSONObject().accumulate(mediaPathsKey, getEncodedBytesForPic(i));
     }
 
     private String getEncodedBytesForPic(int i) throws IOException {
@@ -114,8 +144,9 @@ public class Report {
         Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
         return encoded;
     }
+
     public byte[] getBytesForPic(int i) throws IOException {
-        File file = new File(picPaths.get(i));
+        File file = new File(mediaPaths.get(i));
         byte[] b = new byte[(int) file.length()];
         BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         inputStream.read(b);
@@ -124,18 +155,18 @@ public class Report {
     }
 
     public Bundle saveState(String report_key, Bundle outState) {
-        outState.putInt(report_key+idKey, this.id);
+        outState.putInt(report_key+serverIdKey, this.serverId);
         outState.putString(report_key+titleKey, this.title);
         outState.putString(report_key+detailsKey, this.details);
         outState.putString(report_key+timeStampKey, this.timeStamp);
         outState.putString(report_key+userNameKey, this.userName);
-        if (mediaURLs != null)
-            outState.putStringArray(report_key+mediaURLsKey,
-                    this.mediaURLs.toArray(new String[mediaURLs.size()]));
+        if (mediaPaths != null)
+            outState.putStringArray(report_key+mediaPathsKey,
+                    this.mediaPaths.toArray(new String[mediaPaths.size()]));
         outState.putDouble(report_key+latKey, this.latitude);
         outState.putDouble(report_key+lonKey, this.longitude);
-        if(picPaths != null && !picPaths.isEmpty())
-            outState.putStringArrayList(report_key+picsKey, this.picPaths);
+        if(mediaPaths != null && !mediaPaths.isEmpty())
+            outState.putStringArrayList(report_key+mediaPathsKey, this.mediaPaths);
         Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
     }
