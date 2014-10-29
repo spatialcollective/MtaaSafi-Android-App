@@ -46,6 +46,7 @@
             android:hint="@string/report_detail_hint"
             android:background="@null"
             android:paddingLeft="10dp"
+            android:inputType="textMultiLine"
             android:maxLength ="2000"
             android:textSize="18dp"
             android:paddingTop="8dp"
