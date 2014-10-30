@@ -40,25 +40,21 @@ public class NewReportFragment extends Fragment {
     public String detailsText;
     public ArrayList<String> picPaths;
     private int previewClicked;
-    public final int REQUIRED_PIC_COUNT = 3;
 
-    static final int    REQUEST_IMAGE_CAPTURE = 1,
-            PIC1 = 0,
-            PIC2 = 1,
-            PIC3 = 2,
-            TOTAL_PICS = 3,
-            SAVED_REPORT_BUTTON_ID = 100;
+    public static final int REQUEST_IMAGE_CAPTURE = 1,
+        REQUIRED_PIC_COUNT = 3,
+        PIC1 = 0, PIC2 = 1, PIC3 = 2;
 
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         detailsText = "";
         picPaths = new ArrayList<String>();
-        for(int i = 0; i < TOTAL_PICS; i++)
+        for(int i = 0; i < REQUIRED_PIC_COUNT; i++)
             picPaths.add(null);
         setRetainInstance(true);
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
-        picPreviews = new ImageView[TOTAL_PICS];
+        picPreviews = new ImageView[REQUIRED_PIC_COUNT];
     }
 
     @Override
@@ -68,29 +64,14 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
-        detailsText = "";
-        Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
-        sendSavedReports.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                uploadSavedReports();
-            }
-        });
-        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
-        if(savedReportCt > 0){
-            sendSavedReports.setVisibility(View.VISIBLE);
-            String buttonText = "Send " + savedReportCt + " saved report";
-            if(savedReportCt > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-        } else
-            sendSavedReports.setVisibility(View.GONE);
         return view;
     }
+
     @Override
     public void onViewCreated(View view, Bundle savedState) {
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
+        attemptAddSendReportBtn(view);
         attemptEnableSendSave();
         updatePicPreviews();
         setListeners();
@@ -100,8 +81,6 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        Log.e(LogTags.NEWREPORT, "onResume");
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
     }
     @Override
     public void onStop(){
@@ -111,14 +90,22 @@ public class NewReportFragment extends Fragment {
         detailsView = null;
     }
 
-    private void uploadSavedReports(){
-        NewReportActivity mActivity = (NewReportActivity) getActivity();
-        mActivity.uploadSavedReports();
-    }
-    
     public Report createNewReport(String userName, Location location) {
         Log.e("New Report Frag", "Creating new report");
         return new Report(detailsText, userName, location, picPaths);
+    }
+
+    private void attemptAddSendReportBtn(View view) {
+        Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
+        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
+        if (savedReportCt > 0) {
+            String buttonText = "Send " + savedReportCt + " saved report";
+            if (savedReportCt > 1)
+                buttonText += "s";
+            sendSavedReports.setText(buttonText);
+            sendSavedReports.setVisibility(View.VISIBLE);
+        } else
+            sendSavedReports.setVisibility(View.GONE);
     }
 
     private void updatePicPreviews() {
@@ -172,7 +159,7 @@ public class NewReportFragment extends Fragment {
     }
     private int getEmptyPics(){
         int emptyPics = 0;
-        for(int i = 0; i < TOTAL_PICS; i++){
+        for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
             if(picPaths.get(i) == null || picPaths.get(i).equals(""))
                 emptyPics++;
         }

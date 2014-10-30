@@ -105,12 +105,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         progressUpdate[0] = Integer.valueOf(progress);
         publishProgress(progress);
         // special case, because onProgressUpdate isn't called if thread is cancelled
-        if(fragmentAvailable && progress == -1 && isCancelled())
-            mFragment.stillUploaded();
+//        if(fragmentAvailable && progress == -1 && isCancelled())
+//            mFragment.stillUploaded();
     }
     protected void onProgressUpdate(Integer... progress) {
         if(fragmentAvailable){
-            mFragment.updatePostProgress(progress[0], pendingReport);
+//            mFragment.updatePostProgress(progress[0], pendingReport);
             Log.e("Update Progress", "fragment was called. Progress: " + progress[0]);
         }
         else
@@ -130,16 +130,16 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     protected void onPostExecute(Integer result) {
         Log.e(LogTags.BACKEND_W, "onPostExecute: " + result);
         if(fragmentAvailable){
-            if (result == -1)
-                mFragment.uploadSuccess();
-            else
-                mFragment.uploadFailure("Unknown Error");
+//            if (result == -1)
+//                mFragment.uploadSuccess();
+//            else
+//                mFragment.uploadFailure("Unknown Error");
         }
     }
     @Override
     protected void onCancelled(){
-        if(fragmentAvailable)
-            mFragment.cancelConfirmed();
+//        if(fragmentAvailable)
+//            mFragment.cancelConfirmed();
     }
 //    // if the report has a server id that the server recognizes, it's an interrupted report
 //    // upload the first pic in the array that isn't a web URL
@@ -160,12 +160,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     .execute(new HttpGet(BASE_WRITE_URL + "/" + report.serverId + "/"));
             return response.getStatusLine().getStatusCode();
         } catch (ClientProtocolException e) {
-            if(fragmentAvailable)
-                mFragment.uploadFailure("Connection error");
+//            if(fragmentAvailable)
+//                mFragment.uploadFailure("Connection error");
         } catch (IOException e) {
             e.printStackTrace();
-            if(fragmentAvailable)
-                mFragment.uploadFailure("Connection error");
+//            if(fragmentAvailable)
+//                mFragment.uploadFailure("Connection error");
         }
         return 0;
     }
@@ -319,12 +319,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     // checks the response from the server for errors. If none, returns the JSON object the server sent back
     private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {
         int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode >= 400 && statusCode < 500)
-            if(fragmentAvailable)
-                mFragment.uploadFailure("Client error");
-        else if (statusCode >= 500 && statusCode < 600)
-            if(fragmentAvailable)
-                mFragment.uploadFailure("Server error");
+//        if (statusCode >= 400 && statusCode < 500)
+//            if(fragmentAvailable)
+//                mFragment.uploadFailure("Client error");
+//        else if (statusCode >= 500 && statusCode < 600)
+//            if(fragmentAvailable)
+//                mFragment.uploadFailure("Server error");
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
         return new JSONObject(responseString);
     }
@@ -332,21 +332,21 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     private void jsonException(JSONException e){
         e.printStackTrace();
         Log.e(LogTags.BACKEND_W, "JSON FAILURE");
-        if(fragmentAvailable)
-            mFragment.uploadFailure("JSON error");
+//        if(fragmentAvailable)
+//            mFragment.uploadFailure("JSON error");
 
     }
     private void networkErrorException(NetworkErrorException e){
         e.printStackTrace();
         Log.e(LogTags.BACKEND_W, "NETWORK FAILURE");
-        if(fragmentAvailable)
-            mFragment.uploadFailure("Network error");
+//        if(fragmentAvailable)
+//            mFragment.uploadFailure("Network error");
 
     }
     private void ioException(IOException e){
         e.printStackTrace();
         Log.e(LogTags.BACKEND_W, "IO FAILURE");
-        if(fragmentAvailable)
-            mFragment.uploadFailure("IO");
+//        if(fragmentAvailable)
+//            mFragment.uploadFailure("IO");
     }
 }

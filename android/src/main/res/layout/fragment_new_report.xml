@@ -22,7 +22,8 @@
             android:background="@color/Coral"
             android:textColor="@color/White"
             android:textStyle="bold"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:onClick="uploadSavedReportsClicked"/>
 
         <Button
             android:layout_width="match_parent"
@@ -67,7 +68,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:onClick="beamUpReport" />
+            android:onClick="attemptBeamOut" />
 
         <include layout="@layout/attach_pic_row"
             android:layout_width="match_parent"

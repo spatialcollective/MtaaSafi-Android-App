@@ -43,6 +43,7 @@ public class Report {
             latKey = "latitude",
             lonKey = "longitude",
             serverIdKey = "id";
+            
     public static final String[] PROJECTION = new String[] {
             ReportContract.Entry._ID,
             ReportContract.Entry.COLUMN_SERVER_ID,
@@ -54,7 +55,8 @@ public class Report {
             ReportContract.Entry.COLUMN_USERNAME,
             ReportContract.Entry.COLUMN_MEDIAURL1,
             ReportContract.Entry.COLUMN_MEDIAURL2,
-            ReportContract.Entry.COLUMN_MEDIAURL3
+            ReportContract.Entry.COLUMN_MEDIAURL3,
+            ReportContract.Entry.COLUMN_PENDINGFLAG
     };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,

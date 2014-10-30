@@ -13,9 +13,7 @@ import com.sc.mtaasafi.android.feed.MainActivity;
  * Created by Agree on 9/26/2014.
  */
 public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
-    public interface AlertDialogListener{
-        void onAlertButtonPressed(int eventKey);
-    }
+
     String alertMessage, positiveText, negativeText;
     int alertType;
     public static final int UPDATE_FAILED = 0,
@@ -40,9 +38,13 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
 
     public static final String ALERT_KEY = "alert";
 
-    private AlertDialogListener listener;
-    public AlertDialogFragment(){
+    public interface AlertDialogListener {
+        void onAlertButtonPressed(int eventKey);
     }
+
+    private AlertDialogListener listener;
+
+    public AlertDialogFragment() { }
     public void setAlertDialogListener(AlertDialogListener adl){
         this.listener = adl;
     }

@@ -1,29 +1,28 @@
 package com.sc.mtaasafi.android.uploading;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
+import android.widget.SimpleCursorTreeAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
-import com.sc.mtaasafi.android.newReport.ReportUploader;
 
-import java.util.ArrayList;
-
-public class ReportUploadingFragment extends extends ListFragment
+public class ReportUploadingFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
     LinearLayout uploadInterrupted;
     ReportUploader uploader;
@@ -32,15 +31,15 @@ public class ReportUploadingFragment extends extends ListFragment
 
     NewReportActivity mActivity;
 
-    SimpleCursorTreeAdapter mAdapter;
+    SimpleCursorAdapter mAdapter;
     // Uri mUri; // pendingReportUri
 
 
-    final static String ACTION = "action",
+    public final static String ACTION = "action",
                         DATA = "data";
-    final static int ACTION_SEND_NEW = 1,
-                    ACTION_SEND_ALL = 2,
-                    ACTION_VIEW = 3;
+    public final static char ACTION_SEND_NEW = 'n',
+                    ACTION_SEND_ALL = 'a',
+                    ACTION_VIEW = 'v';
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_TIMESTAMP,
@@ -75,21 +74,24 @@ public class ReportUploadingFragment extends extends ListFragment
         setRetainInstance(true);
         progressBars = new ProgressBar[4];
         // mActivity = (NewReportActivity) getActivity();
-        chooseAction(getArguments());
+//        chooseAction(getArguments());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         super.onCreateView(inflater, container, savedState);
-        return inflater.inflate(R.layout.upload_interface, container, false);
+        return inflater.inflate(R.layout.upload_list, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
-        super.onViewCreated(view, savedInstanceState);
-        mAdapter = new SimpleCursorTreeAdapter(getActivity(), null //cursor,
-            R.layout.upload_list, LIST_FROM_COLUMNS, LIST_TO_FIELDS,
-            R.layout.upload_item, ITEM_FROM_COLUMNS, ITEM_TO_FIELDS);
+        super.onViewCreated(view, savedState);
+
+        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.upload_item,
+                null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
+//        mAdapter = new SimpleCursorAdapter(getActivity(), //cursor is missing on purpose
+//            R.layout.upload_list, LIST_FROM_COLUMNS, LIST_TO_FIELDS,
+//            R.layout.upload_item, ITEM_FROM_COLUMNS, ITEM_TO_FIELDS);
 
         // mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
         //     @Override
@@ -118,7 +120,7 @@ public class ReportUploadingFragment extends extends ListFragment
 
     private void chooseAction(Bundle args) {
         if (args != null) {
-            switch(args.getInt(ACTION)) {
+            switch(args.getChar(ACTION)) {
                 case ACTION_SEND_NEW:
                     beamUpReport(Uri.parse(args.getString(DATA)));
                 case ACTION_SEND_ALL:
@@ -142,11 +144,10 @@ public class ReportUploadingFragment extends extends ListFragment
 
     }
 
-        @Override
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        mCursor = new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
+        return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
             Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null);
-        return mCursor;
     }
 
     @Override

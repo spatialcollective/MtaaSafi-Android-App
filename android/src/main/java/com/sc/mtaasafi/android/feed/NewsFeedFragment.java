@@ -35,24 +35,9 @@ public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     SimpleCursorAdapter mAdapter;
-    private Object mSyncObserverHandle;
-
     ReportSelectedListener mCallback;
-    int index;
-    int top;
-    private final static int SAVED_REPORT_BUTTON_ID = 100;
-    public String[] PROJECTION = new String[] {
-        ReportContract.Entry._ID,
-        ReportContract.Entry.COLUMN_TITLE,
-        ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_LAT,
-        ReportContract.Entry.COLUMN_LNG,
-        ReportContract.Entry.COLUMN_USERNAME,
-        ReportContract.Entry.COLUMN_MEDIAURL1,
-        ReportContract.Entry.COLUMN_MEDIAURL2,
-        ReportContract.Entry.COLUMN_MEDIAURL3
-    };
+    int index, top;
+
     public String[] FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
@@ -79,21 +64,16 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        LinearLayout feedLL = (LinearLayout) view.findViewById(R.id.feedLL);
-        feedLL.setPadding(0, ((MainActivity) getActivity()).getActionBarHeight(), 0, 0);
-        view.findViewById(R.id.savedReportsButton).setOnClickListener(new View.OnClickListener(){
-            @Override
-            public  void onClick(View view){
-                ((MainActivity) getActivity()).uploadSavedReports();
-            }
-        });
+        
+        ((LinearLayout) view.findViewById(R.id.feedLL))
+            .setPadding(0, ((MainActivity) getActivity()).getActionBarHeight(), 0, 0);
+
         if (savedInstanceState != null) {
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
         return view;
     }
-
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -110,12 +90,9 @@ public class NewsFeedFragment extends ListFragment
                 return true;
             }
         });
+        attemptAddSendReportBtn(view);
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
-    }
-
-    @Override public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
     }
 
    @Override
@@ -130,31 +107,36 @@ public class NewsFeedFragment extends ListFragment
         super.onResume();
         ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
         View view = getView();
-        int savedReports = NewReportActivity.getSavedReportCount(getActivity());
-        if (savedReports > 0){
-            Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
-            sendSavedReports.setVisibility(View.VISIBLE);
-            String buttonText = "Send " + savedReports + " saved report";
-            if(savedReports > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-        }
-        else
+        // int savedReports = NewReportActivity.getSavedReportCount(getActivity());
+        // if (savedReports > 0){
+        //     Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
+        //     sendSavedReports.setVisibility(View.VISIBLE);
+        //     String buttonText = "Send " + savedReports + " saved report";
+        //     if(savedReports > 1)
+        //         buttonText += "s";
+        //     sendSavedReports.setText(buttonText);
+        // }
+        // else
             view.findViewById(R.id.savedReportsButton).setVisibility(View.GONE);
-        mSyncStatusObserver.onStatusChanged(0);
-        final int mask = ContentResolver.SYNC_OBSERVER_TYPE_PENDING |
-                ContentResolver.SYNC_OBSERVER_TYPE_ACTIVE;
-        mSyncObserverHandle = ContentResolver.addStatusChangeListener(mask, mSyncStatusObserver);
         // restoreListPosition();
     }
     @Override
     public void onPause() {
         super.onPause();
-        if (mSyncObserverHandle != null) {
-            ContentResolver.removeStatusChangeListener(mSyncObserverHandle);
-            mSyncObserverHandle = null;
-        }
         // saveListPosition();
+    }
+
+    private void attemptAddSendReportBtn(View view) {
+        Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
+        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
+        if (savedReportCt > 0) {
+            String buttonText = "Send " + savedReportCt + " saved report";
+            if (savedReportCt > 1)
+                buttonText += "s";
+            sendSavedReports.setText(buttonText);
+            sendSavedReports.setVisibility(View.VISIBLE);
+        } else
+            sendSavedReports.setVisibility(View.GONE);
     }
 
     public void saveListPosition() {
@@ -181,21 +163,21 @@ public class NewsFeedFragment extends ListFragment
             throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
         }
     }
+
     public void startRefresh(){
-        if(getView() != null){
+        if (getView() != null)
             getView().findViewById(R.id.refreshingFeedView).setVisibility(View.VISIBLE);
-        }
     }
     public void endRefresh(){
-        if(getView() != null){
+        if (getView() != null)
             getView().findViewById(R.id.refreshingFeedView).setVisibility(View.GONE);
-        }
     }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         startRefresh();
         return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
-            PROJECTION, null, null, null);
+            Report.PROJECTION, null, null, null);
     }
 
     @Override
@@ -208,31 +190,4 @@ public class NewsFeedFragment extends ListFragment
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.changeCursor(null);
     }
-
-    private SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
-        @Override
-        public void onStatusChanged(int which) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("GETing", "Begin network synchronization in frag");
-                    Account account = AuthenticatorService.GetAccount();
-//                    if (account == null) {
-                        // GetAccount() returned an invalid value. This shouldn't happen, but
-                        // we'll set the status to "not refreshing".
-//                        setRefreshActionButtonState(false);
-//                        return;
-//                    }
-
-                    // Test the ContentResolver to see if the sync adapter is active or pending.
-                    // Set the state of the refresh button accordingly.
-                    boolean syncActive = ContentResolver.isSyncActive(
-                            account, ReportContract.CONTENT_AUTHORITY);
-                    boolean syncPending = ContentResolver.isSyncPending(
-                            account, ReportContract.CONTENT_AUTHORITY);
-//                    setRefreshActionButtonState(syncActive || syncPending);
-                }
-            });
-        }
-    };
 }
