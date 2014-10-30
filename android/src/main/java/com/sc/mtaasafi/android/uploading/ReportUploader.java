@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.newReport;
+package com.sc.mtaasafi.android.uploading;
 
 import android.accounts.NetworkErrorException;
 import android.os.AsyncTask;
@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.newReport.NewReportActivity;
+import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -15,7 +17,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +27,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.NoSuchAlgorithmException;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 

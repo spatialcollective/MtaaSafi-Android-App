@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.newReport;
+package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
 import android.os.Bundle;
