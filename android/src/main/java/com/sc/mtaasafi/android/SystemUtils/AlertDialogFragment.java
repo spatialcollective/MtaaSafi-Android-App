@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.app.FragmentManager;
 
 import com.sc.mtaasafi.android.feed.MainActivity;
 
@@ -45,6 +46,14 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
     }
     public void setAlertDialogListener(AlertDialogListener adl){
         this.listener = adl;
+    }
+    public static void showAlert(int alertCode, AlertDialogListener adl,
+                                 FragmentManager fm){
+        AlertDialogFragment alertDialogFragment = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(ALERT_KEY, alertCode);
+        alertDialogFragment.setAlertDialogListener(adl);
+        alertDialogFragment.show(fm, ALERT_KEY);
     }
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

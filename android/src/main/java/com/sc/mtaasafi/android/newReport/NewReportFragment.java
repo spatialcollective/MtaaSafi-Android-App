@@ -108,7 +108,8 @@ public class NewReportFragment extends Fragment {
         super.onStop();
         for(ImageView picPreview : picPreviews)
             picPreview = null;
-        detailsView = null;
+//        detailsView = null;
+
     }
 
     private void uploadSavedReports(){
@@ -255,7 +256,7 @@ public class NewReportFragment extends Fragment {
 
     public void attemptEnableSendSave() {
         View view = getView();
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
+        if (detailsView.getText().toString().isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
             disableButton((Button) view.findViewById(R.id.sendButton));
             disableButton((Button) view.findViewById(R.id.saveButton));
         } else {

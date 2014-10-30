@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -98,16 +100,16 @@ public class MainActivity extends ActionBarActivity implements
         int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         switch(gPlayCode){
             case ConnectionResult.SERVICE_MISSING:
-                launchAlert(AlertDialogFragment.GPLAY_MISSING);
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
                 break;
             case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-                launchAlert(AlertDialogFragment.GPLAY_UPDATE);
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_UPDATE, this, getSupportFragmentManager());
                 break;
             case ConnectionResult.SERVICE_DISABLED:
-                launchAlert(AlertDialogFragment.GPLAY_DISABLED);
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_DISABLED, this, getSupportFragmentManager());
                 break;
             case ConnectionResult.SERVICE_INVALID:
-                launchAlert(AlertDialogFragment.GPLAY_INVALID);
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_INVALID, this, getSupportFragmentManager());
                 break;
             case ConnectionResult.SUCCESS:
                 String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
@@ -119,14 +121,6 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void launchAlert(int alertCode) {
-        AlertDialogFragment adf = new AlertDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, alertCode);
-        adf.setArguments(bundle);
-        adf.setAlertDialogListener(this);
-        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
-    }
 
     @Override
     public void onAlertButtonPressed(int eventKey) {
@@ -187,10 +181,19 @@ public class MainActivity extends ActionBarActivity implements
                 goToNewReport();
                 return true;
             case R.id.action_refresh:
-                SyncUtils.TriggerRefresh();
-                NewsFeedFragment nff = getNewsFeedFragment();
-                if(nff != null)
-                    nff.startRefresh();
+                if(isOnline()){
+                    if(getLocation() != null){
+                        SyncUtils.TriggerRefresh();
+                        NewsFeedFragment nff = getNewsFeedFragment();
+                        if(nff != null)
+                            nff.startRefresh();
+
+                    }
+                } else{
+                    AlertDialogFragment.showAlert(AlertDialogFragment.CONNECTION_FAILED,
+                                                  this,
+                                                  getSupportFragmentManager());
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -237,11 +240,7 @@ public class MainActivity extends ActionBarActivity implements
         if(mLocationClient != null && mLocationClient.isConnected()){
             Location mCurrentLocation = mLocationClient.getLastLocation();
             if(mCurrentLocation == null){
-                AlertDialogFragment adf = new AlertDialogFragment();
-                adf.setAlertDialogListener(this);
-                Bundle bundle = new Bundle();
-                bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
-                adf.setArguments(bundle);
+                AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
             }
             cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
             cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
@@ -275,11 +274,16 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void onLocationDisabled(){
-        AlertDialogFragment adf = new AlertDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
-        adf.setArguments(bundle);
-        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+        AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
+            return true;
+        return false;
     }
 
 }
