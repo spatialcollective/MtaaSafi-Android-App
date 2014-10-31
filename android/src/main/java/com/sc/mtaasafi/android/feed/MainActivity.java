@@ -142,12 +142,12 @@ public class MainActivity extends ActionBarActivity implements
     public void goToDetailView(Cursor c, int position) {
         detailFragment = new ReportDetailFragment();
         detailFragment.setData(c);
+        Log.e("Go to Detail view", "Cursor size: " + c.getCount());
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.fragment_container, detailFragment, DETAIL_TAG)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack(null)
             .commit();
-        c.close();
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
@@ -187,7 +187,6 @@ public class MainActivity extends ActionBarActivity implements
                         NewsFeedFragment nff = getNewsFeedFragment();
                         if(nff != null)
                             nff.startRefresh();
-
                     }
                 } else{
                     AlertDialogFragment.showAlert(AlertDialogFragment.CONNECTION_FAILED,
@@ -241,10 +240,11 @@ public class MainActivity extends ActionBarActivity implements
             Location mCurrentLocation = mLocationClient.getLastLocation();
             if(mCurrentLocation == null){
                 AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
+            } else{
+                cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
+                cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
+                cp.commit();
             }
-            cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
-            cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
-            cp.commit();
             return mCurrentLocation;
         }
         return null;

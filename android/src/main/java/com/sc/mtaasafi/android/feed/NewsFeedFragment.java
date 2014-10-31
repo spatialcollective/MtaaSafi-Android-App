@@ -126,7 +126,8 @@ public class NewsFeedFragment extends ListFragment
                             distText += " km";
                         } else {
                             distText = Float.toString(distInMeters);
-                            distText = distText.substring(0, distText.indexOf("\\.")-1);
+                            if(distText.contains("\\."))
+                                distText = distText.substring(0, distText.indexOf("\\.")-1);
                             // if distance is in meters meters, only show as an integer
                         }
                         ((TextView)view).setText(distText);
@@ -250,7 +251,6 @@ public class NewsFeedFragment extends ListFragment
 //                        setRefreshActionButtonState(false);
 //                        return;
 //                    }
-
                     // Test the ContentResolver to see if the sync adapter is active or pending.
                     // Set the state of the refresh button accordingly.
                     boolean syncActive = ContentResolver.isSyncActive(
