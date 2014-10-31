@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
-    private String title, details, time, user, mediaUrl1, mediaUrl2, mediaUrl3;
+    private Report mReport;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -35,15 +35,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         setRetainInstance(true);
     }
 
-    public void setData(Cursor c) {
-        title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
-        details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
-        time = getSimpleTimeStamp(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP)));
-        user = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
-        mediaUrl1 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1));
-        mediaUrl2 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2));
-        mediaUrl3 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3));
-    }
+    public void setData(Cursor c) { mReport = new Report(c); }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
@@ -100,14 +92,14 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     }
 
     public void updateView(View view) {
-        ((TextView) view.findViewById(R.id.reportViewTitle)).setText(title);
-        ((TextView) view.findViewById(R.id.reportViewDetails)).setText(details);
-        ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(time);
-        ((TextView) view.findViewById(R.id.reportViewUsername)).setText(user);
+        ((TextView) view.findViewById(R.id.reportViewTitle)).setText(mReport.title);
+        ((TextView) view.findViewById(R.id.reportViewDetails)).setText(mReport.details);
+        ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(getSimpleTimeStamp(mReport.timeStamp));
+        ((TextView) view.findViewById(R.id.reportViewUsername)).setText(mReport.userName);
         AQuery aq = new AQuery(getActivity());
-        aq.id(view.findViewById(R.id.media1)).image(mediaUrl1);
-        aq.id(view.findViewById(R.id.media2)).image(mediaUrl2);
-        aq.id(view.findViewById(R.id.media3)).image(mediaUrl3);
+        aq.id(view.findViewById(R.id.media1)).image(mReport.mediaPaths.get(0));
+        aq.id(view.findViewById(R.id.media2)).image(mReport.mediaPaths.get(1));
+        aq.id(view.findViewById(R.id.media3)).image(mReport.mediaPaths.get(2));
     }
 
     public void setActionBarTranslation(float y, int height) {

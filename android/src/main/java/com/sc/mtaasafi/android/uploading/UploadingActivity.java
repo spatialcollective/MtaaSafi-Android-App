@@ -1,6 +1,9 @@
 package com.sc.mtaasafi.android.uploading;
 
 import android.content.ContentProviderOperation;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
@@ -65,10 +68,18 @@ public class UploadingActivity extends ActionBarActivity {
         this.uploader = uploader;
     }
 
-    public void beamUpReport(Uri pendingReport) {
-//        if (isOnline()) {
-//
-//        }
+    private void beamUpReport(Uri pendingReport) {
+       if (isOnline()) {
+
+       }
+    }
+
+    public boolean isOnline() {
+        NetworkInfo netInfo = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE))
+                                    .getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
+            return true;
+        return false;
     }
 
 //    public void uploadSavedReports(View view) {
@@ -181,14 +192,7 @@ public class UploadingActivity extends ActionBarActivity {
 //        }
 //    }
 
-//    public boolean isOnline() {
-//        ConnectivityManager cm =
-//                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-//        if (netInfo != null && netInfo.isConnectedOrConnecting())
-//            return true;
-//        return false;
-//    }
+
 
         // called after a report has uploaded successfully or if the activity stops
     // private void updateDb(){

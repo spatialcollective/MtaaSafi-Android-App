@@ -1,22 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
      android:layout_width="match_parent"
      android:layout_height="wrap_content"
-     android:orientation="vertical">
- 
-     <TextView android:id="@+id/itemDetails"
-         android:textSize="16sp"
-         android:textStyle="bold"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_centerHorizontal="true"
-         android:layout_alignParentLeft="true"/>
- 
-     <TextView android:id="@+id/timeElapsed"
-         android:textSize="16sp"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_alignParentRight="true"
-         android:layout_centerHorizontal="true"
-         android:layout_gravity="right" />
- </LinearLayout>
+     android:orientation="vertical"
+     android:id="@+id/lineItem"
+     android:paddingTop="8dp"
+     android:paddingBottom="8dp">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/collapsed_layout_layout"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
+                android:id="@+id/itemDetails"
+                android:textSize="14dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="100dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="7dp"
+                android:layout_centerHorizontal="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5h"
+                android:id="@+id/timeElapsed"
+                android:textColor="#666666"
+                android:paddingRight="8dp"
+                android:textSize="14dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right" />
+        </LinearLayout>
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:id="@+id/expanded_layout"
+            android:layout_alignParentBottom="true"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone" >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/reportUploadingIcon"
+                    android:src="@drawable/report_loading"
+                    android:scaleType="fitCenter" />
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBarReportText"
+                    android:layout_alignBottom="@+id/reportUploadingIcon"
+                    android:visibility="visible"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:indeterminate="false" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/pic1UploadingIcon"
+                    android:src="@drawable/pic1_uploading"
+                    android:scaleType="fitCenter" />
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBarPic1"
+                    android:layout_alignBottom="@+id/pic1UploadingIcon"
+                    android:visibility="visible"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:indeterminate="false" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/pic2UploadingIcon"
+                    android:src="@drawable/pic2_uploading"
+                    android:scaleType="fitCenter" />
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBarPic2"
+                    android:layout_alignBottom="@+id/pic2UploadingIcon"
+                    android:visibility="visible"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:indeterminate="false" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/pic3UploadingIcon"
+                    android:src="@drawable/pic3_uploading"
+                    android:scaleType="fitCenter" />
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/progressBarPic3"
+                    android:layout_alignBottom="@+id/pic3UploadingIcon"
+                    android:visibility="visible"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:indeterminate="false" />
+            </RelativeLayout>
+
+        </LinearLayout>
+ </RelativeLayout>

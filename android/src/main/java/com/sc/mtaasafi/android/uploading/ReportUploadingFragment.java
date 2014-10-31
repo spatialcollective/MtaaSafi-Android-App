@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.uploading;
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.TextView;
@@ -47,7 +49,7 @@ public class ReportUploadingFragment extends ListFragment
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.timeElapsed,
-        R.id.itemDetails //pendingState
+        R.id.itemDetails
     };
 
     public ReportUploadingFragment() {}
@@ -73,20 +75,17 @@ public class ReportUploadingFragment extends ListFragment
 
         mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.upload_item,
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
-//        mAdapter = new SimpleCursorAdapter(getActivity(), //cursor is missing on purpose
-//            R.layout.upload_list, LIST_FROM_COLUMNS, LIST_TO_FIELDS,
-//            R.layout.upload_item, ITEM_FROM_COLUMNS, ITEM_TO_FIELDS);
 
-        // mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-        //     @Override
-        //     public boolean setViewValue(View view, Cursor cursor, int i) {
-        //         if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
-        //             ((TextView)view).setText(Report.getElapsedTime(cursor.getString(i)));
-        //         else
-        //             return false;
-        //         return true;
-        //     }
-        // });
+        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int i) {
+                if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
+                    ((TextView)view).setText(Report.getElapsedTime(cursor.getString(i)));
+                else
+                    return false;
+                return true;
+            }
+        });
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
 
@@ -99,6 +98,19 @@ public class ReportUploadingFragment extends ListFragment
         // uploadingList = (UploadingReportsList) view.findViewById(R.id.uploadingList);
         // uploadInterrupted = (LinearLayout) view.findViewById(R.id.uploadInterrupted);
         // setListeners(view);
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View view, int position, long id) {
+        super.onListItemClick(l, view, position, id);
+        Cursor c = (Cursor) mAdapter.getItem(position);
+        view.setMinimumHeight(200);
+        view.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
+        ((TextView) view.findViewById(R.id.itemDetails)).setTextColor(Color.WHITE);
+        ((TextView) view.findViewById(R.id.timeElapsed)).setTextColor(Color.WHITE);
+        view.findViewById(R.id.expanded_layout).setVisibility(View.VISIBLE);
+        beamUpReport(new Report(c));
+        // mCallback.goToDetailView(c, position);
     }
 
 
@@ -116,8 +128,11 @@ public class ReportUploadingFragment extends ListFragment
         }
     }
 
-    private void beamUpReport(Uri pendingReportUri) {
-
+    private void beamUpReport(Report pendingReport) {
+        uploader = new ReportUploader(this, pendingReport);
+        uploader.setfragmentAvailable(true);
+        uploader.execute();
+        mActivity.setUploader(uploader);
     }
 
     private void beamUpPendingReports() {
@@ -126,6 +141,17 @@ public class ReportUploadingFragment extends ListFragment
 
     private void viewSuccessful() {
 
+    }
+
+    // progress 0 = uploading text; 1 = text uploaded, uploading pic1;
+    // 2 = pic1 uploaded, uploading pic2; 3 = pic2 uploaded, uploading pic3;
+    // -1 = pic3 uploaded, report fully received
+    public void updatePostProgress(int progress, Report report){
+        this.progress = progress;
+        pendingReport = report;
+        Log.e("RUF.updatePostProgress", " Progress: " + progress);
+        updateUI(progress);
+        mActivity.uploadProgress(progress, report);
     }
 
     @Override
@@ -225,20 +251,6 @@ public class ReportUploadingFragment extends ListFragment
 //         // restore uploading interface to previous state
 //     }
 
-//     private void beamUpReport(Report report) {
-//         uploadInterrupted.setVisibility(View.INVISIBLE);
-//         if(report.serverId == 0)
-//             refreshInterface();
-//         Log.e(LogTags.BACKEND_W, "Beaming it up, baby! Report id: " + report.serverId);
-//         uploadingTV.setText("Uploading report (" + (getReportIndex(report) + 1) + "/" + reportsToUpload.size() + ")");
-//         uploadingTV.setTextColor(getResources().getColor(R.color.White));
-//         uploader = new ReportUploader(this, report);
-//         uploader.execute();
-//         uploader.setfragmentAvailable(true);
-//         mActivity.setUploader(uploader);
-//         detailText.setText(report.details);
-//     }
-
 //     private void refreshInterface() {
 //         clearProgressBars();
 //         progress = 0;
@@ -265,16 +277,6 @@ public class ReportUploadingFragment extends ListFragment
 //     public void clearProgressBars(){
 //         for(ProgressBar progress : progressBars)
 //             progress.setVisibility(View.INVISIBLE);
-//     }
-//     // progress 0 = uploading text; 1 = text uploaded, uploading pic1;
-//     // 2 = pic1 uploaded, uploading pic2; 3 = pic2 uploaded, uploading pic3;
-//     // -1 = pic3 uploaded, report fully received
-//     public void updatePostProgress(int progress, Report report){
-//         this.progress = progress;
-//         pendingReport = report;
-//         Log.e("RUF.updatePostProgress", " Progress: " + progress);
-//         updateUI(progress);
-//         mActivity.uploadProgress(progress, report);
 //     }
 //     // NOTE: Do not consolidate this f(x) and the one above
 //     // below f(x) deliberately lacks break statements so cases (progress --> 0) can be executed in succession
