@@ -115,20 +115,23 @@ public class NewsFeedFragment extends ListFragment
                     Location currentLocation = ((MainActivity)getActivity()).getLocation();
                     if(currentLocation != null){
                         float distInMeters = reportLocation.distanceTo(currentLocation);
-                        Log.i("View Binder", "Distance in m: " + distInMeters);
                         String distText;
                         if(distInMeters > 1000){
                             distText = Float.toString(distInMeters/1000);
-                            if(distText.contains("\\.")) // show km within 1 dec pt
-                                distText = distText.substring(0, distText.indexOf("\\.")+1);
-                            // remove all that ".0" shit
-                            distText.replaceAll("\\."+Integer.toString(0), "");
-                            distText += " km";
-                        } else {
+                            if(distText.indexOf('.') !=-1) // show km within 1 dec pt
+                                distText = distText.substring(0, distText.indexOf('.')+2);
+                            if(distText.endsWith(".0"))// remove all that ".0" shit
+                                distText = distText.substring(0, distText.length()-3);
+                            distText += "km";
+                        } else if(distInMeters > 30){
                             distText = Float.toString(distInMeters);
-                            if(distText.contains("\\."))
-                                distText = distText.substring(0, distText.indexOf("\\.")-1);
+                            if(distText.indexOf('.') != -1){
+                                distText = distText.substring(0, distText.indexOf('.'));
+                            }
+                            distText += "m";
                             // if distance is in meters meters, only show as an integer
+                        } else {
+                            distText = "here";
                         }
                         ((TextView)view).setText(distText);
                     }
