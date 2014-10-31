@@ -52,6 +52,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         UploadingActivity nra = (UploadingActivity) mFragment.getActivity();
         screenW = 400; //nra.getScreenWidth();
         fragmentAvailable = true;
+        progress = 0;
         Log.e("FRAG AVAIL", "Fragment is available: " + fragmentAvailable);
     }
 
@@ -88,11 +89,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         return -1;
     }
 
-    private JSONObject writePicToServer() throws IOException, JSONException {
-        return sendPiece(pendingReport.serverId, pendingReport.getBytesForPic(progress - 1));
-    }
     private JSONObject writeTextToServer() throws IOException, JSONException {
         return sendPiece(pendingReport.getJsonForText().toString());
+    }
+    private JSONObject writePicToServer() throws IOException, JSONException {
+        return sendPiece(pendingReport.serverId, pendingReport.getBytesForPic(progress - 1));
     }
     
     private void updateDB(JSONObject response) throws JSONException {
