@@ -30,6 +30,7 @@ public class ReportContract {
             COLUMN_MEDIAURL1 = "mediaUrl1",
             COLUMN_MEDIAURL2 = "mediaUrl2",
             COLUMN_MEDIAURL3 = "mediaUrl3",
+            COLUMN_UPVOTES = "upvotes",
             COLUMN_PENDINGFLAG = "pending";
     }
 }

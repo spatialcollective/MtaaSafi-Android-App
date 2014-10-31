@@ -22,6 +22,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + ReportContract.Entry.COLUMN_MEDIAURL1 + " text not null, "
             + ReportContract.Entry.COLUMN_MEDIAURL2 + " text not null, "
             + ReportContract.Entry.COLUMN_MEDIAURL3 + " text not null, "
+            + ReportContract.Entry.COLUMN_UPVOTES + " integer default 0, "
             + ReportContract.Entry.COLUMN_PENDINGFLAG + " integer default 0"
             + ")";
 
