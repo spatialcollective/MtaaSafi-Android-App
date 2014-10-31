@@ -90,7 +90,7 @@ public class NewsFeedFragment extends ListFragment
                 return true;
             }
         });
-        attemptAddSendReportBtn(view);
+        updateSavedReportsBtn(view);
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
     }
@@ -106,19 +106,7 @@ public class NewsFeedFragment extends ListFragment
     public void onResume(){
         super.onResume();
         ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
-        View view = getView();
-        // int savedReports = NewReportActivity.getSavedReportCount(getActivity());
-        // if (savedReports > 0){
-        //     Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
-        //     sendSavedReports.setVisibility(View.VISIBLE);
-        //     String buttonText = "Send " + savedReports + " saved report";
-        //     if(savedReports > 1)
-        //         buttonText += "s";
-        //     sendSavedReports.setText(buttonText);
-        // }
-        // else
-            view.findViewById(R.id.savedReportsButton).setVisibility(View.GONE);
-        // restoreListPosition();
+        updateSavedReportsBtn(getView());
     }
     @Override
     public void onPause() {
@@ -126,7 +114,7 @@ public class NewsFeedFragment extends ListFragment
         // saveListPosition();
     }
 
-    private void attemptAddSendReportBtn(View view) {
+    private void updateSavedReportsBtn(View view) {
         Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
         int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
         if (savedReportCt > 0) {

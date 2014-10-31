@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -68,8 +69,8 @@ public class NewReportActivity extends ActionBarActivity implements
     }
     @Override
     protected void onStop() {
-        super.onStart();
-//        mLocationClient.disconnect(); // Breaks camera
+        super.onStop();
+        mLocationClient.disconnect();
     }
 
     public void uploadSavedReportsClicked(View view) {
@@ -146,8 +147,11 @@ public class NewReportActivity extends ActionBarActivity implements
 
     // called by the new report fragment's "save" button
     public void attemptSave(View view) {
+        Log.e("New Report Activity", "attempting save");
         if (transporterHasLocation()) {
-            saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
+            Log.e("New Report Activity", "have location");
+            Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
+            Log.e("New Report Activity", "Report inserted. Uri is: " + newReportUri.toString());
             finish();
         }
     }
@@ -181,6 +185,8 @@ public class NewReportActivity extends ActionBarActivity implements
         reportValues.put(ReportContract.Entry.COLUMN_MEDIAURL1, newReport.mediaPaths.get(0));
         reportValues.put(ReportContract.Entry.COLUMN_MEDIAURL2, newReport.mediaPaths.get(1));
         reportValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, newReport.mediaPaths.get(2));
+        reportValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, 0);
+        Log.e("New Report Activity", "inserting");
         return getContentResolver().insert(ReportContract.Entry.CONTENT_URI, reportValues);
     }
 
@@ -190,7 +196,7 @@ public class NewReportActivity extends ActionBarActivity implements
         Cursor c = ac.getContentResolver().query(
             ReportContract.Entry.CONTENT_URI,
             projection,
-            ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null);
+            ReportContract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
         int count = c.getCount();
         c.close();
         return count;

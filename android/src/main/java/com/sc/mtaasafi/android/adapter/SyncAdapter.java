@@ -122,7 +122,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Fetching local entries for merge");
         String[] projection = new String[1];
         projection[0] = ReportContract.Entry.COLUMN_SERVER_ID;
-        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection, null, null, null); // Get all entries
+        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection, ReportContract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
         TreeSet<Integer> dbIds = new TreeSet<Integer>();
@@ -136,9 +136,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         showToast("Added to dbIds: " + dbIds.size() + " entries");
         Log.i(LogTags.BACKEND_W, "Added to dbIds: " + dbIds.size() + " entries");
         for(int i = 0; i < serverIds.size(); i++) {
-            if(dbIds.remove(serverIds.get(i))){
+            if (dbIds.remove(serverIds.get(i)))
                 serverIds.remove(i);
-            }
         }
 
         Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");

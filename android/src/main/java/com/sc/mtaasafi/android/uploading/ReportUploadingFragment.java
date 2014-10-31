@@ -43,27 +43,11 @@ public class ReportUploadingFragment extends ListFragment
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_PENDINGFLAG
+        ReportContract.Entry.COLUMN_DETAILS
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.timeElapsed,
         R.id.itemDetails //pendingState
-    };
-    public String[] ITEM_FROM_COLUMNS = new String[] {
-        ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_MEDIAURL1,
-        ReportContract.Entry.COLUMN_MEDIAURL2,
-        ReportContract.Entry.COLUMN_MEDIAURL3,
-        ReportContract.Entry.COLUMN_PENDINGFLAG
-    };
-    private static final int[] ITEM_TO_FIELDS = new int[] {
-        R.id.itemDetails,
-        R.id.timeElapsed,
-        // R.id.pic1,
-        // R.id.pic2,
-        // R.id.pic3,
-        // R.id.pendingState
     };
 
     public ReportUploadingFragment() {}
@@ -147,7 +131,7 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
-            Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null);
+            Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
     }
 
     @Override
