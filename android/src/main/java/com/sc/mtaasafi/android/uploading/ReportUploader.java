@@ -1,13 +1,16 @@
 package com.sc.mtaasafi.android.uploading;
 
 import android.accounts.NetworkErrorException;
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
-import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -34,87 +37,110 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     Report pendingReport;
     boolean fragmentAvailable;
     int progress, screenW;
+    Context mContext;
+
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
             REPORT_ID_KEY = "id",
             PIC_HASHES_KEY = "pic_hashes",
             OUTPUT_KEY = "output";
 
-    public ReportUploader(ReportUploadingFragment fragment, Report report) {
+    public ReportUploader(Context context, ReportUploadingFragment fragment, Report report) {
+        mContext = context;
         mFragment = fragment;
         pendingReport = report;
-        NewReportActivity nra = (NewReportActivity) mFragment.getActivity();
-        screenW = nra.getScreenWidth();
+        UploadingActivity nra = (UploadingActivity) mFragment.getActivity();
+        screenW = 400; //nra.getScreenWidth();
         fragmentAvailable = true;
         Log.e("FRAG AVAIL", "Fragment is available: " + fragmentAvailable);
     }
 
     @Override
     protected Integer doInBackground(Integer... p) {
-        for(int i = 0; i < 4; i++){
-            if(isCancelled())
-                break;
-            else if(pendingReport.mediaPaths.get(2).contains("http:")){
-                progress = -1;
-                updateProgress();
-                break;
+        JSONObject serverResponse = null;
+        try {
+            for (int i = 0; i < 4; i++) {
+                if (isCancelled())
+                    break;
+                // else if (pendingReport.mediaPaths.get(2).contains("http:")) {
+                //     progress = -1;
+                //     updateProgress();
+                //     break;
+                // }
+                // else if(pendingReport.mediaPaths.get(1).contains("http:"))
+                //     i = progress = 3;
+                // else if(pendingReport.mediaPaths.get(0).contains("http:"))
+                //     i = progress = 2;
+                // else if(pendingReport.serverId != 0 && queryServerFor(pendingReport) !=404)
+                //     i = progress = 1;
+                // else
+                //     i = progress = 0;
+                // updateProgress();
+                // Log.e("New loop", "Progress is: " + progress);
+                if (progress == 0)
+                    serverResponse = writeTextToServer();
+                else if (progress > 0)
+                    serverResponse = writePicToServer();
+                if (serverResponse != null)
+                    updateDB(serverResponse);
             }
-            else if(pendingReport.mediaPaths.get(1).contains("http:"))
-                i = progress = 3;
-            else if(pendingReport.mediaPaths.get(0).contains("http:"))
-                i = progress = 2;
-            else if(pendingReport.serverId != 0 && queryServerFor(pendingReport) !=404)
-                i = progress = 1;
-            else
-                i = progress = 0;
-            updateProgress();
-            Log.e("New loop", "Progress is: " + progress);
-            if(progress==0)
-                writeTextToServer();
-            else if(progress>0)
-                writePicToServer();
-        }
+        } catch (Exception e) { }
         return -1;
     }
-    private void writePicToServer(){
-        try {
-            Log.e("New loop", "Writing pic, progress: "  + progress);
-            JSONObject response =
-                    sendPiece(pendingReport.serverId, pendingReport.getBytesForPic(progress-1));
-            updateReportFields(response);
-        } catch (IOException e) {
-            ioException(e);
-        } catch (JSONException e) {
-            jsonException(e);
+
+    private JSONObject writePicToServer() throws IOException, JSONException {
+        return sendPiece(pendingReport.serverId, pendingReport.getBytesForPic(progress - 1));
+    }
+    private JSONObject writeTextToServer() throws IOException, JSONException {
+        return sendPiece(pendingReport.getJsonForText().toString());
+    }
+    
+    private void updateDB(JSONObject response) throws JSONException {
+        if (response != null) {
+            progress = response.getInt(NEXT_REPORT_PIECE_KEY);
+
+            ContentValues updateValues = new ContentValues();
+            if (progress == 1) {
+                updateValues.put(ReportContract.Entry.COLUMN_TITLE, response.getString(OUTPUT_KEY));
+                updateValues.put(ReportContract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
+            } else if (progress == 2)
+                updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
+            else if (progress == 3)
+                updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
+            else if (progress == -1)
+                updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+            updateValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, progress);
+
+            Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+                        .appendPath(Integer.toString(pendingReport.dbId)).build();
+            mContext.getContentResolver().update(reportUri, updateValues, null, null);
         }
     }
-    private void writeTextToServer(){
-        try {
-            Log.e("New loop", "Writing text, progress: "  + progress);
-            JSONObject response = sendPiece(pendingReport.getJsonForText().toString());
-            updateReportFields(response);
-        } catch (IOException e) {
-            ioException(e);
-        } catch (JSONException e) {
-            jsonException(e);
-        }
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ==== Communicating with the Uploading Fragment ====
-    private void updateProgress() {
-        Integer[] progressUpdate = new Integer[1];
-        progressUpdate[0] = Integer.valueOf(progress);
-        publishProgress(progress);
-        // special case, because onProgressUpdate isn't called if thread is cancelled
-//        if(fragmentAvailable && progress == -1 && isCancelled())
-//            mFragment.stillUploaded();
-    }
     protected void onProgressUpdate(Integer... progress) {
-        if(fragmentAvailable){
-//            mFragment.updatePostProgress(progress[0], pendingReport);
-            Log.e("Update Progress", "fragment was called. Progress: " + progress[0]);
-        }
-        else
-            Log.e("Update Progress", "fragment was NOT//NOT called. Progress: " + progress );
+        // if (fragmentAvailable) {
+        //    mFragment.updatePostProgress(progress[0], pendingReport);
+        //     Log.e("Update Progress", "fragment was called. Progress: " + progress[0]);
+        // }
+        // else
+        //     Log.e("Update Progress", "fragment was NOT//NOT called. Progress: " + progress );
     }
     // called by the reportUploadingFragment when it gets destroyed
     public void setfragmentAvailable(boolean isIt){
@@ -244,30 +270,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     // =============================== Low-Level Functions=================================
     // (They who do the heavy lifting)
-    private void updateReportFields(JSONObject response){
-        try{
-            if(response != null){
-                Log.e("SERVER OUTPUT JSON : ", response.toString());
-                String serverOutput = response.getString(OUTPUT_KEY);
-                Log.e("SERVER OUTPUT: ", serverOutput);
-                int nextField = response.getInt(NEXT_REPORT_PIECE_KEY);
-                if(nextField > 1)
-                    pendingReport.mediaPaths.set(nextField - 2,serverOutput);
-                else if(nextField == -1){
-                    pendingReport.mediaPaths.set(2, serverOutput);
-                    progress = -1;
-                    Log.e("nextField ==-1: ", "Next field is negative one");
-                    updateProgress();
-                }
-                else if(nextField == 1){
-                    pendingReport.title = serverOutput;
-                    pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-                }
-            }
-        } catch (JSONException e) {
-            jsonException(e);
-        }
-    }
+
 
     // sends the piece to the server at the report's write url
     // upon success the server sends back as a response the report's id and the next piece it expects

@@ -17,6 +17,7 @@ import android.widget.ViewFlipper;
 
 import com.androidquery.AQuery;
 import com.nineoldandroids.view.animation.AnimatorProxy;
+import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.database.ReportContract;

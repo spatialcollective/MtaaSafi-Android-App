@@ -156,7 +156,6 @@ public class MainActivity extends ActionBarActivity implements
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack(null)
             .commit();
-        c.close();
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
