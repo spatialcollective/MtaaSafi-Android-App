@@ -30,8 +30,6 @@ import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
-import java.util.List;
-
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -119,12 +117,19 @@ public class NewsFeedFragment extends ListFragment
                         float distInMeters = reportLocation.distanceTo(currentLocation);
                         Log.i("View Binder", "Distance in m: " + distInMeters);
                         String distText;
-                        if(distInMeters > 1000)
-                            distText = Float.toString(distInMeters/1000).substring(0, 2) + "km";
-                        else
-                            distText = Float.toString(distInMeters).substring(0, 2) + "m";
-                        distText.replaceAll("\\."+0, "");
-                        ((TextView)view).setText(distText + " km");
+                        if(distInMeters > 1000){
+                            distText = Float.toString(distInMeters/1000);
+                            if(distText.contains("\\.")) // show km within 1 dec pt
+                                distText = distText.substring(0, distText.indexOf("\\.")+1);
+                            // remove all that ".0" shit
+                            distText.replaceAll("\\."+Integer.toString(0), "");
+                            distText += " km";
+                        } else {
+                            distText = Float.toString(distInMeters);
+                            distText = distText.substring(0, distText.indexOf("\\.")-1);
+                            // if distance is in meters meters, only show as an integer
+                        }
+                        ((TextView)view).setText(distText);
                     }
                 } else
                     return false;
@@ -222,6 +227,7 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         endRefresh();
+        Log.e("Feed Cursor", "My count is "+cursor.getCount());
         mAdapter.changeCursor(cursor);
     }
 
