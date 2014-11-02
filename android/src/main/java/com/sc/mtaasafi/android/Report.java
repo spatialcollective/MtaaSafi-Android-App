@@ -31,7 +31,7 @@ import java.util.Date;
  * Data class for passing data about posts
  */
 public class Report {
-    public int serverId, dbId;
+    public int serverId, dbId, pendingState;
     public double latitude, longitude;
     public String title, details, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaPaths;
@@ -76,7 +76,9 @@ public class Report {
 
     // Note: remember to close the cursor when you're finished.
     // Cursor not closed here because it may contain multiple rows of reports
-    public Report(Cursor c){
+    public Report(Cursor c) {
+        this.dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
+        this.serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
         this.title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
         this.details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
         this.timeStamp = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP));
@@ -84,12 +86,11 @@ public class Report {
         this.userName = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
         this.latitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LAT)));
         this.longitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LNG)));
-        this.serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
-        this.dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
         mediaPaths = new ArrayList<String>();
         mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1)));
         mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2)));
         mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3)));
+        this.pendingState = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG));
     }
 
     public Report(JSONObject jsonServerData) {
