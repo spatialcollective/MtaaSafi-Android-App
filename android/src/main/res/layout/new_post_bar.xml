@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/newPostText"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/upvote" />
+        android:layout_toLeftOf="@+id/upvoteButton" />
 
     <ImageButton
         android:layout_width="32dp"

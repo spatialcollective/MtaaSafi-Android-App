@@ -258,12 +258,12 @@ public class NewReportActivity extends ActionBarActivity implements
 
     public void deleteReport(Report pendingReport){
         if(dbContains(pendingReport))
-            commitCPO(ContentProviderOperation.newDelete(uriFor(pendingReport)).build());
+            commitCPO(ContentProviderOperation.newDelete(uriFor(pendingReport.dbId)).build());
     }
 
-    private Uri uriFor(Report report){
+    public static Uri uriFor(int dbId){
         return ReportContract.Entry.CONTENT_URI.buildUpon()
-                .appendPath(Integer.toString(report.dbId)).build();
+                .appendPath(Integer.toString(dbId)).build();
     }
 
     private boolean dbContains(Report report){
@@ -296,7 +296,6 @@ public class NewReportActivity extends ActionBarActivity implements
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, report.mediaPaths.get(1))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, report.mediaPaths.get(2))
-                        .withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, progress)
                         .build());
             } else{ // if it is, current report is the one this cpoBuilder is about (ASSUMED--NOT FULLY CONFIRMED)
                 Log.e("SAVE REPORT", "Report was already in the database, to be updated not saved");
@@ -352,7 +351,7 @@ public class NewReportActivity extends ActionBarActivity implements
         Cursor c = getContentResolver().
                 query(ReportContract.Entry.CONTENT_URI,
                         Report.PROJECTION,
-                        ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null); // Get all entries
+                        ReportContract.Entry.COLUMN_MEDIAURL3 + " NOT LIKE 'http%'", null, null); // Get all entries
         ArrayList<Report> savedReports = new ArrayList<Report>();
         while(c.moveToNext()){
             savedReports.add(new Report(c));
@@ -367,7 +366,7 @@ public class NewReportActivity extends ActionBarActivity implements
         Cursor c = ac.getContentResolver().
                     query(ReportContract.Entry.CONTENT_URI,
                           projection,
-                          ReportContract.Entry.COLUMN_PENDINGFLAG + " > 0 ", null, null);
+                          ReportContract.Entry.COLUMN_MEDIAURL3 + " NOT LIKE 'http%'", null, null); // Get all entries
         int count = c.getCount();
         c.close();
         return count;
@@ -382,9 +381,8 @@ public class NewReportActivity extends ActionBarActivity implements
     }
 
     private void updateReportData(int progress, Report report){
-        if(cpoBuilder == null){
-            cpoBuilder = ContentProviderOperation.newUpdate(uriFor(report));
-        }
+        if(cpoBuilder == null)
+            cpoBuilder = ContentProviderOperation.newUpdate(uriFor(report.dbId));
         this.progress = progress;
         switch(progress){
             case -1:
@@ -408,10 +406,6 @@ public class NewReportActivity extends ActionBarActivity implements
     private void updateDb(){
         if(cpoBuilder != null){
             Log.e("UPDATE DB", " Hey buddy! Update db was called. Proud of you");
-            if(progress != -1)
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, progress+1);
-            else
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, 0);
             commitCPO(cpoBuilder.build());
             cpoBuilder = null;
         }
@@ -433,9 +427,6 @@ public class NewReportActivity extends ActionBarActivity implements
     public void onAlertButtonPressed(int eventKey){
         ReportUploadingFragment ruf =
                 (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
-        NewReportFragment nrf =
-                (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-
         switch(eventKey){
             case AlertDialogFragment.ABANDON_REPORTS:
                 if(ruf != null)

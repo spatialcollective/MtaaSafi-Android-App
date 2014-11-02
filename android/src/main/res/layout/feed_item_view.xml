@@ -11,76 +11,81 @@
     android:weightSum="1">
 
     <LinearLayout
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayout2">
+        android:id="@+id/voteAndText">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5h"
-                android:id="@+id/timeElapsed"
-                android:textColor="#666666"
-                android:paddingLeft="10dp"
-                android:textSize="14dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="right" />
+        <include
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/voteInterface"
+            layout="@layout/vote_interface" />
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Title"
-                android:id="@+id/itemTitle"
-                android:layout_alignParentTop="true"
-                android:textColor="#666666"
-            android:textSize="25dp" />
-
-        <RelativeLayout
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout2"
+            android:layout_toRightOf="@+id/voteInterface"
+            android:layout_alignParentStart="true">
 
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Near Ngong Hills Hotel and The Agenda"
-                    android:id="@+id/itemDetails"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp"
-                android:textColor="@color/DarkGray" />
+                    android:text="Report description"
+                    android:id="@+id/itemTitle"
+                    android:layout_alignParentTop="true"
+                    android:textColor="#666666"
+                android:textSize="25dp" />
 
-            <ImageView
-                android:layout_width="12dp"
-                android:layout_height="18dp"
-                android:id="@+id/markerIcon"
-                android:src="@drawable/marker"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+        </LinearLayout>
 
-            <TextView
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/voteAndText"
+        android:id="@+id/location">
+
+        <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="5km"
-                android:id="@+id/itemDistance"
-                android:paddingLeft="5dp"
+                android:text="Near Ngong Hills Hotel and The Agenda"
+                android:id="@+id/itemDetails"
+                android:paddingLeft="10dp"
                 android:paddingRight="5dp"
                 android:textSize="14dp"
                 android:paddingTop="5dp"
-                android:textColor="@color/DarkGray"
-                android:layout_toRightOf="@+id/markerIcon"
+                android:layout_alignParentRight="true"
                 android:layout_gravity="right"
-                android:paddingBottom="7dp" />
-        </RelativeLayout>
+                android:paddingBottom="7dp"
+            android:textColor="@color/DarkGray" />
 
-    </LinearLayout>
+        <ImageView
+            android:layout_width="12dp"
+            android:layout_height="18dp"
+            android:id="@+id/markerIcon"
+            android:src="@drawable/marker"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="5km"
+            android:id="@+id/itemDistance"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textSize="14dp"
+            android:paddingTop="5dp"
+            android:textColor="@color/DarkGray"
+            android:layout_toRightOf="@+id/markerIcon"
+            android:layout_gravity="right"
+            android:paddingBottom="7dp" />
+    </RelativeLayout>
 
     <ImageView
         android:layout_width="match_parent"
@@ -89,8 +94,8 @@
         android:background="#999999"
         android:paddingTop="10dp"
         android:layout_weight="23.13"
-        android:layout_below="@+id/linearLayout2"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/location"/>
 
 </RelativeLayout>

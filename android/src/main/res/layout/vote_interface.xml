@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sc.mtaasafi.android.feed.VoteInterface xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingLeft="8dp"
@@ -8,9 +8,10 @@
     <ImageButton
         android:layout_width="51dp"
         android:layout_height="51dp"
-        android:id="@+id/upvote"
+        android:id="@+id/upvoteButton"
         android:src="@drawable/button_upvote_unclicked"
         android:background="@color/transparent"
+        android:onClick="registerUp"
         android:scaleType="fitCenter" />
 
     <TextView
@@ -18,5 +19,5 @@
         android:layout_height="wrap_content"
         android:text="#Votes"
         android:id="@+id/upvoteCount" />
-</LinearLayout>
+</com.sc.mtaasafi.android.feed.VoteInterface>
 

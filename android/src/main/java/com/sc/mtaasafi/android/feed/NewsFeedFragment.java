@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -39,30 +40,35 @@ public class NewsFeedFragment extends ListFragment
     ReportSelectedListener mCallback;
     int index;
     int top;
-    private final static int SAVED_REPORT_BUTTON_ID = 100;
     public String[] PROJECTION = new String[] {
-        ReportContract.Entry._ID,
-        ReportContract.Entry.COLUMN_TITLE,
-        ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_LAT,
-        ReportContract.Entry.COLUMN_LNG,
-        ReportContract.Entry.COLUMN_USERNAME,
-        ReportContract.Entry.COLUMN_MEDIAURL1,
-        ReportContract.Entry.COLUMN_MEDIAURL2,
-        ReportContract.Entry.COLUMN_MEDIAURL3
+            ReportContract.Entry._ID,
+            ReportContract.Entry.COLUMN_SERVER_ID,
+            ReportContract.Entry.COLUMN_TITLE,
+            ReportContract.Entry.COLUMN_DETAILS,
+            ReportContract.Entry.COLUMN_TIMESTAMP,
+            ReportContract.Entry.COLUMN_LAT,
+            ReportContract.Entry.COLUMN_LNG,
+            ReportContract.Entry.COLUMN_USERNAME,
+            ReportContract.Entry.COLUMN_MEDIAURL1,
+            ReportContract.Entry.COLUMN_MEDIAURL2,
+            ReportContract.Entry.COLUMN_MEDIAURL3,
+            ReportContract.Entry.COLUMN_USER_UPVOTED
     };
     public String[] FROM_COLUMNS = new String[] {
+        ReportContract.Entry.COLUMN_ID,
+        ReportContract.Entry.COLUMN_USER_UPVOTED,
+        ReportContract.Entry.COLUMN_SERVER_ID,
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
         ReportContract.Entry.COLUMN_LAT,
         ReportContract.Entry.COLUMN_LNG
     };
     private static final int[] TO_FIELDS = new int[] {
+        R.id.upvoteButton,
+        R.id.upvoteButton,
+        R.id.upvoteCount,
         R.id.itemDetails,
         R.id.itemTitle,
-        R.id.timeElapsed,
         R.id.itemDistance,
         R.id.itemDistance
     };
@@ -106,9 +112,18 @@ public class NewsFeedFragment extends ListFragment
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
-                if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
-                    ((TextView)view).setText(Report.getElapsedTime(cursor.getString(i)));
-                else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_LNG)){
+                if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID))
+                // give the upvote button the report's id
+                    view.setTag(cursor.getInt(i));
+                else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)){
+                    // set the upvote button to the proper state
+                    if(cursor.getInt(i) > 0)
+                        ((ImageButton) view).setImageResource(R.drawable.button_upvote_clicked);
+                    else
+                        ((ImageButton) view).setImageResource(R.drawable.button_upvote_unclicked);
+                } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID)) {
+                    view.setTag(cursor.getInt(i));
+                } else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_LNG)){ // set the distance
                     Location reportLocation = new Location("ReportLocation");
                     reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
                     reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
@@ -118,21 +133,19 @@ public class NewsFeedFragment extends ListFragment
                         String distText;
                         if(distInMeters > 1000){
                             distText = Float.toString(distInMeters/1000);
-                            if(distText.indexOf('.') !=-1) // show km within 1 dec pt
+                            if(distText.indexOf('.') !=-1) // show km within 1 decimal pt
                                 distText = distText.substring(0, distText.indexOf('.')+2);
-                            if(distText.endsWith(".0"))// remove all that ".0" shit
+                            if(distText.endsWith(".0"))// remove any ".0"s
                                 distText = distText.substring(0, distText.length()-3);
                             distText += "km";
                         } else if(distInMeters > 30){
                             distText = Float.toString(distInMeters);
-                            if(distText.indexOf('.') != -1){
+                            if(distText.indexOf('.') != -1)
                                 distText = distText.substring(0, distText.indexOf('.'));
-                            }
                             distText += "m";
-                            // if distance is in meters meters, only show as an integer
-                        } else {
+                            // if distance is in meters, only show as an integer
+                        } else
                             distText = "here";
-                        }
                         ((TextView)view).setText(distText);
                     }
                 } else
@@ -231,7 +244,7 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         endRefresh();
-        Log.e("Feed Cursor", "My count is "+cursor.getCount());
+        Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
     }
 

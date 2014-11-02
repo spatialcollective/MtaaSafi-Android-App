@@ -6,10 +6,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
     private static final String DATABASE_NAME = "mtaasafi.db";
-
-    private static final String DATABASE_CREATE = "create table "
+    private static final String REPORT_TABLE_CREATE = "create table "
             + ReportContract.Entry.TABLE_NAME + "("
             + ReportContract.Entry.COLUMN_ID + " integer primary key autoincrement, "
             + ReportContract.Entry.COLUMN_SERVER_ID + " integer, "
@@ -23,7 +22,12 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + ReportContract.Entry.COLUMN_MEDIAURL2 + " text not null, "
             + ReportContract.Entry.COLUMN_MEDIAURL3 + " text not null, "
             + ReportContract.Entry.COLUMN_UPVOTES + " integer default 0, "
-            + ReportContract.Entry.COLUMN_PENDINGFLAG + " integer default 0"
+            + ReportContract.Entry.COLUMN_USER_UPVOTED + " integer default 0"
+            + ")";
+
+    private static final String UPVOTE_TABLE_CREATE = "create table "
+            + ReportContract.UpvoteLog.TABLE_NAME + "("
+            + ReportContract.UpvoteLog.COLUMN_ID + " integer"
             + ")";
 
     public ReportDatabase(Context context) {
@@ -32,7 +36,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(DATABASE_CREATE);
+        database.execSQL(REPORT_TABLE_CREATE);
+        database.execSQL(UPVOTE_TABLE_CREATE);
     }
 
     @Override
@@ -44,5 +49,4 @@ public class ReportDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + ReportContract.Entry.TABLE_NAME);
         onCreate(db);
     }
-
 }

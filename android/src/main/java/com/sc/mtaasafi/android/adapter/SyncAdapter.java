@@ -80,7 +80,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Beginning network synchronization");
         try {
             Log.i(TAG, "Streaming data from network: " + FEED_URL);
-            updateLocalFeedData(getServerIds(), syncResult);
+            ArrayList serverIds = getServerIds();
+            if(serverIds != null)
+                updateLocalFeedData(serverIds, syncResult);
+            else //throw a fit?
+                 // TODO : handle null location errors, which will occur first time user opens app
+                return;
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Feed URL is malformed", e);
             syncResult.stats.numParseExceptions++;
@@ -122,7 +127,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Fetching local entries for merge");
         String[] projection = new String[1];
         projection[0] = ReportContract.Entry.COLUMN_SERVER_ID;
-        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection, null, null, null); // Get all entries
+        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection,
+                                         ReportContract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'",
+                                         null, null); // Get all entries that aren't pending reports
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
         TreeSet<Integer> dbIds = new TreeSet<Integer>();
@@ -136,9 +143,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         showToast("Added to dbIds: " + dbIds.size() + " entries");
         Log.i(LogTags.BACKEND_W, "Added to dbIds: " + dbIds.size() + " entries");
         for(int i = 0; i < serverIds.size(); i++) {
-            if(dbIds.remove(serverIds.get(i))){
+            if(dbIds.remove(serverIds.get(i)))
                 serverIds.remove(i);
-            }
         }
 
         Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
@@ -213,17 +219,21 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private ArrayList getServerIds() throws IOException, JSONException{
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
-        JSONObject locationJSON = new JSONObject()
-                                    .put("latitude", cachedLocation.getLatitude())
-                                    .put("longitude", cachedLocation.getLongitude());
-        String responseString = getFromServer(FEED_URL, locationJSON.toString());
-        String[] responseStringArray =  responseString
-                                        .replaceAll("\\[", "").replaceAll("\\]", "")
-                                        .split(", ");
-        ArrayList serverIds = new ArrayList();
-        for(String id : responseStringArray)
-            serverIds.add(Integer.parseInt(id));
-        return serverIds;
+        if(cachedLocation != null){
+            JSONObject locationJSON = new JSONObject()
+                    .put("latitude", cachedLocation.getLatitude())
+                    .put("longitude", cachedLocation.getLongitude());
+            String responseString = getFromServer(FEED_URL, locationJSON.toString());
+            String[] responseStringArray =  responseString
+                    .replaceAll("\\[", "").replaceAll("\\]", "")
+                    .split(", ");
+            ArrayList serverIds = new ArrayList();
+            for(String id : responseStringArray)
+                serverIds.add(Integer.parseInt(id));
+            return serverIds;
+        } else
+            return null;
+
     }
 
     private String getFromServer(String url, String entity) throws IOException {
