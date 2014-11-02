@@ -102,26 +102,28 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
     
     private void updateDB(JSONObject response) throws JSONException {
-        if (response != null) {
-            pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
+        pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
+        publishProgress(pendingReport.pendingState);
+        ContentValues updateValues = new ContentValues();
+        if (pendingReport.pendingState == 1) {
+            updateValues.put(ReportContract.Entry.COLUMN_TITLE, response.getString(OUTPUT_KEY));
+            updateValues.put(ReportContract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
+            pendingReport.serverId = response.getInt(REPORT_ID_KEY);
+        } else if (pendingReport.pendingState == 2)
+            updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
+        else if (pendingReport.pendingState == 3)
+            updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
+        else if (pendingReport.pendingState == -1)
+            updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+        updateValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
+        if (pendingReport.pendingState > 0)
+            updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
+        else
+            updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
 
-            ContentValues updateValues = new ContentValues();
-            if (pendingReport.pendingState == 1) {
-                updateValues.put(ReportContract.Entry.COLUMN_TITLE, response.getString(OUTPUT_KEY));
-                updateValues.put(ReportContract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
-                pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-            } else if (pendingReport.pendingState == 2)
-                updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-            else if (pendingReport.pendingState == 3)
-                updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-            else if (pendingReport.pendingState == -1)
-                updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
-            updateValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
-
-            Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
-                        .appendPath(Integer.toString(pendingReport.dbId)).build();
-            mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        }
+        Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+                    .appendPath(Integer.toString(pendingReport.dbId)).build();
+        mContext.getContentResolver().update(reportUri, updateValues, null, null);
     }
 
     private String convertInputStreamToString(InputStream inputStream) throws IOException {
@@ -164,13 +166,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         // Log.e("New loop", "Progress is: " + progress);
     }
 
-    protected void onProgressUpdate(Integer... progress) { }
-
+    protected void onProgressUpdate(Integer... progress) { mFragment.reportUploadProgress(progress[0]); }
     @Override
-    protected void onPostExecute(Integer result) {
-        Log.e("Report Uploader", "Upload finished with result " + result);
-        mFragment.reportUploadSuccess();
-    }
+    protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
     @Override
     protected void onCancelled() { }
 }

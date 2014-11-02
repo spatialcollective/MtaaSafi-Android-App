@@ -56,7 +56,8 @@ public class Report {
             ReportContract.Entry.COLUMN_MEDIAURL1,
             ReportContract.Entry.COLUMN_MEDIAURL2,
             ReportContract.Entry.COLUMN_MEDIAURL3,
-            ReportContract.Entry.COLUMN_PENDINGFLAG
+            ReportContract.Entry.COLUMN_PENDINGFLAG,
+            ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS
     };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,

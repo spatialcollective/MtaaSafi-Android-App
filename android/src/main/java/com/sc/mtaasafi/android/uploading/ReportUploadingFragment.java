@@ -2,23 +2,19 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.SimpleCursorTreeAdapter;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
@@ -28,12 +24,13 @@ import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class ReportUploadingFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
+
     LinearLayout uploadInterrupted;
     ReportUploader uploader;
 
     NewReportActivity mActivity;
 
-    SimpleCursorAdapter mAdapter;
+    SimpleUploadingCursorAdapter mAdapter;
     int currentUploadPosition;
     // Uri mUri; // pendingReportUri
 
@@ -75,22 +72,9 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onViewCreated(View view, Bundle savedState) {
         super.onViewCreated(view, savedState);
-
-        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.upload_item,
+        mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item,
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
-
-        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int i) {
-                if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
-                    ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
-                else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG))
-                    updateProgressView(cursor.getInt(i), view);
-                else
-                    return false;
-                return true;
-            }
-        });
+        mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
     }
@@ -99,13 +83,24 @@ public class ReportUploadingFragment extends ListFragment
     public void onListItemClick(ListView l, View view, int position, long id) {
         super.onListItemClick(l, view, position, id);
         currentUploadPosition = position;
-
-        indicateSelectedRow(view);
-
         Cursor c = (Cursor) mAdapter.getItem(position);
-        beamUpReport(new Report(c));
+        beamUpReport(new Report(c), view);
     }
 
+    public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
+        @Override
+        public boolean setViewValue(View view, Cursor cursor, int i) {
+            if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
+                ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
+            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG))
+                mAdapter.updateProgressView(cursor.getInt(i), view);
+            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
+                mAdapter.indicateRow(cursor.getInt(i), view);
+            else
+                return false;
+            return true;
+        }
+    }
 
 //    private void chooseAction(Bundle args) {
 //        if (args != null) {
@@ -121,52 +116,26 @@ public class ReportUploadingFragment extends ListFragment
 //        }
 //    }
 
-    private void beamUpReport(Report pendingReport) {
+    private void beamUpReport(Report pendingReport, View view) {
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
+        mAdapter.indicateRow(1, view);
     }
-    private void beamUpPendingReports() { } // mActivity.getSavedReports();
+    private void beamUpPendingReports() { }
     private void viewSuccessful() {}
-
-    private void updateProgressView(int progress, View view){
-        switch (progress) {
-            case -1: // This is never called
-                updateState(view, R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
-                break;
-            case 3:
-                updateState(view, R.id.progressBarPic2, R.id.pic2UploadingIcon, R.id.progressBarPic3, R.drawable.pic2_uploaded);
-                break;
-            case 2:
-                updateState(view, R.id.progressBarPic1, R.id.pic1UploadingIcon, R.id.progressBarPic2, R.drawable.pic1_uploaded);
-                break;
-            case 1:
-                updateState(view, R.id.progressBarReportText, R.id.reportUploadingIcon, R.id.progressBarPic1, R.drawable.report_uploaded);
-                break;
-            case 0:
-                updateState(view, 0, 0, R.id.progressBarReportText, 0);
-                break;
-        }
-    }
-
-    private void updateState(View view, int doneProgressId, int doneViewId, int workingId, int drawable) {
-        if (view != null) {
-            if (doneViewId != 0 && drawable != 0)
-                ((ImageView) view.findViewById(doneViewId)).setImageResource(drawable);
-            if (workingId != 0)
-                view.findViewById(workingId).setVisibility(View.VISIBLE);
-            if (doneProgressId != 0)
-                view.findViewById(doneProgressId).setVisibility(View.INVISIBLE);
-        }
-    }
 
     public void reportUploadSuccess() {
         Log.e("Report complete", "refreshing view");
         if (currentUploadPosition != -1) {
-            View activeRow = mAdapter.getView(currentUploadPosition, null, null);
-            resetView(activeRow);
+//            View activeRow = mAdapter.getView(currentUploadPosition, null, null);
+//            resetView(activeRow);
         }
         addMessage("Report uploaded successfully");
         currentUploadPosition = -1;
+    }
+
+    public void reportUploadProgress(int progress) {
+        
     }
 
     @Override
@@ -183,22 +152,6 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.changeCursor(null);
-    }
-
-    private void indicateSelectedRow(View rowView) {
-        rowView.setMinimumHeight(200);
-        rowView.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
-        ((TextView) rowView.findViewById(R.id.itemDetails)).setTextColor(Color.WHITE);
-        ((TextView) rowView.findViewById(R.id.timeElapsed)).setTextColor(Color.WHITE);
-        rowView.findViewById(R.id.expanded_layout).setVisibility(View.VISIBLE);
-    }
-
-    private void resetView(View rowView) {
-        rowView.setMinimumHeight(0);
-        rowView.setBackgroundColor(Color.WHITE);
-        ((TextView) rowView.findViewById(R.id.itemDetails)).setTextColor(Color.BLACK);
-        ((TextView) rowView.findViewById(R.id.timeElapsed)).setTextColor(Color.BLACK);
-        rowView.findViewById(R.id.expanded_layout).setVisibility(View.GONE);
     }
 
     private void addMessage(String message) {
