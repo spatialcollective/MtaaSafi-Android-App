@@ -73,10 +73,7 @@ public class NewReportActivity extends ActionBarActivity implements
         mLocationClient.disconnect();
     }
 
-    public void uploadSavedReportsClicked(View view) {
-        uploadSavedReports();
-    }
-
+    public void uploadSavedReportsClicked(View view) { uploadSavedReports(); }
     public void uploadSavedReports() {
        if(getLocation() != null){
            Intent intent = new Intent().setClass(this, UploadingActivity.class)
@@ -206,12 +203,12 @@ public class NewReportActivity extends ActionBarActivity implements
     // save the existing reports with save currentUploading
     @Override
     public void onBackPressed(){
-        AlertDialogFragment adf = new AlertDialogFragment();
-        adf.setAlertDialogListener(this);
-        Bundle args = new Bundle();
-        args.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LEAVING_UPLOAD);
-        adf.setArguments(args);
-        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+//        AlertDialogFragment adf = new AlertDialogFragment();
+//        adf.setAlertDialogListener(this);
+//        Bundle args = new Bundle();
+//        args.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LEAVING_UPLOAD);
+//        adf.setArguments(args);
+//        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
     }
 
     public void onAlertButtonPressed(int eventKey){

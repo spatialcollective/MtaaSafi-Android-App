@@ -209,33 +209,5 @@ public class NewsFeedFragment extends ListFragment
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.changeCursor(null);
     }
-<<<<<<< HEAD
 
-    private SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
-        @Override
-        public void onStatusChanged(int which) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d("GETing", "Begin network synchronization in frag");
-                    Account account = AuthenticatorService.GetAccount();
-//                    if (account == null) {
-                        // GetAccount() returned an invalid value. This shouldn't happen, but
-                        // we'll set the status to "not refreshing".
-//                        setRefreshActionButtonState(false);
-//                        return;
-//                    }
-                    // Test the ContentResolver to see if the sync adapter is active or pending.
-                    // Set the state of the refresh button accordingly.
-                    boolean syncActive = ContentResolver.isSyncActive(
-                            account, ReportContract.CONTENT_AUTHORITY);
-                    boolean syncPending = ContentResolver.isSyncPending(
-                            account, ReportContract.CONTENT_AUTHORITY);
-//                    setRefreshActionButtonState(syncActive || syncPending);
-                }
-            });
-        }
-    };
-=======
->>>>>>> uploadactivity
 }
