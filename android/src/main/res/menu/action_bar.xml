@@ -1,10 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.sc.mtaasafi.android.HomeScreen" >
+    tools:context="com.sc.mtaasafi.android.feed.MainActivity" >
 
     <item android:id="@+id/_action_report"
-        android:title="@string/new_post"
+        android:title="@string/new_report"
         android:icon="@drawable/pencil_icon_white"
+        android:orderInCategory="1"
         app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_refresh"
+        android:icon="@drawable/refresh"
+        android:title="@string/action_refresh"
+        app:showAsAction="ifRoom" />
+
 </menu>

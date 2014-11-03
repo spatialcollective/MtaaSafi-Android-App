@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.newReport;
 
 /**
  * Created by Agree on 10/7/2014.

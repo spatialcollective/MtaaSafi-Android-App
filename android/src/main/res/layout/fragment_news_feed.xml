@@ -5,24 +5,77 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/news_feed">
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@android:id/list"
-        android:clickable="false"
-        android:layout_alignParentStart="true"
-        android:divider="@null"
-        android:dividerHeight="0dp"
-        android:background="#FFFFFF"
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_centerVertical="true" />
+        android:layout_alignParentEnd="true"
+        android:id="@+id/feedLL">
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/feedProgress"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send saved reports"
+            android:id="@+id/savedReportsButton"
+            android:background="@color/Coral"
+            android:textColor="@color/White"
+            android:textStyle="bold"
+            android:visibility="visible"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:id="@+id/refreshingFeedView"
+            android:background="@color/mtaa_safi_blue_light"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Refreshing Feed..."
+                android:id="@+id/refreshingFeedText"
+                android:textColor="@color/mtaa_safi_blue"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/refreshProgressBar"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="10dp"
+                android:indeterminate="false" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/bottomLine"
+                android:background="#999999"
+                android:paddingTop="10dp"
+                android:layout_below="@id/refreshProgressBar"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@android:id/list"
+            android:clickable="false"
+            android:layout_alignParentStart="true"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:background="#FFFFFF"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+
+    </LinearLayout>
+
 </RelativeLayout>

@@ -70,13 +70,6 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 
-        <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/reportDetailProgress"
-            android:layout_gravity="center_horizontal"
-            android:indeterminate="false" />
     </LinearLayout>
 
 

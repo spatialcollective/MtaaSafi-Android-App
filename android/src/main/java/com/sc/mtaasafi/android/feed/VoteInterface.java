@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.feed;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.sc.mtaasafi.android.R;
 
 /**
  * Created by Agree on 10/10/2014.
@@ -25,10 +27,10 @@ public class VoteInterface extends LinearLayout {
         });
     }
 
-    public void update(Report report){
-        if(report.iUpvoted)
-            upvote.setImageResource(R.drawable.button_upvote_clicked);
-        else
-            upvote.setImageResource(R.drawable.button_upvote_unclicked);
-    }
+//    public void update(Report report){
+//        if(report.iUpvoted)
+//            upvote.setImageResource(R.drawable.button_upvote_clicked);
+//        else
+//            upvote.setImageResource(R.drawable.button_upvote_unclicked);
+//    }
 }

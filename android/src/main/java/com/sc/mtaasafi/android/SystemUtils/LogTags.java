@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android;
+package com.sc.mtaasafi.android.SystemUtils;
 
 /**
  * Created by lenovo on 9/4/2014.
@@ -16,5 +16,4 @@ public class LogTags {
                                 PAGER = "PAGER",
                                 MAIN_ACTIVITY = "MAIN ACTIVITY",
                                 PANEL_SLIDER = "PANEL SLIDER";
-    
 }

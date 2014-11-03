@@ -1,6 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.sc.mtaasafi.android.MainActivity"
+    tools:context="com.sc.mtaasafi.android.feed.MainActivity"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -36,29 +36,59 @@
                 android:id="@+id/itemTitle"
                 android:layout_alignParentTop="true"
                 android:textColor="#666666"
-                android:paddingLeft="10dp"
-                android:textSize="25dp" />
+            android:textSize="25dp" />
 
-        <TextView
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Near Ngong Hills Hotel and The Agenda"
+                    android:id="@+id/itemDetails"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="5dp"
+                    android:textSize="14dp"
+                    android:paddingTop="5dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="right"
+                    android:paddingBottom="7dp"
+                android:textColor="@color/DarkGray" />
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:id="@+id/markerIcon"
+                android:src="@drawable/marker"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
-                android:id="@+id/itemDetails"
-                android:paddingLeft="10dp"
+                android:text="5km"
+                android:id="@+id/itemDistance"
+                android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:textSize="14dp"
                 android:paddingTop="5dp"
-                android:layout_centerHorizontal="true"
+                android:textColor="@color/DarkGray"
+                android:layout_toRightOf="@+id/markerIcon"
+                android:layout_gravity="right"
                 android:paddingBottom="7dp" />
+        </RelativeLayout>
+
     </LinearLayout>
 
     <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:id="@+id/bottomLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:id="@+id/bottomLine"
         android:background="#999999"
         android:paddingTop="10dp"
-            android:layout_weight="23.13"
+        android:layout_weight="23.13"
         android:layout_below="@+id/linearLayout2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />

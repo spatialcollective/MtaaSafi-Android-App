@@ -1,10 +1,14 @@
 package com.sc.mtaasafi.android;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
 import android.location.Location;
+
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.database.ReportContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,37 +17,45 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Agree on 9/4/2014.
  * Data class for passing data about posts
  */
 public class Report {
-    public int id;
+    public int serverId, dbId;
     public double latitude, longitude;
-    public ArrayList<String> picPaths;
     public String title, details, timeStamp, timeElapsed, userName;
-    public ArrayList<String> mediaURLs;
-    public int voteCount;
-    public boolean iUpvoted;
-    private final static int FIELD_TEXT = 0;
+    public ArrayList<String> mediaPaths;
     public final static String titleKey = "title",
-                            detailsKey = "details",
-                            timeStampKey = "timestamp",
-                            userNameKey = "user",
-                            picsKey = "picPaths",
-                            mediaURLsKey = "mediaURLs",
-                            latKey = "latitude",
-                            lonKey = "longitude";
-
+            detailsKey = "details",
+            timeStampKey = "timestamp",
+            userNameKey = "user",
+            mediaPathsKey = "mediaPaths",
+            latKey = "latitude",
+            lonKey = "longitude",
+            serverIdKey = "id";
+    public static final String[] PROJECTION = new String[] {
+            ReportContract.Entry._ID,
+            ReportContract.Entry.COLUMN_SERVER_ID,
+            ReportContract.Entry.COLUMN_TITLE,
+            ReportContract.Entry.COLUMN_DETAILS,
+            ReportContract.Entry.COLUMN_TIMESTAMP,
+            ReportContract.Entry.COLUMN_LAT,
+            ReportContract.Entry.COLUMN_LNG,
+            ReportContract.Entry.COLUMN_USERNAME,
+            ReportContract.Entry.COLUMN_MEDIAURL1,
+            ReportContract.Entry.COLUMN_MEDIAURL2,
+            ReportContract.Entry.COLUMN_MEDIAURL3
+    };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
                   ArrayList<String> picPaths) {
@@ -52,11 +64,30 @@ public class Report {
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
-        this.picPaths = picPaths;
+        this.mediaPaths = picPaths;
         Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
-                picPaths.get(0).toString() + ". " +
-                picPaths.get(1).toString() +". " +
-                picPaths.get(2).toString());
+                mediaPaths.get(0).toString() + ". " +
+                mediaPaths.get(1).toString() +". " +
+                mediaPaths.get(2).toString());
+        this.serverId = this.dbId = 0;
+    }
+
+    // Note: remember to close the cursor when you're finished.
+    // Cursor not closed here because it may contain multiple rows of reports
+    public Report(Cursor c){
+        this.title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
+        this.details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
+        this.timeStamp = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP));
+        this.timeElapsed = getElapsedTime(timeStamp);
+        this.userName = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
+        this.latitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LAT)));
+        this.longitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LNG)));
+        this.serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
+        this.dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
+        mediaPaths = new ArrayList<String>();
+        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1)));
+        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2)));
+        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3)));
     }
 
     public Report(JSONObject jsonServerData) {
@@ -66,20 +97,21 @@ public class Report {
             this.timeStamp = jsonServerData.getString(timeStampKey);
             this.timeElapsed = getElapsedTime(this.timeStamp);
             this.userName = jsonServerData.getString(userNameKey);
-            JSONArray mediaURLsInJSON = jsonServerData.getJSONArray(mediaURLsKey);
-            mediaURLs = new ArrayList<String>();
-            for(int i = 0; i < mediaURLsInJSON.length(); i++){
-              mediaURLs.add(mediaURLsInJSON.get(i).toString());
-            }
+            JSONArray mediaPathsInJSON = jsonServerData.getJSONArray(mediaPathsKey);
+            mediaPaths = new ArrayList<String>();
+            for(int i = 0; i < mediaPathsInJSON.length(); i++)
+                mediaPaths.add(mediaPathsInJSON.get(i).toString());
             this.latitude = jsonServerData.getLong(latKey);
             this.longitude = jsonServerData.getLong(lonKey);
+            this.serverId = jsonServerData.getInt(serverIdKey);
         } catch (JSONException e) {
             e.printStackTrace();
-           Log.e(LogTags.JSON, "Failed to convert data from JSON");
+            Log.e(LogTags.JSON, "Failed to convert data from JSON");
         }
     }
 
     public Report(String report_key, Bundle savedState) {
+        this.serverId = savedState.getInt(report_key+serverIdKey);
         this.title = savedState.getString(report_key+titleKey);
         this.details = savedState.getString(report_key+detailsKey);
         this.timeStamp = savedState.getString(report_key+timeStampKey);
@@ -87,10 +119,10 @@ public class Report {
         this.userName = savedState.getString(report_key+userNameKey);
         this.latitude = savedState.getDouble(report_key+latKey);
         this.longitude = savedState.getDouble(report_key+lonKey);
-        if (savedState.getStringArray(report_key+mediaURLsKey) != null)
-            this.mediaURLs = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaURLsKey)));
-        if (savedState.getStringArrayList(report_key+picsKey) != null)
-            this.picPaths = savedState.getStringArrayList(report_key+picsKey);
+        if (savedState.getStringArray(report_key+mediaPathsKey) != null)
+            this.mediaPaths = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaPathsKey)));
+        if (savedState.getStringArrayList(report_key+mediaPathsKey) != null)
+            this.mediaPaths = savedState.getStringArrayList(report_key+mediaPathsKey);
     }
 
     public JSONObject getJsonForText() throws JSONException {
@@ -103,59 +135,49 @@ public class Report {
         return json;
     }
 
-    public JSONObject getJsonForPic(int i) throws JSONException, FileNotFoundException, IOException {
-        return convertPicFileToJson(new JSONObject(), new File(picPaths.get(i - 1)));
+    public JSONObject getJsonForPic(int i) throws JSONException, IOException {
+        return new JSONObject().accumulate(mediaPathsKey, getEncodedBytesForPic(i));
     }
 
-    public JSONObject getJson() {
-        try {
-            JSONObject json = getJsonForText();
-            Log.e(LogTags.JSON, "Pics Size: " + picPaths.size());
-            for (int i = 0; i < picPaths.size(); i++)
-                json = convertPicFileToJson(json, new File(picPaths.get(i)));
-            return json;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(LogTags.BACKEND_W, "Failed to convert data to JSON");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    private String getEncodedBytesForPic(int i) throws IOException {
+        String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
+        Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
+        return encoded;
     }
 
-    private JSONObject convertPicFileToJson(JSONObject json, File file) throws IOException, JSONException {
+    public byte[] getBytesForPic(int i) throws IOException {
+        File file = new File(mediaPaths.get(i));
         byte[] b = new byte[(int) file.length()];
         BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         inputStream.read(b);
-        json.accumulate(picsKey, Base64.encodeToString(b, Base64.DEFAULT));
         inputStream.close();
-        return json;
+        return b;
     }
 
     public Bundle saveState(String report_key, Bundle outState) {
+        outState.putInt(report_key+serverIdKey, this.serverId);
         outState.putString(report_key+titleKey, this.title);
         outState.putString(report_key+detailsKey, this.details);
         outState.putString(report_key+timeStampKey, this.timeStamp);
         outState.putString(report_key+userNameKey, this.userName);
+        if (mediaPaths != null)
+            outState.putStringArray(report_key+mediaPathsKey,
+                    this.mediaPaths.toArray(new String[mediaPaths.size()]));
         outState.putDouble(report_key+latKey, this.latitude);
         outState.putDouble(report_key+lonKey, this.longitude);
-        if (mediaURLs != null)
-            outState.putStringArray(report_key+mediaURLsKey,
-                    this.mediaURLs.toArray(new String[mediaURLs.size()]));
-        if (picPaths != null && !picPaths.isEmpty())
-            outState.putStringArrayList(report_key+picsKey, this.picPaths);
+        if(mediaPaths != null && !mediaPaths.isEmpty())
+            outState.putStringArrayList(report_key+mediaPathsKey, this.mediaPaths);
+        Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
         return outState;
     }
 
     public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
         long second = 1000,
-            minute = 60 * second,
-            hour = 60* minute,
-            day = 24 * hour,
-            week = 7 * day,
-            year = 365 * day;
+                minute = 60 * second,
+                hour = 60* minute,
+                day = 24 * hour,
+                week = 7 * day,
+                year = 365 * day;
 
         if (timeElapsed > year)
             return new SimpleDateFormat("dd LLL yy").format(date);
@@ -172,8 +194,29 @@ public class Report {
         return "just now";
     }
 
+    // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android
+    public String getSHA1forPic(int i) throws IOException, NoSuchAlgorithmException {
+        String toHash = getEncodedBytesForPic(i);
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        md.update(toHash.getBytes("iso-8859-1"), 0, toHash.length());
+        byte[] sha1hash = md.digest();
+        return convertToHex(sha1hash);
+    }
+
+    private String convertToHex(byte[] data) {
+        StringBuilder buf = new StringBuilder();
+        for (byte b : data) {
+            int halfbyte = (b >>> 4) & 0x0F;
+            int two_halfs = 0;
+            do {
+                buf.append((0 <= halfbyte) && (halfbyte <= 9) ? (char) ('0' + halfbyte) : (char) ('a' + (halfbyte - 10)));
+                halfbyte = b & 0x0F;
+            } while (two_halfs++ < 1);
+        }
+        return buf.toString();
+    }
+
     public static String getElapsedTime(String timestamp) {
-        Log.d(LogTags.BACKEND_W, "Received timestamp: " + timestamp);
         if (timestamp != null) {
             SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
             try {

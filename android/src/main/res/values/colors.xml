@@ -11,6 +11,8 @@
     <!--80% = #128-->
     <!--90% = #144-->
     <!--%%######-->
+    <color name="mtaa_safi_blue">#009999</color>
+    <color name="mtaa_safi_blue_light">#AAD5D5</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="report_button_unclickable">#A4C8FF</color>
     <color name="report_button_clickable">#0099FF</color>

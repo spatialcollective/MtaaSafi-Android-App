@@ -2,11 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.sc.mtaasafi.android.MainFragment">
+    android:id="@+id/mainAcLayout">
 
-    <com.sc.mtaasafi.android.NonSwipePager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-    />
+    <FrameLayout android:id="@+id/fragment_container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentTop="true"
+        tools:layout="@layout/fragment_news_feed" />
+
 </RelativeLayout>

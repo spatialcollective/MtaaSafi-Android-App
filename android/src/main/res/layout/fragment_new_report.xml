@@ -3,25 +3,62 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/new_report">
+    android:id="@+id/new_report"
+    android:tag="new_report">
 
-        <com.sc.mtaasafi.android.DescriptionEditText
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/top_layout">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send saved reports"
+            android:id="@+id/sendSavedReportButton"
+            android:background="@color/Coral"
+            android:textColor="@color/White"
+            android:textStyle="bold"
+            android:visibility="gone"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/upload_saved"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/Coral"
+            android:textColor="@color/white"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:visibility="gone"
+            android:onClick="attemptUpload" />
+
+        <com.sc.mtaasafi.android.newReport.DescriptionEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/newReportDetails"
             android:hint="@string/report_detail_hint"
             android:background="@null"
             android:paddingLeft="10dp"
+            android:inputType="textMultiLine"
             android:maxLength ="2000"
             android:textSize="18dp"
             android:paddingTop="8dp"
             android:imeOptions="actionDone"/>
 
-        <Button
+    </LinearLayout>
+
+    <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/report_button_text"
-            android:id="@+id/reportButton"
+            android:id="@+id/sendButton"
             android:layout_gravity="right"
             android:background="@color/report_button_unclickable"
             android:textColor="@color/white"
@@ -29,157 +66,52 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:onClick="beamUpReport" />
+
         <include layout="@layout/attach_pic_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/reportButton"
+            android:id="@+id/include"
+            android:layout_above="@+id/saveButton"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginBottom="15dp"
-            android:id="@+id/include" />
+            android:layout_marginBottom="30dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:id="@+id/saveButton"
+        android:layout_above="@+id/sendButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/report_button_unclickable"
+        android:textColor="@color/white"
+        android:onClick="attemptSaveNewReport" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#999999"
+        android:paddingTop="10dp"
+        android:layout_weight="23.13"
+        android:layout_alignTop="@+id/sendButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Attach 3 more pictures:"
-        android:id="@+id/attachMorePicturesText"
+        android:text="Need 3 more pictures"
+        android:id="@+id/attachPicsTV"
         android:layout_above="@+id/include"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="24dp" />
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/uploading_screen"
-        android:background="@color/Gray"
-        android:visibility="invisible"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Uploading..."
-            android:id="@+id/upvoteCount"
-            android:textColor="@color/white"
-            android:textSize="24dp"
-            android:layout_centerHorizontal="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Uploading report text..."
-            android:id="@+id/uploadingText"
-            android:textColor="@color/LightGrey"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="63dp" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/upvoteCount"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/reportUploadingIcon"
-                    android:src="@drawable/report_loading"
-                    android:scaleType="fitCenter"
-                    android:layout_weight="1" />
-
-                <ProgressBar
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/progressBarReportText"
-                    android:layout_alignBottom="@+id/reportUploadingIcon"
-                    android:layout_centerHorizontal="true"
-                    android:visibility="invisible"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/pic1UploadingIcon"
-                    android:src="@drawable/pic1_uploading"
-                    android:scaleType="fitCenter"
-                    android:layout_weight="1" />
-
-                <ProgressBar
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/progressBarPic1"
-                    android:layout_alignBottom="@+id/pic1UploadingIcon"
-                    android:layout_centerHorizontal="true"
-                    android:visibility="invisible"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/pic2UploadingIcon"
-                    android:src="@drawable/pic2_uploading"
-                    android:scaleType="fitCenter"
-                    android:layout_weight="1" />
-                <ProgressBar
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/progressBarPic2"
-                    android:layout_alignBottom="@+id/pic2UploadingIcon"
-                    android:layout_centerHorizontal="true"
-                    android:visibility="invisible"/>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/pic3UploadingIcon"
-                    android:src="@drawable/pic3_uploading"
-                    android:layout_weight="1" />
-                <ProgressBar
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/progressBarPic3"
-                    android:layout_alignBottom="@+id/pic3UploadingIcon"
-                    android:layout_centerHorizontal="true"
-                    android:visibility="invisible"/>
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp" />
 
 </RelativeLayout>
 
