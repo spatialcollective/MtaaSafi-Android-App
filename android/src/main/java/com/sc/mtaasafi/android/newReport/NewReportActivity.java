@@ -258,12 +258,7 @@ public class NewReportActivity extends ActionBarActivity implements
 
     public void deleteReport(Report pendingReport){
         if(dbContains(pendingReport))
-            commitCPO(ContentProviderOperation.newDelete(uriFor(pendingReport.dbId)).build());
-    }
-
-    public static Uri uriFor(int dbId){
-        return ReportContract.Entry.CONTENT_URI.buildUpon()
-                .appendPath(Integer.toString(dbId)).build();
+            commitCPO(ContentProviderOperation.newDelete(Report.uriFor(pendingReport.dbId)).build());
     }
 
     private boolean dbContains(Report report){
@@ -382,7 +377,7 @@ public class NewReportActivity extends ActionBarActivity implements
 
     private void updateReportData(int progress, Report report){
         if(cpoBuilder == null)
-            cpoBuilder = ContentProviderOperation.newUpdate(uriFor(report.dbId));
+            cpoBuilder = ContentProviderOperation.newUpdate(Report.uriFor(report.dbId));
         this.progress = progress;
         switch(progress){
             case -1:

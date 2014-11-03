@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -123,6 +124,11 @@ public class Report {
             this.mediaPaths = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaPathsKey)));
         if (savedState.getStringArrayList(report_key+mediaPathsKey) != null)
             this.mediaPaths = savedState.getStringArrayList(report_key+mediaPathsKey);
+    }
+
+    public static Uri uriFor(int dbId){
+        return ReportContract.Entry.CONTENT_URI.buildUpon()
+                .appendPath(Integer.toString(dbId)).build();
     }
 
     public JSONObject getJsonForText() throws JSONException {

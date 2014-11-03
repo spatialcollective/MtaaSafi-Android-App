@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + ReportContract.Entry.TABLE_NAME + "("
@@ -21,13 +21,14 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + ReportContract.Entry.COLUMN_MEDIAURL1 + " text not null, "
             + ReportContract.Entry.COLUMN_MEDIAURL2 + " text not null, "
             + ReportContract.Entry.COLUMN_MEDIAURL3 + " text not null, "
-            + ReportContract.Entry.COLUMN_UPVOTES + " integer default 0, "
+            + ReportContract.Entry.COLUMN_UPVOTE_COUNT + " integer default 0, "
             + ReportContract.Entry.COLUMN_USER_UPVOTED + " integer default 0"
             + ")";
 
     private static final String UPVOTE_TABLE_CREATE = "create table "
             + ReportContract.UpvoteLog.TABLE_NAME + "("
-            + ReportContract.UpvoteLog.COLUMN_ID + " integer"
+            + ReportContract.UpvoteLog.COLUMN_ID + " integer primary key autoincrement, "
+            + ReportContract.UpvoteLog.COLUMN_SERVER_ID + " integer"
             + ")";
 
     public ReportDatabase(Context context) {

@@ -162,6 +162,18 @@ public class ReportProvider extends ContentProvider {
                        .where(selection, selectionArgs)
                        .delete(db);
                 break;
+            case ROUTE_UPVOTES:
+                count = builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+            case ROUTE_UPVOTES_ID:
+                String upvoteId = uri.getLastPathSegment();
+                count = builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                        .where(ReportContract.Entry._ID + "=?", upvoteId)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

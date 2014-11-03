@@ -38,6 +38,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -120,67 +121,72 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             throws IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException, JSONException {
 
-        final ContentResolver contentResolver = getContext().getContentResolver();
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-
-        // Get list of all items
-        Log.i(TAG, "Fetching local entries for merge");
-        String[] projection = new String[1];
-        projection[0] = ReportContract.Entry.COLUMN_SERVER_ID;
-        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection,
-                                         ReportContract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'",
-                                         null, null); // Get all entries that aren't pending reports
-        assert c != null;
-        Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
-        TreeSet<Integer> dbIds = new TreeSet<Integer>();
-        while (c.moveToNext()) {
-            syncResult.stats.numEntries++;
-            dbIds.add(c.getInt(0));
-        }
-        c.close();
+        ArrayList<Integer> dbIds = getDbIds(syncResult, true);
         // for each id from the server, if it is in the local DB,
         // remove the id from both the DB ids and the server ids
-        showToast("Added to dbIds: " + dbIds.size() + " entries");
-        Log.i(LogTags.BACKEND_W, "Added to dbIds: " + dbIds.size() + " entries");
-        for(int i = 0; i < serverIds.size(); i++) {
-            if(dbIds.remove(serverIds.get(i)))
-                serverIds.remove(i);
+        registerUpvotes();
+        for(int i = 0; i < dbIds.size(); i++){
+            batch.add(ContentProviderOperation.newDelete(Report.uriFor(dbIds.get(i))).build());
+            syncResult.stats.numDeletes++;
         }
-
-        Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
-        // delete all of the reports in the DB which the server didn't also have
-        Integer dbIdToDelete = dbIds.pollFirst();
-        Uri toDeleteUri;
-        while(dbIdToDelete != null) {
-            if(dbIdToDelete != 0){
-                toDeleteUri = ReportContract.Entry.CONTENT_URI.buildUpon()
-                        .appendPath(Integer.toString(dbIdToDelete)).build();
-                batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
-                Log.i(TAG, "Scheduled delete: " + toDeleteUri);
-                syncResult.stats.numDeletes++;
-            }
-            dbIdToDelete = dbIds.pollFirst();
-        }
+        mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
+        mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+        writeNewReportsToDB(getNewReportsFromServer(serverIds), syncResult);
+//        Log.i(LogTags.BACKEND_W, "Db contained: " + dbIds.size() + " entries");
+//        int overLapct = 0;
+//        for(int i = 0; i < serverIds.size(); i++) {
+//            if(dbIds.remove(serverIds.get(i))){
+//                Log.i(TAG, "overlap: " + serverIds.get(i));
+//                serverIds.remove(i);
+//                overLapct++;
+//            } else {
+//                Log.i(TAG, "db ! contain: " + serverIds.get(i));
+//            }
+//        }
+//        Log.i(TAG, "Overlap ct: " + overLapct);
+//        Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
+//        Object[] dbArray = dbIds.toArray();
+//        for(int i = 0; i < dbArray.length; i++){
+//            Log.i(TAG, "Deleting: " + dbArray[i]);
+//        }
+//        Log.i(TAG, "Deleting ct: "  + dbIds.size());
+//        for(int i = 0; i < serverIds.size(); i++){
+//            Log.i(TAG, "Fetching: " + serverIds.get(i));
+//        }
+//        Log.i(TAG, "Fetching ct: "  + serverIds.size());
+//        // delete all of the reports in the DB which the server didn't also have
+//        Integer dbIdToDelete = dbIds.pollFirst();
+//        Uri toDeleteUri;
+//        while(dbIdToDelete != null) {
+//            if(dbIdToDelete != 0){
+//                toDeleteUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+//                        .appendPath(Integer.toString(dbIdToDelete)).build();
+//                batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
+////                Log.i(TAG, "Scheduled delete: " + toDeleteUri);
+//                syncResult.stats.numDeletes++;
+//            }
+//            dbIdToDelete = dbIds.pollFirst();
+//        }
+//        mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
+//        mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
         // fetch the new reports, which the local DB didn't have, from the server and write them to DB
-        writeNewReportsToDB(getNewReportsFromServer(serverIds), batch, syncResult);
     }
 
-    private void writeNewReportsToDB(JSONArray newReports, ArrayList<ContentProviderOperation> batch,
-                                 SyncResult syncResult)
+    private void writeNewReportsToDB(JSONArray newReports, SyncResult syncResult)
             throws RemoteException, OperationApplicationException {
         try {
             Log.i(TAG, "Got " + newReports.length() + " Json objects in response");
-
-            showToast("Got " + newReports.length() + " Json objects in response");
+            ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
             for (int i = 0; i < newReports.length(); i++) {
                 JSONObject entry = newReports.getJSONObject(i);
+                Log.e(TAG, "JSON object's contents:" + entry.toString());
                 JSONArray mediaURLsJSON = entry.getJSONArray("mediaURLs");
                 ArrayList<String> mediaURLs = new ArrayList<String>();
                 for (int j = 0; j < mediaURLsJSON.length(); j++)
                     mediaURLs.add(mediaURLsJSON.get(j).toString());
-
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
-                        .withValue(ReportContract.Entry.COLUMN_SERVER_ID, entry.getString(ReportContract.Entry.COLUMN_SERVER_ID))
+                        .withValue(ReportContract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
                         .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
                         .withValue(ReportContract.Entry.COLUMN_DETAILS, entry.getString(ReportContract.Entry.COLUMN_DETAILS))
                         .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, entry.getString(ReportContract.Entry.COLUMN_TIMESTAMP))
@@ -190,24 +196,72 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, mediaURLs.get(0))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))
+                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, entry.getInt(ReportContract.Entry.COLUMN_UPVOTE_COUNT))
                         .build());
                 syncResult.stats.numInserts++;
             }
+            Log.i(TAG, "Merge solution ready. Applying batch update");
+            mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
+            mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i(TAG, "Merge solution ready. Applying batch update");
-        showToast("Merge solution ready. Applying batch update.");
-        mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-        mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+        getDbIds(syncResult, false);
     }
-    private void showToast(final String message){
-//        Activity ac = (Activity) getContext();
-//                ac.runOnUiThread(new Runnable() {
-//            public void run() {
-//                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-//            }
-//        });
+    private void registerUpvotes() throws IOException, JSONException, RemoteException, OperationApplicationException {
+        // post request
+        // get all upvotes
+        JSONArray upvotes = getUpvotesJSON();
+        if(upvotes != null)
+            getFromServer("http://app.spatialcollective.com/upvote/", upvotes.toString());
+    }
+    // returns the ids of all of the upvotes that have not yet been sent to the server
+    private JSONArray getUpvotesJSON() throws JSONException, RemoteException, OperationApplicationException {
+        ArrayList upvoteIds = getUpvotesFromDb();
+        JSONArray upvotesJSONArray = new JSONArray();
+        ComplexPreferences cp = PrefUtils.getPrefs(getContext());
+        String userName= cp.getString(PrefUtils.USERNAME, "");
+        if(userName.indexOf('"') != -1){ // trim quotation marks
+            userName = userName.substring(1, userName.length()-1);
+        }
+        Log.e(TAG, "USER NAME: " + userName);
+        Log.e(TAG, "Upvote ids : " + upvoteIds.size());
+        if(userName != ""){
+            for(int i = 0; i < upvoteIds.size(); i++){
+                JSONObject upvoteJSON = new JSONObject()
+                        .put("id", upvoteIds.get(i))
+                        .put("username", userName);
+                upvotesJSONArray.put(upvoteJSON);
+            }
+            Log.e(TAG, "JSON ARRAY: " + upvotesJSONArray.toString());
+            return upvotesJSONArray;
+        }
+        return null;
+    }
+
+    private ArrayList getUpvotesFromDb() throws RemoteException, OperationApplicationException {
+        String[] projection = new String[2];
+        projection[0] = ReportContract.UpvoteLog.COLUMN_ID;
+        projection[1] = ReportContract.UpvoteLog.COLUMN_SERVER_ID;
+        Cursor c = mContentResolver.query(ReportContract.UpvoteLog.UPVOTE_URI, projection, null, null, null);
+        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+        ArrayList upvoteIds = new ArrayList();
+        while(c.moveToNext()){
+            int serverId = c.getInt(c.getColumnIndex(ReportContract.UpvoteLog.COLUMN_SERVER_ID));
+            if(upvoteIds.contains(serverId)){ // schedule duplicates of ids for deletion
+                Log.e(TAG, "Upvote id: " + serverId + " was a duplicate, deleting");
+                Uri toDeleteUri = ReportContract.UpvoteLog.UPVOTE_URI.buildUpon()
+                        .appendPath(Integer.toString(c.getInt(c.getColumnIndex(ReportContract.UpvoteLog.COLUMN_ID)))).build();
+                batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
+            } else { // add the server id to the upvoteIds list
+                Log.e(TAG, "ADDED " + serverId + " to upvoteIds");
+                upvoteIds.add(serverId);
+            }
+        }
+        c.close();
+        mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
+        mContentResolver.notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
+        return upvoteIds;
     }
 // retrieves from server a list of the objects
     private JSONArray getNewReportsFromServer(ArrayList serverIds) throws IOException, JSONException{
@@ -228,14 +282,41 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     .replaceAll("\\[", "").replaceAll("\\]", "")
                     .split(", ");
             ArrayList serverIds = new ArrayList();
-            for(String id : responseStringArray)
+            for(String id : responseStringArray){
+                Log.i(TAG, "Server id: " + id);
                 serverIds.add(Integer.parseInt(id));
+            }
+            Log.i(TAG, "Server count: "  + serverIds.size());
             return serverIds;
         } else
             return null;
 
     }
-
+    private ArrayList<Integer> getDbIds(SyncResult syncResult, boolean isPreMerge){
+        // Get list of all items
+        final ContentResolver contentResolver = getContext().getContentResolver();
+        Log.i(TAG, "getting local entries for merge");
+        String[] projection = new String[1];
+        String logText;
+        if(isPreMerge)
+            logText = "PRE-merge Db id: ";
+        else
+            logText = "POST-merge Db id: ";
+        projection[0] = ReportContract.Entry.COLUMN_ID;
+        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection,
+                ReportContract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'",
+                null, null); // Get all entries that aren't pending reports
+        assert c != null;
+        Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
+        ArrayList<Integer> dbIds = new ArrayList<Integer>();
+        while (c.moveToNext()) {
+            syncResult.stats.numEntries++;
+            Log.i(TAG, logText + c.getInt(0));
+            dbIds.add(c.getInt(0));
+        }
+        c.close();
+        return dbIds;
+    }
     private String getFromServer(String url, String entity) throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);

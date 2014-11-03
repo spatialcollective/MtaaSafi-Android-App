@@ -21,7 +21,7 @@ public class ReportContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ENTRIES).build();
         public static final String TABLE_NAME = "reports",
         	COLUMN_ID = "_id",
-        	COLUMN_SERVER_ID = "unique_id",
+        	COLUMN_SERVER_ID = "server_id",
         	COLUMN_TITLE = "title",
 	        COLUMN_DETAILS = "details",
 	        COLUMN_TIMESTAMP = "timestamp",
@@ -31,7 +31,7 @@ public class ReportContract {
             COLUMN_MEDIAURL1 = "mediaUrl1",
             COLUMN_MEDIAURL2 = "mediaUrl2",
             COLUMN_MEDIAURL3 = "mediaUrl3",
-            COLUMN_UPVOTES = "upvotes",
+            COLUMN_UPVOTE_COUNT = "upvote_count",
             COLUMN_USER_UPVOTED = "user_upvoted";
             // keep track of whether the user upvoted this particular report
     }
@@ -44,6 +44,7 @@ public class ReportContract {
         public static final Uri UPVOTE_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_UPVOTES).build();
         public static final String TABLE_NAME = "upvotes",
-            COLUMN_ID = "_id";
+            COLUMN_ID = "_id",
+            COLUMN_SERVER_ID = "server_id";
     }
 }

@@ -52,11 +52,13 @@ public class NewsFeedFragment extends ListFragment
             ReportContract.Entry.COLUMN_MEDIAURL1,
             ReportContract.Entry.COLUMN_MEDIAURL2,
             ReportContract.Entry.COLUMN_MEDIAURL3,
+            ReportContract.Entry.COLUMN_UPVOTE_COUNT,
             ReportContract.Entry.COLUMN_USER_UPVOTED
     };
     public String[] FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_ID,
         ReportContract.Entry.COLUMN_USER_UPVOTED,
+        ReportContract.Entry.COLUMN_UPVOTE_COUNT,
         ReportContract.Entry.COLUMN_SERVER_ID,
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
@@ -66,6 +68,7 @@ public class NewsFeedFragment extends ListFragment
     private static final int[] TO_FIELDS = new int[] {
         R.id.upvoteButton,
         R.id.upvoteButton,
+        R.id.upvoteCount,
         R.id.upvoteCount,
         R.id.itemDetails,
         R.id.itemTitle,
@@ -130,6 +133,8 @@ public class NewsFeedFragment extends ListFragment
                     }
                 } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID)) {
                     view.setTag(cursor.getInt(i));
+                } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPVOTE_COUNT)){
+                    ((TextView) view).setText(Integer.toString(cursor.getInt(i)));
                 } else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_LNG)){ // set the distance
                     Location reportLocation = new Location("ReportLocation");
                     reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));

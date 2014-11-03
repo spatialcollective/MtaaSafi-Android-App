@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
@@ -44,7 +45,7 @@ public class VoteInterface extends LinearLayout {
                     // tell the reports table that you upvoted the report
                     int reportDBId = (Integer) view.getTag();
                     ContentProviderOperation.Builder reportOperation =
-                            ContentProviderOperation.newUpdate(NewReportActivity.uriFor(reportDBId));
+                            ContentProviderOperation.newUpdate(Report.uriFor(reportDBId));
                     reportOperation.withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1);
                     batch.add(reportOperation.build());
                     // TODO: check for multiple reports entered in the db? (maybe)
@@ -52,7 +53,7 @@ public class VoteInterface extends LinearLayout {
                     int reportServerId = (Integer) voteCountTV.getTag();
                     ContentProviderOperation.Builder upvoteOperation =
                             ContentProviderOperation.newInsert(ReportContract.UpvoteLog.UPVOTE_URI);
-                    upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_ID, reportServerId);
+                    upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_SERVER_ID, reportServerId);
                     batch.add(upvoteOperation.build());
 
                     getContext().getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
