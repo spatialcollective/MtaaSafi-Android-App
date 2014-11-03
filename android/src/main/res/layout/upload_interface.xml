@@ -43,7 +43,7 @@
             android:layout_alignBottom="@+id/cancelButton"
             android:layout_centerHorizontal="true" />
 
-        <com.sc.mtaasafi.android.newReport.UploadingReportsList
+        <com.sc.mtaasafi.android.uploading.UploadingReportsList
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
                     android:paddingTop="10dp"
                     android:paddingBottom="5dp" />
             </RelativeLayout>
-        </com.sc.mtaasafi.android.newReport.UploadingReportsList>
+        </com.sc.mtaasafi.android.uploading.UploadingReportsList>
 
     </RelativeLayout>
 

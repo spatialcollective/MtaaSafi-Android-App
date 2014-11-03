@@ -22,7 +22,8 @@
             android:background="@color/Coral"
             android:textColor="@color/White"
             android:textStyle="bold"
-            android:visibility="visible"/>
+            android:visibility="gone"
+            android:onClick="uploadSavedReportsClicked" />
 
         <RelativeLayout
             android:layout_width="match_parent"
