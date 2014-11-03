@@ -47,7 +47,7 @@ public class VoteInterface extends LinearLayout {
                             ContentProviderOperation.newUpdate(NewReportActivity.uriFor(reportDBId));
                     reportOperation.withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1);
                     batch.add(reportOperation.build());
-
+                    // TODO: check for multiple reports entered in the db? (maybe)
                     // tell the upvote log table that you upvoted the report
                     int reportServerId = (Integer) voteCountTV.getTag();
                     ContentProviderOperation.Builder upvoteOperation =
@@ -58,7 +58,7 @@ public class VoteInterface extends LinearLayout {
                     getContext().getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
                     getContext().getContentResolver()
                             .notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
-
+                    voteCountTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
 //                    Cursor upvotedReports =  getContext().getContentResolver().query(ReportContract.UpvoteLog.UPVOTE_URI, null, null,null, null);
 //                    Log.e("Upvoted reports", "Upvoted reports count: " + upvotedReports.getCount());
 //                    while(upvotedReports.moveToNext()){

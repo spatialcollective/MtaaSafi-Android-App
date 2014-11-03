@@ -11,8 +11,9 @@
         android:id="@+id/upvoteButton"
         android:src="@drawable/button_upvote_unclicked"
         android:background="@color/transparent"
-        android:onClick="registerUp"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        android:focusable="false"
+        android:focusableInTouchMode="false"/>
 
     <TextView
         android:layout_width="wrap_content"

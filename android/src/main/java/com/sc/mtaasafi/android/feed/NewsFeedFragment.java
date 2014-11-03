@@ -117,10 +117,17 @@ public class NewsFeedFragment extends ListFragment
                     view.setTag(cursor.getInt(i));
                 else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)){
                     // set the upvote button to the proper state
-                    if(cursor.getInt(i) > 0)
+                    TextView upvoteTV = (TextView)
+                            ((ViewGroup) view.getParent()).findViewById(R.id.upvoteCount);
+
+                    if(cursor.getInt(i) > 0){
                         ((ImageButton) view).setImageResource(R.drawable.button_upvote_clicked);
-                    else
+                        upvoteTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+                    }
+                    else{
                         ((ImageButton) view).setImageResource(R.drawable.button_upvote_unclicked);
+                        upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
+                    }
                 } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID)) {
                     view.setTag(cursor.getInt(i));
                 } else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_LNG)){ // set the distance
