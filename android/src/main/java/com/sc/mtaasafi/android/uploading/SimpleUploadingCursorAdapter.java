@@ -44,7 +44,7 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     public void indicateRow(int uploadInProgress, View row) {
         if (uploadInProgress == 1) {
             row.setMinimumHeight(200);
-            row.setBackgroundColor(mContext.getResources().getColor(R.color.mtaa_safi_blue));
+            row.setBackgroundColor(mContext.getResources().getColor(R.color.mtaa_safi_blue_light));
             ((TextView) row.findViewById(R.id.itemDetails)).setTextColor(Color.WHITE);
             ((TextView) row.findViewById(R.id.timeElapsed)).setTextColor(Color.WHITE);
             row.findViewById(R.id.expanded_layout).setVisibility(View.VISIBLE);

@@ -28,6 +28,7 @@ public class ReportUploadingFragment extends ListFragment
 
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
+    private int pendingReportCount;
 
     public final static String ACTION = "action", DATA = "data";
     public final static char ACTION_SEND_NEW = 'n',
@@ -44,13 +45,13 @@ public class ReportUploadingFragment extends ListFragment
         R.id.timeElapsed,
         R.id.expanded_layout
     };
-
     public ReportUploadingFragment() {}
 
     @Override
     public void onCreate(Bundle instate){
         super.onCreate(instate);
         setRetainInstance(true);
+        pendingReportCount = -1;
 //        chooseAction(getArguments());
     }
 
@@ -85,7 +86,65 @@ public class ReportUploadingFragment extends ListFragment
         }
     }
 
-//    private void chooseAction(Bundle args) {
+    private void beamUpFirstReport() {
+        if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
+            beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
+        else if (mAdapter.getCount() == 0)
+            changeHeaderMessage("Nothing to upload.", false, R.color.Coral);
+    }
+
+    private void beamUpReport(Report pendingReport) {
+        if (getView() != null)
+            changeHeaderMessage("Uploading...", true, R.color.mtaa_safi_blue);
+        uploader = new ReportUploader(getActivity(), pendingReport, this);
+        uploader.execute();
+    }
+
+    public void reportUploadSuccess() {
+        changeHeaderMessage("Report uploaded successfully!", false, R.color.mtaa_safi_blue);
+        uploader = null;
+        if (mAdapter.getCount() > 0)
+            beamUpFirstReport();
+        else if (getView() != null)
+            changeHeaderMessage("Successfully uploaded " + pendingReportCount + " reports.",
+                    false, R.color.mtaa_safi_blue);
+    }
+
+    private void changeHeaderMessage(String message, boolean showSpinner, int color) {
+        View view = getView();
+        if (view == null) return;
+
+        if (message == null || message == "") {
+            view.findViewById(R.id.uploadingView).setVisibility(View.GONE);
+            return;
+        }
+        
+        view.findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
+        ((TextView) view.findViewById(R.id.uploadingText)).setText(message);
+        ((TextView) view.findViewById(R.id.uploadingText)).setTextColor(getResources().getColor(color));
+
+        if (showSpinner)
+            view.findViewById(R.id.headerProgressBar).setVisibility(View.VISIBLE);
+        else
+            view.findViewById(R.id.headerProgressBar).setVisibility(View.GONE);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
+            Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+    }
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mAdapter.changeCursor(cursor);
+        if (pendingReportCount == -1)
+            pendingReportCount = mAdapter.getCount();
+        beamUpFirstReport();
+    }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
+
+    //    private void chooseAction(Bundle args) {
 //        if (args != null) {
 //            switch(args.getChar(ACTION)) {
 //                case ACTION_SEND_NEW:
@@ -98,51 +157,6 @@ public class ReportUploadingFragment extends ListFragment
 //            }
 //        }
 //    }
-
-    private void beamUpFirstReport() {
-        if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
-            beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-    }
-
-    private void beamUpReport(Report pendingReport) {
-        getView().findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
-        uploader = new ReportUploader(getActivity(), pendingReport, this);
-        uploader.execute();
-    }
-    private void viewSuccessful() {}
-
-    public void reportUploadSuccess() {
-        Log.e("Report complete", "refreshing view");
-        addMessage("Report uploaded successfully");
-        uploader = null;
-        if (mAdapter.getCount() > 0)
-            beamUpFirstReport();
-        else
-            done(getView());
-    }
-
-    private void addMessage(String message) {
-        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void done(View view) {
-        view.findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.uploadingText)).setText("Successfully uploaded all reports.");
-        view.findViewById(R.id.headerProgressBar).setVisibility(View.GONE);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
-            Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
-    }
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.changeCursor(cursor);
-        beamUpFirstReport();
-    }
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
     
 //     private void setListeners(View view) {
 //         view.findViewById(R.id.resendButton).setOnClickListener(new View.OnClickListener(){

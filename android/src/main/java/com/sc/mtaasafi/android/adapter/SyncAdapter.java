@@ -64,7 +64,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Constructing");
         mContentResolver = context.getContentResolver();
         cp = PrefUtils.getPrefs(context);
-
     }
 
     public SyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
