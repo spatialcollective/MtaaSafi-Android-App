@@ -51,21 +51,11 @@ public class UploadingActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onStop() {
-//        updateDbWithProgress();
-        super.onStop();
-    }
-
-    @Override
     public void finish() {
         super.finish();
         Log.e("NRA.Finish", "Finish called! Cancelling uploading: " + (uploader != null));
         if (uploader != null)
             uploader.cancel(true);
-    }
-
-    public void setUploader(ReportUploader uploader) {
-        this.uploader = uploader;
     }
 
     private void beamUpReport(Uri pendingReport) {
@@ -132,117 +122,4 @@ public class UploadingActivity extends ActionBarActivity {
 //        finish();
 //    }
 
-    // Check if the report is currently in the database
-    // public void saveReport(Report report, int progress){
-    //     if(progress == 0)
-    //         progress = 1;
-    //     if(progress > 3) // assume progress > 3 means it uploaded successfully
-    //         progress = 0;
-    //     if(!dbContains(report)){ // add report to DB if it's not there
-    //             commitCPO(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
-    //                     .withValue(ReportContract.Entry.COLUMN_SERVER_ID, 0)
-    //                     .withValue(ReportContract.Entry.COLUMN_TITLE, "")
-    //                     .withValue(ReportContract.Entry.COLUMN_DETAILS, report.details)
-    //                     .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, report.timeStamp)
-    //                     .withValue(ReportContract.Entry.COLUMN_LAT, Double.toString(report.latitude))
-    //                     .withValue(ReportContract.Entry.COLUMN_LNG, Double.toString(report.longitude))
-    //                     .withValue(ReportContract.Entry.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
-    //                     .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0))
-    //                     .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, report.mediaPaths.get(1))
-    //                     .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, report.mediaPaths.get(2))
-    //                     .withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, progress)
-    //                     .build());
-    //         } else{ // if it is, current report is the one this cpoBuilder is about (ASSUMED--NOT FULLY CONFIRMED)
-    //             Log.e("SAVE REPORT", "Report was already in the database, to be updated not saved");
-    //             updateDb();
-    //         }
-//            String[] selectionarg = new String[1];
-//            selectionarg[0] = "0";
-//            Cursor c1 = getContentResolver().
-//                    query(ReportContract.Entry.CONTENT_URI,
-//                            Report.PROJECTION,
-//                            ReportContract.Entry.COLUMN_PENDINGFLAG + " > ? ", selectionarg, null);
-////            while(c1.moveToNext()){
-////                Log.e("DATABASE", "Saved report: " + c1.getString(c1.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS)));
-////            }
-//            c1.close();
-    // }
-
-//    private void updateReportData(int progress, Report report){
-//        if(cpoBuilder == null){
-//            cpoBuilder = ContentProviderOperation.newUpdate(uriFor(report));
-//        }
-//        this.progress = progress;
-//        switch(progress){
-//            case -1:
-//                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(2));
-//                Log.e("Activity CPOBuilder", "Server output I got: " + report.mediaPaths.get(2));
-//                updateDb();
-//                break;
-//            case 3:
-//                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(1));
-//                Log.e("Activity CPOBuilder", "Server output I got: " + report.mediaPaths.get(1));
-//            case 2:
-//                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0));
-//                Log.e("Activity CPOBuilder", "Server output I got: "+ report.mediaPaths.get(0));
-//            case 1:
-//                cpoBuilder.withValue(ReportContract.Entry.COLUMN_SERVER_ID, report.serverId);
-//                cpoBuilder.withValue(ReportContract.Entry.COLUMN_TITLE, report.title);
-//                Log.e("Activity CPOBuilder", "Server output I got: "+ report.title + " also server id: " + report.serverId);
-//        }
-//    }
-
-
-
-        // called after a report has uploaded successfully or if the activity stops
-    // private void updateDb(){
-    //     if(cpoBuilder != null){
-    //         Log.e("UPDATE DB", " Hey buddy! Update db was called. Proud of you");
-    //         if(progress != -1)
-    //             cpoBuilder.withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, progress+1);
-    //         else
-    //             cpoBuilder.withValue(ReportContract.Entry.COLUMN_PENDINGFLAG, 0);
-    //         commitCPO(cpoBuilder.build());
-    //         cpoBuilder = null;
-    //     }
-    // }
-
-    // public void deleteReport(Report pendingReport){
-    //     if(dbContains(pendingReport))
-    //         commitCPO(ContentProviderOperation.newDelete(uriFor(pendingReport)).build());
-    // }
-
-    // private Uri uriFor(Report report){
-    //     return ReportContract.Entry.CONTENT_URI.buildUpon()
-    //             .appendPath(Integer.toString(report.dbId)).build();
-    // }
-
-    // private boolean dbContains(Report report){
-    //     String[] projection = new String[1];
-    //     projection[0] = ReportContract.Entry.COLUMN_ID;
-    //     Cursor c = getContentResolver().
-    //             query(ReportContract.Entry.CONTENT_URI,
-    //                     projection,
-    //                     ReportContract.Entry.COLUMN_TIMESTAMP + " = " +'\"' + report.timeStamp + '\"', null, null);
-    //     int instanceCt = c.getCount();
-    //     c.close();
-    //     return instanceCt > 0;
-    // }
-    
-    // private void commitCPO(ContentProviderOperation cpo){
-    //     ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-    //     batch.add(cpo);
-    //     commitBatch(batch);
-    // }
-
-    // private void commitBatch(ArrayList<ContentProviderOperation> batch){
-    //     try {
-    //         getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-    //         getContentResolver().notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
-    //     } catch (RemoteException e) {
-    //         e.printStackTrace();
-    //     } catch (OperationApplicationException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
 }

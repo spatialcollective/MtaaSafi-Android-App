@@ -3,15 +3,12 @@ package com.sc.mtaasafi.android.uploading;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.ReportContract;
 
 /**
@@ -29,8 +26,11 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         super.bindView(view, context, cursor);
         mContext = context;
+        resetState(view);
         indicateRow(cursor.getInt(cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);
-        updateProgressView(cursor.getInt(cursor.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG)), view);
+        int progress = cursor.getInt(cursor.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG));
+        for (int i = 0; i <= progress; i++)
+            updateProgressView(i, view);
     }
 
     public void resetView(View row) {
@@ -79,5 +79,16 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
             if (doneProgressId != 0)
                 view.findViewById(doneProgressId).setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void resetState(View view) {
+        ((ImageView) view.findViewById(R.id.reportUploadingIcon)).setImageResource(R.drawable.report_loading);
+        ((ImageView) view.findViewById(R.id.pic1UploadingIcon)).setImageResource(R.drawable.pic1_uploading);
+        ((ImageView) view.findViewById(R.id.pic2UploadingIcon)).setImageResource(R.drawable.pic2_uploading);
+        ((ImageView) view.findViewById(R.id.pic3UploadingIcon)).setImageResource(R.drawable.pic3_uploading);
+        view.findViewById(R.id.progressBarReportText).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.progressBarPic1).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.progressBarPic2).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.progressBarPic3).setVisibility(View.INVISIBLE);
     }
 }

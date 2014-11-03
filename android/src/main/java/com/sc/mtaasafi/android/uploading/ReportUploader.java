@@ -56,8 +56,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         try {
             for (int i = 0; i < 4; i++) {
                 if (isCancelled())
-                    break;
-                verifyUploadProgress();
+                    return 0;
+                // verifyUploadProgress();
                 if (pendingReport.pendingState == 0)
                     serverResponse = writeTextToServer();
                 else if (pendingReport.pendingState > 0)
@@ -166,7 +166,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         // Log.e("New loop", "Progress is: " + progress);
     }
 
-    protected void onProgressUpdate(Integer... progress) { mFragment.reportUploadProgress(progress[0]); }
+    protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }
     @Override
     protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
     @Override
