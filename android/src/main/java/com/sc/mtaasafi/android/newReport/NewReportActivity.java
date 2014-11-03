@@ -227,11 +227,11 @@ public class NewReportActivity extends ActionBarActivity implements
         }
     }
     // called by the new report fragment's "save" button
-    public void attemptSave(View view) {
+    public void attemptSaveNewReport(View view) {
         NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
         if (getLocation() == null) {
             Toast.makeText(this, "Cannot access location, make sure location services enabled", Toast.LENGTH_SHORT).show();
-        } else {
+        } else if(nrf != null) {
             saveReport(nrf.createNewReport(cp.getString(PrefUtils.USERNAME, ""), getLocation()), 0);
             finish();
         }
@@ -433,17 +433,21 @@ public class NewReportActivity extends ActionBarActivity implements
     public void onAlertButtonPressed(int eventKey){
         ReportUploadingFragment ruf =
                 (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
-        if(ruf != null){
-            switch(eventKey){
-                case AlertDialogFragment.ABANDON_REPORTS:
+        NewReportFragment nrf =
+                (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+
+        switch(eventKey){
+            case AlertDialogFragment.ABANDON_REPORTS:
+                if(ruf != null)
                     deleteReport(ruf.pendingReport);
-                    break;
-                case AlertDialogFragment.SAVE_REPORTS:
+                break;
+            case AlertDialogFragment.SAVE_REPORTS:
+                if(ruf != null)
                     saveReport(ruf.pendingReport, ruf.progress);
-                    break;
+                else
+                    attemptSaveNewReport(null);
+                break;
             }
-        }
         finish();
     }
-
 }

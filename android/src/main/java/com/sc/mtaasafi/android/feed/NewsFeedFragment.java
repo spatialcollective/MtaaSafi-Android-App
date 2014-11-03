@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.SyncStatusObserver;
 import android.database.Cursor;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -56,12 +57,16 @@ public class NewsFeedFragment extends ListFragment
     public String[] FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP
+        ReportContract.Entry.COLUMN_TIMESTAMP,
+        ReportContract.Entry.COLUMN_LAT,
+        ReportContract.Entry.COLUMN_LNG
     };
     private static final int[] TO_FIELDS = new int[] {
-        R.id.itemTitle,
         R.id.itemDetails,
-        R.id.timeElapsed
+        R.id.itemTitle,
+        R.id.timeElapsed,
+        R.id.itemDistance,
+        R.id.itemDistance
     };
 
     public NewsFeedFragment() {}
@@ -105,7 +110,23 @@ public class NewsFeedFragment extends ListFragment
             public boolean setViewValue(View view, Cursor cursor, int i) {
                 if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
                     ((TextView)view).setText(Report.getElapsedTime(cursor.getString(i)));
-                else
+                else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_LNG)){
+                    Location reportLocation = new Location("ReportLocation");
+                    reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
+                    reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
+                    Location currentLocation = ((MainActivity)getActivity()).getLocation();
+                    if(currentLocation != null){
+                        float distInMeters = reportLocation.distanceTo(currentLocation);
+                        Log.i("View Binder", "Distance in m: " + distInMeters);
+                        String distText;
+                        if(distInMeters > 1000)
+                            distText = Float.toString(distInMeters/1000).substring(0, 2) + "km";
+                        else
+                            distText = Float.toString(distInMeters).substring(0, 2) + "m";
+                        distText.replaceAll("\\."+0, "");
+                        ((TextView)view).setText(distText + " km");
+                    }
+                } else
                     return false;
                 return true;
             }
