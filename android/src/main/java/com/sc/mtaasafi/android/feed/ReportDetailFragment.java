@@ -1,145 +1,170 @@
 package com.sc.mtaasafi.android.feed;
 
 import android.database.Cursor;
-import android.os.Build;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
 
 import com.androidquery.AQuery;
-import com.nineoldandroids.view.animation.AnimatorProxy;
-import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.database.ReportContract;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
-    private String title, details, time, user, mediaUrl1, mediaUrl2, mediaUrl3;
+    private String content, location, time, user, mediaUrl1, mediaUrl2, mediaUrl3, distance;
+    private int upvoteCount, serverId, dbId;
+    private Location reportLocation;
+    private boolean userVoted;
     public AQuery aq;
     public ViewPager viewPager;
     RelativeLayout bottomView;
+    LinearLayout topView;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        aq = new AQuery(getActivity());
     }
 
     public void setData(Cursor c) {
-        title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
-        details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
+        content = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_CONTENT));
+        location = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LOCATION));
         time = getSimpleTimeStamp(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP)));
         user = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
         mediaUrl1 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1));
         mediaUrl2 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2));
         mediaUrl3 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3));
+        serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
+        dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
+        userVoted = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)) > 0;
+        upvoteCount = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_UPVOTE_COUNT));
+        String latString = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LAT));
+        String lonString = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LNG));
+        reportLocation = new Location("report location");
+        reportLocation.setLatitude(Double.parseDouble(latString));
+        reportLocation.setLongitude(Double.parseDouble(lonString));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+        Location currentLocation = ((MainActivity) getActivity()).getLocation();
+        if(currentLocation != null){
+            distance = Report.getDistanceText(currentLocation, reportLocation);
+        } else
+            distance = "error";
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
+        return view;
+    }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        topView = (LinearLayout) view.findViewById(R.id.top_layout);
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         String[] mediaUrls ={mediaUrl1, mediaUrl2, mediaUrl3};
         viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mediaUrls));
-        bottomView = (RelativeLayout) view.findViewById(R.id.report_BottomView);
+        viewPager.setOffscreenPageLimit(3);
+        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         setClickListeners(view);
         updateView(view);
-        return view;
     }
-
     private void setClickListeners(View view) {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // go to 1st view in view pager
                 activateViewPager(0);
             }
         });
         view.findViewById(R.id.media2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // go to 2nd view in view pager
                 activateViewPager(1);
-
             }
         });
         view.findViewById(R.id.media3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // go to 3rd view in view pager
                 activateViewPager(2);
             }
         });
-        final ViewFlipper flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
-        ((Button) view.findViewById(R.id.buttonPrevious))
-            .setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) { flipper.showPrevious(); }
-        });
-        ((Button) view.findViewById(R.id.buttonNext))
-            .setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) { flipper.showPrevious(); }
-        });
     }
+
     private void activateViewPager(int i){
+        updateBottomVote();
+        getActivity().getActionBar().hide();
+        Animation slide_in_bottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_bottom);
         viewPager.setCurrentItem(i);
         viewPager.setVisibility(View.VISIBLE);
         bottomView.setVisibility(View.VISIBLE);
+        bottomView.startAnimation(slide_in_bottom);
+        topView.setVisibility(View.INVISIBLE);
+        getView().setBackgroundColor(getResources().getColor(R.color.DarkSlateGray));
     }
     public void updateView(View view) {
-        ((TextView) view.findViewById(R.id.reportViewTitle)).setText(title);
-        ((TextView) view.findViewById(R.id.reportViewDetails)).setText(details);
+        VoteInterface topVote = (VoteInterface) view.findViewById(R.id.topVote);
+        topVote.updateData(upvoteCount, userVoted, dbId, serverId);
+        ((TextView) view.findViewById(R.id.reportViewContent)).setText(content);
+        ((TextView) view.findViewById(R.id.itemLocation)).setText(location);
+        ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
         ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(time);
         ((TextView) view.findViewById(R.id.reportViewUsername)).setText(user);
-        AQuery aq = new AQuery(getActivity());
-        aq.id(view.findViewById(R.id.media1)).image(mediaUrl1);
-        aq.id(view.findViewById(R.id.media2)).image(mediaUrl2);
-        aq.id(view.findViewById(R.id.media3)).image(mediaUrl3);
-    }
 
-    public void setActionBarTranslation(float y, int height) {
-        // Figure out the actionbar height
-        // A hack to add the translation to the action bar
-        ViewGroup content = ((ViewGroup) getActivity().findViewById(android.R.id.content).getParent());
-        int children = content.getChildCount();
-        for (int i = 0; i < children; i++) {
-            View child = content.getChildAt(i);
-            if (child.getId() != android.R.id.content) {
-                if (y <= -height) {
-                    child.setVisibility(View.GONE);
-                } else {
-                    child.setVisibility(View.VISIBLE);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        child.setTranslationY(y);
-                    } else {
-                        AnimatorProxy.wrap(child).setTranslationY(y);
-                    }
-                }
-            }
-        }
+        bottomView = (RelativeLayout) view.findViewById(R.id.report_BottomView);
+        updateBottomView(bottomView);
+        int mediaHeight = ((MainActivity) getActivity()).getScreenHeight()/4;
+        ImageView media1 = (ImageView) view.findViewById(R.id.media1);
+        ImageView media2 = (ImageView) view.findViewById(R.id.media2);
+        ImageView media3 = (ImageView) view.findViewById(R.id.media3);
+        media1.getLayoutParams().height = mediaHeight;
+        media1.requestLayout();
+        media2.getLayoutParams().height = mediaHeight;
+        media2.requestLayout();
+        media3.getLayoutParams().height = mediaHeight;
+        media3.requestLayout();
+        aq.id(media1).image(mediaUrl1);
+        aq.id(media2).image(mediaUrl2);
+        aq.id(media3).image(mediaUrl3);
     }
-
+    private void updateBottomView(View view){
+        String bottomUserDisplay;
+        if(user.length() > 16){
+            bottomUserDisplay = user.substring(0, 14) + "...";
+        } else
+            bottomUserDisplay = user.toString();
+        ((TextView) view.findViewById(R.id.bottomContent)).setText(content);
+        ((TextView) view.findViewById(R.id.bottomUsername)).setText(bottomUserDisplay);
+        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(getSimpleTimeStamp(time));
+        ((TextView) view.findViewById(R.id.itemLocation)).setText(location);
+        ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
+        updateBottomVote();
+    }
+    private void updateTopVote(){
+        VoteInterface bottomVote = (VoteInterface) bottomView.findViewById(R.id.bottomVote);
+        VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
+        topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, dbId, serverId);
+    }
+    // called upon inflation as well as whenever the viewpager is about to become visible
+    private void updateBottomVote(){
+        VoteInterface bottomVote = (VoteInterface) bottomView.findViewById(R.id.bottomVote);
+        bottomVote.setBottomMode();
+        VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
+        bottomVote.updateData(topVote.voteCount, topVote.userVoted, dbId, serverId);
+    }
     private String getSimpleTimeStamp(String timestamp) {
         SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
         SimpleDateFormat displayFormat = new SimpleDateFormat("K:mm a  d MMM yy");
@@ -184,7 +209,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
             super.onCreateView(inflater, container, savedInstanceState);
-            View view = inflater.inflate(R.layout.fragment_report_image, container);
+            View view = inflater.inflate(R.layout.fragment_report_image, container, false);
             ImageView reportDetailImage = (ImageView) view.findViewById(R.id.report_detail_image);
             if(mediaPath != null)
                 aq.id(reportDetailImage).image(mediaPath);
@@ -192,8 +217,14 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
                 @Override
                 public void onClick(View view) {
                     // close the view pager
+                    getParentFragment().getView().setBackgroundColor(getResources().getColor(R.color.White));
+                    updateTopVote();
+                    topView.setVisibility(View.VISIBLE);
                     viewPager.setVisibility(View.INVISIBLE);
+                    Animation slide_out_bottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_bottom);
+                    bottomView.startAnimation(slide_out_bottom);
                     bottomView.setVisibility(View.INVISIBLE);
+                    getActivity().getActionBar().show();
                 }
             });
             return view;

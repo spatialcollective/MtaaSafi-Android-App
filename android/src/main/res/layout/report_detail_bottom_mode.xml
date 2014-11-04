@@ -17,7 +17,7 @@
         android:paddingTop="4dp"
         android:textColor="@color/white"
         android:layout_toRightOf="@+id/bottomVote"
-        android:textSize="17dp" />
+        android:textSize="14dp" />
 
     <include
         android:layout_width="wrap_content"
@@ -41,7 +41,8 @@
         android:textColor="@color/White"
         android:layout_above="@+id/location_bar"
         android:layout_alignLeft="@+id/bottomContent"
-        android:layout_alignStart="@+id/bottomContent" />
+        android:layout_alignStart="@+id/bottomContent"
+        android:textSize="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -52,5 +53,6 @@
         android:textColor="@color/White"
         android:layout_alignTop="@+id/bottomUsername"
         android:layout_alignRight="@+id/bottomContent"
-        android:layout_alignEnd="@+id/bottomContent" />
+        android:layout_alignEnd="@+id/bottomContent"
+        android:textSize="10dp" />
 </RelativeLayout>

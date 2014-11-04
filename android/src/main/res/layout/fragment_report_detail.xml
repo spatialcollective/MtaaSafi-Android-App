@@ -3,24 +3,19 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:id="@+id/reportDetailViewText">
+
+    <android.support.v4.view.ViewPager
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewpager"
+        android:visibility="invisible"
+        android:background="@color/DarkSlateGray"/>
+
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="User Name"
-            android:id="@+id/reportViewUsername"
-            android:textColor="#666666"
-            android:paddingLeft="10dp"
-            android:textSize="14dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="10dp"
-            android:layout_below="@+id/reportViewTitle"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+        android:layout_height="fill_parent"
+        android:id="@+id/top_layout">
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,12 +26,14 @@
             android:paddingLeft="10dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:paddingTop="5dp" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/LightGrey">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -45,7 +42,8 @@
                 android:src="@drawable/pic_placeholder"
                 android:layout_weight="1"
                 android:paddingRight="5dp"
-                android:paddingLeft="5dp" />
+                android:paddingLeft="5dp"
+                android:scaleType="centerCrop" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -54,7 +52,8 @@
                 android:src="@drawable/pic_placeholder"
                 android:layout_weight="1"
                 android:paddingLeft="5dp"
-                android:paddingRight="5dp" />
+                android:paddingRight="5dp"
+                android:scaleType="centerCrop" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -63,33 +62,50 @@
                 android:src="@drawable/pic_placeholder"
                 android:layout_weight="1"
                 android:paddingRight="5dp"
-                android:paddingLeft="5dp" />
+                android:paddingLeft="5dp"
+                android:scaleType="centerCrop" />
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Near Ngong Hills Hotel"
-            android:id="@+id/reportViewLocation"
-            android:paddingLeft="10dp"
-            android:paddingRight="5dp"
-            android:textSize="18dp"
-            android:paddingBottom="15dp"
-            android:layout_below="@+id/reportViewUsername"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Name"
+                android:id="@+id/reportViewUsername"
+                android:textColor="#666666"
+                android:paddingLeft="10dp"
+                android:textSize="12dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="10dp"
+                android:layout_below="@+id/reportViewTitle"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5h"
+                android:id="@+id/reportViewTimeStamp"
+                android:paddingRight="10dp"
+                android:textSize="12dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="right"
+                android:textColor="#666666"
+                android:paddingTop="5dp" />
+        </RelativeLayout>
+
+        <include
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5h"
-            android:id="@+id/reportViewTimeStamp"
-            android:paddingRight="10dp"
-            android:textSize="14dp"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_gravity="right" />
+            layout="@layout/location_bar"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="10dp" />
 
         <include
             android:layout_width="wrap_content"
@@ -100,12 +116,6 @@
 
     </LinearLayout>
 
-    <android.support.v4.view.ViewPager
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/viewpager"
-        android:visibility="invisible"/>
-
     <include
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -114,4 +124,5 @@
         android:layout_alignParentBottom="true"
         android:id="@+id/report_BottomView"
         android:visibility="invisible"/>
+
 </RelativeLayout>

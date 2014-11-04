@@ -1,9 +1,6 @@
 package com.sc.mtaasafi.android.feed;
 
-import android.app.Activity;
-import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -18,10 +15,8 @@ import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.ReportContract;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,9 +31,12 @@ import java.util.ArrayList;
 public class VoteInterface extends LinearLayout {
     TextView voteCountTV;
     ImageButton upvote;
+    public int voteCount, dbId, serverId;
+    public boolean userVoted, dataSet;
     private static final String UPVOTE_DATA_KEY = "upvote_data";
     public VoteInterface(Context context, AttributeSet attrs) {
         super(context, attrs);
+        dataSet = false;
     }
 
     @Override
@@ -49,30 +47,34 @@ public class VoteInterface extends LinearLayout {
             @Override
             public void onClick(View view) {
                 try {
-                    View parent = (View) view.getParent();
-                    if((Integer) parent.getTag() < 1){ // if user hasn't upvoted this item
+                    if(!dataSet){
+                    // newsFeedFragment stores VI's data in the view's tags because it can't call
+                        // the updateData
+                        dbId = (Integer) view.getTag();
+                        voteCount = Integer.parseInt(voteCountTV.getText().toString());
+                        serverId = (Integer) voteCountTV.getTag();
+                        View parent = (View) view.getParent();
+                        userVoted = (Integer) parent.getTag() > 0;
+                        dataSet = true;
+                    }
+                    if(!userVoted){ // if user hasn't upvoted this item
                         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
                         // tell the reports table that you upvoted the report
-                        int reportDBId = (Integer) view.getTag();
-                        int currentVoteCount = Integer.parseInt(voteCountTV.getText().toString());
                         ContentProviderOperation.Builder userUpvotedUpdate =
-                                ContentProviderOperation.newUpdate(Report.uriFor(reportDBId))
+                                ContentProviderOperation.newUpdate(Report.uriFor(dbId))
                                         .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1)
-                                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, currentVoteCount+1);
+                                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, voteCount+1);
                         batch.add(userUpvotedUpdate.build());
-                        voteCountTV.setText(Integer.toString(currentVoteCount+1));
                         // TODO: check for multiple reports entered in the db? (maybe)
                         // tell the upvote log table that you upvoted the report
-                        int reportServerId = (Integer) voteCountTV.getTag();
                         ContentProviderOperation.Builder upvoteOperation =
                                 ContentProviderOperation.newInsert(ReportContract.UpvoteLog.UPVOTE_URI);
-                        upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_SERVER_ID, reportServerId);
+                        upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_SERVER_ID, serverId);
                         batch.add(upvoteOperation.build());
-
+                        updateData(voteCount+1, true, dbId, serverId);
                         getContext().getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
                         getContext().getContentResolver().notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
                         getContext().getContentResolver().notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
-                        voteCountTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
                     } else {
                         Log.e("VOTE INTERFACE", "You already upvoted this one, dawg!");
                     }
@@ -81,12 +83,25 @@ public class VoteInterface extends LinearLayout {
                 } catch (OperationApplicationException e) {
                     e.printStackTrace();
                 }
-                // tell the upvote log table you voted
-
             }
         });
     }
-
+    public void setBottomMode(){
+        voteCountTV.setTextColor(getResources().getColor(R.color.White));
+        upvote.setImageResource(R.drawable.button_upvote_unclicked_white);
+    }
+    public void updateData(int voteCt, boolean voted, int dbId, int serverId){
+        voteCount = voteCt;
+        userVoted = voted;
+        this.dbId = dbId;
+        this.serverId = serverId;
+        voteCountTV.setText(Integer.toString(voteCount));
+        if(userVoted){
+            voteCountTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+            upvote.setImageResource(R.drawable.button_upvote_clicked);
+        }
+        dataSet = true;
+    }
     public static JSONObject recordUpvoteLog(Context context, JSONObject jsonRecord){
         try {
             ArrayList<Integer> upvoteIds = getUpvotesFromDb(context);
@@ -139,7 +154,7 @@ public class VoteInterface extends LinearLayout {
 
     // takes JSON responses from the server and updates the user's upvote log and report tables
     // if there is any upvote data in the response
-    public static void updateUpvoteData(Context context, JSONObject serverResponse) throws JSONException, RemoteException, OperationApplicationException {
+    public static void updateUpvoteData(Context context, JSONObject serverResponse) throws RemoteException, OperationApplicationException, JSONException {
         if(serverResponse.toString().contains(UPVOTE_DATA_KEY)){
             JSONArray upvoteData = serverResponse.getJSONArray(UPVOTE_DATA_KEY);
             Cursor upvoteLog = getUpvoteLog(context);

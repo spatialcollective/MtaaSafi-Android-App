@@ -56,24 +56,24 @@ public class NewsFeedFragment extends ListFragment
             ReportContract.Entry.COLUMN_USER_UPVOTED
     };
     public String[] FROM_COLUMNS = new String[] {
-        ReportContract.Entry.COLUMN_ID,
-        ReportContract.Entry.COLUMN_USER_UPVOTED,
-        ReportContract.Entry.COLUMN_UPVOTE_COUNT,
-        ReportContract.Entry.COLUMN_SERVER_ID,
-        ReportContract.Entry.COLUMN_LOCATION,
-        ReportContract.Entry.COLUMN_CONTENT,
-        ReportContract.Entry.COLUMN_LAT,
-        ReportContract.Entry.COLUMN_LNG
+            ReportContract.Entry.COLUMN_ID,
+            ReportContract.Entry.COLUMN_USER_UPVOTED,
+            ReportContract.Entry.COLUMN_UPVOTE_COUNT,
+            ReportContract.Entry.COLUMN_SERVER_ID,
+            ReportContract.Entry.COLUMN_LOCATION,
+            ReportContract.Entry.COLUMN_CONTENT,
+            ReportContract.Entry.COLUMN_LAT,
+            ReportContract.Entry.COLUMN_LNG
     };
     private static final int[] TO_FIELDS = new int[] {
-        R.id.upvoteButton,
-        R.id.voteInterface,
-        R.id.upvoteCount,
-        R.id.upvoteCount,
-        R.id.itemDetails,
-        R.id.itemTitle,
-        R.id.itemDistance,
-        R.id.itemDistance
+            R.id.upvoteButton,
+            R.id.voteInterface,
+            R.id.upvoteCount,
+            R.id.upvoteCount,
+            R.id.itemLocation,
+            R.id.itemTitle,
+            R.id.itemDistance,
+            R.id.itemDistance
     };
 
     public NewsFeedFragment() {}
@@ -91,8 +91,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        LinearLayout feedLL = (LinearLayout) view.findViewById(R.id.feedLL);
-        feedLL.setPadding(0, ((MainActivity) getActivity()).getActionBarHeight(), 0, 0);
         view.findViewById(R.id.savedReportsButton).setOnClickListener(new View.OnClickListener(){
             @Override
             public  void onClick(View view){
@@ -116,7 +114,7 @@ public class NewsFeedFragment extends ListFragment
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
                 if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID))
-                // give the upvote button the report's id
+                    // give the upvote button the report's id
                     view.setTag(cursor.getInt(i));
                 else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)){
                     // set the upvote button to the proper state
@@ -139,28 +137,12 @@ public class NewsFeedFragment extends ListFragment
                     Location reportLocation = new Location("ReportLocation");
                     reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
                     reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
-                    Location currentLocation = ((MainActivity)getActivity()).getLocation();
+                    Location currentLocation = ((MainActivity) getActivity()).getLocation();
                     if(currentLocation != null){
-                        float distInMeters = reportLocation.distanceTo(currentLocation);
-                        String distText;
-                        if(distInMeters > 1000){
-                            distText = Float.toString(distInMeters/1000);
-                            if(distText.indexOf('.') !=-1) // show km within 1 decimal pt
-                                distText = distText.substring(0, distText.indexOf('.')+2);
-                            if(distText.endsWith(".0"))// remove any ".0"s
-                                distText = distText.substring(0, distText.length()-3);
-                            distText += "km";
-                        } else if(distInMeters > 30){
-                            distText = Float.toString(distInMeters);
-                            if(distText.indexOf('.') != -1)
-                                distText = distText.substring(0, distText.indexOf('.'));
-                            distText += "m";
-                            // if distance is in meters, only show as an integer
-                        } else
-                            distText = "here";
+                        String distText = Report.getDistanceText(currentLocation, reportLocation);
                         ((TextView)view).setText(distText);
                     }
-                } else
+               } else
                     return false;
                 return true;
             }

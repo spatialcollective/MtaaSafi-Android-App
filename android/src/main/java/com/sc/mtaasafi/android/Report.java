@@ -47,8 +47,8 @@ public class Report {
     public static final String[] PROJECTION = new String[] {
             ReportContract.Entry._ID,
             ReportContract.Entry.COLUMN_SERVER_ID,
-            ReportContract.Entry.COLUMN_TITLE,
-            ReportContract.Entry.COLUMN_DETAILS,
+            ReportContract.Entry.COLUMN_CONTENT,
+            ReportContract.Entry.COLUMN_LOCATION,
             ReportContract.Entry.COLUMN_TIMESTAMP,
             ReportContract.Entry.COLUMN_LAT,
             ReportContract.Entry.COLUMN_LNG,
@@ -76,8 +76,8 @@ public class Report {
     // Note: remember to close the cursor when you're finished.
     // Cursor not closed here because it may contain multiple rows of reports
     public Report(Cursor c){
-        this.title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
-        this.details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
+        this.title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_CONTENT));
+        this.details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LOCATION));
         this.timeStamp = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP));
         this.timeElapsed = getElapsedTime(timeStamp);
         this.userName = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
@@ -239,5 +239,26 @@ public class Report {
     private String createTimeStamp() {
         return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
                 .format(new java.util.Date(System.currentTimeMillis()));
+    }
+
+    public static String getDistanceText(Location currentLocation, Location reportLocation){
+        float distInMeters = reportLocation.distanceTo(currentLocation);
+        String distText;
+        if(distInMeters > 1000){
+            distText = Float.toString(distInMeters/1000);
+            if(distText.indexOf('.') !=-1) // show km within 1 decimal pt
+                distText = distText.substring(0, distText.indexOf('.')+2);
+            if(distText.endsWith(".0"))// remove any ".0"s
+                distText = distText.substring(0, distText.length()-3);
+            distText += "km";
+        } else if(distInMeters > 30){
+            distText = Float.toString(distInMeters);
+            if(distText.indexOf('.') != -1)
+                distText = distText.substring(0, distText.indexOf('.'));
+            distText += "m";
+            // if distance is in meters, only show as an integer
+        } else
+            distText = "here";
+        return distText;
     }
 }

@@ -63,8 +63,6 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
-        getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
         restoreFragment(savedInstanceState);

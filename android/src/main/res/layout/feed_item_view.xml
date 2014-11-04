@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Near Ngong Hills Hotel and The Agenda"
-                android:id="@+id/itemDetails"
+                android:id="@+id/itemLocation"
                 android:paddingLeft="10dp"
                 android:paddingRight="5dp"
                 android:textSize="14dp"
