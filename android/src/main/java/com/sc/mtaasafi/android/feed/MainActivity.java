@@ -220,9 +220,7 @@ public class MainActivity extends ActionBarActivity implements
 
     private void saveUserName(Intent data) {
         String userName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-        if(userName.indexOf('"') != -1){ // trim quotation marks
-            userName.substring(1, userName.length()-2);
-        }
+        userName = PrefUtils.trimUsername(userName);
         cp.putObject(PrefUtils.USERNAME, userName);
         cp.commit();
     }
