@@ -55,14 +55,12 @@ public class NewsFeedFragment extends ListFragment
     public String[] FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_TITLE,
         ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
         ReportContract.Entry.COLUMN_LAT,
         ReportContract.Entry.COLUMN_LNG
     };
     private static final int[] TO_FIELDS = new int[] {
         R.id.itemDetails,
         R.id.itemTitle,
-        R.id.timeElapsed,
         R.id.itemDistance,
         R.id.itemDistance
     };

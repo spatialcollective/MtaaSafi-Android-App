@@ -3,6 +3,12 @@ package com.sc.mtaasafi.android.feed;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
@@ -11,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -23,12 +30,15 @@ import com.sc.mtaasafi.android.database.ReportContract;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     private String title, details, time, user, mediaUrl1, mediaUrl2, mediaUrl3;
-
+    public AQuery aq;
+    public ViewPager viewPager;
+    RelativeLayout bottomView;
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -48,44 +58,38 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
-        setUpSlidingPanel(view);   
+        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        String[] mediaUrls ={mediaUrl1, mediaUrl2, mediaUrl3};
+        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mediaUrls));
+        bottomView = (RelativeLayout) view.findViewById(R.id.report_BottomView);
         setClickListeners(view);
         updateView(view);
         return view;
     }
 
-    private void setUpSlidingPanel(View view){
-        final ActionBar actionbar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        RelativeLayout mReportText = (RelativeLayout) view.findViewById(R.id.reportDetailViewText);
-
-        // Make sure the actionbar doesn't block the text of the Report.
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int pixels_per_dp = (int)(metrics.density + 0.5f);
-        int padding_dp = 4;
-        mReportText.setPadding(0, pixels_per_dp * padding_dp + actionbar.getHeight(), 0, 0);
-
-        final SlidingUpPanelLayout mLayout = (SlidingUpPanelLayout) view.findViewById(R.id.sliding_layout);
-        mLayout.setPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                if (slideOffset > 0.2 && actionbar.isShowing())
-                    actionbar.hide();
-                else if (!actionbar.isShowing())
-                    actionbar.show();
-                setActionBarTranslation(mLayout.getCurrentParalaxOffset(), actionbar.getHeight());
-            }
-            @Override
-            public void onPanelExpanded(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelExpanded"); }
-            @Override
-            public void onPanelCollapsed(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelCollapsed"); }
-            @Override
-            public void onPanelAnchored(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelAnchored"); }
-            @Override
-            public void onPanelHidden(View panel) { Log.i(LogTags.PANEL_SLIDER, "onPanelHidden"); }
-        });
-    }
-
     private void setClickListeners(View view) {
+        view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // go to 1st view in view pager
+                activateViewPager(0);
+            }
+        });
+        view.findViewById(R.id.media2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // go to 2nd view in view pager
+                activateViewPager(1);
+
+            }
+        });
+        view.findViewById(R.id.media3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // go to 3rd view in view pager
+                activateViewPager(2);
+            }
+        });
         final ViewFlipper flipper = (ViewFlipper) view.findViewById(R.id.viewFlipper);
         ((Button) view.findViewById(R.id.buttonPrevious))
             .setOnClickListener(new View.OnClickListener() {
@@ -98,7 +102,11 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
                 public void onClick(View view) { flipper.showPrevious(); }
         });
     }
-
+    private void activateViewPager(int i){
+        viewPager.setCurrentItem(i);
+        viewPager.setVisibility(View.VISIBLE);
+        bottomView.setVisibility(View.VISIBLE);
+    }
     public void updateView(View view) {
         ((TextView) view.findViewById(R.id.reportViewTitle)).setText(title);
         ((TextView) view.findViewById(R.id.reportViewDetails)).setText(details);
@@ -141,5 +149,54 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             return timestamp;
         }
     }
+    private class ImageSlideAdapter extends FragmentPagerAdapter {
+        String[] mediaPaths;
+        public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
+            super(fm);
+            this.mediaPaths = mediaPaths;
+        }
 
+        @Override
+        public int getCount() {
+            return mediaPaths.length;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            ImageFragment iF = new ImageFragment();
+            Bundle args = new Bundle();
+            args.putString("mediaPath", mediaPaths[i]);
+            iF.setArguments(args);
+            return iF;
+        }
+
+    }
+
+    private class ImageFragment extends Fragment{
+        String mediaPath;
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if(getArguments() != null)
+                mediaPath = getArguments().getString("mediaPath");
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            super.onCreateView(inflater, container, savedInstanceState);
+            View view = inflater.inflate(R.layout.fragment_report_image, container);
+            ImageView reportDetailImage = (ImageView) view.findViewById(R.id.report_detail_image);
+            if(mediaPath != null)
+                aq.id(reportDetailImage).image(mediaPath);
+            reportDetailImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // close the view pager
+                    viewPager.setVisibility(View.INVISIBLE);
+                    bottomView.setVisibility(View.INVISIBLE);
+                }
+            });
+            return view;
+        }
+    }
 }
