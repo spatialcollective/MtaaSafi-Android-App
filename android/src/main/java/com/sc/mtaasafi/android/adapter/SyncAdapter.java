@@ -180,7 +180,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 // TODO: add error statement
                 return;
             }
-            Log.i(TAG+"serverResponse",serverResponse.toString());
             JSONArray newReports = serverResponse.getJSONArray("reports");
             ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
             for (int i = 0; i < newReports.length(); i++) {
@@ -189,6 +188,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 ArrayList<String> mediaURLs = new ArrayList<String>();
                 for (int j = 0; j < mediaURLsJSON.length(); j++)
                     mediaURLs.add(mediaURLsJSON.get(j).toString());
+                boolean upvoted = entry.getBoolean("upvoted");
+                int upvotedInt;
+                if(upvoted)
+                    upvotedInt = 1;
+                else
+                    upvotedInt = 0;
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
                         .withValue(ReportContract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
                         .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
@@ -201,7 +206,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
                         .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))
                         .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, entry.getInt(ReportContract.Entry.COLUMN_UPVOTE_COUNT))
-                        .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, entry.getInt("upvoted"))
+                        .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, upvotedInt)
                         .build());
                 syncResult.stats.numInserts++;
             }
@@ -222,12 +227,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         String username = cp.getString(PrefUtils.USERNAME, "");
         if(!username.isEmpty()){
             username = PrefUtils.trimUsername(username);
-            JSONArray serverIdsJSON = new JSONArray();
-            for(int i=0; i < serverIds.size(); i++){
-                serverIdsJSON.put(serverIds.get(i));
-            }
             JSONObject fetchRequest = new JSONObject().put("username", username);
-            fetchRequest.put("ids", serverIdsJSON);
+            fetchRequest.put("ids", new JSONArray());
+            for(int i=0; i < serverIds.size(); i++)
+                fetchRequest.accumulate("ids", serverIds.get(i));
             VoteInterface.recordUpvoteLog(getContext(), fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
             return convertStringToJson(getFromServer(fetchReportsURL, fetchRequest.toString()));
@@ -248,10 +251,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     .replaceAll("\\[", "").replaceAll("\\]", "")
                     .split(", ");
             ArrayList serverIds = new ArrayList();
-            for(String id : responseStringArray){
-                Log.i(TAG, "Server id: " + id);
+            for(String id : responseStringArray)
                 serverIds.add(Integer.parseInt(id));
-            }
             Log.i(TAG, "Server count: "  + serverIds.size());
             return serverIds;
         } else
@@ -277,7 +278,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         ArrayList<Integer> dbIds = new ArrayList<Integer>();
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
-            Log.i(TAG, logText + c.getInt(0));
             dbIds.add(c.getInt(0));
         }
         c.close();

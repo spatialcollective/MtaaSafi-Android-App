@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:paddingLeft="8dp"
     android:paddingTop="4dp"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:id="@+id/voteInterface"
+    android:tag="0">
     <ImageButton
         android:layout_width="51dp"
         android:layout_height="51dp"

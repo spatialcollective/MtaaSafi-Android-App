@@ -49,31 +49,33 @@ public class VoteInterface extends LinearLayout {
             @Override
             public void onClick(View view) {
                 try {
-                    ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+                    View parent = (View) view.getParent();
+                    if((Integer) parent.getTag() < 1){ // if user hasn't upvoted this item
+                        ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
+                        // tell the reports table that you upvoted the report
+                        int reportDBId = (Integer) view.getTag();
+                        int currentVoteCount = Integer.parseInt(voteCountTV.getText().toString());
+                        ContentProviderOperation.Builder userUpvotedUpdate =
+                                ContentProviderOperation.newUpdate(Report.uriFor(reportDBId))
+                                        .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1)
+                                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, currentVoteCount+1);
+                        batch.add(userUpvotedUpdate.build());
+                        voteCountTV.setText(Integer.toString(currentVoteCount+1));
+                        // TODO: check for multiple reports entered in the db? (maybe)
+                        // tell the upvote log table that you upvoted the report
+                        int reportServerId = (Integer) voteCountTV.getTag();
+                        ContentProviderOperation.Builder upvoteOperation =
+                                ContentProviderOperation.newInsert(ReportContract.UpvoteLog.UPVOTE_URI);
+                        upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_SERVER_ID, reportServerId);
+                        batch.add(upvoteOperation.build());
 
-                    // tell the reports table that you upvoted the report
-                    int reportDBId = (Integer) view.getTag();
-                    ContentProviderOperation.Builder userUpvotedUpdate =
-                            ContentProviderOperation.newUpdate(Report.uriFor(reportDBId));
-                    userUpvotedUpdate.withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1);
-                    batch.add(userUpvotedUpdate.build());
-                    ContentProviderOperation.Builder upvoteCountUpdate =
-                            ContentProviderOperation.newUpdate(Report.uriFor(reportDBId));
-                    int currentVoteCount = Integer.parseInt(voteCountTV.getText().toString());
-                    upvoteCountUpdate.withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, currentVoteCount+1);
-
-                    // TODO: check for multiple reports entered in the db? (maybe)
-                    // tell the upvote log table that you upvoted the report
-                    int reportServerId = (Integer) voteCountTV.getTag();
-                    ContentProviderOperation.Builder upvoteOperation =
-                            ContentProviderOperation.newInsert(ReportContract.UpvoteLog.UPVOTE_URI);
-                    upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_SERVER_ID, reportServerId);
-                    batch.add(upvoteOperation.build());
-
-                    getContext().getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-                    getContext().getContentResolver()
-                            .notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
-                    voteCountTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+                        getContext().getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
+                        getContext().getContentResolver().notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
+                        getContext().getContentResolver().notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+                        voteCountTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+                    } else {
+                        Log.e("VOTE INTERFACE", "You already upvoted this one, dawg!");
+                    }
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 } catch (OperationApplicationException e) {
@@ -89,18 +91,16 @@ public class VoteInterface extends LinearLayout {
         try {
             ArrayList<Integer> upvoteIds = getUpvotesFromDb(context);
             if(upvoteIds.size() > 0){
-                JSONObject upvoteData = new JSONObject();
-                ComplexPreferences cp = PrefUtils.getPrefs(context);
-                String userName = cp.getString(PrefUtils.USERNAME, "");
+                String userName = PrefUtils.getPrefs(context).getString(PrefUtils.USERNAME, "");
                 if(!userName.equals("")){
                     userName = PrefUtils.trimUsername(userName);
-                    upvoteData.put("username", userName);
-                    JSONArray upvoteIdsJSON = new JSONArray();
-                    for(int id : upvoteIds){
-                        upvoteIdsJSON.put(id);
-                    }
-                    upvoteData.put("ids", upvoteIds);
+                    JSONObject upvoteData = new JSONObject().put("username", userName);
+                    upvoteData.put("ids", new JSONArray());
+                    for(int i = 0; i < upvoteIds.size(); i++)
+                        upvoteData.accumulate("ids", upvoteIds.get(i));
+                    Log.i("VOTE INTERFACE", upvoteData.toString());
                     jsonRecord.put(UPVOTE_DATA_KEY, upvoteData);
+                    Log.i("VOTE INTERFACE", jsonRecord.toString());
                 }
             }
             return jsonRecord;
@@ -121,7 +121,7 @@ public class VoteInterface extends LinearLayout {
         ArrayList upvoteIds = new ArrayList();
         while(upvoteLog.moveToNext()){
             int serverId = upvoteLog.getInt(upvoteLog.getColumnIndex(ReportContract.UpvoteLog.COLUMN_SERVER_ID));
-            if(upvoteIds.contains(serverId)){ // schedule duplicates of ids for deletion
+            if(serverId == 0 || upvoteIds.contains(serverId)){ // schedule duplicates of ids for deletion
                 Log.i("getUPVOTES", "Upvote id: " + serverId + " was a duplicate, deleting");
                 Uri toDeleteUri = ReportContract.UpvoteLog.UPVOTE_URI.buildUpon()
                         .appendPath(Integer.toString(upvoteLog.getInt(upvoteLog.getColumnIndex(ReportContract.UpvoteLog.COLUMN_ID)))).build();

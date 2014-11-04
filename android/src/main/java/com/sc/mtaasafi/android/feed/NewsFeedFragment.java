@@ -67,7 +67,7 @@ public class NewsFeedFragment extends ListFragment
     };
     private static final int[] TO_FIELDS = new int[] {
         R.id.upvoteButton,
-        R.id.upvoteButton,
+        R.id.voteInterface,
         R.id.upvoteCount,
         R.id.upvoteCount,
         R.id.itemDetails,
@@ -120,15 +120,15 @@ public class NewsFeedFragment extends ListFragment
                     view.setTag(cursor.getInt(i));
                 else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)){
                     // set the upvote button to the proper state
-                    TextView upvoteTV = (TextView)
-                            ((ViewGroup) view.getParent()).findViewById(R.id.upvoteCount);
-
+                    TextView upvoteTV = (TextView) view.findViewById(R.id.upvoteCount);
+                    ImageButton upvoteButton = (ImageButton) view.findViewById(R.id.upvoteButton);
+                    view.setTag(cursor.getInt(i));
                     if(cursor.getInt(i) > 0){
-                        ((ImageButton) view).setImageResource(R.drawable.button_upvote_clicked);
+                        upvoteButton.setImageResource(R.drawable.button_upvote_clicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
                     }
                     else{
-                        ((ImageButton) view).setImageResource(R.drawable.button_upvote_unclicked);
+                        upvoteButton.setImageResource(R.drawable.button_upvote_unclicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
                     }
                 } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID)) {
