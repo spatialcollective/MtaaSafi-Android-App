@@ -1,51 +1,51 @@
-        package com.sc.mtaasafi.android.adapter;
+package com.sc.mtaasafi.android.adapter;
 
-        import android.accounts.Account;
-        import android.app.Activity;
-        import android.content.AbstractThreadedSyncAdapter;
-        import android.content.ContentProviderClient;
-        import android.content.ContentProviderOperation;
-        import android.content.ContentResolver;
-        import android.content.Context;
-        import android.content.OperationApplicationException;
-        import android.content.SyncResult;
-        import android.database.Cursor;
-        import android.location.Location;
-        import android.net.Uri;
-        import android.os.Bundle;
-        import android.os.RemoteException;
-        import android.util.Log;
-        import android.widget.Toast;
+import android.accounts.Account;
+import android.app.Activity;
+import android.content.AbstractThreadedSyncAdapter;
+import android.content.ContentProviderClient;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.content.SyncResult;
+import android.database.Cursor;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.RemoteException;
+import android.util.Log;
+import android.widget.Toast;
 
-        import com.crashlytics.android.Crashlytics;
-        import com.sc.mtaasafi.android.Report;
-        import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
-        import com.sc.mtaasafi.android.SystemUtils.LogTags;
-        import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-        import com.sc.mtaasafi.android.database.ReportContract;
-        import com.sc.mtaasafi.android.feed.VoteInterface;
+import com.crashlytics.android.Crashlytics;
+import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
+import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.feed.VoteInterface;
 
-        import org.apache.http.HttpResponse;
-        import org.apache.http.client.HttpClient;
-        import org.apache.http.client.methods.HttpPost;
-        import org.apache.http.entity.StringEntity;
-        import org.apache.http.impl.client.DefaultHttpClient;
-        import org.json.JSONArray;
-        import org.json.JSONException;
-        import org.json.JSONObject;
-        import org.xmlpull.v1.XmlPullParserException;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParserException;
 
-        import java.io.BufferedReader;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.InputStreamReader;
-        import java.lang.reflect.Array;
-        import java.net.HttpURLConnection;
-        import java.net.MalformedURLException;
-        import java.net.URL;
-        import java.text.ParseException;
-        import java.util.ArrayList;
-        import java.util.TreeSet;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.TreeSet;
 
 /* This class is instantiated in {@link SyncService}, which also binds SyncAdapter to the system.
  * SyncAdapter should only be initialized in SyncService, never anywhere else. */
@@ -86,7 +86,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             if(serverIds != null)
                 updateLocalFeedData(serverIds, syncResult);
             else //throw a fit?
-                // TODO : handle null location errors, which will occur first time user opens app
+                 // TODO : handle null location errors, which will occur first time user opens app
                 return;
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Feed URL is malformed", e);

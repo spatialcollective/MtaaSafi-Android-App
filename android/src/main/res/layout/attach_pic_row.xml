@@ -4,35 +4,35 @@
     android:id="@+id/picPreviewContainer"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <include
+        layout="@layout/attach_pic"
         android:id="@+id/pic1"
-        android:tag="0"
-        android:src="@drawable/pic_placeholder"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_weight="1"
+        />
+
+    <include
+        layout="@layout/attach_pic"
+        android:id="@+id/pic2"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:layout_weight="1" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/pic2"
-        android:tag="1"
-        android:src="@drawable/pic_placeholder"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/picFromCam"
-        android:layout_weight="1" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:tag="2"
+    <include
+        layout="@layout/attach_pic"
         android:id="@+id/pic3"
-        android:src="@drawable/pic_placeholder"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/pic2"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
         android:layout_weight="1" />
 
 </LinearLayout>

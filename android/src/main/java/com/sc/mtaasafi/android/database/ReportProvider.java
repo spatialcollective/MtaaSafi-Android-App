@@ -11,8 +11,10 @@ import android.net.Uri;
 public class ReportProvider extends ContentProvider {
     ReportDatabase mDatabaseHelper;
     private static final String AUTHORITY = ReportContract.CONTENT_AUTHORITY;
-    public static final int ROUTE_ENTRIES = 1;
-    public static final int ROUTE_ENTRIES_ID = 2;
+    public static final int ROUTE_ENTRIES = 1,
+                            ROUTE_ENTRIES_ID = 2,
+                            ROUTE_UPVOTES = 3,
+                            ROUTE_UPVOTES_ID = 4;
 
     @Override
     public boolean onCreate() {
@@ -24,6 +26,8 @@ public class ReportProvider extends ContentProvider {
         static {
             sUriMatcher.addURI(AUTHORITY, "entries", ROUTE_ENTRIES);
             sUriMatcher.addURI(AUTHORITY, "entries/*", ROUTE_ENTRIES_ID);
+            sUriMatcher.addURI(AUTHORITY, "upvotes", ROUTE_UPVOTES);
+            sUriMatcher.addURI(AUTHORITY, "upvotes/*", ROUTE_UPVOTES_ID);
         }
 
     @Override
@@ -34,6 +38,10 @@ public class ReportProvider extends ContentProvider {
                 return ReportContract.Entry.CONTENT_TYPE;
             case ROUTE_ENTRIES_ID:
                 return ReportContract.Entry.CONTENT_ITEM_TYPE;
+            case ROUTE_UPVOTES:
+                return ReportContract.UpvoteLog.CONTENT_TYPE;
+            case ROUTE_UPVOTES_ID:
+                return ReportContract.UpvoteLog.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -61,6 +69,17 @@ public class ReportProvider extends ContentProvider {
                 assert ctx != null;
                 c.setNotificationUri(ctx.getContentResolver(), uri);
                 return c;
+            case ROUTE_UPVOTES_ID:
+                String upvoteId = uri.getLastPathSegment();
+                builder.where(ReportContract.Entry._ID + "=?", upvoteId);
+            case ROUTE_UPVOTES:
+                builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                Cursor cursor = builder.query(db, projection, sortOrder);
+                Context context = getContext();
+                assert context != null;
+                cursor.setNotificationUri(context.getContentResolver(), uri);
+                return cursor;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -74,10 +93,16 @@ public class ReportProvider extends ContentProvider {
         Uri result;
         switch (match) {
             case ROUTE_ENTRIES:
-                long id = db.insertOrThrow(ReportContract.Entry.TABLE_NAME, null, values);
-                result = Uri.parse(ReportContract.Entry.CONTENT_URI + "/" + id);
+                long reportId = db.insertOrThrow(ReportContract.Entry.TABLE_NAME, null, values);
+                result = Uri.parse(ReportContract.Entry.CONTENT_URI + "/" + reportId);
                 break;
             case ROUTE_ENTRIES_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+            case ROUTE_UPVOTES:
+                long upvoteId = db.insertOrThrow(ReportContract.UpvoteLog.TABLE_NAME, null, values);
+                result = Uri.parse(ReportContract.Entry.CONTENT_URI + "/" + upvoteId);
+                break;
+            case ROUTE_UPVOTES_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -136,6 +161,18 @@ public class ReportProvider extends ContentProvider {
                        .where(ReportContract.Entry._ID + "=?", id)
                        .where(selection, selectionArgs)
                        .delete(db);
+                break;
+            case ROUTE_UPVOTES:
+                count = builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+            case ROUTE_UPVOTES_ID:
+                String upvoteId = uri.getLastPathSegment();
+                count = builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                        .where(ReportContract.Entry._ID + "=?", upvoteId)
+                        .where(selection, selectionArgs)
+                        .delete(db);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

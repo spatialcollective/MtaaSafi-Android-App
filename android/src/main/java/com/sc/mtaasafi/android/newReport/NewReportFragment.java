@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,9 +65,9 @@ public class NewReportFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-        picPreviews[PIC1] = (ImageView) view.findViewById(R.id.pic1);
-        picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
-        picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
+        picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
+        picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
+        picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         detailsText = "";
         Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
@@ -108,8 +109,6 @@ public class NewReportFragment extends Fragment {
         super.onStop();
         for(ImageView picPreview : picPreviews)
             picPreview = null;
-//        detailsView = null;
-
     }
 
     private void uploadSavedReports(){
@@ -125,10 +124,13 @@ public class NewReportFragment extends Fragment {
     private void updatePicPreviews() {
         AQuery aq = new AQuery(getActivity());
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
-            if (picPaths.get(i) != null)
+            if (picPaths.get(i) != null){
                 aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
-            else
+                ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.VISIBLE);
+            } else{
                 aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
+                ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.INVISIBLE);
+            }
         }
         int emptyPics = getEmptyPics();
         if (emptyPics == 0) {

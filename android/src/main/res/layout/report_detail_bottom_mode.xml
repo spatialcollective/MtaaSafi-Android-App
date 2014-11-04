@@ -12,11 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Report content Report content Report content Report content Report content "
-        android:id="@+id/reportContent"
+        android:id="@+id/bottomContent"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/vote_interface"
         android:paddingTop="4dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:layout_toRightOf="@+id/bottomVote"
+        android:textSize="17dp" />
 
     <include
         android:layout_width="wrap_content"
@@ -24,33 +25,32 @@
         layout="@layout/vote_interface"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/vote_interface"
+        android:id="@+id/bottomVote"
         android:layout_marginRight="3dp" />
     <include layout="@layout/location_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/vote_interface"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/location_bar"/>
+        android:id="@+id/location_bar"
+        android:layout_below="@+id/bottomVote" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Username"
-        android:id="@+id/username"
-        android:layout_alignBottom="@+id/vote_interface"
-        android:layout_toRightOf="@+id/vote_interface"
-        android:textColor="@color/White" />
+        android:id="@+id/bottomUsername"
+        android:textColor="@color/White"
+        android:layout_above="@+id/location_bar"
+        android:layout_alignLeft="@+id/bottomContent"
+        android:layout_alignStart="@+id/bottomContent" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="timestamp"
-        android:id="@+id/timestamp"
+        android:id="@+id/bottomTimestamp"
         android:paddingRight="10dp"
         android:textColor="@color/White"
-        android:layout_alignBottom="@+id/vote_interface"
-        android:layout_alignRight="@+id/location_bar"
-        android:layout_alignEnd="@+id/location_bar" />
+        android:layout_alignTop="@+id/bottomUsername"
+        android:layout_alignRight="@+id/bottomContent"
+        android:layout_alignEnd="@+id/bottomContent" />
 </RelativeLayout>
