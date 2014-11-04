@@ -8,7 +8,7 @@
     sothree:panelHeight="68dp"
     sothree:shadowHeight="4dp">
 <RelativeLayout
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -35,8 +35,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Report Title"
-            android:id="@+id/reportViewTitle"
+            android:text="Report Content"
+            android:id="@+id/reportViewContent"
             android:textSize="30dp"
             android:paddingLeft="10dp"
             android:layout_alignParentTop="true"
@@ -60,8 +60,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="I just saw the one of the craziest things the other day! A man was juggling chainsaws."
-            android:id="@+id/reportViewDetails"
+            android:text="Near Ngong Hills hotel and the Agenda."
+            android:id="@+id/reportViewLocation"
             android:paddingLeft="10dp"
             android:paddingRight="5dp"
             android:textSize="18dp"
@@ -77,6 +77,6 @@
     <!-- SLIDING LAYOUT -->
 <include layout="@layout/report_detail_pic_flipper"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_below="@+id/reportDetailViewText"></include>
+    android:layout_height="match_parent"
+    android:layout_below="@+id/reportDetailViewText"/>
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

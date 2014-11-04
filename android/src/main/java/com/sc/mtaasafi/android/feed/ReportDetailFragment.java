@@ -27,7 +27,7 @@ import java.text.SimpleDateFormat;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
-    private String title, details, time, user, mediaUrl1, mediaUrl2, mediaUrl3;
+    private String location, content, time, user, mediaUrl1, mediaUrl2, mediaUrl3;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -36,8 +36,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     }
 
     public void setData(Cursor c) {
-        title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TITLE));
-        details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_DETAILS));
+        location = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LOCATION));
+        content = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_CONTENT));
         time = getSimpleTimeStamp(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP)));
         user = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
         mediaUrl1 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1));
@@ -100,8 +100,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     }
 
     public void updateView(View view) {
-        ((TextView) view.findViewById(R.id.reportViewTitle)).setText(title);
-        ((TextView) view.findViewById(R.id.reportViewDetails)).setText(details);
+        ((TextView) view.findViewById(R.id.reportViewContent)).setText(content);
+        ((TextView) view.findViewById(R.id.reportViewLocation)).setText(location);
         ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(time);
         ((TextView) view.findViewById(R.id.reportViewUsername)).setText(user);
         AQuery aq = new AQuery(getActivity());

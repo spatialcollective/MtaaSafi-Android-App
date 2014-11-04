@@ -43,8 +43,8 @@ public class NewsFeedFragment extends ListFragment
     public String[] PROJECTION = new String[] {
             ReportContract.Entry._ID,
             ReportContract.Entry.COLUMN_SERVER_ID,
-            ReportContract.Entry.COLUMN_TITLE,
-            ReportContract.Entry.COLUMN_DETAILS,
+            ReportContract.Entry.COLUMN_LOCATION,
+            ReportContract.Entry.COLUMN_CONTENT,
             ReportContract.Entry.COLUMN_TIMESTAMP,
             ReportContract.Entry.COLUMN_LAT,
             ReportContract.Entry.COLUMN_LNG,
@@ -60,8 +60,8 @@ public class NewsFeedFragment extends ListFragment
         ReportContract.Entry.COLUMN_USER_UPVOTED,
         ReportContract.Entry.COLUMN_UPVOTE_COUNT,
         ReportContract.Entry.COLUMN_SERVER_ID,
-        ReportContract.Entry.COLUMN_TITLE,
-        ReportContract.Entry.COLUMN_DETAILS,
+        ReportContract.Entry.COLUMN_LOCATION,
+        ReportContract.Entry.COLUMN_CONTENT,
         ReportContract.Entry.COLUMN_LAT,
         ReportContract.Entry.COLUMN_LNG
     };

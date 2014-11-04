@@ -282,8 +282,8 @@ public class NewReportActivity extends ActionBarActivity implements
         if(!dbContains(report)){ // add report to DB if it's not there
                 commitCPO(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
                         .withValue(ReportContract.Entry.COLUMN_SERVER_ID, 0)
-                        .withValue(ReportContract.Entry.COLUMN_TITLE, "")
-                        .withValue(ReportContract.Entry.COLUMN_DETAILS, report.details)
+                        .withValue(ReportContract.Entry.COLUMN_LOCATION, "")
+                        .withValue(ReportContract.Entry.COLUMN_CONTENT, report.details)
                         .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, report.timeStamp)
                         .withValue(ReportContract.Entry.COLUMN_LAT, Double.toString(report.latitude))
                         .withValue(ReportContract.Entry.COLUMN_LNG, Double.toString(report.longitude))
@@ -393,7 +393,7 @@ public class NewReportActivity extends ActionBarActivity implements
                 Log.e("Activity CPOBuilder", "Server output I got: "+ report.mediaPaths.get(0));
             case 1:
                 cpoBuilder.withValue(ReportContract.Entry.COLUMN_SERVER_ID, report.serverId);
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_TITLE, report.title);
+                cpoBuilder.withValue(ReportContract.Entry.COLUMN_LOCATION, report.title);
                 Log.e("Activity CPOBuilder", "Server output I got: "+ report.title + " also server id: " + report.serverId);
         }
     }

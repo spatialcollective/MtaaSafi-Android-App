@@ -196,8 +196,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     upvotedInt = 0;
                 batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
                         .withValue(ReportContract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
-                        .withValue(ReportContract.Entry.COLUMN_TITLE, entry.getString(ReportContract.Entry.COLUMN_TITLE))
-                        .withValue(ReportContract.Entry.COLUMN_DETAILS, entry.getString(ReportContract.Entry.COLUMN_DETAILS))
+                        .withValue(ReportContract.Entry.COLUMN_LOCATION, entry.getString(ReportContract.Entry.COLUMN_LOCATION))
+                        .withValue(ReportContract.Entry.COLUMN_CONTENT, entry.getString(ReportContract.Entry.COLUMN_CONTENT))
                         .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, entry.getString(ReportContract.Entry.COLUMN_TIMESTAMP))
                         .withValue(ReportContract.Entry.COLUMN_LAT, entry.getString(ReportContract.Entry.COLUMN_LAT))
                         .withValue(ReportContract.Entry.COLUMN_LNG, entry.getString(ReportContract.Entry.COLUMN_LNG))
