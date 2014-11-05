@@ -31,7 +31,9 @@ public class ReportUploadingFragment extends ListFragment
 
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
-    private int pendingReportCount;
+    private int pendingReportCount, mColor;
+    private String mText;
+    private boolean isWorking;
 
     public final static String ACTION = "action", DATA = "data";
     public final static char ACTION_SEND_NEW = 'n',
@@ -55,7 +57,9 @@ public class ReportUploadingFragment extends ListFragment
         super.onCreate(instate);
         setRetainInstance(true);
         pendingReportCount = -1;
-//        chooseAction(getArguments());
+        mColor = R.color.mtaa_safi_blue;
+        mText = "Uploading...";
+        isWorking = true;
     }
 
     @Override
@@ -71,6 +75,8 @@ public class ReportUploadingFragment extends ListFragment
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
         mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);
+        changeHeaderMessage(mText, isWorking, mColor);
+//        chooseAction(getArguments());
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -122,13 +128,11 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void changeHeaderMessage(String message, boolean showSpinner, int color) {
+        mText = message;
+        isWorking = showSpinner;
+        mColor = color;
         View view = getView();
         if (view == null) return;
-
-        if (message == null || message == "") {
-            view.findViewById(R.id.uploadingView).setVisibility(View.GONE);
-            return;
-        }
         
         view.findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
         ((TextView) view.findViewById(R.id.uploadingText)).setText(message);
