@@ -35,6 +35,7 @@ public class NewsFeedFragment extends ListFragment
 
     SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
+
     int index, top;
 
     public String[] FROM_COLUMNS = new String[] {
@@ -135,7 +136,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onResume(){
         super.onResume();
-        ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
         updateSavedReportsBtn(getView());
     }
     @Override
