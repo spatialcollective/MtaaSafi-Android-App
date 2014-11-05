@@ -31,6 +31,8 @@ public class Contract {
             COLUMN_MEDIAURL1 = "mediaUrl1",
             COLUMN_MEDIAURL2 = "mediaUrl2",
             COLUMN_MEDIAURL3 = "mediaUrl3",
+            COLUMN_PENDINGFLAG = "pending",
+            COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
             COLUMN_UPVOTE_COUNT = "upvote_count",
             COLUMN_USER_UPVOTED = "user_upvoted";
             // keep track of whether the user upvoted this particular report

@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -22,7 +22,9 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Entry.COLUMN_MEDIAURL2 + " text not null, "
             + Contract.Entry.COLUMN_MEDIAURL3 + " text not null, "
             + Contract.Entry.COLUMN_UPVOTE_COUNT + " integer default 0, "
-            + Contract.Entry.COLUMN_USER_UPVOTED + " integer default 0"
+            + Contract.Entry.COLUMN_USER_UPVOTED + " integer default 0, "
+            + Contract.Entry.COLUMN_PENDINGFLAG + " integer default -1, "
+            + Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS + " integer default 0"
             + ")";
 
     private static final String UPVOTE_TABLE_CREATE = "create table "
@@ -53,4 +55,5 @@ public class ReportDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Contract.UpvoteLog.TABLE_NAME);
         onCreate(db);
     }
+
 }

@@ -32,7 +32,7 @@ import java.util.Date;
  * Data class for passing data about posts
  */
 public class Report {
-    public int serverId, dbId;
+    public int serverId, dbId, pendingState;
     public double latitude, longitude;
     public String title, details, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaPaths;
@@ -44,6 +44,7 @@ public class Report {
             latKey = "latitude",
             lonKey = "longitude",
             serverIdKey = "id";
+            
     public static final String[] PROJECTION = new String[] {
             Contract.Entry._ID,
             Contract.Entry.COLUMN_SERVER_ID,
@@ -55,7 +56,9 @@ public class Report {
             Contract.Entry.COLUMN_USERNAME,
             Contract.Entry.COLUMN_MEDIAURL1,
             Contract.Entry.COLUMN_MEDIAURL2,
-            Contract.Entry.COLUMN_MEDIAURL3
+            Contract.Entry.COLUMN_MEDIAURL3,
+            Contract.Entry.COLUMN_PENDINGFLAG,
+            Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS
     };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
@@ -68,7 +71,7 @@ public class Report {
         this.mediaPaths = picPaths;
         Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
                 mediaPaths.get(0).toString() + ". " +
-                mediaPaths.get(1).toString() +". " +
+                mediaPaths.get(1).toString() + ". " +
                 mediaPaths.get(2).toString());
         this.serverId = this.dbId = 0;
     }
@@ -89,6 +92,7 @@ public class Report {
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
+        this.pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
     }
 
     public Report(JSONObject jsonServerData) {

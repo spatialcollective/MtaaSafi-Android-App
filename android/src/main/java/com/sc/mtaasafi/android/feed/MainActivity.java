@@ -20,6 +20,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -36,6 +37,8 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
+import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
+import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
 import java.io.BufferedReader;
@@ -223,10 +226,14 @@ public class MainActivity extends ActionBarActivity implements
         cp.commit();
     }
 
-    public void uploadSavedReports(){
+    public void uploadSavedReportsClicked(View view) {
+        uploadSavedReports();
+    }
+
+    public void uploadSavedReports() {
         if(getLocation() != null){
-            Intent intent = new Intent().setClass(this, NewReportActivity.class)
-                    .putExtra(NewReportActivity.UPLOAD_SAVED_REPORTS_KEY, true);
+            Intent intent = new Intent().setClass(this, UploadingActivity.class)
+                    .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
             startActivity(intent);
         } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
