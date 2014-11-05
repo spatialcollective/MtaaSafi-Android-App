@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android;
 
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -70,7 +71,7 @@ public class Report {
         this.mediaPaths = picPaths;
         Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
                 mediaPaths.get(0).toString() + ". " +
-                mediaPaths.get(1).toString() +". " +
+                mediaPaths.get(1).toString() + ". " +
                 mediaPaths.get(2).toString());
         this.serverId = this.dbId = 0;
     }
@@ -137,6 +138,11 @@ public class Report {
         json.put(latKey, this.latitude);
         json.put(lonKey, this.longitude);
         return json;
+    }
+
+    public static Uri uriFor(int dbId) {
+        return ReportContract.Entry.CONTENT_URI.buildUpon()
+            .appendPath(Integer.toString(dbId)).build();
     }
 
     public JSONObject getJsonForPic(int i) throws JSONException, IOException {
