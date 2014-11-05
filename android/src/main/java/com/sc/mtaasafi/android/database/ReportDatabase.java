@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -50,6 +50,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
                         + newVersion + ", which will destroy all old data"
         );
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Entry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.UpvoteLog.TABLE_NAME);
         onCreate(db);
     }
 }
