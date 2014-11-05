@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,7 +27,7 @@ import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.AuthenticatorService;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
@@ -41,29 +41,29 @@ public class NewsFeedFragment extends ListFragment
     int index;
     int top;
     public String[] PROJECTION = new String[] {
-            ReportContract.Entry._ID,
-            ReportContract.Entry.COLUMN_SERVER_ID,
-            ReportContract.Entry.COLUMN_LOCATION,
-            ReportContract.Entry.COLUMN_CONTENT,
-            ReportContract.Entry.COLUMN_TIMESTAMP,
-            ReportContract.Entry.COLUMN_LAT,
-            ReportContract.Entry.COLUMN_LNG,
-            ReportContract.Entry.COLUMN_USERNAME,
-            ReportContract.Entry.COLUMN_MEDIAURL1,
-            ReportContract.Entry.COLUMN_MEDIAURL2,
-            ReportContract.Entry.COLUMN_MEDIAURL3,
-            ReportContract.Entry.COLUMN_UPVOTE_COUNT,
-            ReportContract.Entry.COLUMN_USER_UPVOTED
+            Contract.Entry._ID,
+            Contract.Entry.COLUMN_SERVER_ID,
+            Contract.Entry.COLUMN_LOCATION,
+            Contract.Entry.COLUMN_CONTENT,
+            Contract.Entry.COLUMN_TIMESTAMP,
+            Contract.Entry.COLUMN_LAT,
+            Contract.Entry.COLUMN_LNG,
+            Contract.Entry.COLUMN_USERNAME,
+            Contract.Entry.COLUMN_MEDIAURL1,
+            Contract.Entry.COLUMN_MEDIAURL2,
+            Contract.Entry.COLUMN_MEDIAURL3,
+            Contract.Entry.COLUMN_UPVOTE_COUNT,
+            Contract.Entry.COLUMN_USER_UPVOTED
     };
     public String[] FROM_COLUMNS = new String[] {
-            ReportContract.Entry.COLUMN_ID,
-            ReportContract.Entry.COLUMN_USER_UPVOTED,
-            ReportContract.Entry.COLUMN_UPVOTE_COUNT,
-            ReportContract.Entry.COLUMN_SERVER_ID,
-            ReportContract.Entry.COLUMN_LOCATION,
-            ReportContract.Entry.COLUMN_CONTENT,
-            ReportContract.Entry.COLUMN_LAT,
-            ReportContract.Entry.COLUMN_LNG
+            Contract.Entry.COLUMN_ID,
+            Contract.Entry.COLUMN_USER_UPVOTED,
+            Contract.Entry.COLUMN_UPVOTE_COUNT,
+            Contract.Entry.COLUMN_SERVER_ID,
+            Contract.Entry.COLUMN_LOCATION,
+            Contract.Entry.COLUMN_CONTENT,
+            Contract.Entry.COLUMN_LAT,
+            Contract.Entry.COLUMN_LNG
     };
     private static final int[] TO_FIELDS = new int[] {
             R.id.upvoteButton,
@@ -113,10 +113,10 @@ public class NewsFeedFragment extends ListFragment
         mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
-                if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID))
+                if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
                     // give the upvote button the report's id
                     view.setTag(cursor.getInt(i));
-                else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)){
+                else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)){
                     // set the upvote button to the proper state
                     TextView upvoteTV = (TextView) view.findViewById(R.id.upvoteCount);
                     ImageButton upvoteButton = (ImageButton) view.findViewById(R.id.upvoteButton);
@@ -129,11 +129,11 @@ public class NewsFeedFragment extends ListFragment
                         upvoteButton.setImageResource(R.drawable.button_upvote_unclicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
                     }
-                } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID)) {
+                } else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)) {
                     view.setTag(cursor.getInt(i));
-                } else if(i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPVOTE_COUNT)){
+                } else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)){
                     ((TextView) view).setText(Integer.toString(cursor.getInt(i)));
-                } else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_LNG)){ // set the distance
+                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)){ // set the distance
                     Location reportLocation = new Location("ReportLocation");
                     reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
                     reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
@@ -141,6 +141,12 @@ public class NewsFeedFragment extends ListFragment
                     if(currentLocation != null){
                         String distText = Report.getDistanceText(currentLocation, reportLocation);
                         ((TextView)view).setText(distText);
+                        if(distText.equals("here")){
+                            ((TextView)view).setTextColor(getResources().getColor(R.color.Coral));
+                            View parent = (View) view.getParent();
+                            ((ImageView)parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker_coral);
+                        }
+
                     }
                } else
                     return false;
@@ -231,7 +237,7 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         startRefresh();
-        return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
+        return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
             PROJECTION, null, null, null);
     }
 
@@ -264,9 +270,9 @@ public class NewsFeedFragment extends ListFragment
                     // Test the ContentResolver to see if the sync adapter is active or pending.
                     // Set the state of the refresh button accordingly.
                     boolean syncActive = ContentResolver.isSyncActive(
-                            account, ReportContract.CONTENT_AUTHORITY);
+                            account, Contract.CONTENT_AUTHORITY);
                     boolean syncPending = ContentResolver.isSyncPending(
-                            account, ReportContract.CONTENT_AUTHORITY);
+                            account, Contract.CONTENT_AUTHORITY);
 //                    setRefreshActionButtonState(syncActive || syncPending);
                 }
             });

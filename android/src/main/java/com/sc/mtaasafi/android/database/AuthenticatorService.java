@@ -28,7 +28,7 @@ import android.util.Log;
 
 public class AuthenticatorService extends Service {
     private static final String TAG = "AuthenticatorService";
-    private static final String ACCOUNT_TYPE = ReportContract.CONTENT_AUTHORITY;
+    private static final String ACCOUNT_TYPE = Contract.CONTENT_AUTHORITY;
     public static final String ACCOUNT_NAME = "sync";
     private Authenticator mAuthenticator;
 

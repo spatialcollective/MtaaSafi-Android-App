@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
@@ -27,13 +26,9 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
-import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.ReportContract;
-import com.sc.mtaasafi.android.feed.MainActivity;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.newReport.NewReportFragment;
-import com.sc.mtaasafi.android.newReport.ReportUploadingFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -263,11 +258,11 @@ public class NewReportActivity extends ActionBarActivity implements
 
     private boolean dbContains(Report report){
         String[] projection = new String[1];
-        projection[0] = ReportContract.Entry.COLUMN_ID;
+        projection[0] = Contract.Entry.COLUMN_ID;
         Cursor c = getContentResolver().
-                query(ReportContract.Entry.CONTENT_URI,
+                query(Contract.Entry.CONTENT_URI,
                         projection,
-                        ReportContract.Entry.COLUMN_TIMESTAMP + " = " +'\"' + report.timeStamp + '\"', null, null);
+                        Contract.Entry.COLUMN_TIMESTAMP + " = " +'\"' + report.timeStamp + '\"', null, null);
         int instanceCt = c.getCount();
         c.close();
         return instanceCt > 0;
@@ -280,17 +275,17 @@ public class NewReportActivity extends ActionBarActivity implements
         if(progress > 3) // assume progress > 3 means it uploaded successfully
             progress = 0;
         if(!dbContains(report)){ // add report to DB if it's not there
-                commitCPO(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
-                        .withValue(ReportContract.Entry.COLUMN_SERVER_ID, 0)
-                        .withValue(ReportContract.Entry.COLUMN_LOCATION, "")
-                        .withValue(ReportContract.Entry.COLUMN_CONTENT, report.details)
-                        .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, report.timeStamp)
-                        .withValue(ReportContract.Entry.COLUMN_LAT, Double.toString(report.latitude))
-                        .withValue(ReportContract.Entry.COLUMN_LNG, Double.toString(report.longitude))
-                        .withValue(ReportContract.Entry.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
-                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0))
-                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, report.mediaPaths.get(1))
-                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, report.mediaPaths.get(2))
+                commitCPO(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
+                        .withValue(Contract.Entry.COLUMN_SERVER_ID, 0)
+                        .withValue(Contract.Entry.COLUMN_LOCATION, "")
+                        .withValue(Contract.Entry.COLUMN_CONTENT, report.details)
+                        .withValue(Contract.Entry.COLUMN_TIMESTAMP, report.timeStamp)
+                        .withValue(Contract.Entry.COLUMN_LAT, Double.toString(report.latitude))
+                        .withValue(Contract.Entry.COLUMN_LNG, Double.toString(report.longitude))
+                        .withValue(Contract.Entry.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
+                        .withValue(Contract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0))
+                        .withValue(Contract.Entry.COLUMN_MEDIAURL2, report.mediaPaths.get(1))
+                        .withValue(Contract.Entry.COLUMN_MEDIAURL3, report.mediaPaths.get(2))
                         .build());
             } else{ // if it is, current report is the one this cpoBuilder is about (ASSUMED--NOT FULLY CONFIRMED)
                 Log.e("SAVE REPORT", "Report was already in the database, to be updated not saved");
@@ -315,8 +310,8 @@ public class NewReportActivity extends ActionBarActivity implements
 
     private void commitBatch(ArrayList<ContentProviderOperation> batch){
         try {
-            getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-            getContentResolver().notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+            getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
+            getContentResolver().notifyChange(Contract.Entry.CONTENT_URI, null, false);
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (OperationApplicationException e) {
@@ -344,9 +339,9 @@ public class NewReportActivity extends ActionBarActivity implements
 
     public ArrayList<Report> getSavedReports(){
         Cursor c = getContentResolver().
-                query(ReportContract.Entry.CONTENT_URI,
+                query(Contract.Entry.CONTENT_URI,
                         Report.PROJECTION,
-                        ReportContract.Entry.COLUMN_MEDIAURL3 + " NOT LIKE 'http%'", null, null); // Get all entries
+                        Contract.Entry.COLUMN_MEDIAURL3 + " NOT LIKE 'http%'", null, null); // Get all entries
         ArrayList<Report> savedReports = new ArrayList<Report>();
         while(c.moveToNext()){
             savedReports.add(new Report(c));
@@ -357,11 +352,11 @@ public class NewReportActivity extends ActionBarActivity implements
 
     public static int getSavedReportCount(Activity ac){
         String[] projection = new String[1];
-        projection[0] = ReportContract.Entry.COLUMN_ID;
+        projection[0] = Contract.Entry.COLUMN_ID;
         Cursor c = ac.getContentResolver().
-                    query(ReportContract.Entry.CONTENT_URI,
+                    query(Contract.Entry.CONTENT_URI,
                           projection,
-                          ReportContract.Entry.COLUMN_MEDIAURL3 + " NOT LIKE 'http%'", null, null); // Get all entries
+                          Contract.Entry.COLUMN_MEDIAURL3 + " NOT LIKE 'http%'", null, null); // Get all entries
         int count = c.getCount();
         c.close();
         return count;
@@ -381,19 +376,19 @@ public class NewReportActivity extends ActionBarActivity implements
         this.progress = progress;
         switch(progress){
             case -1:
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(2));
+                cpoBuilder.withValue(Contract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(2));
                 Log.e("Activity CPOBuilder", "Server output I got: " + report.mediaPaths.get(2));
                 updateDb();
                 break;
             case 3:
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(1));
+                cpoBuilder.withValue(Contract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(1));
                 Log.e("Activity CPOBuilder", "Server output I got: " + report.mediaPaths.get(1));
             case 2:
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0));
+                cpoBuilder.withValue(Contract.Entry.COLUMN_MEDIAURL1, report.mediaPaths.get(0));
                 Log.e("Activity CPOBuilder", "Server output I got: "+ report.mediaPaths.get(0));
             case 1:
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_SERVER_ID, report.serverId);
-                cpoBuilder.withValue(ReportContract.Entry.COLUMN_LOCATION, report.title);
+                cpoBuilder.withValue(Contract.Entry.COLUMN_SERVER_ID, report.serverId);
+                cpoBuilder.withValue(Contract.Entry.COLUMN_LOCATION, report.title);
                 Log.e("Activity CPOBuilder", "Server output I got: "+ report.title + " also server id: " + report.serverId);
         }
     }

@@ -9,7 +9,7 @@ import android.util.Log;
 import android.location.Location;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,17 +45,17 @@ public class Report {
             lonKey = "longitude",
             serverIdKey = "id";
     public static final String[] PROJECTION = new String[] {
-            ReportContract.Entry._ID,
-            ReportContract.Entry.COLUMN_SERVER_ID,
-            ReportContract.Entry.COLUMN_CONTENT,
-            ReportContract.Entry.COLUMN_LOCATION,
-            ReportContract.Entry.COLUMN_TIMESTAMP,
-            ReportContract.Entry.COLUMN_LAT,
-            ReportContract.Entry.COLUMN_LNG,
-            ReportContract.Entry.COLUMN_USERNAME,
-            ReportContract.Entry.COLUMN_MEDIAURL1,
-            ReportContract.Entry.COLUMN_MEDIAURL2,
-            ReportContract.Entry.COLUMN_MEDIAURL3
+            Contract.Entry._ID,
+            Contract.Entry.COLUMN_SERVER_ID,
+            Contract.Entry.COLUMN_CONTENT,
+            Contract.Entry.COLUMN_LOCATION,
+            Contract.Entry.COLUMN_TIMESTAMP,
+            Contract.Entry.COLUMN_LAT,
+            Contract.Entry.COLUMN_LNG,
+            Contract.Entry.COLUMN_USERNAME,
+            Contract.Entry.COLUMN_MEDIAURL1,
+            Contract.Entry.COLUMN_MEDIAURL2,
+            Contract.Entry.COLUMN_MEDIAURL3
     };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
@@ -76,19 +76,19 @@ public class Report {
     // Note: remember to close the cursor when you're finished.
     // Cursor not closed here because it may contain multiple rows of reports
     public Report(Cursor c){
-        this.title = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_CONTENT));
-        this.details = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LOCATION));
-        this.timeStamp = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP));
+        this.title = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
+        this.details = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
+        this.timeStamp = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         this.timeElapsed = getElapsedTime(timeStamp);
-        this.userName = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
-        this.latitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LAT)));
-        this.longitude = Double.parseDouble(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LNG)));
-        this.serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
-        this.dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
+        this.userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
+        this.latitude = Double.parseDouble(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LAT)));
+        this.longitude = Double.parseDouble(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LNG)));
+        this.serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
+        this.dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
         mediaPaths = new ArrayList<String>();
-        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1)));
-        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2)));
-        mediaPaths.add(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3)));
+        mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
+        mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
+        mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
     }
 
     public Report(JSONObject jsonServerData) {
@@ -127,7 +127,7 @@ public class Report {
     }
 
     public static Uri uriFor(int dbId){
-        return ReportContract.Entry.CONTENT_URI.buildUpon()
+        return Contract.Entry.CONTENT_URI.buildUpon()
                 .appendPath(Integer.toString(dbId)).build();
     }
 

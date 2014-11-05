@@ -9,26 +9,28 @@ public class ReportDatabase extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 9;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
-            + ReportContract.Entry.TABLE_NAME + "("
-            + ReportContract.Entry.COLUMN_ID + " integer primary key autoincrement, "
-            + ReportContract.Entry.COLUMN_SERVER_ID + " integer, "
-            + ReportContract.Entry.COLUMN_LOCATION + " text not null, "
-            + ReportContract.Entry.COLUMN_CONTENT + " text not null, "
-            + ReportContract.Entry.COLUMN_TIMESTAMP + " text not null, "
-            + ReportContract.Entry.COLUMN_LAT + " text not null, "
-            + ReportContract.Entry.COLUMN_LNG + " text not null, "
-            + ReportContract.Entry.COLUMN_USERNAME + " text not null, "
-            + ReportContract.Entry.COLUMN_MEDIAURL1 + " text not null, "
-            + ReportContract.Entry.COLUMN_MEDIAURL2 + " text not null, "
-            + ReportContract.Entry.COLUMN_MEDIAURL3 + " text not null, "
-            + ReportContract.Entry.COLUMN_UPVOTE_COUNT + " integer default 0, "
-            + ReportContract.Entry.COLUMN_USER_UPVOTED + " integer default 0"
+            + Contract.Entry.TABLE_NAME + "("
+            + Contract.Entry.COLUMN_ID + " integer primary key autoincrement, "
+            + Contract.Entry.COLUMN_SERVER_ID + " integer, "
+            + Contract.Entry.COLUMN_LOCATION + " text not null, "
+            + Contract.Entry.COLUMN_CONTENT + " text not null, "
+            + Contract.Entry.COLUMN_TIMESTAMP + " text not null, "
+            + Contract.Entry.COLUMN_LAT + " text not null, "
+            + Contract.Entry.COLUMN_LNG + " text not null, "
+            + Contract.Entry.COLUMN_USERNAME + " text not null, "
+            + Contract.Entry.COLUMN_MEDIAURL1 + " text not null, "
+            + Contract.Entry.COLUMN_MEDIAURL2 + " text not null, "
+            + Contract.Entry.COLUMN_MEDIAURL3 + " text not null, "
+            + Contract.Entry.COLUMN_UPVOTE_COUNT + " integer default 0, "
+            + Contract.Entry.COLUMN_USER_UPVOTED + " integer default 0"
             + ")";
 
     private static final String UPVOTE_TABLE_CREATE = "create table "
-            + ReportContract.UpvoteLog.TABLE_NAME + "("
-            + ReportContract.UpvoteLog.COLUMN_ID + " integer primary key autoincrement, "
-            + ReportContract.UpvoteLog.COLUMN_SERVER_ID + " integer"
+            + Contract.UpvoteLog.TABLE_NAME + "("
+            + Contract.UpvoteLog.COLUMN_ID + " integer primary key autoincrement, "
+            + Contract.UpvoteLog.COLUMN_SERVER_ID + " integer, "
+            + Contract.UpvoteLog.COLUMN_LAT + " text not null, "
+            + Contract.UpvoteLog.COLUMN_LON + " text not null"
             + ")";
 
     public ReportDatabase(Context context) {
@@ -47,7 +49,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data"
         );
-        db.execSQL("DROP TABLE IF EXISTS " + ReportContract.Entry.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.Entry.TABLE_NAME);
         onCreate(db);
     }
 }

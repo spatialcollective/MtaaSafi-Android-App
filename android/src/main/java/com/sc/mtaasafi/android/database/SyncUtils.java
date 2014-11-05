@@ -8,12 +8,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.sc.mtaasafi.android.database.AuthenticatorService;
-import com.sc.mtaasafi.android.database.ReportContract;
-
 public class SyncUtils {
     private static final long SYNC_FREQUENCY = 60 * 60; // 1 hour
-    private static final String CONTENT_AUTHORITY = ReportContract.CONTENT_AUTHORITY;
+    private static final String CONTENT_AUTHORITY = Contract.CONTENT_AUTHORITY;
     private static final String PREF_SETUP_COMPLETE = "setup_complete";
 
     // Create an entry for this application in the system account list, if it isn't already there.
@@ -60,7 +57,7 @@ public class SyncUtils {
         b.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(
                 AuthenticatorService.GetAccount(),      // Sync account
-                ReportContract.CONTENT_AUTHORITY, // Content authority
+                Contract.CONTENT_AUTHORITY, // Content authority
                 b);                                      // Extras
     }
 }

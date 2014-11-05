@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.os.RemoteException;
 import android.util.AttributeSet;
@@ -16,7 +17,7 @@ import android.widget.TextView;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +50,7 @@ public class VoteInterface extends LinearLayout {
                 try {
                     if(!dataSet){
                     // newsFeedFragment stores VI's data in the view's tags because it can't call
-                        // the updateData
+                        // updateData
                         dbId = (Integer) view.getTag();
                         voteCount = Integer.parseInt(voteCountTV.getText().toString());
                         serverId = (Integer) voteCountTV.getTag();
@@ -59,22 +60,12 @@ public class VoteInterface extends LinearLayout {
                     }
                     if(!userVoted){ // if user hasn't upvoted this item
                         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-                        // tell the reports table that you upvoted the report
-                        ContentProviderOperation.Builder userUpvotedUpdate =
-                                ContentProviderOperation.newUpdate(Report.uriFor(dbId))
-                                        .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1)
-                                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, voteCount+1);
-                        batch.add(userUpvotedUpdate.build());
-                        // TODO: check for multiple reports entered in the db? (maybe)
-                        // tell the upvote log table that you upvoted the report
-                        ContentProviderOperation.Builder upvoteOperation =
-                                ContentProviderOperation.newInsert(ReportContract.UpvoteLog.UPVOTE_URI);
-                        upvoteOperation.withValue(ReportContract.UpvoteLog.COLUMN_SERVER_ID, serverId);
-                        batch.add(upvoteOperation.build());
+                        batch.add(updateReportTable());
+                        batch.add(addToUpvoteLog());
                         updateData(voteCount+1, true, dbId, serverId);
-                        getContext().getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-                        getContext().getContentResolver().notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
-                        getContext().getContentResolver().notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+                        getContext().getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
+                        getContext().getContentResolver().notifyChange(Contract.UpvoteLog.UPVOTE_URI, null, false);
+                        getContext().getContentResolver().notifyChange(Contract.Entry.CONTENT_URI, null, false);
                     } else {
                         Log.e("VOTE INTERFACE", "You already upvoted this one, dawg!");
                     }
@@ -86,10 +77,33 @@ public class VoteInterface extends LinearLayout {
             }
         });
     }
+
+    //
+    private ContentProviderOperation updateReportTable(){
+        return ContentProviderOperation.newUpdate(Report.uriFor(dbId))
+                .withValue(Contract.Entry.COLUMN_USER_UPVOTED, 1)
+                .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, voteCount+1)
+                .build();
+    }
+    private ContentProviderOperation addToUpvoteLog(){
+        ContentProviderOperation.Builder upvoteOperation =
+                ContentProviderOperation.newInsert(Contract.UpvoteLog.UPVOTE_URI);
+        upvoteOperation.withValue(Contract.UpvoteLog.COLUMN_SERVER_ID, serverId);
+        Location currentLocation = ((MainActivity) getContext()).getLocation();
+        if(currentLocation != null){
+            String latString = Double.toString(currentLocation.getLatitude());
+            String lonString = Double.toString(currentLocation.getLongitude());
+            upvoteOperation.withValue(Contract.UpvoteLog.COLUMN_LAT, latString)
+                           .withValue(Contract.UpvoteLog.COLUMN_LON, lonString);
+        }
+        return upvoteOperation.build();
+    }
+
     public void setBottomMode(){
         voteCountTV.setTextColor(getResources().getColor(R.color.White));
         upvote.setImageResource(R.drawable.button_upvote_unclicked_white);
     }
+
     public void updateData(int voteCt, boolean voted, int dbId, int serverId){
         voteCount = voteCt;
         userVoted = voted;
@@ -102,6 +116,8 @@ public class VoteInterface extends LinearLayout {
         }
         dataSet = true;
     }
+    // ======================== Server-Client Upvote Communication ========================
+
     public static JSONObject recordUpvoteLog(Context context, JSONObject jsonRecord){
         try {
             ArrayList<Integer> upvoteIds = getUpvotesFromDb(context);
@@ -135,11 +151,11 @@ public class VoteInterface extends LinearLayout {
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
         ArrayList upvoteIds = new ArrayList();
         while(upvoteLog.moveToNext()){
-            int serverId = upvoteLog.getInt(upvoteLog.getColumnIndex(ReportContract.UpvoteLog.COLUMN_SERVER_ID));
+            int serverId = upvoteLog.getInt(upvoteLog.getColumnIndex(Contract.UpvoteLog.COLUMN_SERVER_ID));
             if(serverId == 0 || upvoteIds.contains(serverId)){ // schedule duplicates of ids for deletion
                 Log.i("getUPVOTES", "Upvote id: " + serverId + " was a duplicate, deleting");
-                Uri toDeleteUri = ReportContract.UpvoteLog.UPVOTE_URI.buildUpon()
-                        .appendPath(Integer.toString(upvoteLog.getInt(upvoteLog.getColumnIndex(ReportContract.UpvoteLog.COLUMN_ID)))).build();
+                Uri toDeleteUri = Contract.UpvoteLog.UPVOTE_URI.buildUpon()
+                        .appendPath(Integer.toString(upvoteLog.getInt(upvoteLog.getColumnIndex(Contract.UpvoteLog.COLUMN_ID)))).build();
                 batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
             } else { // add the server id to the upvoteIds list
                 Log.i("getUPVOTES", "ADDED " + serverId + " to upvoteIds");
@@ -147,14 +163,14 @@ public class VoteInterface extends LinearLayout {
             }
         }
         upvoteLog.close();
-        context.getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-        context.getContentResolver().notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
+        context.getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
+        context.getContentResolver().notifyChange(Contract.UpvoteLog.UPVOTE_URI, null, false);
         return upvoteIds;
     }
 
     // takes JSON responses from the server and updates the user's upvote log and report tables
     // if there is any upvote data in the response
-    public static void updateUpvoteData(Context context, JSONObject serverResponse) throws RemoteException, OperationApplicationException, JSONException {
+    public static void onUpvotesRecorded(Context context, JSONObject serverResponse) throws RemoteException, OperationApplicationException, JSONException {
         if(serverResponse.toString().contains(UPVOTE_DATA_KEY)){
             JSONArray upvoteData = serverResponse.getJSONArray(UPVOTE_DATA_KEY);
             Cursor upvoteLog = getUpvoteLog(context);
@@ -175,8 +191,8 @@ public class VoteInterface extends LinearLayout {
             }
             upvoteLog.close();
             reportData.close();
-            context.getContentResolver().applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-            context.getContentResolver().notifyChange(ReportContract.UpvoteLog.UPVOTE_URI, null, false);
+            context.getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
+            context.getContentResolver().notifyChange(Contract.UpvoteLog.UPVOTE_URI, null, false);
         } else {
             Log.e("UPDATE UPVOTE DATA", "Server didn't have any upvote data for me! Cool!");
         }
@@ -184,12 +200,12 @@ public class VoteInterface extends LinearLayout {
 
     private static Cursor getUpvoteLog(Context context){
         return context.getContentResolver()
-                .query(ReportContract.UpvoteLog.UPVOTE_URI, null, null, null, null);
+                .query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);
     }
     // delete the entry with the given serverId if it exists in the upvoteLog
     private static ContentProviderOperation attemptScheduleDelete(int serverId, Cursor upvoteLog){
-        int column_id = upvoteLog.getColumnIndex(ReportContract.UpvoteLog.COLUMN_ID);
-        int column_serverId = upvoteLog.getColumnIndex(ReportContract.UpvoteLog.COLUMN_SERVER_ID);
+        int column_id = upvoteLog.getColumnIndex(Contract.UpvoteLog.COLUMN_ID);
+        int column_serverId = upvoteLog.getColumnIndex(Contract.UpvoteLog.COLUMN_SERVER_ID);
         while(upvoteLog.moveToNext()){ // Performance note: upvoteLog should never have > 10 entries
             int upvoteLogServerId = upvoteLog.getInt(column_serverId);
             if(upvoteLogServerId == serverId){
@@ -202,32 +218,32 @@ public class VoteInterface extends LinearLayout {
 
     private static Cursor getReportUpvoteData(Context context){
         String[] projection = new String[2];
-        projection[0] = ReportContract.Entry.COLUMN_ID;
-        projection[1] = ReportContract.Entry.COLUMN_SERVER_ID;
+        projection[0] = Contract.Entry.COLUMN_ID;
+        projection[1] = Contract.Entry.COLUMN_SERVER_ID;
         String[] selectionArgs = new String[1];
         selectionArgs[0] = "0";
         return context.getContentResolver()
-                .query(ReportContract.Entry.CONTENT_URI, projection,
-                        ReportContract.Entry.COLUMN_USER_UPVOTED + " = ?",
+                .query(Contract.Entry.CONTENT_URI, projection,
+                        Contract.Entry.COLUMN_USER_UPVOTED + " = ?",
                         selectionArgs, null);
     }
 
     private static ContentProviderOperation attemptScheduleUpdate(int serverId, int upvoteCount, Cursor reportData){
-        int column_id = reportData.getColumnIndex(ReportContract.Entry.COLUMN_ID);
-        int column_server_id = reportData.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID);
+        int column_id = reportData.getColumnIndex(Contract.Entry.COLUMN_ID);
+        int column_server_id = reportData.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID);
         while(reportData.moveToNext()){
             int reportTableServerId = reportData.getInt(column_server_id);
             if(reportTableServerId == serverId){
                 Uri toUpdateUri = Report.uriFor(reportData.getInt(column_id));
                 return ContentProviderOperation.newUpdate(toUpdateUri)
-                                        .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, 1)
-                                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, upvoteCount).build();
+                                        .withValue(Contract.Entry.COLUMN_USER_UPVOTED, 1)
+                                        .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, upvoteCount).build();
             }
         }
         return null;
     }
 
     public static Uri uriFor(int dbId){
-        return ReportContract.UpvoteLog.UPVOTE_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
+        return Contract.UpvoteLog.UPVOTE_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
     }
 }

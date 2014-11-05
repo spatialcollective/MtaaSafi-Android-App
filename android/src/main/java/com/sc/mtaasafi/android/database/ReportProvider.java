@@ -10,7 +10,7 @@ import android.net.Uri;
 
 public class ReportProvider extends ContentProvider {
     ReportDatabase mDatabaseHelper;
-    private static final String AUTHORITY = ReportContract.CONTENT_AUTHORITY;
+    private static final String AUTHORITY = Contract.CONTENT_AUTHORITY;
     public static final int ROUTE_ENTRIES = 1,
                             ROUTE_ENTRIES_ID = 2,
                             ROUTE_UPVOTES = 3,
@@ -35,13 +35,13 @@ public class ReportProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case ROUTE_ENTRIES:
-                return ReportContract.Entry.CONTENT_TYPE;
+                return Contract.Entry.CONTENT_TYPE;
             case ROUTE_ENTRIES_ID:
-                return ReportContract.Entry.CONTENT_ITEM_TYPE;
+                return Contract.Entry.CONTENT_ITEM_TYPE;
             case ROUTE_UPVOTES:
-                return ReportContract.UpvoteLog.CONTENT_TYPE;
+                return Contract.UpvoteLog.CONTENT_TYPE;
             case ROUTE_UPVOTES_ID:
-                return ReportContract.UpvoteLog.CONTENT_ITEM_TYPE;
+                return Contract.UpvoteLog.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -57,10 +57,10 @@ public class ReportProvider extends ContentProvider {
             case ROUTE_ENTRIES_ID:
                 // Return a single entry, by ID.
                 String id = uri.getLastPathSegment();
-                builder.where(ReportContract.Entry._ID + "=?", id);
+                builder.where(Contract.Entry._ID + "=?", id);
             case ROUTE_ENTRIES:
                 // Return all known entries.
-                builder.table(ReportContract.Entry.TABLE_NAME)
+                builder.table(Contract.Entry.TABLE_NAME)
                        .where(selection, selectionArgs);
                 Cursor c = builder.query(db, projection, sortOrder);
                 // Note: Notification URI must be manually set here for loaders to correctly
@@ -71,9 +71,9 @@ public class ReportProvider extends ContentProvider {
                 return c;
             case ROUTE_UPVOTES_ID:
                 String upvoteId = uri.getLastPathSegment();
-                builder.where(ReportContract.Entry._ID + "=?", upvoteId);
+                builder.where(Contract.Entry._ID + "=?", upvoteId);
             case ROUTE_UPVOTES:
-                builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                builder.table(Contract.UpvoteLog.TABLE_NAME)
                         .where(selection, selectionArgs);
                 Cursor cursor = builder.query(db, projection, sortOrder);
                 Context context = getContext();
@@ -93,14 +93,14 @@ public class ReportProvider extends ContentProvider {
         Uri result;
         switch (match) {
             case ROUTE_ENTRIES:
-                long reportId = db.insertOrThrow(ReportContract.Entry.TABLE_NAME, null, values);
-                result = Uri.parse(ReportContract.Entry.CONTENT_URI + "/" + reportId);
+                long reportId = db.insertOrThrow(Contract.Entry.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + reportId);
                 break;
             case ROUTE_ENTRIES_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
             case ROUTE_UPVOTES:
-                long upvoteId = db.insertOrThrow(ReportContract.UpvoteLog.TABLE_NAME, null, values);
-                result = Uri.parse(ReportContract.Entry.CONTENT_URI + "/" + upvoteId);
+                long upvoteId = db.insertOrThrow(Contract.UpvoteLog.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + upvoteId);
                 break;
             case ROUTE_UPVOTES_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
@@ -123,14 +123,14 @@ public class ReportProvider extends ContentProvider {
         int count;
         switch (match) {
             case ROUTE_ENTRIES:
-                count = builder.table(ReportContract.Entry.TABLE_NAME)
+                count = builder.table(Contract.Entry.TABLE_NAME)
                         .where(selection, selectionArgs)
                         .update(db, values);
                 break;
             case ROUTE_ENTRIES_ID:
                 String id = uri.getLastPathSegment();
-                count = builder.table(ReportContract.Entry.TABLE_NAME)
-                        .where(ReportContract.Entry._ID + "=?", id)
+                count = builder.table(Contract.Entry.TABLE_NAME)
+                        .where(Contract.Entry._ID + "=?", id)
                         .where(selection, selectionArgs)
                         .update(db, values);
                 break;
@@ -151,26 +151,26 @@ public class ReportProvider extends ContentProvider {
         int count;
         switch (match) {
             case ROUTE_ENTRIES:
-                count = builder.table(ReportContract.Entry.TABLE_NAME)
+                count = builder.table(Contract.Entry.TABLE_NAME)
                         .where(selection, selectionArgs)
                         .delete(db);
                 break;
             case ROUTE_ENTRIES_ID:
                 String id = uri.getLastPathSegment();
-                count = builder.table(ReportContract.Entry.TABLE_NAME)
-                       .where(ReportContract.Entry._ID + "=?", id)
+                count = builder.table(Contract.Entry.TABLE_NAME)
+                       .where(Contract.Entry._ID + "=?", id)
                        .where(selection, selectionArgs)
                        .delete(db);
                 break;
             case ROUTE_UPVOTES:
-                count = builder.table(ReportContract.UpvoteLog.TABLE_NAME)
+                count = builder.table(Contract.UpvoteLog.TABLE_NAME)
                         .where(selection, selectionArgs)
                         .delete(db);
                 break;
             case ROUTE_UPVOTES_ID:
                 String upvoteId = uri.getLastPathSegment();
-                count = builder.table(ReportContract.UpvoteLog.TABLE_NAME)
-                        .where(ReportContract.Entry._ID + "=?", upvoteId)
+                count = builder.table(Contract.UpvoteLog.TABLE_NAME)
+                        .where(Contract.Entry._ID + "=?", upvoteId)
                         .where(selection, selectionArgs)
                         .delete(db);
                 break;

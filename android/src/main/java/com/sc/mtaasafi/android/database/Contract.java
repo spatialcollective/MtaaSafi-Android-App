@@ -4,8 +4,8 @@ import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-public class ReportContract {
-    private ReportContract() { }
+public class Contract {
+    private Contract() { }
     
     public static final String CONTENT_AUTHORITY = "com.sc.mtaasafi.android";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
@@ -45,6 +45,8 @@ public class ReportContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_UPVOTES).build();
         public static final String TABLE_NAME = "upvotes",
             COLUMN_ID = "_id",
-            COLUMN_SERVER_ID = "server_id";
+            COLUMN_SERVER_ID = "server_id",
+            COLUMN_LAT = "latitude",
+            COLUMN_LON= "longitude";
     }
 }

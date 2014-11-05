@@ -3,7 +3,6 @@ package com.sc.mtaasafi.android.feed;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -21,7 +20,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 
 import java.text.SimpleDateFormat;
 
@@ -58,19 +57,21 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     }
 
     public void setData(Cursor c) {
-        content = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_CONTENT));
-        location = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LOCATION));
-        time = getSimpleTimeStamp(c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP)));
-        user = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_USERNAME));
-        mediaUrl1 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL1));
-        mediaUrl2 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL2));
-        mediaUrl3 = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_MEDIAURL3));
-        serverId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_SERVER_ID));
-        dbId = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_ID));
-        userVoted = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_USER_UPVOTED)) > 0;
-        upvoteCount = c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_UPVOTE_COUNT));
-        String latString = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LAT));
-        String lonString = c.getString(c.getColumnIndex(ReportContract.Entry.COLUMN_LNG));
+        content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
+        location = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
+        time = getSimpleTimeStamp(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP)));
+        user = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
+        if(user.equals(""))
+            user = "Unknown user";
+        mediaUrl1 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1));
+        mediaUrl2 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2));
+        mediaUrl3 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3));
+        serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
+        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
+        userVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
+        upvoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
+        String latString = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LAT));
+        String lonString = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LNG));
         reportLocation = new Location("report location");
         reportLocation.setLatitude(Double.parseDouble(latString));
         reportLocation.setLongitude(Double.parseDouble(lonString));

@@ -1,7 +1,6 @@
 package com.sc.mtaasafi.android.adapter;
 
 import android.accounts.Account;
-import android.app.Activity;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
@@ -11,18 +10,14 @@ import android.content.OperationApplicationException;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
-import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.VoteInterface;
 
 import org.apache.http.HttpResponse;
@@ -39,13 +34,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.TreeSet;
 
 /* This class is instantiated in {@link SyncService}, which also binds SyncAdapter to the system.
  * SyncAdapter should only be initialized in SyncService, never anywhere else. */
@@ -130,8 +121,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             batch.add(ContentProviderOperation.newDelete(Report.uriFor(dbIds.get(i))).build());
             syncResult.stats.numDeletes++;
         }
-        mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-        mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
+        mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
+        mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
         writeNewReportsToDB(getNewReportsFromServer(serverIds), syncResult);
 //        Log.i(LogTags.BACKEND_W, "Db contained: " + dbIds.size() + " entries");
 //        int overLapct = 0;
@@ -194,26 +185,26 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     upvotedInt = 1;
                 else
                     upvotedInt = 0;
-                batch.add(ContentProviderOperation.newInsert(ReportContract.Entry.CONTENT_URI)
-                        .withValue(ReportContract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
-                        .withValue(ReportContract.Entry.COLUMN_LOCATION, entry.getString(ReportContract.Entry.COLUMN_LOCATION))
-                        .withValue(ReportContract.Entry.COLUMN_CONTENT, entry.getString(ReportContract.Entry.COLUMN_CONTENT))
-                        .withValue(ReportContract.Entry.COLUMN_TIMESTAMP, entry.getString(ReportContract.Entry.COLUMN_TIMESTAMP))
-                        .withValue(ReportContract.Entry.COLUMN_LAT, entry.getString(ReportContract.Entry.COLUMN_LAT))
-                        .withValue(ReportContract.Entry.COLUMN_LNG, entry.getString(ReportContract.Entry.COLUMN_LNG))
-                        .withValue(ReportContract.Entry.COLUMN_USERNAME, entry.getString(ReportContract.Entry.COLUMN_USERNAME))
-                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL1, mediaURLs.get(0))
-                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
-                        .withValue(ReportContract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))
-                        .withValue(ReportContract.Entry.COLUMN_UPVOTE_COUNT, entry.getInt(ReportContract.Entry.COLUMN_UPVOTE_COUNT))
-                        .withValue(ReportContract.Entry.COLUMN_USER_UPVOTED, upvotedInt)
+                batch.add(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
+                        .withValue(Contract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
+                        .withValue(Contract.Entry.COLUMN_LOCATION, entry.getString(Contract.Entry.COLUMN_LOCATION))
+                        .withValue(Contract.Entry.COLUMN_CONTENT, entry.getString(Contract.Entry.COLUMN_CONTENT))
+                        .withValue(Contract.Entry.COLUMN_TIMESTAMP, entry.getString(Contract.Entry.COLUMN_TIMESTAMP))
+                        .withValue(Contract.Entry.COLUMN_LAT, entry.getString(Contract.Entry.COLUMN_LAT))
+                        .withValue(Contract.Entry.COLUMN_LNG, entry.getString(Contract.Entry.COLUMN_LNG))
+                        .withValue(Contract.Entry.COLUMN_USERNAME, entry.getString(Contract.Entry.COLUMN_USERNAME))
+                        .withValue(Contract.Entry.COLUMN_MEDIAURL1, mediaURLs.get(0))
+                        .withValue(Contract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
+                        .withValue(Contract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))
+                        .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, entry.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT))
+                        .withValue(Contract.Entry.COLUMN_USER_UPVOTED, upvotedInt)
                         .build());
                 syncResult.stats.numInserts++;
             }
             Log.i(TAG, "Merge solution ready. Applying batch update");
-            mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-            mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
-            VoteInterface.updateUpvoteData(getContext(), serverResponse);
+            mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
+            mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
+            VoteInterface.onUpvotesRecorded(getContext(), serverResponse);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -269,9 +260,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             logText = "PRE-merge Db id: ";
         else
             logText = "POST-merge Db id: ";
-        projection[0] = ReportContract.Entry.COLUMN_ID;
-        Cursor c = contentResolver.query(ReportContract.Entry.CONTENT_URI, projection,
-                ReportContract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'",
+        projection[0] = Contract.Entry.COLUMN_ID;
+        Cursor c = contentResolver.query(Contract.Entry.CONTENT_URI, projection,
+                Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'",
                 null, null); // Get all entries that aren't pending reports
         assert c != null;
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
