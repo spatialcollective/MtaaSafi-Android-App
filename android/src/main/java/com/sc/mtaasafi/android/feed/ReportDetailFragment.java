@@ -36,6 +36,20 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public ViewPager viewPager;
     RelativeLayout bottomView;
     LinearLayout topView;
+    private static String content_Key ="content",
+        location_Key = "location",
+        time_Key = "time",
+        user_Key = "user",
+        mediaUrl1_Key = "url1",
+        mediaUrl2_Key = "url2",
+        mediaUrl3_Key = "url3",
+        serverId_Key = "serverId",
+        dbId_Key = "dbId",
+        lat_Key = "lat",
+        lon_Key = "lon",
+        userVoted_Key = "userVoted",
+        upvoteCount_Key = "upvoteCt";
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -64,6 +78,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+        if(savedState != null)
+            restoreMe(savedState);
         Location currentLocation = ((MainActivity) getActivity()).getLocation();
         if(currentLocation != null){
             distance = Report.getDistanceText(currentLocation, reportLocation);
@@ -71,6 +87,46 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             distance = "error";
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         return view;
+    }
+    
+    private void restoreMe(Bundle instate){
+        content = instate.getString(content_Key);
+        location = instate.getString(location_Key);
+        time = instate.getString(time_Key);
+        user = instate.getString(user_Key);
+        mediaUrl1 = instate.getString(mediaUrl1_Key);
+        mediaUrl2 = instate.getString(mediaUrl2_Key);
+        mediaUrl3 = instate.getString(mediaUrl3_Key);
+        serverId = instate.getInt(serverId_Key);
+        dbId = instate.getInt(dbId_Key);
+        double lat = instate.getDouble(lat_Key);
+        double lon = instate.getDouble(lon_Key);
+        reportLocation = new Location("report_location");
+        reportLocation.setLatitude(lat);
+        reportLocation.setLongitude(lon);
+        userVoted = instate.getBoolean(userVoted_Key);
+        upvoteCount = instate.getInt(upvoteCount_Key);
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outstate){
+        super.onSaveInstanceState(outstate);
+        if(viewPager.getVisibility() == View.VISIBLE)
+            updateTopVote();
+        else
+            updateBottomVote();
+        outstate.putString(content_Key, content);
+        outstate.putString(location_Key, location);
+        outstate.putString(time_Key,time);
+        outstate.putString(user_Key, user);
+        outstate.putString(mediaUrl1_Key, mediaUrl1);
+        outstate.putString(mediaUrl2_Key, mediaUrl2);
+        outstate.putString(mediaUrl3_Key, mediaUrl3);
+        outstate.putInt(serverId_Key, serverId);
+        outstate.putInt(dbId_Key, dbId);
+        outstate.putDouble(lat_Key, reportLocation.getLatitude());
+        outstate.putDouble(lon_Key, reportLocation.getLongitude());
+        outstate.putBoolean(userVoted_Key, userVoted);
+        outstate.putInt(upvoteCount_Key, upvoteCount);
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
@@ -87,33 +143,43 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activateViewPager(0);
+                enterImageViewer(0);
             }
         });
         view.findViewById(R.id.media2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activateViewPager(1);
+                enterImageViewer(1);
             }
         });
         view.findViewById(R.id.media3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activateViewPager(2);
+                enterImageViewer(2);
             }
         });
     }
 
-    private void activateViewPager(int i){
+    private void enterImageViewer(int i){
         updateBottomVote();
         getActivity().getActionBar().hide();
         Animation slide_in_bottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_bottom);
+        getView().setBackgroundColor(getResources().getColor(R.color.DarkSlateGray));
         viewPager.setCurrentItem(i);
         viewPager.setVisibility(View.VISIBLE);
         bottomView.setVisibility(View.VISIBLE);
         bottomView.startAnimation(slide_in_bottom);
         topView.setVisibility(View.INVISIBLE);
-        getView().setBackgroundColor(getResources().getColor(R.color.DarkSlateGray));
+    }
+    public void exitImageViewer(){
+        getView().setBackgroundColor(getResources().getColor(R.color.White));
+        updateTopVote();
+        topView.setVisibility(View.VISIBLE);
+        viewPager.setVisibility(View.INVISIBLE);
+        Animation slide_out_bottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_bottom);
+        bottomView.startAnimation(slide_out_bottom);
+        bottomView.setVisibility(View.INVISIBLE);
+        getActivity().getActionBar().show();
     }
     public void updateView(View view) {
         VoteInterface topVote = (VoteInterface) view.findViewById(R.id.topVote);
@@ -156,6 +222,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     private void updateTopVote(){
         VoteInterface bottomVote = (VoteInterface) bottomView.findViewById(R.id.bottomVote);
         VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
+        userVoted = bottomVote.userVoted;
+        upvoteCount = bottomVote.voteCount;
         topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, dbId, serverId);
     }
     // called upon inflation as well as whenever the viewpager is about to become visible
@@ -163,6 +231,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         VoteInterface bottomVote = (VoteInterface) bottomView.findViewById(R.id.bottomVote);
         bottomVote.setBottomMode();
         VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
+        userVoted = topVote.userVoted;
+        upvoteCount = topVote.voteCount;
         bottomVote.updateData(topVote.voteCount, topVote.userVoted, dbId, serverId);
     }
     private String getSimpleTimeStamp(String timestamp) {
@@ -174,18 +244,15 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             return timestamp;
         }
     }
+
     private class ImageSlideAdapter extends FragmentPagerAdapter {
         String[] mediaPaths;
         public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
             super(fm);
             this.mediaPaths = mediaPaths;
         }
-
         @Override
-        public int getCount() {
-            return mediaPaths.length;
-        }
-
+        public int getCount() {return mediaPaths.length;}
         @Override
         public Fragment getItem(int i) {
             ImageFragment iF = new ImageFragment();
@@ -195,39 +262,5 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             return iF;
         }
 
-    }
-
-    private class ImageFragment extends Fragment{
-        String mediaPath;
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            if(getArguments() != null)
-                mediaPath = getArguments().getString("mediaPath");
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            super.onCreateView(inflater, container, savedInstanceState);
-            View view = inflater.inflate(R.layout.fragment_report_image, container, false);
-            ImageView reportDetailImage = (ImageView) view.findViewById(R.id.report_detail_image);
-            if(mediaPath != null)
-                aq.id(reportDetailImage).image(mediaPath);
-            reportDetailImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // close the view pager
-                    getParentFragment().getView().setBackgroundColor(getResources().getColor(R.color.White));
-                    updateTopVote();
-                    topView.setVisibility(View.VISIBLE);
-                    viewPager.setVisibility(View.INVISIBLE);
-                    Animation slide_out_bottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_bottom);
-                    bottomView.startAnimation(slide_out_bottom);
-                    bottomView.setVisibility(View.INVISIBLE);
-                    getActivity().getActionBar().show();
-                }
-            });
-            return view;
-        }
     }
 }
