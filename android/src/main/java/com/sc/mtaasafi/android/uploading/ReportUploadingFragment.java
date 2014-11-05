@@ -1,7 +1,10 @@
 package com.sc.mtaasafi.android.uploading;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -94,10 +97,18 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void beamUpReport(Report pendingReport) {
+        if (!isOnline() && getView() != null) {
+            reportFailure();
+            return;
+        }
         if (getView() != null)
             changeHeaderMessage("Uploading...", true, R.color.mtaa_safi_blue);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
+    }
+
+    public void reportFailure() {
+        changeHeaderMessage("You must be online to upload.", false, R.color.DarkRed);
     }
 
     public void reportUploadSuccess() {
@@ -143,6 +154,14 @@ public class ReportUploadingFragment extends ListFragment
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
+
+    public boolean isOnline() {
+        NetworkInfo netInfo = ((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE))
+                                    .getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
+            return true;
+        return false;
+    }
 
     //    private void chooseAction(Bundle args) {
 //        if (args != null) {
