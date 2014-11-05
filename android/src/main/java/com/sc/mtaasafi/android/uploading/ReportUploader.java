@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import org.apache.http.HttpResponse;
@@ -106,22 +106,22 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         publishProgress(pendingReport.pendingState);
         ContentValues updateValues = new ContentValues();
         if (pendingReport.pendingState == 1) {
-            updateValues.put(ReportContract.Entry.COLUMN_TITLE, response.getString(OUTPUT_KEY));
-            updateValues.put(ReportContract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
+            updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
+            updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
         } else if (pendingReport.pendingState == 2)
-            updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
+            updateValues.put(Contract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
         else if (pendingReport.pendingState == 3)
-            updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
+            updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
         else if (pendingReport.pendingState == -1)
-            updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
-        updateValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
+            updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+        updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         if (pendingReport.pendingState > 0)
-            updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
+            updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
         else
-            updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
+            updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
 
-        Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+        Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
     }
@@ -142,28 +142,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             cancel(true);
         String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
         return new JSONObject(responseString);
-    }
-
-    private void verifyUploadProgress() {
-        // if (pendingReport.mediaPaths.get(2).contains("http:")) {
-        //     progress = -1;
-        //     updateProgress();
-        //     break;
-        // } else if (pendingReport.mediaPaths.get(1).contains("http:"))
-        //     i = progress = 3;
-        // else if (pendingReport.mediaPaths.get(0).contains("http:"))
-        //     i = progress = 2;
-        // else if (pendingReport.serverId != 0)
-        //     verifyWithServer(pendingReport) != 404) {
-        //          HttpResponse response = new DefaultHttpClient()
-        //                  .execute(new HttpGet(BASE_WRITE_URL + "/" + report.serverId + "/"));
-        //          return response.getStatusLine().getStatusCode();
-        //     }
-        //     i = progress = 1;
-        // else
-        //     i = progress = 0;
-        // updateProgress();
-        // Log.e("New loop", "Progress is: " + progress);
     }
 
     protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }

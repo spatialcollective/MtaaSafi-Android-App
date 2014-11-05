@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class ReportUploadingFragment extends ListFragment
@@ -36,9 +36,9 @@ public class ReportUploadingFragment extends ListFragment
                     ACTION_VIEW = 'v';
 
     public String[] LIST_FROM_COLUMNS = new String[] {
-        ReportContract.Entry.COLUMN_DETAILS,
-        ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_PENDINGFLAG
+        Contract.Entry.COLUMN_CONTENT,
+        Contract.Entry.COLUMN_TIMESTAMP,
+        Contract.Entry.COLUMN_PENDINGFLAG
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.itemDetails,
@@ -52,7 +52,6 @@ public class ReportUploadingFragment extends ListFragment
         super.onCreate(instate);
         setRetainInstance(true);
         pendingReportCount = -1;
-//        chooseAction(getArguments());
     }
 
     @Override
@@ -74,11 +73,11 @@ public class ReportUploadingFragment extends ListFragment
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
-            if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_TIMESTAMP))
+            if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
-            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG))
+            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
                 mAdapter.updateProgressView(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
+            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
             else
                 return false;
@@ -131,8 +130,8 @@ public class ReportUploadingFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
-            Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+        return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
+            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {

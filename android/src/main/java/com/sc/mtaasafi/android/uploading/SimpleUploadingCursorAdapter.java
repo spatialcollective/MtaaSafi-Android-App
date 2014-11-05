@@ -9,7 +9,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 
 /**
  * Created by david on 11/2/14.
@@ -27,8 +27,8 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         super.bindView(view, context, cursor);
         mContext = context;
         resetState(view);
-        indicateRow(cursor.getInt(cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);
-        int progress = cursor.getInt(cursor.getColumnIndex(ReportContract.Entry.COLUMN_PENDINGFLAG));
+        indicateRow(cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);
+        int progress = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
         for (int i = 0; i <= progress; i++)
             updateProgressView(i, view);
     }

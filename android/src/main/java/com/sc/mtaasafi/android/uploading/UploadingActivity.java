@@ -9,12 +9,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-
-import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.database.ReportContract;
 
 public class UploadingActivity extends ActionBarActivity {
 
@@ -56,12 +50,6 @@ public class UploadingActivity extends ActionBarActivity {
         Log.e("NRA.Finish", "Finish called! Cancelling uploading: " + (uploader != null));
         if (uploader != null)
             uploader.cancel(true);
-    }
-
-    private void beamUpReport(Uri pendingReport) {
-       if (isOnline()) {
-
-       }
     }
 
     public boolean isOnline() {
