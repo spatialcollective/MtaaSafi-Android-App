@@ -20,10 +20,10 @@ android {
     buildToolsVersion '20.0.0'
 
     defaultConfig {
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion 19
         versionCode 8
-        versionName "upvotesMerged"
+        versionName ".8.1"
     }
     buildTypes {
         release {
@@ -38,10 +38,12 @@ dependencies {
     compile project(':facebook')
     compile project(':SlidingUpPanelLibrary')
     compile files('libs/android-query-full.0.26.8.jar', 'libs/gson-2.3.jar')
-    compile 'com.android.support:appcompat-v7:19.+'
-    compile 'com.android.support:support-v4:20.0.0'
-    compile 'com.google.android.gms:play-services:5.0.89'
     compile('com.crashlytics.sdk.android:crashlytics:2.0.0@aar') {
         transitive = true;
     }
+    compile 'com.android.support:appcompat-v7:19.+'
+    // You must install or update the Support Repository through the SDK manager to use this dependency.
+    compile 'com.android.support:support-v4:20.0.0'
+    // You must install or update the Google Repository through the SDK manager to use this dependency.
+    compile 'com.google.android.gms:play-services:5.0.89'
 }
