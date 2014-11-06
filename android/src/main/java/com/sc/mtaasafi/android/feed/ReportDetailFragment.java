@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.TargetApi;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -187,6 +188,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         topView.setVisibility(View.INVISIBLE);
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void enterImageAnimation(int i) {
         // Calculate the starting and ending bounds for the zoomed-in image.
         // This step involves lots of math. Yay, math.
@@ -303,6 +305,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         });
         bottomView.startAnimation(fadeOut);
     }
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void exitImageAnimation(int i){
         // Animate the four positioning/sizing properties in parallel,
         // back to their original values.

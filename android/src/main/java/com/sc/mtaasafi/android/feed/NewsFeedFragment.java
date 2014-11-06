@@ -141,6 +141,10 @@ public class NewsFeedFragment extends ListFragment
                             ((TextView)view).setTextColor(getResources().getColor(R.color.Coral));
                             View parent = (View) view.getParent();
                             ((ImageView)parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker_coral);
+                        } else{
+                            ((TextView)view).setTextColor(getResources().getColor(R.color.DarkGray));
+                            View parent = (View) view.getParent();
+                            ((ImageView)parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker);
                         }
 
                     }

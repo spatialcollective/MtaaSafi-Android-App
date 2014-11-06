@@ -53,7 +53,6 @@ public class NewReportFragment extends Fragment {
         picPaths = new ArrayList<String>();
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++)
             picPaths.add(null);
-        setRetainInstance(true);
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
         picPreviews = new ImageView[REQUIRED_PIC_COUNT];
     }
