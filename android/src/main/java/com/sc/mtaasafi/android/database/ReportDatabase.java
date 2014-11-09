@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -15,8 +15,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Entry.COLUMN_LOCATION + " text not null, "
             + Contract.Entry.COLUMN_CONTENT + " text not null, "
             + Contract.Entry.COLUMN_TIMESTAMP + " text not null, "
-            + Contract.Entry.COLUMN_LAT + " text not null, "
-            + Contract.Entry.COLUMN_LNG + " text not null, "
+            + Contract.Entry.COLUMN_LAT + " double not null, "
+            + Contract.Entry.COLUMN_LNG + " double not null, "
             + Contract.Entry.COLUMN_USERNAME + " text not null, "
             + Contract.Entry.COLUMN_MEDIAURL1 + " text not null, "
             + Contract.Entry.COLUMN_MEDIAURL2 + " text not null, "
@@ -31,8 +31,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.UpvoteLog.TABLE_NAME + "("
             + Contract.UpvoteLog.COLUMN_ID + " integer primary key autoincrement, "
             + Contract.UpvoteLog.COLUMN_SERVER_ID + " integer, "
-            + Contract.UpvoteLog.COLUMN_LAT + " text not null, "
-            + Contract.UpvoteLog.COLUMN_LON + " text not null"
+            + Contract.UpvoteLog.COLUMN_LAT + " double not null, "
+            + Contract.UpvoteLog.COLUMN_LON + " double not null"
             + ")";
 
     public ReportDatabase(Context context) {

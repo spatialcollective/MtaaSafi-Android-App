@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,23 +28,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
-/**
- * Created by Agree on 9/4/2014.
- * Data class for passing data about posts
- */
+// Created by Agree on 9/4/2014.
 public class Report {
-    public int serverId, dbId, pendingState;
+    public boolean upVoted = false;
+    public int serverId, dbId, pendingState = -1, upVoteCount;
     public double latitude, longitude;
-    public String title, details, timeStamp, timeElapsed, userName;
+    public String locationDescript, content, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaPaths;
-    public final static String titleKey = "title",
-            detailsKey = "details",
-            timeStampKey = "timestamp",
-            userNameKey = "user",
-            mediaPathsKey = "mediaPaths",
-            latKey = "latitude",
-            lonKey = "longitude",
-            serverIdKey = "id";
+    public Uri uri;
+    public Location location;
             
     public static final String[] PROJECTION = new String[] {
             Contract.Entry._ID,
@@ -58,12 +51,16 @@ public class Report {
             Contract.Entry.COLUMN_MEDIAURL2,
             Contract.Entry.COLUMN_MEDIAURL3,
             Contract.Entry.COLUMN_PENDINGFLAG,
-            Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS
+            Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS,
+            Contract.Entry.COLUMN_UPVOTE_COUNT,
+            Contract.Entry.COLUMN_USER_UPVOTED
     };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location location,
                   ArrayList<String> picPaths) {
-        this.details = details;
+        this.content = details;
+        this.locationDescript = "";
+        this.pendingState = 0;
         this.timeStamp = createTimeStamp();
         this.userName = userName;
         this.latitude = location.getLatitude();
@@ -76,109 +73,108 @@ public class Report {
         this.serverId = this.dbId = 0;
     }
 
-    // Note: remember to close the cursor when you're finished.
-    // Cursor not closed here because it may contain multiple rows of reports
-    public Report(Cursor c){
-        this.title = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
-        this.details = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
-        this.timeStamp = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
-        this.timeElapsed = getElapsedTime(timeStamp);
-        this.userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
-        this.latitude = Double.parseDouble(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LAT)));
-        this.longitude = Double.parseDouble(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LNG)));
-        this.serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
-        this.dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
+    public Report(Cursor c) {
+        content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
+        locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
+        timeStamp = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
+        timeElapsed = getElapsedTime(timeStamp);
+        userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
+        if(userName.equals(""))
+            userName = "Unknown user";
+
         mediaPaths = new ArrayList<String>();
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
-        this.pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
+
+        serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
+        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
+        uri = Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
+        pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
+
+        upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
+        upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
+
+        latitude = c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT));
+        longitude = c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG));
+        location = new Location("ReportLocation");
+        location.setLatitude(latitude);
+        location.setLongitude(longitude);
     }
 
-    public Report(JSONObject jsonServerData) {
-        try {
-            this.title = jsonServerData.getString(titleKey);
-            this.details = jsonServerData.getString(detailsKey);
-            this.timeStamp = jsonServerData.getString(timeStampKey);
-            this.timeElapsed = getElapsedTime(this.timeStamp);
-            this.userName = jsonServerData.getString(userNameKey);
-            JSONArray mediaPathsInJSON = jsonServerData.getJSONArray(mediaPathsKey);
-            mediaPaths = new ArrayList<String>();
-            for(int i = 0; i < mediaPathsInJSON.length(); i++)
-                mediaPaths.add(mediaPathsInJSON.get(i).toString());
-            this.latitude = jsonServerData.getLong(latKey);
-            this.longitude = jsonServerData.getLong(lonKey);
-            this.serverId = jsonServerData.getInt(serverIdKey);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e(LogTags.JSON, "Failed to convert data from JSON");
-        }
+    public Report(JSONObject jsonData, int pending) throws JSONException {
+        serverId = jsonData.getInt("unique_id");
+        locationDescript = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
+        content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
+        timeStamp = jsonData.getString(Contract.Entry.COLUMN_TIMESTAMP);
+        timeElapsed = getElapsedTime(this.timeStamp);
+        userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
+        latitude = jsonData.getDouble(Contract.Entry.COLUMN_LAT);
+        longitude = jsonData.getDouble(Contract.Entry.COLUMN_LNG);
+        upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
+        upVoted = jsonData.getBoolean("upvoted"); // Contract.Entry.COLUMN_USER_UPVOTED);
+        pendingState = pending;
+        
+        JSONArray mediaPathsInJSON = jsonData.getJSONArray("mediaURLs");
+        mediaPaths = new ArrayList<String>();
+        for (int i = 0; i < mediaPathsInJSON.length(); i++)
+            mediaPaths.add(mediaPathsInJSON.get(i).toString());
     }
 
-    public Report(String report_key, Bundle savedState) {
-        this.serverId = savedState.getInt(report_key+serverIdKey);
-        this.title = savedState.getString(report_key+titleKey);
-        this.details = savedState.getString(report_key+detailsKey);
-        this.timeStamp = savedState.getString(report_key+timeStampKey);
-        this.timeElapsed = getElapsedTime(this.timeStamp);
-        this.userName = savedState.getString(report_key+userNameKey);
-        this.latitude = savedState.getDouble(report_key+latKey);
-        this.longitude = savedState.getDouble(report_key+lonKey);
-        if (savedState.getStringArray(report_key+mediaPathsKey) != null)
-            this.mediaPaths = new ArrayList<String>(Arrays.asList(savedState.getStringArray(report_key+mediaPathsKey)));
-        if (savedState.getStringArrayList(report_key+mediaPathsKey) != null)
-            this.mediaPaths = savedState.getStringArrayList(report_key+mediaPathsKey);
+    public ContentValues getContentValues() {
+        ContentValues reportValues = new ContentValues();
+        reportValues.put(Contract.Entry.COLUMN_SERVER_ID, serverId);
+        reportValues.put(Contract.Entry.COLUMN_LOCATION, locationDescript);
+        reportValues.put(Contract.Entry.COLUMN_CONTENT, content);
+        reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
+        reportValues.put(Contract.Entry.COLUMN_LAT, latitude);
+        reportValues.put(Contract.Entry.COLUMN_LNG, longitude);
+        reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
+        reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
+        reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
+        reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
+        reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
+        if (upVoted)
+            reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
+        else
+            reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 0);
+        return reportValues;
     }
-
-    public static Uri uriFor(int dbId){
+    
+    public static Uri getUri(int dbId) {
         return Contract.Entry.CONTENT_URI.buildUpon()
-                .appendPath(Integer.toString(dbId)).build();
+            .appendPath(Integer.toString(dbId)).build();
     }
 
-    public JSONObject getJsonForText() throws JSONException {
+    public String getJsonStringRep() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put(detailsKey, this.details);
-        json.put(timeStampKey, this.timeStamp);
-        json.put(userNameKey, this.userName);
-        json.put(latKey, this.latitude);
-        json.put(lonKey, this.longitude);
-        return json;
+        json.put(Contract.Entry.COLUMN_CONTENT, this.content);
+        json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
+        json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
+        json.put(Contract.Entry.COLUMN_LAT, this.latitude);
+        json.put(Contract.Entry.COLUMN_LNG, this.longitude);
+        return json.toString();
     }
 
-    public JSONObject getJsonForPic(int i) throws JSONException, IOException {
-        return new JSONObject().accumulate(mediaPathsKey, getEncodedBytesForPic(i));
-    }
-
-    private String getEncodedBytesForPic(int i) throws IOException {
-        String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
-        Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
-        return encoded;
-    }
-
-    public byte[] getBytesForPic(int i) throws IOException {
-        File file = new File(mediaPaths.get(i));
-        byte[] b = new byte[(int) file.length()];
-        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-        inputStream.read(b);
-        inputStream.close();
-        return b;
-    }
-
-    public Bundle saveState(String report_key, Bundle outState) {
-        outState.putInt(report_key+serverIdKey, this.serverId);
-        outState.putString(report_key+titleKey, this.title);
-        outState.putString(report_key+detailsKey, this.details);
-        outState.putString(report_key+timeStampKey, this.timeStamp);
-        outState.putString(report_key+userNameKey, this.userName);
-        if (mediaPaths != null)
-            outState.putStringArray(report_key+mediaPathsKey,
-                    this.mediaPaths.toArray(new String[mediaPaths.size()]));
-        outState.putDouble(report_key+latKey, this.latitude);
-        outState.putDouble(report_key+lonKey, this.longitude);
-        if(mediaPaths != null && !mediaPaths.isEmpty())
-            outState.putStringArrayList(report_key+mediaPathsKey, this.mediaPaths);
-        Log.e("REPORT", "SaveState: " + outState.getString(timeStampKey));
-        return outState;
+    public static String getDistanceText(Location currentLocation, Location reportLocation){
+        float distInMeters = reportLocation.distanceTo(currentLocation);
+        String distText;
+        if(distInMeters > 1000){
+            distText = Float.toString(distInMeters/1000);
+            if(distText.indexOf('.') !=-1) // show km within 1 decimal pt
+                distText = distText.substring(0, distText.indexOf('.')+2);
+            if(distText.endsWith(".0"))// remove any ".0"s
+                distText = distText.substring(0, distText.length()-3);
+            distText += "km";
+        } else if(distInMeters > 30){
+            distText = Float.toString(distInMeters);
+            if(distText.indexOf('.') != -1)
+                distText = distText.substring(0, distText.indexOf('.'));
+            distText += "m";
+            // if distance is in meters, only show as an integer
+        } else
+            distText = "here";
+        return distText;
     }
 
     public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
@@ -203,29 +199,6 @@ public class Report {
             return (long) Math.floor(timeElapsed/minute) + " min";
         return "just now";
     }
-
-    // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android
-    public String getSHA1forPic(int i) throws IOException, NoSuchAlgorithmException {
-        String toHash = getEncodedBytesForPic(i);
-        MessageDigest md = MessageDigest.getInstance("SHA-1");
-        md.update(toHash.getBytes("iso-8859-1"), 0, toHash.length());
-        byte[] sha1hash = md.digest();
-        return convertToHex(sha1hash);
-    }
-
-    private String convertToHex(byte[] data) {
-        StringBuilder buf = new StringBuilder();
-        for (byte b : data) {
-            int halfbyte = (b >>> 4) & 0x0F;
-            int two_halfs = 0;
-            do {
-                buf.append((0 <= halfbyte) && (halfbyte <= 9) ? (char) ('0' + halfbyte) : (char) ('a' + (halfbyte - 10)));
-                halfbyte = b & 0x0F;
-            } while (two_halfs++ < 1);
-        }
-        return buf.toString();
-    }
-
     public static String getElapsedTime(String timestamp) {
         if (timestamp != null) {
             SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
@@ -239,30 +212,44 @@ public class Report {
         }
         return "";
     }
-
     private String createTimeStamp() {
         return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
                 .format(new java.util.Date(System.currentTimeMillis()));
     }
 
-    public static String getDistanceText(Location currentLocation, Location reportLocation){
-        float distInMeters = reportLocation.distanceTo(currentLocation);
-        String distText;
-        if(distInMeters > 1000){
-            distText = Float.toString(distInMeters/1000);
-            if(distText.indexOf('.') !=-1) // show km within 1 decimal pt
-                distText = distText.substring(0, distText.indexOf('.')+2);
-            if(distText.endsWith(".0"))// remove any ".0"s
-                distText = distText.substring(0, distText.length()-3);
-            distText += "km";
-        } else if(distInMeters > 30){
-            distText = Float.toString(distInMeters);
-            if(distText.indexOf('.') != -1)
-                distText = distText.substring(0, distText.indexOf('.'));
-            distText += "m";
-            // if distance is in meters, only show as an integer
-        } else
-            distText = "here";
-        return distText;
+
+    private String getEncodedBytesForPic(int i) throws IOException {
+        String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
+        Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
+        return encoded;
+    }
+    public byte[] getBytesForPic(int i) throws IOException {
+        File file = new File(mediaPaths.get(i));
+        byte[] b = new byte[(int) file.length()];
+        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        inputStream.read(b);
+        inputStream.close();
+        return b;
+    }
+    // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android
+    // I believe the non-accepted answer on that page may be better. -DK
+    public String getSHA1forPic(int i) throws IOException, NoSuchAlgorithmException {
+        String toHash = getEncodedBytesForPic(i);
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        md.update(toHash.getBytes("UTF-8"), 0, toHash.length()); // shoud be utf-8 not iso-8859-1
+        byte[] sha1hash = md.digest();
+        return convertToHex(sha1hash);
+    }
+    private String convertToHex(byte[] data) {
+        StringBuilder buf = new StringBuilder();
+        for (byte b : data) {
+            int halfbyte = (b >>> 4) & 0x0F;
+            int two_halfs = 0;
+            do {
+                buf.append((0 <= halfbyte) && (halfbyte <= 9) ? (char) ('0' + halfbyte) : (char) ('a' + (halfbyte - 10)));
+                halfbyte = b & 0x0F;
+            } while (two_halfs++ < 1);
+        }
+        return buf.toString();
     }
 }

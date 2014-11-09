@@ -38,21 +38,6 @@ public class NewsFeedFragment extends ListFragment
     ReportSelectedListener mCallback;
 
     int index, top;
-    public String[] PROJECTION = new String[] {
-            Contract.Entry._ID,
-            Contract.Entry.COLUMN_SERVER_ID,
-            Contract.Entry.COLUMN_LOCATION,
-            Contract.Entry.COLUMN_CONTENT,
-            Contract.Entry.COLUMN_TIMESTAMP,
-            Contract.Entry.COLUMN_LAT,
-            Contract.Entry.COLUMN_LNG,
-            Contract.Entry.COLUMN_USERNAME,
-            Contract.Entry.COLUMN_MEDIAURL1,
-            Contract.Entry.COLUMN_MEDIAURL2,
-            Contract.Entry.COLUMN_MEDIAURL3,
-            Contract.Entry.COLUMN_UPVOTE_COUNT,
-            Contract.Entry.COLUMN_USER_UPVOTED
-    };
     public String[] FROM_COLUMNS = new String[] {
             Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_USER_UPVOTED,
@@ -77,7 +62,7 @@ public class NewsFeedFragment extends ListFragment
     public NewsFeedFragment() {}
         
     public interface ReportSelectedListener {
-        public void goToDetailView(Cursor c, int position);
+        public void goToDetailView(Report r, int position);
     }
     
     @Override
@@ -121,8 +106,7 @@ public class NewsFeedFragment extends ListFragment
                     if(cursor.getInt(i) > 0){
                         upvoteButton.setImageResource(R.drawable.button_upvote_clicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
-                    }
-                    else{
+                    } else {
                         upvoteButton.setImageResource(R.drawable.button_upvote_unclicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
                     }
@@ -132,8 +116,8 @@ public class NewsFeedFragment extends ListFragment
                     ((TextView) view).setText(Integer.toString(cursor.getInt(i)));
                 } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)){ // set the distance
                     Location reportLocation = new Location("ReportLocation");
-                    reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
-                    reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
+                    reportLocation.setLatitude(cursor.getDouble(i-1));
+                    reportLocation.setLongitude(cursor.getDouble(i));
                     Location currentLocation = ((MainActivity) getActivity()).getLocation();
                     if(currentLocation != null){
                         String distText = Report.getDistanceText(currentLocation, reportLocation);
@@ -162,8 +146,8 @@ public class NewsFeedFragment extends ListFragment
    @Override
    public void onListItemClick(ListView l, View view, int position, long id) {
        super.onListItemClick(l, view, position, id);
-       Cursor c = (Cursor) mAdapter.getItem(position);
-       mCallback.goToDetailView(c, position);
+       Report r = new Report((Cursor) mAdapter.getItem(position));
+       mCallback.goToDetailView(r, position);
    }
 
     @Override
@@ -228,7 +212,7 @@ public class NewsFeedFragment extends ListFragment
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         startRefresh();
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            PROJECTION, null, null, null);
+            Report.PROJECTION, null, null, null);
     }
 
     @Override

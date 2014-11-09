@@ -80,7 +80,7 @@ public class VoteInterface extends LinearLayout {
 
     //
     private ContentProviderOperation updateReportTable(){
-        return ContentProviderOperation.newUpdate(Report.uriFor(dbId))
+        return ContentProviderOperation.newUpdate(Report.getUri(dbId))
                 .withValue(Contract.Entry.COLUMN_USER_UPVOTED, 1)
                 .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, voteCount+1)
                 .build();
@@ -234,7 +234,7 @@ public class VoteInterface extends LinearLayout {
         while(reportData.moveToNext()){
             int reportTableServerId = reportData.getInt(column_server_id);
             if(reportTableServerId == serverId){
-                Uri toUpdateUri = Report.uriFor(reportData.getInt(column_id));
+                Uri toUpdateUri = Report.getUri(reportData.getInt(column_id));
                 return ContentProviderOperation.newUpdate(toUpdateUri)
                                         .withValue(Contract.Entry.COLUMN_USER_UPVOTED, 1)
                                         .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, upvoteCount).build();

@@ -78,7 +78,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         HttpPost httpPost = new HttpPost(BASE_WRITE_URL);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(pendingReport.getJsonForText().toString()));
+        httpPost.setEntity(new StringEntity(pendingReport.getJsonStringRep()));
         return processResponse(httpclient.execute(httpPost));
     }
 
@@ -151,8 +151,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     @Override
     protected void onCancelled() {
         ContentValues updateValues = new ContentValues();
-        updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
-        Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+        updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
+        Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
         mFragment.reportFailure();

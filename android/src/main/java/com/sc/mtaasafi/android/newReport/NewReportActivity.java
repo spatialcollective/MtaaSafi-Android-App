@@ -170,20 +170,8 @@ public class NewReportActivity extends ActionBarActivity implements
 
     public Uri saveNewReport(NewReportFragment frag) {
         Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
-        ContentValues reportValues = new ContentValues();
-        reportValues.put(Contract.Entry.COLUMN_SERVER_ID, 0);
-        reportValues.put(Contract.Entry.COLUMN_LOCATION, "");
-        reportValues.put(Contract.Entry.COLUMN_CONTENT, newReport.details);
-        reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, newReport.timeStamp);
-        reportValues.put(Contract.Entry.COLUMN_LAT, Double.toString(newReport.latitude));
-        reportValues.put(Contract.Entry.COLUMN_LNG, Double.toString(newReport.longitude));
-        reportValues.put(Contract.Entry.COLUMN_USERNAME, newReport.userName);
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, newReport.mediaPaths.get(0));
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, newReport.mediaPaths.get(1));
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, newReport.mediaPaths.get(2));
-        reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, 0);
         Log.e("New Report Activity", "inserting");
-        return getContentResolver().insert(Contract.Entry.CONTENT_URI, reportValues);
+        return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 
     public static int getSavedReportCount(Activity ac){

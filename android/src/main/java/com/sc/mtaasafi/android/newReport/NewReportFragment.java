@@ -89,11 +89,6 @@ public class NewReportFragment extends Fragment {
         detailsView = null;
     }
 
-    public Report createNewReport(String userName, Location location) {
-        Log.e("New Report Frag", "Creating new report");
-        return new Report(detailsText, userName, location, picPaths);
-    }
-
     private void attemptAddSendReportBtn(View view) {
         Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
         int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());

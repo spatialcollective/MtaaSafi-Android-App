@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
+    Report mReport;
     private String content, location, time, user, mediaUrl1, mediaUrl2, mediaUrl3, distance;
     private int upvoteCount, serverId, dbId;
     ImageView[] media;
@@ -69,25 +70,24 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         aq = new AQuery(getActivity());
     }
 
-    public void setData(Cursor c) {
-        content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
-        location = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
-        time = getSimpleTimeStamp(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP)));
-        user = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
-        if(user.equals(""))
+    public void setData(Report r) {
+        mReport = r;
+        content = r.content;
+        location = r.locationDescript;
+        time = getSimpleTimeStamp(r.timeStamp);
+        user = r.userName;
+        if (user.equals(""))
             user = "Unknown user";
-        mediaUrl1 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1));
-        mediaUrl2 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2));
-        mediaUrl3 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3));
-        serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
-        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
-        userVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
-        upvoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
-        String latString = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LAT));
-        String lonString = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LNG));
+        mediaUrl1 = r.mediaPaths.get(0);
+        mediaUrl2 = r.mediaPaths.get(1);
+        mediaUrl3 = r.mediaPaths.get(2);
+        serverId = r.serverId;
+        dbId = r.dbId;
+        userVoted = r.upVoted;
+        upvoteCount = r.upVoteCount;
         reportLocation = new Location("report location");
-        reportLocation.setLatitude(Double.parseDouble(latString));
-        reportLocation.setLongitude(Double.parseDouble(lonString));
+        reportLocation.setLatitude(r.latitude);
+        reportLocation.setLongitude(r.longitude);
     }
 
     @Override
