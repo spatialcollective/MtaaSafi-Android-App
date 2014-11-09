@@ -311,4 +311,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             throw new JSONException("Server returned error");
         return new JSONObject(input);
     }
+    private void ioException(IOException e){
+        // tell the main thread that shit done chizzzanged
+
+    }
 }

@@ -67,6 +67,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             }
             return 1;
         } catch (Exception e) {
+            cancel(true);
             e.printStackTrace();
         }
         return -1;
@@ -148,5 +149,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     @Override
     protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
     @Override
-    protected void onCancelled() { }
+    protected void onCancelled() {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
+        Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
+                    .appendPath(Integer.toString(pendingReport.dbId)).build();
+        mContext.getContentResolver().update(reportUri, updateValues, null, null);
+        mFragment.reportFailure();
+    }
 }

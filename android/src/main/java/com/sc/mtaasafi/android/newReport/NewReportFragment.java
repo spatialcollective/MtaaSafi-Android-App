@@ -26,7 +26,6 @@ import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,16 +58,16 @@ public class NewReportFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
-        View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-        picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
-        picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
-        picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
-        return view;
+        return inflater.inflate(R.layout.fragment_new_report, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
+	   picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
+        picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
+        picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
+        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
+
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptAddSendReportBtn(view);
@@ -87,6 +86,7 @@ public class NewReportFragment extends Fragment {
         super.onStop();
         for(ImageView picPreview : picPreviews)
             picPreview = null;
+        detailsView = null;
     }
 
     public Report createNewReport(String userName, Location location) {
@@ -176,9 +176,10 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(detailsView != null && detailsView.getText() != null)
+                if(detailsView != null && detailsView.getText() != null) {
                     detailsText = detailsView.getText().toString();
-                attemptEnableSendSave();
+                    attemptEnableSendSave();
+                }
             }
         });
 
@@ -244,7 +245,10 @@ public class NewReportFragment extends Fragment {
 
     public void attemptEnableSendSave() {
         View view = getView();
-        if (detailsView.getText().toString().isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
+        if (view == null)
+            return;
+        if ( ((TextView) getView().findViewById(R.id.newReportDetails)).getText().toString().isEmpty()
+                || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
             disableButton((Button) view.findViewById(R.id.sendButton));
             disableButton((Button) view.findViewById(R.id.saveButton));
         } else {

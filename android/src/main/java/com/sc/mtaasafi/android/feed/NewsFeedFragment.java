@@ -36,6 +36,7 @@ public class NewsFeedFragment extends ListFragment
 
     SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
+
     int index, top;
     public String[] PROJECTION = new String[] {
             Contract.Entry._ID,

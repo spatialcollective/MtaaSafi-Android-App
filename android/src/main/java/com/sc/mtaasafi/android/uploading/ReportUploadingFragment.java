@@ -1,7 +1,10 @@
 package com.sc.mtaasafi.android.uploading;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -28,7 +31,9 @@ public class ReportUploadingFragment extends ListFragment
 
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
-    private int pendingReportCount;
+    private int pendingReportCount, mColor;
+    private String mText;
+    private boolean isWorking;
 
     public final static String ACTION = "action", DATA = "data";
     public final static char ACTION_SEND_NEW = 'n',
@@ -52,6 +57,9 @@ public class ReportUploadingFragment extends ListFragment
         super.onCreate(instate);
         setRetainInstance(true);
         pendingReportCount = -1;
+        mColor = R.color.mtaa_safi_blue;
+        mText = "Uploading...";
+        isWorking = true;
     }
 
     @Override
@@ -67,6 +75,8 @@ public class ReportUploadingFragment extends ListFragment
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
         mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);
+        changeHeaderMessage(mText, isWorking, mColor);
+//        chooseAction(getArguments());
         getLoaderManager().initLoader(0, null, this);
     }
 
@@ -93,10 +103,18 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void beamUpReport(Report pendingReport) {
+        if (!isOnline() && getView() != null) {
+            reportFailure();
+            return;
+        }
         if (getView() != null)
             changeHeaderMessage("Uploading...", true, R.color.mtaa_safi_blue);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
+    }
+
+    public void reportFailure() {
+        changeHeaderMessage("You must be online to upload.", false, R.color.DarkRed);
     }
 
     public void reportUploadSuccess() {
@@ -110,13 +128,11 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void changeHeaderMessage(String message, boolean showSpinner, int color) {
+        mText = message;
+        isWorking = showSpinner;
+        mColor = color;
         View view = getView();
         if (view == null) return;
-
-        if (message == null || message == "") {
-            view.findViewById(R.id.uploadingView).setVisibility(View.GONE);
-            return;
-        }
         
         view.findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
         ((TextView) view.findViewById(R.id.uploadingText)).setText(message);
@@ -142,6 +158,14 @@ public class ReportUploadingFragment extends ListFragment
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
+
+    public boolean isOnline() {
+        NetworkInfo netInfo = ((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE))
+                                    .getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
+            return true;
+        return false;
+    }
 
     //    private void chooseAction(Bundle args) {
 //        if (args != null) {
