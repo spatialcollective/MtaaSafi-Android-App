@@ -2,7 +2,6 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -10,21 +9,16 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.ImageButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.ReportContract;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class ReportUploadingFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -75,9 +69,52 @@ public class ReportUploadingFragment extends ListFragment
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
         mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);
-        changeHeaderMessage(mText, isWorking, mColor);
+        changeHeaderMessage(mText, mColor);
 //        chooseAction(getArguments());
         getLoaderManager().initLoader(0, null, this);
+        final ImageButton cancelButton = (ImageButton) view.findViewById(R.id.cancel_button);
+        if(cancelButton.getTag() == null){
+            cancelButton.setTag("cancel");
+        }
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tag = (String) cancelButton.getTag();
+                if(tag != null){
+                    if(tag.equals("cancel"))
+                        cancelSession(view);
+                    else if(tag.equals("restart"))
+                        restartSession();
+                }
+            }
+        });
+    }
+
+    private void cancelSession(View view){
+        // tell the adapter to tell the uploader to stop. Once it stops, update the view
+        changeHeaderMessage("Cancelling...", R.color.DarkGray);
+        view.setAlpha(1f);
+        if(uploader != null)
+            uploader.cancelSession();
+        else
+            onSessionCancelled();
+    }
+
+    public void onSessionCancelled(){
+        changeHeaderMessage("Upload Cancelled", R.color.Crimson);
+        ImageButton startStop = (ImageButton)getView().findViewById(R.id.cancel_button);
+        startStop.setImageResource(R.drawable.restart_upload_button);
+        startStop.setTag("restart");
+    }
+
+    private void restartSession(){
+        if(mAdapter.getCount() > 1)
+            beamUpFirstReport();
+        else
+            beamUpReport(new Report(mAdapter.getCursor()));
+        ImageButton startStop = (ImageButton)getView().findViewById(R.id.cancel_button);
+        startStop.setImageResource(R.drawable.cancel_upload_button);
+        startStop.setTag("cancel");
     }
 
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -99,7 +136,7 @@ public class ReportUploadingFragment extends ListFragment
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
         else if (mAdapter.getCount() == 0)
-            changeHeaderMessage("Nothing to upload.", false, R.color.Coral);
+            changeHeaderMessage("Nothing to upload.", R.color.Coral);
     }
 
     private void beamUpReport(Report pendingReport) {
@@ -108,40 +145,33 @@ public class ReportUploadingFragment extends ListFragment
             return;
         }
         if (getView() != null)
-            changeHeaderMessage("Uploading...", true, R.color.mtaa_safi_blue);
+            changeHeaderMessage("Uploading...", R.color.mtaa_safi_blue);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
     }
 
     public void reportFailure() {
-        changeHeaderMessage("You must be online to upload.", false, R.color.DarkRed);
+        changeHeaderMessage("You must be online to upload.", R.color.DarkRed);
     }
 
     public void reportUploadSuccess() {
-        changeHeaderMessage("Report uploaded successfully!", false, R.color.mtaa_safi_blue);
+        changeHeaderMessage("Report uploaded successfully!", R.color.mtaa_safi_blue);
         uploader = null;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null)
             changeHeaderMessage("Successfully uploaded " + pendingReportCount + " reports.",
-                    false, R.color.mtaa_safi_blue);
+                    R.color.mtaa_safi_blue);
     }
 
-    private void changeHeaderMessage(String message, boolean showSpinner, int color) {
+    private void changeHeaderMessage(String message, int color) {
         mText = message;
-        isWorking = showSpinner;
         mColor = color;
         View view = getView();
         if (view == null) return;
-        
         view.findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
         ((TextView) view.findViewById(R.id.uploadingText)).setText(message);
         ((TextView) view.findViewById(R.id.uploadingText)).setTextColor(getResources().getColor(color));
-
-        if (showSpinner)
-            view.findViewById(R.id.headerProgressBar).setVisibility(View.VISIBLE);
-        else
-            view.findViewById(R.id.headerProgressBar).setVisibility(View.GONE);
     }
 
     @Override

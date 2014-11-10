@@ -37,6 +37,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
+    boolean userCancelled;
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
@@ -47,7 +48,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mContext = context;
         mFragment = frag;
         pendingReport = report;
-        screenW = 400; // getScreenWidth();
+        screenW = 400; // TODO: get actual screen width
+        userCancelled = false;
     }
 
     @Override
@@ -170,6 +172,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }
     @Override
     protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
+
+    public void cancelSession(){
+        cancel(true);
+        userCancelled = true;
+    }
     @Override
     protected void onCancelled() {
         ContentValues updateValues = new ContentValues();
@@ -177,6 +184,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        mFragment.reportFailure();
+        if(userCancelled)
+            mFragment.onSessionCancelled();
+        else
+            mFragment.reportFailure();
     }
 }
