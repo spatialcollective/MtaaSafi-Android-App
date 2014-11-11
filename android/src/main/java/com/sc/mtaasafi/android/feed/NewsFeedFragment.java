@@ -98,6 +98,50 @@ public class NewsFeedFragment extends ListFragment
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
+        ImageButton recentTab = (ImageButton) view.findViewById(R.id.recent_tab_button);
+        recentTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // make recent tab button and underscore blue
+                ((ImageButton) view).setImageResource(R.drawable.recent_posts_clicked);
+                View myParent = (View) view.getParent();
+                ImageView underscore = (ImageView) myParent.findViewById(R.id.recent_tab_underscore);
+                underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
+                // make the popular tab button and underscore gray
+                View myGrandParent = (View) myParent.getParent();
+                ImageButton otherTab = (ImageButton) myGrandParent.findViewById(R.id.popular_tab_button);
+                otherTab.setImageResource(R.drawable.popular_reports_unclicked);
+                ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.popular_tab_underscore);
+                otherUnderscore.setBackgroundColor(getResources().getColor(R.color.White));
+                // sort the feed
+                Bundle args = new Bundle();
+                args.putString("SORT", "recent");
+                NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
+                nff.getLoaderManager().restartLoader(0, args, nff);
+            }
+        });
+        ImageButton popularTab = (ImageButton) view.findViewById(R.id.popular_tab_button);
+        popularTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // make popular tab button and underscore blue
+                ((ImageButton) view).setImageResource(R.drawable.popular_reports_clicked);
+                View myParent = (View) view.getParent();
+                ImageView underscore = (ImageView) myParent.findViewById(R.id.popular_tab_underscore);
+                underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
+                // make the recent tab button and underscore gray
+                View myGrandParent = (View) myParent.getParent();
+                ImageButton otherTab = (ImageButton) myGrandParent.findViewById(R.id.recent_tab_button);
+                otherTab.setImageResource(R.drawable.recent_posts_unclicked);
+                ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.recent_tab_underscore);
+                otherUnderscore.setBackgroundColor(getResources().getColor(R.color.White));
+                // sort the feed
+                Bundle args = new Bundle();
+                args.putString("SORT", "popular");
+                NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
+                nff.getLoaderManager().restartLoader(0, args, nff);
+            }
+        });
         return view;
     }
 
@@ -110,10 +154,8 @@ public class NewsFeedFragment extends ListFragment
             @Override
             public boolean setViewValue(View view, Cursor cursor, int i) {
                 if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
-                    // give the upvote button the report's id
                     view.setTag(cursor.getInt(i));
                 else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)){
-                    // set the upvote button to the proper state
                     TextView upvoteTV = (TextView) view.findViewById(R.id.upvoteCount);
                     ImageButton upvoteButton = (ImageButton) view.findViewById(R.id.upvoteButton);
                     view.setTag(cursor.getInt(i));
@@ -130,11 +172,11 @@ public class NewsFeedFragment extends ListFragment
                 } else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)){
                     ((TextView) view).setText(Integer.toString(cursor.getInt(i)));
                 } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)){ // set the distance
-                    Location reportLocation = new Location("ReportLocation");
-                    reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
-                    reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
                     Location currentLocation = ((MainActivity) getActivity()).getLocation();
                     if(currentLocation != null){
+                        Location reportLocation = new Location("ReportLocation");
+                        reportLocation.setLatitude(Double.parseDouble(cursor.getString(i-1)));
+                        reportLocation.setLongitude(Double.parseDouble(cursor.getString(i)));
                         String distText = Report.getDistanceText(currentLocation, reportLocation);
                         ((TextView)view).setText(distText);
                         if(distText.equals("here")){
@@ -146,7 +188,6 @@ public class NewsFeedFragment extends ListFragment
                             View parent = (View) view.getParent();
                             ((ImageView)parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker);
                         }
-
                     }
                } else
                     return false;
@@ -225,9 +266,17 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        startRefresh();
+        String sortOrder = null;
+        if(args != null){
+            String sorting = (String) args.get("SORT");
+            if(sorting.equals("popular"))
+                sortOrder = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
+        }
+        if(sortOrder == null) // default is by time TODO: sort by epoch time
+            sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
+        Log.e("Sort order: ", sortOrder);
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            PROJECTION, null, null, null);
+            PROJECTION, null, null, sortOrder);
     }
 
     @Override
