@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
@@ -25,6 +26,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -48,7 +50,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mContext = context;
         mFragment = frag;
         pendingReport = report;
-        screenW = 400; // TODO: get actual screen width
+        screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
         userCancelled = false;
     }
 
@@ -108,22 +110,30 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
         publishProgress(pendingReport.pendingState);
         ContentValues updateValues = new ContentValues();
+        File localPicToDelete = null;
         if (pendingReport.pendingState == 1) {
             updateValues.put(ReportContract.Entry.COLUMN_TITLE, response.getString(OUTPUT_KEY));
             updateValues.put(ReportContract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-        } else if (pendingReport.pendingState == 2)
+        } else if (pendingReport.pendingState == 2){
+            localPicToDelete = new File(pendingReport.mediaPaths.get(0));
             updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-        else if (pendingReport.pendingState == 3)
+        } else if (pendingReport.pendingState == 3){
+            localPicToDelete = new File(pendingReport.mediaPaths.get(1));
             updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        else if (pendingReport.pendingState == -1)
+        } else if (pendingReport.pendingState == -1){
+            localPicToDelete = new File(pendingReport.mediaPaths.get(2));
             updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+        }
+        if(localPicToDelete != null){
+            boolean wasItDeleted = localPicToDelete.delete();
+            Log.e("Local Pic delete", "Local Pic deleted: " + wasItDeleted);
+        }
         updateValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         if (pendingReport.pendingState > 0)
             updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
         else
             updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
-
         Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
