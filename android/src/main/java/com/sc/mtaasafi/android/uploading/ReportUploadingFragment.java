@@ -40,12 +40,14 @@ public class ReportUploadingFragment extends ListFragment
     public String[] LIST_FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_DETAILS,
         ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_PENDINGFLAG
+        ReportContract.Entry.COLUMN_PENDINGFLAG,
+        ReportContract.Entry.COLUMN_ID
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.itemDetails,
         R.id.timeElapsed,
-        R.id.expanded_layout
+        R.id.expanded_layout,
+        R.id.deleteReportButton
     };
     public ReportUploadingFragment() {}
 
@@ -135,7 +137,11 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
-            else
+            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID)){
+                    view.setTag(cursor.getInt(i));
+                if(cursor.getCount() < 2)
+                    view.setVisibility(View.INVISIBLE);
+            } else
                 return false;
             return true;
         }
@@ -170,7 +176,6 @@ public class ReportUploadingFragment extends ListFragment
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {}
-
             @Override
             public void onAnimationEnd(Animation animation) {
                 getActivity().finish();

@@ -125,10 +125,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             localPicToDelete = new File(pendingReport.mediaPaths.get(2));
             updateValues.put(ReportContract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
         }
-        if(localPicToDelete != null){
-            boolean wasItDeleted = localPicToDelete.delete();
-            Log.e("Local Pic delete", "Local Pic deleted: " + wasItDeleted);
-        }
+        if(localPicToDelete != null)
+            localPicToDelete.delete();
         updateValues.put(ReportContract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         if (pendingReport.pendingState > 0)
             updateValues.put(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);

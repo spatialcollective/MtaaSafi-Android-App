@@ -25,7 +25,8 @@
                 android:paddingRight="100dp"
                 android:paddingTop="5dp"
                 android:paddingBottom="7dp"
-                android:layout_centerHorizontal="true"/>
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -151,4 +152,16 @@
             </RelativeLayout>
 
         </LinearLayout>
- </RelativeLayout>
+
+    <com.sc.mtaasafi.android.uploading.DeleteReportButton
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/deleteReportButton"
+        android:src="@drawable/delete_report_button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:baselineAlignBottom="false"
+        android:layout_alignBottom="@+id/collapsed_layout_layout"
+        android:background="@color/transparent"
+        android:scaleType="fitCenter" />
+</RelativeLayout>
