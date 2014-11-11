@@ -142,6 +142,7 @@ public class NewsFeedFragment extends ListFragment
                 nff.getLoaderManager().restartLoader(0, args, nff);
             }
         });
+
         return view;
     }
 
@@ -196,7 +197,6 @@ public class NewsFeedFragment extends ListFragment
         });
         updateSavedReportsBtn(view);
         setListAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this);
     }
 
    @Override
@@ -209,6 +209,11 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onResume(){
         super.onResume();
+        // restore default ordering
+        Bundle args = new Bundle();
+        args.putString("SORT", "recent");
+        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
+        nff.getLoaderManager().restartLoader(0, args, nff);
         updateSavedReportsBtn(getView());
     }
     @Override

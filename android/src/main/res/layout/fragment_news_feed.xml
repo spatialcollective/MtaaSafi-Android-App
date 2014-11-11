@@ -59,15 +59,6 @@
                 android:layout_marginLeft="10dp"
                 android:indeterminate="false" />
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:id="@+id/bottomLine"
-                android:background="#999999"
-                android:paddingTop="10dp"
-                android:layout_below="@id/refreshProgressBar"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
         </RelativeLayout>
 
         <ListView
