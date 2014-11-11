@@ -148,7 +148,7 @@ public class NewReportActivity extends ActionBarActivity implements
             Log.e("New Report Activity", "have location");
             Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
             Log.e("New Report Activity", "Report inserted. Uri is: " + newReportUri.toString());
-            exit();
+            finish();
         }
     }
     public void attemptBeamOut(View view) {
@@ -160,7 +160,7 @@ public class NewReportActivity extends ActionBarActivity implements
             intent.setClass(this, UploadingActivity.class);
             intent.setData(newReportUri);
             startActivity(intent);
-            exit();
+            finish();
         }
     }
 
@@ -212,7 +212,7 @@ public class NewReportActivity extends ActionBarActivity implements
 //        args.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LEAVING_UPLOAD);
 //        adf.setArguments(args);
 //        adf.show(getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
-        exit();
+        finish();
     }
 
     public void onAlertButtonPressed(int eventKey){
@@ -221,7 +221,7 @@ public class NewReportActivity extends ActionBarActivity implements
 
         switch(eventKey){
             case AlertDialogFragment.ABANDON_REPORTS:
-                exit();
+                finish();
                 break;
             case AlertDialogFragment.SAVE_REPORTS:
                 //if(ruf != null)
@@ -233,10 +233,4 @@ public class NewReportActivity extends ActionBarActivity implements
         finish();
     }
 
-    private void exit(){
-        NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        if(nrf != null)
-            nrf.setRetainInstance(false);
-        finish();
-    }
 }

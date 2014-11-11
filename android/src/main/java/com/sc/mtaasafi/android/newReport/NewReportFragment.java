@@ -67,7 +67,6 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
-
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptAddSendReportBtn(view);
@@ -76,7 +75,6 @@ public class NewReportFragment extends Fragment {
         setListeners();
     }
 
-    @SuppressWarnings("ResourceType")
     @Override
     public void onResume(){
         super.onResume();
@@ -173,10 +171,8 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(detailsView != null && detailsView.getText() != null) {
-                    detailsText = detailsView.getText().toString();
-                    attemptEnableSendSave();
-                }
+                detailsText = s.toString();
+                attemptEnableSendSave();
             }
         });
 
