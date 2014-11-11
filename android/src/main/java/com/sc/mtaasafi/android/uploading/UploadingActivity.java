@@ -15,10 +15,10 @@ import android.view.View;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.newReport.NewReportFragment;
 
 public class UploadingActivity extends ActionBarActivity {
 
-    private ReportUploader uploader;
     final static String UPLOAD_TAG = "upload", ACTION = "action", DATA = "data";
 
 
@@ -53,9 +53,10 @@ public class UploadingActivity extends ActionBarActivity {
     @Override
     public void finish() {
         super.finish();
-        Log.e("NRA.Finish", "Finish called! Cancelling uploading: " + (uploader != null));
-        if (uploader != null)
-            uploader.cancel(true);
+        ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager()
+                                        .findFragmentByTag(UPLOAD_TAG);
+        if(ruf != null)
+            ruf.setRetainInstance(false);
     }
 
 //    public void uploadSavedReports(View view) {
