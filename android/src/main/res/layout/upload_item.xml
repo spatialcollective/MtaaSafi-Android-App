@@ -164,4 +164,15 @@
         android:layout_alignBottom="@+id/collapsed_layout_layout"
         android:background="@color/transparent"
         android:scaleType="fitCenter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Uploaded!"
+        android:id="@+id/uploadSuccessText"
+        android:textColor="@color/mtaa_safi_blue"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/collapsed_layout_layout"
+        android:visibility="gone" />
 </RelativeLayout>
