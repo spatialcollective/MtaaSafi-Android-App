@@ -172,7 +172,7 @@ public class NewReportActivity extends ActionBarActivity implements
     }
 
     public Uri saveNewReport(NewReportFragment frag) {
-        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
+        Report newReport = new Report(frag.detailsText, PrefUtils.trimUsername(cp.getString(PrefUtils.USERNAME, "")), getLocation(), frag.picPaths);
         ContentValues reportValues = new ContentValues();
         reportValues.put(ReportContract.Entry.COLUMN_SERVER_ID, 0);
         reportValues.put(ReportContract.Entry.COLUMN_TITLE, "");

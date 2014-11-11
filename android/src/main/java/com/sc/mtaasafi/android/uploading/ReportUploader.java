@@ -147,31 +147,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         return new JSONObject(responseString);
     }
 
-    private void verifyUploadProgress() {
-        // if (pendingReport.mediaPaths.get(2).contains("http:")) {
-        //     progress = -1;
-        //     updateProgress();
-        //     break;
-        // } else if (pendingReport.mediaPaths.get(1).contains("http:"))
-        //     i = progress = 3;
-        // else if (pendingReport.mediaPaths.get(0).contains("http:"))
-        //     i = progress = 2;
-        // else if (pendingReport.serverId != 0)
-        //     verifyWithServer(pendingReport) != 404) {
-        //          HttpResponse response = new DefaultHttpClient()
-        //                  .execute(new HttpGet(BASE_WRITE_URL + "/" + report.serverId + "/"));
-        //          return response.getStatusLine().getStatusCode();
-        //     }
-        //     i = progress = 1;
-        // else
-        //     i = progress = 0;
-        // updateProgress();
-        // Log.e("New loop", "Progress is: " + progress);
-    }
-
     protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }
     @Override
-    protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
+    protected void onPostExecute(Integer result) {
+        if(!isCancelled())
+            mFragment.reportUploadSuccess();
+    }
 
     public void cancelSession(){
         cancel(true);
