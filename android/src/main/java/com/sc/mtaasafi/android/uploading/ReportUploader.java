@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
@@ -173,9 +174,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        if(userCancelled)
+        if (userCancelled)
             mFragment.onSessionCancelled();
         else
-            mFragment.reportFailure();
+            mFragment.changeHeader("Error", R.color.DarkRed, 1);
     }
 }

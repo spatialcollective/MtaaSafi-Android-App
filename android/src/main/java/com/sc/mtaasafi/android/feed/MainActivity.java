@@ -233,7 +233,7 @@ public class MainActivity extends ActionBarActivity implements
     public void uploadSavedReports() {
         if(getLocation() != null){
             Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                    .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
+                    .setAction(String.valueOf(0));
             startActivity(intent);
         } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);

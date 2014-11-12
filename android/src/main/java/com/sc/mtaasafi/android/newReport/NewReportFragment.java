@@ -173,10 +173,8 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(detailsView != null && detailsView.getText() != null) {
-                    detailsText = detailsView.getText().toString();
-                    attemptEnableSendSave();
-                }
+                detailsText = s.toString();
+                attemptEnableSendSave();
             }
         });
 
