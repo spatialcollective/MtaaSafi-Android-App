@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -76,6 +78,24 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
                 ((ImageView) view.findViewById(doneViewId)).setImageResource(drawable);
             if (workingId != 0)
                 view.findViewById(workingId).setVisibility(View.VISIBLE);
+            else{
+                view.findViewById(R.id.uploadSuccessText).setVisibility(View.VISIBLE);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(600);
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {}
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // notify data set changed?
+                        // TODO: move update Database call into this class. Current arch doesn't
+                        // allow this feature...
+                    }
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {}
+                });
+                view.startAnimation(anim);
+            }
             if (doneProgressId != 0)
                 view.findViewById(doneProgressId).setVisibility(View.INVISIBLE);
         }

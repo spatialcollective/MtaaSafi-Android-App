@@ -29,7 +29,10 @@ public class ReportUploadingFragment extends ListFragment
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
 
-    private int pendingReportCount = -1, mColor = R.color.mtaa_safi_blue, mBtnState = 0;
+    private int pendingReportCount = -1, 
+                mColor = R.color.mtaa_safi_blue, 
+                mBtnState = 0,
+                inProgressIndex = 0;
     private String mText = "Uploading...";
     private boolean userCancelled = false;
 
@@ -79,7 +82,7 @@ public class ReportUploadingFragment extends ListFragment
                     if (tag.equals("cancel"))
                         cancelSession(view);
                     else if (tag.equals("restart"))
-                        restartSession();
+                        beamUpFirstReport();
                 }
             }
         });
@@ -99,15 +102,6 @@ public class ReportUploadingFragment extends ListFragment
     public void onSessionCancelled() {
         Log.e("cancel session", "session was cancelled!!");
         changeHeader("Upload Cancelled", R.color.Crimson, 1);
-    }
-
-    private void restartSession() {
-        Log.e("restart session", "you rang?");
-        if(mAdapter.getCount() > 1)
-            beamUpFirstReport();
-        else
-            beamUpReport(new Report(mAdapter.getCursor()));
-        changeHeader("Uploading...", R.color.mtaa_safi_blue, 0);
     }
 
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -146,7 +140,8 @@ public class ReportUploadingFragment extends ListFragment
             return;
         }
         if (getView() != null)
-            changeHeader("Uploading...", R.color.mtaa_safi_blue, 0);
+            changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
+                    R.color.mtaa_safi_blue, 0);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
     }
@@ -171,6 +166,7 @@ public class ReportUploadingFragment extends ListFragment
     public void reportUploadSuccess() {
         changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, 0);
         uploader = null;
+        inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null)
@@ -216,8 +212,10 @@ public class ReportUploadingFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         if (pendingReportCount == -1)
             pendingReportCount = mAdapter.getCount();
-        if(!userCancelled)
+        if (!userCancelled && pendingReportCount > 0) {
+            inProgressIndex = 1;
             beamUpFirstReport();
+        }
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
