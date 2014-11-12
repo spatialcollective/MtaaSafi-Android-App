@@ -185,6 +185,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                     upvotedInt = 1;
                 else
                     upvotedInt = 0;
+                Log.i("UPVOTE DATA", "ServerId" + entry.getString("unique_id") + " Upvoted: " + upvoted + ". Upvoted Int: " + upvotedInt);
                 batch.add(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
                         .withValue(Contract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
                         .withValue(Contract.Entry.COLUMN_LOCATION, entry.getString(Contract.Entry.COLUMN_LOCATION))
