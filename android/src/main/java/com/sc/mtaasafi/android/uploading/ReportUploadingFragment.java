@@ -28,7 +28,7 @@ public class ReportUploadingFragment extends ListFragment
 
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
-    private int pendingReportCount, mColor;
+    private int pendingReportCount, mColor, currentReport;
     private String mText;
     private boolean userCancelled;
 
@@ -108,7 +108,6 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     public void onSessionCancelled(){
-        Log.e("cancel session", "session was cancelled!!");
         changeHeaderMessage("Upload Cancelled", R.color.Crimson);
         ImageButton startStop = (ImageButton) getView().findViewById(R.id.cancel_button);
         startStop.setClickable(true);
@@ -118,7 +117,6 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void restartSession(){
-        Log.e("restart session", "you rang?");
         if(mAdapter.getCount() > 1)
             beamUpFirstReport();
         else
@@ -164,7 +162,8 @@ public class ReportUploadingFragment extends ListFragment
             return;
         }
         if (getView() != null)
-            changeHeaderMessage("Uploading...", R.color.mtaa_safi_blue);
+            changeHeaderMessage("Uploading (" + currentReport + "/" + pendingReportCount + ")",
+                    R.color.mtaa_safi_blue);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
     }
@@ -192,6 +191,7 @@ public class ReportUploadingFragment extends ListFragment
     public void reportUploadSuccess() {
         changeHeaderMessage("Report uploaded successfully!", R.color.mtaa_safi_blue);
         uploader = null;
+        currentReport++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null)
@@ -218,8 +218,10 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
-        if (pendingReportCount == -1)
+        if (pendingReportCount == -1){
             pendingReportCount = mAdapter.getCount();
+            currentReport = 1;
+        }
         if(!userCancelled)
             beamUpFirstReport();
     }
