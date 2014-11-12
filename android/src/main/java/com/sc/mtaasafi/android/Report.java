@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -134,7 +135,16 @@ public class Report {
         return Contract.Entry.CONTENT_URI.buildUpon()
                 .appendPath(Integer.toString(dbId)).build();
     }
-
+    public static int serverIdToDBId(Context c, int serverId){
+        String[] projection = new String[1];
+        projection[0] = Contract.Entry.COLUMN_ID;
+        Cursor cursor = c.getContentResolver().query(Contract.Entry.CONTENT_URI, projection, Contract.Entry.COLUMN_SERVER_ID + " = " + serverId,
+                null, null);
+        if(cursor.moveToNext()){
+            return cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_ID));
+        }
+        return -1;
+    }
     public JSONObject getJsonForText() throws JSONException {
         JSONObject json = new JSONObject();
         json.put(detailsKey, this.details);
@@ -168,7 +178,7 @@ public class Report {
         outState.putInt(report_key+serverIdKey, this.serverId);
         outState.putString(report_key+titleKey, this.title);
         outState.putString(report_key+detailsKey, this.details);
-        outState.putString(report_key+timeStampKey, this.timeStamp);
+        outState.putString(report_key + timeStampKey, this.timeStamp);
         outState.putString(report_key+userNameKey, this.userName);
         if (mediaPaths != null)
             outState.putStringArray(report_key+mediaPathsKey,

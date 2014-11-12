@@ -159,12 +159,14 @@ public class NewsFeedFragment extends ListFragment
                 else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)){
                     TextView upvoteTV = (TextView) view.findViewById(R.id.upvoteCount);
                     ImageButton upvoteButton = (ImageButton) view.findViewById(R.id.upvoteButton);
-                    view.setTag(cursor.getInt(i));
+                    Log.i("BINDING userVoted", "Uservoted on this: " + cursor.getInt(i)
+                        + ". Server id:" + cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
+                    VoteInterface vi = (VoteInterface) view;
+                    vi.feedMode = true;
                     if(cursor.getInt(i) > 0){
                         upvoteButton.setImageResource(R.drawable.button_upvote_clicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
-                    }
-                    else{
+                    } else{
                         upvoteButton.setImageResource(R.drawable.button_upvote_unclicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
                     }
@@ -289,11 +291,13 @@ public class NewsFeedFragment extends ListFragment
         endRefresh();
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.changeCursor(null);
+        mAdapter.notifyDataSetChanged();
     }
 
 }
