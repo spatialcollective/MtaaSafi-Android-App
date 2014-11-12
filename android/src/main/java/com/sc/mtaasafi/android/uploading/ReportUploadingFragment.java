@@ -28,7 +28,7 @@ public class ReportUploadingFragment extends ListFragment
 
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
-    private int pendingReportCount;
+    private int pendingReportCount, currentReport;
 
     public final static String ACTION = "action", DATA = "data";
     public final static char ACTION_SEND_NEW = 'n',
@@ -52,6 +52,8 @@ public class ReportUploadingFragment extends ListFragment
         super.onCreate(instate);
         setRetainInstance(true);
         pendingReportCount = -1;
+        currentReport = 1;
+
     }
 
     @Override
@@ -130,14 +132,23 @@ public class ReportUploadingFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String sort = null;
+        if(getArguments() != null){
+            String order = getArguments().getString("ORDER");
+            if(order != null && order.equals("descending")){
+               sort = Contract.Entry.COLUMN_ID + " DESC";
+            }
+        }
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, sort);
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
-        if (pendingReportCount == -1)
+        if (pendingReportCount == -1){
             pendingReportCount = mAdapter.getCount();
+            currentReport = 1;
+        }
         beamUpFirstReport();
     }
     @Override
