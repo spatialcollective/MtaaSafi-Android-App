@@ -40,7 +40,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
-    boolean userCancelled;
+    String canceller;
+
+    private static final String CANCEL_SESSION = "user",
+            DELETE_BUTTON = "delete",
+            ERROR = "error";
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
@@ -52,7 +56,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mFragment = frag;
         pendingReport = report;
         screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
-        userCancelled = false;
+        canceller = "";
     }
 
     @Override
@@ -165,7 +169,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     public void cancelSession(){
         cancel(true);
-        userCancelled = true;
+        canceller = CANCEL_SESSION;
+    }
+    public void deleteReport(){
+        cancel(true);
+        canceller = DELETE_BUTTON;
     }
     @Override
     protected void onCancelled() {
@@ -174,8 +182,10 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         Uri reportUri = ReportContract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        if (userCancelled)
+        if (canceller.equals(CANCEL_SESSION))
             mFragment.onSessionCancelled();
+        else if(canceller.equals(DELETE_BUTTON))
+            mFragment.onPendingReportDeleted();
         else
             mFragment.changeHeader("Error", R.color.DarkRed, 1);
     }

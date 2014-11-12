@@ -24,6 +24,8 @@ public class DeleteReportButton extends ImageButton {
                 ReportUploadingFragment ruf = (ReportUploadingFragment)
                         ua.getSupportFragmentManager().findFragmentByTag(UploadingActivity.UPLOAD_TAG);
                 ruf.mAdapter.notifyDataSetChanged();
+                if(getTag() != null && getTag().equals("inProgress"))
+                    ruf.uploader.deleteReport();
             }
         });
     }

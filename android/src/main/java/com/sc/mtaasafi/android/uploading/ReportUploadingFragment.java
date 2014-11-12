@@ -174,6 +174,10 @@ public class ReportUploadingFragment extends ListFragment
                     R.color.mtaa_safi_blue, 0);
     }
 
+    public void onPendingReportDeleted(){
+        beamUpFirstReport();
+    }
+
     public void changeHeader(String message, int color, int btnState) {
         mText = message;
         mColor = color;
