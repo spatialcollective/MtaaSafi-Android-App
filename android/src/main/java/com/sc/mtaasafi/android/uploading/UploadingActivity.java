@@ -56,6 +56,13 @@ public class UploadingActivity extends ActionBarActivity {
             uploader.cancel(true);
     }
 
+    public boolean isOnline() {
+        NetworkInfo netInfo = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnectedOrConnecting())
+            return true;
+        return false;
+    }
+
 //    public void uploadSavedReports(View view) {
 //        if (isOnline()) {
 //            FragmentManager manager = getSupportFragmentManager();

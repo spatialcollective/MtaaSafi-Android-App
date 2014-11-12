@@ -23,7 +23,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 21
         versionCode 8
-        versionName ".8.1"
+        versionName "lolli"
     }
     buildTypes {
         release {

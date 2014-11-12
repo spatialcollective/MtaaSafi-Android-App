@@ -7,9 +7,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.database.ReportContract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import org.apache.http.HttpResponse;
@@ -25,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +41,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
+    boolean userCancelled;
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
@@ -47,7 +52,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mContext = context;
         mFragment = frag;
         pendingReport = report;
-        screenW = 400; // getScreenWidth();
+        screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
+        userCancelled = false;
     }
 
     @Override
@@ -106,6 +112,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
         publishProgress(pendingReport.pendingState);
         ContentValues updateValues = new ContentValues();
+        File localPicToDelete = null;
         if (pendingReport.pendingState == 1) {
             updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
@@ -147,7 +154,15 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }
     @Override
-    protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
+    protected void onPostExecute(Integer result) {
+        if(!isCancelled())
+            mFragment.reportUploadSuccess();
+    }
+
+    public void cancelSession(){
+        cancel(true);
+        userCancelled = true;
+    }
     @Override
     protected void onCancelled() {
         ContentValues updateValues = new ContentValues();
@@ -155,6 +170,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        mFragment.reportFailure();
+        if (userCancelled)
+            mFragment.onSessionCancelled();
+        else
+            mFragment.changeHeader("Error", R.color.DarkRed, 1);
     }
 }
