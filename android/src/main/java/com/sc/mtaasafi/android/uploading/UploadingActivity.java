@@ -10,6 +10,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.sc.mtaasafi.android.R;
+
 public class UploadingActivity extends ActionBarActivity {
 
     private ReportUploader uploader;
@@ -19,6 +21,8 @@ public class UploadingActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
 
         ReportUploadingFragment frag = null;
         if (savedInstanceState != null)

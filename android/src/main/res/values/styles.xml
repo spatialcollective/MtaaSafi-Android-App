@@ -17,11 +17,12 @@
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar">
         <item name="android:background">@drawable/app_color</item>
         <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
-
+        <item name="android:colorButtonNormal">@color/White</item>
         <!--<item name="colorPrimary">@color/mtaa_safi_blue</item>-->
         <!-- Support library compatibility -->
         <item name="background">@drawable/app_color</item>
         <item name="titleTextStyle">@style/MyActionBarTitleText</item>
+        <item name="colorButtonNormal">@color/White</item>
     </style>
 
     <style name="MyActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">

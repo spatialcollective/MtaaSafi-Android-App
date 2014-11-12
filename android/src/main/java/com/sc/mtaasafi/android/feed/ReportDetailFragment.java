@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.location.Location;
@@ -15,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +22,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,10 +32,8 @@ import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.Contract;
 
 import java.text.SimpleDateFormat;
-
 
 public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
@@ -92,6 +89,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+        
         if(savedState != null)
             restoreMe(savedState);
         Location currentLocation = ((MainActivity) getActivity()).getLocation();
@@ -142,6 +140,18 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         outstate.putBoolean(userVoted_Key, userVoted);
         outstate.putInt(upvoteCount_Key, upvoteCount);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         topView = (LinearLayout) view.findViewById(R.id.top_layout);
@@ -455,10 +465,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         public Fragment getItem(int i) {
             ImageFragment iF = new ImageFragment();
             Bundle args = new Bundle();
-            args.putString("mediaPath", mediaPaths[i]);
             iF.setArguments(args);
             return iF;
         }
-
     }
 }

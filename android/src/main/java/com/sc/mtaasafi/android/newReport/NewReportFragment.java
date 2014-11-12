@@ -1,5 +1,8 @@
 package com.sc.mtaasafi.android.newReport;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -171,10 +175,10 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(detailsView != null && detailsView.getText() != null) {
+//                if(detailsView != null && detailsView.getText() != null) {
                     detailsText = detailsView.getText().toString();
                     attemptEnableSendSave();
-                }
+//                }
             }
         });
 
@@ -242,8 +246,7 @@ public class NewReportFragment extends Fragment {
         View view = getView();
         if (view == null)
             return;
-        if ( ((TextView) getView().findViewById(R.id.newReportDetails)).getText().toString().isEmpty()
-                || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
             disableButton((Button) view.findViewById(R.id.sendButton));
             disableButton((Button) view.findViewById(R.id.saveButton));
         } else {

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
@@ -39,12 +40,12 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFragment(savedInstanceState);
-        
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
         mLocationClient = new LocationClient(this, this, this);
         cp = PrefUtils.getPrefs(this);
     }
 
-    // Restore the previous fragment from the savedInstanceState
     private void restoreFragment(Bundle savedInstanceState){
         FragmentManager manager = getSupportFragmentManager();
         NewReportFragment frag = null;
