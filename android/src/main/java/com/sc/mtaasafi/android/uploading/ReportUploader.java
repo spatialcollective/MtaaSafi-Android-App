@@ -12,7 +12,7 @@ import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import org.apache.http.HttpResponse;

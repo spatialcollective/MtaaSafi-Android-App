@@ -149,7 +149,7 @@ public class NewReportActivity extends ActionBarActivity implements
             Log.e("New Report Activity", "have location");
             Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
             Log.e("New Report Activity", "Report inserted. Uri is: " + newReportUri.toString());
-            exit();
+            finish();
         }
     }
     public void attemptBeamOut(View view) {
@@ -161,7 +161,7 @@ public class NewReportActivity extends ActionBarActivity implements
             intent.setClass(this, UploadingActivity.class);
             intent.setData(newReportUri);
             startActivity(intent);
-            exit();
+            finish();
         }
     }
 

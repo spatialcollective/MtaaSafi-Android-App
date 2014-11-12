@@ -26,7 +26,7 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        super.bindView(view, context, cursor);
+        // super.bindView(view, context, cursor);
         mContext = context;
         resetState(view);
         indicateRow(cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);

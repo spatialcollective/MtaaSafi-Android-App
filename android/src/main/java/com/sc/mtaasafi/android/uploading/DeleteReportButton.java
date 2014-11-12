@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.database.ReportContract;
+import com.sc.mtaasafi.android.database.Contract;
 
 /**
  * Created by Agree on 11/11/2014.
@@ -20,7 +20,7 @@ public class DeleteReportButton extends ImageButton {
             public void onClick(View view) {
                 int dbId = (Integer) getTag();
                 UploadingActivity ua = (UploadingActivity) getContext();
-                ua.getContentResolver().delete(Report.uriFor(dbId), null, null);
+                ua.getContentResolver().delete(Report.getUri(dbId), null, null);
                 ReportUploadingFragment ruf = (ReportUploadingFragment)
                         ua.getSupportFragmentManager().findFragmentByTag(UploadingActivity.UPLOAD_TAG);
                 ruf.mAdapter.notifyDataSetChanged();

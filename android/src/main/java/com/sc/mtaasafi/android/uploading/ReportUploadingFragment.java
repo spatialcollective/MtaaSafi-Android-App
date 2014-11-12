@@ -45,8 +45,7 @@ public class ReportUploadingFragment extends ListFragment
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.itemDetails,
         R.id.timeElapsed,
-        R.id.expanded_layout,
-        R.id.deleteReportButton
+        R.id.expanded_layout
     };
     public ReportUploadingFragment() {}
 
@@ -93,7 +92,7 @@ public class ReportUploadingFragment extends ListFragment
         userCancelled = true;
         changeHeader("Cancelling...", R.color.DarkGray, -1);
         Log.e("cancel session", "cancelling!!");
-        if(uploader != null)
+        if (uploader != null)
             uploader.cancelSession();
         else
             onSessionCancelled();
@@ -113,8 +112,8 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID)){
-                    view.setTag(cursor.getInt(i));
+            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID)){
+//                    view.setTag(cursor.getInt(i));
                 if(cursor.getCount() < 2)
                     view.setVisibility(View.INVISIBLE);
             } else
@@ -126,9 +125,9 @@ public class ReportUploadingFragment extends ListFragment
     private void beamUpFirstReport() {
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-        else if (mAdapter.getCount() == 0){
-            onUploadsFinished();
-            getView().findViewById(R.id.cancel_button).setVisibility(View.INVISIBLE);
+        else if (mAdapter.getCount() == 0) {
+            changeHeader("Nothing to upload. Returning to the feed", R.color.Coral, -1);
+            exitSmoothly();
         }
     }
 
@@ -146,19 +145,16 @@ public class ReportUploadingFragment extends ListFragment
         uploader.execute();
     }
 
-    private void onUploadsFinished(){
-        changeHeader("Poa! Upload Success!", R.color.Coral, 0);
+    private void exitSmoothly() {
         AlphaAnimation anim = new AlphaAnimation(1.0f, 1.0f);
         anim.setDuration(1200);
         anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
+            @Override public void onAnimationStart(Animation animation) {}
             @Override
             public void onAnimationEnd(Animation animation) {
                 getActivity().finish();
             }
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
+            @Override public void onAnimationRepeat(Animation animation) {}
         });
         getView().findViewById(R.id.uploadingText).startAnimation(anim);
     }
@@ -169,9 +165,11 @@ public class ReportUploadingFragment extends ListFragment
         inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
-        else if (getView() != null)
+        else if (getView() != null) {
             changeHeader("Successfully uploaded " + pendingReportCount + " reports.",
                     R.color.mtaa_safi_blue, 0);
+            exitSmoothly();
+        }
     }
 
     public void changeHeader(String message, int color, int btnState) {
