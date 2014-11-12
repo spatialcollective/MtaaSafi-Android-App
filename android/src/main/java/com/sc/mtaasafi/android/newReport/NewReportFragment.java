@@ -48,6 +48,7 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+        setRetainInstance(true);
         detailsText = "";
         picPaths = new ArrayList<String>();
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++)
