@@ -23,18 +23,19 @@ public class DeleteReportButton extends ImageButton {
                 String[] projection = new String[1];
                 projection[0] = ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS;
                 UploadingActivity ua = (UploadingActivity) getContext();
+                ReportUploadingFragment ruf = (ReportUploadingFragment)
+                        ua.getSupportFragmentManager().findFragmentByTag(UploadingActivity.UPLOAD_TAG);
+                ruf.mAdapter.notifyDataSetChanged();
                 Cursor c = ua.getContentResolver().query(ReportContract.Entry.CONTENT_URI, projection, ReportContract.Entry.COLUMN_SERVER_ID + " = " + dbId, null, null);
                 if(c.moveToNext()){
                     boolean isUploading =
                             c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS)) > 0;
-                    if(isUploading){
-                        ReportUploadingFragment ruf = (ReportUploadingFragment)
-                                ua.getSupportFragmentManager().findFragmentByTag(UploadingActivity.UPLOAD_TAG);
-                        ruf.mAdapter.notifyDataSetChanged();
+                    if(isUploading)
                         ruf.uploader.deleteReport();
-                    }
                 }
+                c.close();
                 ua.getContentResolver().delete(Report.uriFor(dbId), null, null);
+
             }
         });
     }
