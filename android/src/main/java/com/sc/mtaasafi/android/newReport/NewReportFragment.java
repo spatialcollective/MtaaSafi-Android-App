@@ -67,7 +67,6 @@ public class NewReportFragment extends Fragment {
         picPreviews[PIC2] = (ImageView) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageView) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
-
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptAddSendReportBtn(view);
@@ -76,7 +75,6 @@ public class NewReportFragment extends Fragment {
         setListeners();
     }
 
-    @SuppressWarnings("ResourceType")
     @Override
     public void onResume(){
         super.onResume();
@@ -221,6 +219,7 @@ public class NewReportFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            Log.e("FILE PATH ON AC RESULT", picPaths.get(previewClicked));
             File file = new File(picPaths.get(previewClicked));
             if (file.length() == 0)
                 picPaths.set(previewClicked, null);
@@ -234,7 +233,9 @@ public class NewReportFragment extends Fragment {
         String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        Log.e("FILE PATH", image.getAbsolutePath());
         picPaths.set(previewClicked, image.getAbsolutePath());
+        Log.e("PIC PATHS", "Pic path: "+ previewClicked + ". " + picPaths.get(previewClicked));
         return image;
     }
 

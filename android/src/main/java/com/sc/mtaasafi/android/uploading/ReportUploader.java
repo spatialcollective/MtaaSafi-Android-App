@@ -101,7 +101,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         urlConnection.setChunkedStreamingMode(0);
         urlConnection.connect();
         DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
-        out.write(pendingReport.getBytesForPic(pendingReport.pendingState - 1));
+        byte[] bytes = pendingReport.getBytesForPic(pendingReport.pendingState - 1);
+        Log.e("BYTES 2 SERVER", "Bytes being sent:" + bytes.length);
+        out.write(bytes);
         out.flush();
         out.close();
         InputStream is = urlConnection.getInputStream();
