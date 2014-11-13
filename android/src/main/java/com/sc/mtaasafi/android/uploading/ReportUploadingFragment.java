@@ -97,7 +97,11 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
-            else
+            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID)){
+                view.setTag(cursor.getInt(i));
+                if(cursor.getCount() < 2)
+                    view.setVisibility(View.INVISIBLE);
+            } else
                 return false;
             return true;
         }
