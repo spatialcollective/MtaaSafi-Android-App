@@ -187,6 +187,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         else if(canceller.equals(DELETE_BUTTON))
             mFragment.onPendingReportDeleted();
         else
-            mFragment.changeHeader("Error", R.color.DarkRed, 1);
+            mFragment.changeHeader("Error", R.color.DarkRed, ReportUploadingFragment.HIDE_CANCEL);
     }
 }

@@ -29,9 +29,10 @@ public class ReportUploadingFragment extends ListFragment
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
 
+    public static final int SHOW_CANCEL = 0, SHOW_RETRY = 1, HIDE_CANCEL = -1;
     private int pendingReportCount = -1, 
                 mColor = R.color.mtaa_safi_blue, 
-                mBtnState = 0,
+                mBtnState = SHOW_CANCEL,
                 inProgressIndex = 0;
     private String mText = "Uploading...";
     private boolean userCancelled = false;
@@ -117,12 +118,12 @@ public class ReportUploadingFragment extends ListFragment
         userCancelled = false;
         Log.e("RUF", "Beam up report has been called!");
         if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
-            changeHeader("You must be online to upload.", R.color.DarkRed, -1);
+            changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
             return;
         }
         if (getView() != null)
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
-                    R.color.mtaa_safi_blue, 0);
+                    R.color.mtaa_safi_blue, SHOW_CANCEL);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
     }
@@ -144,14 +145,14 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     public void reportUploadSuccess() {
-        changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, 0);
+        changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, HIDE_CANCEL);
         uploader = null;
         inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null)
             changeHeader("Successfully uploaded " + pendingReportCount + " reports.",
-                    R.color.mtaa_safi_blue, 0);
+                    R.color.mtaa_safi_blue, HIDE_CANCEL);
     }
 
     public void onReportDeleted(boolean isUploading){
@@ -173,15 +174,15 @@ public class ReportUploadingFragment extends ListFragment
         ((TextView) view.findViewById(R.id.uploadingText)).setTextColor(getResources().getColor(color));
 
         ImageButton cancelBtn = (ImageButton) getView().findViewById(R.id.cancel_button);
-        if (btnState == -1) {
+        if (btnState == HIDE_CANCEL) {
             cancelBtn.setClickable(false);
             cancelBtn.setAlpha(0f);
-        } else if (btnState == 0) {
+        } else if (btnState == SHOW_CANCEL) {
             cancelBtn.setClickable(true);
             cancelBtn.setAlpha(1.0f);
             cancelBtn.setImageResource(R.drawable.cancel_upload_button);
             cancelBtn.setTag("cancel");
-        } else if (btnState == 1) {
+        } else if (btnState == SHOW_RETRY) {
             cancelBtn.setClickable(true);
             cancelBtn.setAlpha(1.0f);
             cancelBtn.setImageResource(R.drawable.restart_upload_button);
@@ -192,7 +193,7 @@ public class ReportUploadingFragment extends ListFragment
     private void cancelSession(View view) {
         // tell the adapter to tell the uploader to stop. Once it stops, update the view
         userCancelled = true;
-        changeHeader("Cancelling...", R.color.DarkGray, -1);
+        changeHeader("Cancelling...", R.color.DarkGray, HIDE_CANCEL);
         Log.e("cancel session", "cancelling!!");
         if(uploader != null)
             uploader.cancelSession();
@@ -202,7 +203,7 @@ public class ReportUploadingFragment extends ListFragment
 
     public void onSessionCancelled() {
         Log.e("cancel session", "session was cancelled!!");
-        changeHeader("Upload Cancelled", R.color.Crimson, 1);
+        changeHeader("Upload Cancelled", R.color.Crimson, SHOW_RETRY);
     }
 
     @Override
