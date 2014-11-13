@@ -99,8 +99,7 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.indicateRow(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID)){
                 view.setTag(cursor.getInt(i));
-                if(cursor.getCount() < 2)
-                    view.setVisibility(View.INVISIBLE);
+                view.setVisibility(View.VISIBLE);
             } else
                 return false;
             return true;
