@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 14;
     private static final String DATABASE_NAME = "mtaasafi.db";
 
     private static final String DATABASE_CREATE = "create table "

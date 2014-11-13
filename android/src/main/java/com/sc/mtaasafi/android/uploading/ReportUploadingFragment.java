@@ -2,7 +2,6 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -14,41 +13,40 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.widget.ImageButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.ReportContract;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class ReportUploadingFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
-    private int pendingReportCount, mColor;
-    private String mText;
-    private boolean isWorking;
 
-    public final static String ACTION = "action", DATA = "data";
-    public final static char ACTION_SEND_NEW = 'n',
-                    ACTION_SEND_ALL = 'a',
-                    ACTION_VIEW = 'v';
+    private int pendingReportCount = -1, 
+                mColor = R.color.mtaa_safi_blue, 
+                mBtnState = 0,
+                inProgressIndex = 0;
+    private String mText = "Uploading...";
+    private boolean userCancelled = false;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         ReportContract.Entry.COLUMN_DETAILS,
         ReportContract.Entry.COLUMN_TIMESTAMP,
-        ReportContract.Entry.COLUMN_PENDINGFLAG
+        ReportContract.Entry.COLUMN_PENDINGFLAG,
+        ReportContract.Entry.COLUMN_ID
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.itemDetails,
         R.id.timeElapsed,
-        R.id.expanded_layout
+        R.id.expanded_layout,
+        R.id.deleteReportButton
     };
     public ReportUploadingFragment() {}
 
@@ -56,10 +54,6 @@ public class ReportUploadingFragment extends ListFragment
     public void onCreate(Bundle instate){
         super.onCreate(instate);
         setRetainInstance(true);
-        pendingReportCount = -1;
-        mColor = R.color.mtaa_safi_blue;
-        mText = "Uploading...";
-        isWorking = true;
     }
 
     @Override
@@ -71,13 +65,43 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onViewCreated(View view, Bundle savedState) {
         super.onViewCreated(view, savedState);
+        changeHeader(mText, mColor, mBtnState);
+
         mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item,
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
         mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);
-        changeHeaderMessage(mText, isWorking, mColor);
-//        chooseAction(getArguments());
         getLoaderManager().initLoader(0, null, this);
+
+        final ImageButton cancelButton = (ImageButton) view.findViewById(R.id.cancel_button);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tag = (String) cancelButton.getTag();
+                if (tag != null) {
+                    if (tag.equals("cancel"))
+                        cancelSession(view);
+                    else if (tag.equals("restart"))
+                        beamUpFirstReport();
+                }
+            }
+        });
+    }
+
+    private void cancelSession(View view) {
+        // tell the adapter to tell the uploader to stop. Once it stops, update the view
+        userCancelled = true;
+        changeHeader("Cancelling...", R.color.DarkGray, -1);
+        Log.e("cancel session", "cancelling!!");
+        if(uploader != null)
+            uploader.cancelSession();
+        else
+            onSessionCancelled();
+    }
+
+    public void onSessionCancelled() {
+        Log.e("cancel session", "session was cancelled!!");
+        changeHeader("Upload Cancelled", R.color.Crimson, 1);
     }
 
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -89,7 +113,11 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
-            else
+            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID)){
+                    view.setTag(cursor.getInt(i));
+                if(cursor.getCount() < 2)
+                    view.setVisibility(View.INVISIBLE);
+            } else
                 return false;
             return true;
         }
@@ -98,50 +126,83 @@ public class ReportUploadingFragment extends ListFragment
     private void beamUpFirstReport() {
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-        else if (mAdapter.getCount() == 0)
-            changeHeaderMessage("Nothing to upload.", false, R.color.Coral);
+        else if (mAdapter.getCount() == 0){
+            onUploadsFinished();
+            getView().findViewById(R.id.cancel_button).setVisibility(View.INVISIBLE);
+        }
     }
 
     private void beamUpReport(Report pendingReport) {
-        if (!isOnline() && getView() != null) {
-            reportFailure();
+        userCancelled = false;
+        Log.e("RUF", "Beam up report has been called!");
+        if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
+            changeHeader("You must be online to upload.", R.color.DarkRed, 0);
             return;
         }
         if (getView() != null)
-            changeHeaderMessage("Uploading...", true, R.color.mtaa_safi_blue);
+            changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
+                    R.color.mtaa_safi_blue, 0);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
     }
 
-    public void reportFailure() {
-        changeHeaderMessage("You must be online to upload.", false, R.color.DarkRed);
+    private void onUploadsFinished(){
+        changeHeader("Poa! Upload Success!", R.color.Coral, 0);
+        AlphaAnimation anim = new AlphaAnimation(1.0f, 1.0f);
+        anim.setDuration(1200);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                getActivity().finish();
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        getView().findViewById(R.id.uploadingText).startAnimation(anim);
     }
 
     public void reportUploadSuccess() {
-        changeHeaderMessage("Report uploaded successfully!", false, R.color.mtaa_safi_blue);
+        changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, 0);
         uploader = null;
+        inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null)
-            changeHeaderMessage("Successfully uploaded " + pendingReportCount + " reports.",
-                    false, R.color.mtaa_safi_blue);
+            changeHeader("Successfully uploaded " + pendingReportCount + " reports.",
+                    R.color.mtaa_safi_blue, 0);
     }
 
-    private void changeHeaderMessage(String message, boolean showSpinner, int color) {
+    public void onPendingReportDeleted(){
+        beamUpFirstReport();
+    }
+
+    public void changeHeader(String message, int color, int btnState) {
         mText = message;
-        isWorking = showSpinner;
         mColor = color;
+        mBtnState = btnState;
         View view = getView();
         if (view == null) return;
-        
         view.findViewById(R.id.uploadingView).setVisibility(View.VISIBLE);
         ((TextView) view.findViewById(R.id.uploadingText)).setText(message);
         ((TextView) view.findViewById(R.id.uploadingText)).setTextColor(getResources().getColor(color));
 
-        if (showSpinner)
-            view.findViewById(R.id.headerProgressBar).setVisibility(View.VISIBLE);
-        else
-            view.findViewById(R.id.headerProgressBar).setVisibility(View.GONE);
+        ImageButton cancelBtn = (ImageButton) getView().findViewById(R.id.cancel_button);
+        if (btnState == -1) {
+            cancelBtn.setClickable(false);
+            cancelBtn.setAlpha(0f);
+        } else if (btnState == 0) {
+            cancelBtn.setClickable(true);
+            cancelBtn.setAlpha(1.0f);
+            cancelBtn.setImageResource(R.drawable.cancel_upload_button);
+            cancelBtn.setTag("cancel");
+        } else if (btnState == 1) {
+            cancelBtn.setClickable(true);
+            cancelBtn.setAlpha(1.0f);
+            cancelBtn.setImageResource(R.drawable.restart_upload_button);
+            cancelBtn.setTag("restart");
+        }
     }
 
     @Override
@@ -149,23 +210,19 @@ public class ReportUploadingFragment extends ListFragment
         return new CursorLoader(getActivity(), ReportContract.Entry.CONTENT_URI,
             Report.PROJECTION, ReportContract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
     }
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
         if (pendingReportCount == -1)
             pendingReportCount = mAdapter.getCount();
-        beamUpFirstReport();
+        if (!userCancelled && pendingReportCount > 0) {
+            inProgressIndex = 1;
+            beamUpFirstReport();
+        }
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
-
-    public boolean isOnline() {
-        NetworkInfo netInfo = ((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE))
-                                    .getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
-            return true;
-        return false;
-    }
 
     //    private void chooseAction(Bundle args) {
 //        if (args != null) {

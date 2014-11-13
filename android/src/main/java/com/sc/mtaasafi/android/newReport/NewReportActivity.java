@@ -77,7 +77,7 @@ public class NewReportActivity extends ActionBarActivity implements
     public void uploadSavedReports() {
        if(getLocation() != null){
            Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                   .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
+                   .setAction(String.valueOf(0));
            startActivity(intent);
        } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
@@ -172,7 +172,7 @@ public class NewReportActivity extends ActionBarActivity implements
     }
 
     public Uri saveNewReport(NewReportFragment frag) {
-        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
+        Report newReport = new Report(frag.detailsText, PrefUtils.trimUsername(cp.getString(PrefUtils.USERNAME, "")), getLocation(), frag.picPaths);
         ContentValues reportValues = new ContentValues();
         reportValues.put(ReportContract.Entry.COLUMN_SERVER_ID, 0);
         reportValues.put(ReportContract.Entry.COLUMN_TITLE, "");
