@@ -50,7 +50,6 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
             ((TextView) row.findViewById(R.id.itemDetails)).setTextColor(Color.WHITE);
             ((TextView) row.findViewById(R.id.timeElapsed)).setTextColor(Color.WHITE);
             row.findViewById(R.id.expanded_layout).setVisibility(View.VISIBLE);
-            row.findViewById(R.id.deleteReportButton).setTag("inProgress");
         } else { resetView(row); };
     }
 

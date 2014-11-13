@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageButton;
@@ -19,13 +20,22 @@ public class DeleteReportButton extends ImageButton {
             @Override
             public void onClick(View view) {
                 int dbId = (Integer) getTag();
+                String[] projection = new String[1];
+                projection[0] = ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS;
                 UploadingActivity ua = (UploadingActivity) getContext();
-                ua.getContentResolver().delete(Report.uriFor(dbId), null, null);
                 ReportUploadingFragment ruf = (ReportUploadingFragment)
                         ua.getSupportFragmentManager().findFragmentByTag(UploadingActivity.UPLOAD_TAG);
                 ruf.mAdapter.notifyDataSetChanged();
-                if(getTag() != null && getTag().equals("inProgress"))
-                    ruf.uploader.deleteReport();
+                Cursor c = ua.getContentResolver().query(ReportContract.Entry.CONTENT_URI, projection, ReportContract.Entry.COLUMN_SERVER_ID + " = " + dbId, null, null);
+                if(c.moveToNext()){
+                    boolean isUploading =
+                            c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS)) > 0;
+                    if(isUploading)
+                        ruf.uploader.deleteReport();
+                }
+                c.close();
+                ua.getContentResolver().delete(Report.uriFor(dbId), null, null);
+
             }
         });
     }
