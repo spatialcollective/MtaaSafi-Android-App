@@ -77,7 +77,7 @@ public class NewReportActivity extends ActionBarActivity implements
     public void uploadSavedReports() {
        if(getLocation() != null){
            Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                   .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
+                   .setAction(String.valueOf(0));
            startActivity(intent);
        } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
@@ -138,7 +138,7 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        if (frag != null)
+        if (frag != null) // are we sure this isn't holding the fragment longer than necessary?
             getSupportFragmentManager().putFragment(bundle, NEW_REPORT_TAG, frag);
     }
 
@@ -153,11 +153,14 @@ public class NewReportActivity extends ActionBarActivity implements
     }
     public void attemptBeamOut(View view) {
         if (transporterHasLocation()) {
-            Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
+            NewReportFragment nrf =
+                    (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+            Uri newReportUri = saveNewReport(nrf);
             Intent intent = new Intent();
             intent.setClass(this, UploadingActivity.class);
             intent.setData(newReportUri);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -170,20 +173,8 @@ public class NewReportActivity extends ActionBarActivity implements
 
     public Uri saveNewReport(NewReportFragment frag) {
         Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
-        ContentValues reportValues = new ContentValues();
-        reportValues.put(Contract.Entry.COLUMN_SERVER_ID, 0);
-        reportValues.put(Contract.Entry.COLUMN_LOCATION, "");
-        reportValues.put(Contract.Entry.COLUMN_CONTENT, newReport.details);
-        reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, newReport.timeStamp);
-        reportValues.put(Contract.Entry.COLUMN_LAT, Double.toString(newReport.latitude));
-        reportValues.put(Contract.Entry.COLUMN_LNG, Double.toString(newReport.longitude));
-        reportValues.put(Contract.Entry.COLUMN_USERNAME, newReport.userName);
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, newReport.mediaPaths.get(0));
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, newReport.mediaPaths.get(1));
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, newReport.mediaPaths.get(2));
-        reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, 0);
         Log.e("New Report Activity", "inserting");
-        return getContentResolver().insert(Contract.Entry.CONTENT_URI, reportValues);
+        return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 
     public static int getSavedReportCount(Activity ac){
@@ -197,5 +188,4 @@ public class NewReportActivity extends ActionBarActivity implements
         c.close();
         return count;
     }
-
 }

@@ -30,6 +30,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
@@ -140,10 +141,9 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void goToDetailView(Cursor c, int position) {
+    public void goToDetailView(Report r, int position) {
         detailFragment = new ReportDetailFragment();
-        detailFragment.setData(c);
-        Log.e("Go to Detail view", "Cursor size: " + c.getCount());
+        detailFragment.setData(r);
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.fragment_container, detailFragment, DETAIL_TAG)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -220,9 +220,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void saveUserName(Intent data) {
-        String userName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-        userName = PrefUtils.trimUsername(userName);
-        cp.putObject(PrefUtils.USERNAME, userName);
+        cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
         cp.commit();
     }
 
@@ -233,7 +231,7 @@ public class MainActivity extends ActionBarActivity implements
     public void uploadSavedReports() {
         if(getLocation() != null){
             Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                    .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
+                    .setAction(String.valueOf(0));
             startActivity(intent);
         } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);

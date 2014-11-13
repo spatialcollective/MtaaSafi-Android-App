@@ -26,7 +26,6 @@ import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,6 +48,7 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
+        setRetainInstance(true);
         detailsText = "";
         picPaths = new ArrayList<String>();
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++)
@@ -59,16 +59,15 @@ public class NewReportFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
-        View view = inflater.inflate(R.layout.fragment_new_report, container, false);
-        picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
-        picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
-        picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
-        return view;
+        return inflater.inflate(R.layout.fragment_new_report, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
+	   picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
+        picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
+        picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
+        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptAddSendReportBtn(view);
@@ -77,7 +76,6 @@ public class NewReportFragment extends Fragment {
         setListeners();
     }
 
-    @SuppressWarnings("ResourceType")
     @Override
     public void onResume(){
         super.onResume();
@@ -87,11 +85,7 @@ public class NewReportFragment extends Fragment {
         super.onStop();
         for(ImageView picPreview : picPreviews)
             picPreview = null;
-    }
-
-    public Report createNewReport(String userName, Location location) {
-        Log.e("New Report Frag", "Creating new report");
-        return new Report(detailsText, userName, location, picPaths);
+        detailsView = null;
     }
 
     private void attemptAddSendReportBtn(View view) {
@@ -176,8 +170,7 @@ public class NewReportFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(detailsView != null && detailsView.getText() != null)
-                    detailsText = detailsView.getText().toString();
+                detailsText = s.toString();
                 attemptEnableSendSave();
             }
         });
@@ -225,6 +218,7 @@ public class NewReportFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            Log.e("FILE PATH ON AC RESULT", picPaths.get(previewClicked));
             File file = new File(picPaths.get(previewClicked));
             if (file.length() == 0)
                 picPaths.set(previewClicked, null);
@@ -238,13 +232,18 @@ public class NewReportFragment extends Fragment {
         String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+        Log.e("FILE PATH", image.getAbsolutePath());
         picPaths.set(previewClicked, image.getAbsolutePath());
+        Log.e("PIC PATHS", "Pic path: "+ previewClicked + ". " + picPaths.get(previewClicked));
         return image;
     }
 
     public void attemptEnableSendSave() {
         View view = getView();
-        if (detailsView.getText().toString().isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
+        if (view == null)
+            return;
+        if ( ((TextView) getView().findViewById(R.id.newReportDetails)).getText().toString().isEmpty()
+                || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
             disableButton((Button) view.findViewById(R.id.sendButton));
             disableButton((Button) view.findViewById(R.id.saveButton));
         } else {

@@ -57,7 +57,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Constructing");
         mContentResolver = context.getContentResolver();
         cp = PrefUtils.getPrefs(context);
-
     }
 
     public SyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
@@ -117,13 +116,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         ArrayList<Integer> dbIds = getDbIds(syncResult, true);
         // for each id from the server, if it is in the local DB,
         // remove the id from both the DB ids and the server ids
-        for(int i = 0; i < dbIds.size(); i++){
-            batch.add(ContentProviderOperation.newDelete(Report.uriFor(dbIds.get(i))).build());
+        for (int i = 0; i < dbIds.size(); i++) {
+            batch.add(ContentProviderOperation.newDelete(Report.getUri(dbIds.get(i))).build());
             syncResult.stats.numDeletes++;
         }
+        writeNewReports(getNewReportsFromServer(serverIds), batch, syncResult);
+        Log.i(TAG, "Merge solution ready. Applying batch update");
+        getDbIds(syncResult, false);
         mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
         mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
-        writeNewReportsToDB(getNewReportsFromServer(serverIds), syncResult);
 //        Log.i(LogTags.BACKEND_W, "Db contained: " + dbIds.size() + " entries");
 //        int overLapct = 0;
 //        for(int i = 0; i < serverIds.size(); i++) {
@@ -164,52 +165,21 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         // fetch the new reports, which the local DB didn't have, from the server and write them to DB
     }
 
-    private void writeNewReportsToDB(JSONObject serverResponse, SyncResult syncResult)
-            throws RemoteException, OperationApplicationException {
-        try {
-            if(serverResponse == null){
-                // TODO: add error statement
-                return;
-            }
-            JSONArray newReports = serverResponse.getJSONArray("reports");
-            ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-            for (int i = 0; i < newReports.length(); i++) {
-                JSONObject entry = newReports.getJSONObject(i);
-                JSONArray mediaURLsJSON = entry.getJSONArray("mediaURLs");
-                ArrayList<String> mediaURLs = new ArrayList<String>();
-                for (int j = 0; j < mediaURLsJSON.length(); j++)
-                    mediaURLs.add(mediaURLsJSON.get(j).toString());
-                boolean upvoted = entry.getBoolean("upvoted");
-                int upvotedInt;
-                if(upvoted)
-                    upvotedInt = 1;
-                else
-                    upvotedInt = 0;
-                Log.i("UPVOTE DATA", "ServerId" + entry.getString("unique_id") + " Upvoted: " + upvoted + ". Upvoted Int: " + upvotedInt);
-                batch.add(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
-                        .withValue(Contract.Entry.COLUMN_SERVER_ID, entry.getString("unique_id"))
-                        .withValue(Contract.Entry.COLUMN_LOCATION, entry.getString(Contract.Entry.COLUMN_LOCATION))
-                        .withValue(Contract.Entry.COLUMN_CONTENT, entry.getString(Contract.Entry.COLUMN_CONTENT))
-                        .withValue(Contract.Entry.COLUMN_TIMESTAMP, entry.getString(Contract.Entry.COLUMN_TIMESTAMP))
-                        .withValue(Contract.Entry.COLUMN_LAT, entry.getString(Contract.Entry.COLUMN_LAT))
-                        .withValue(Contract.Entry.COLUMN_LNG, entry.getString(Contract.Entry.COLUMN_LNG))
-                        .withValue(Contract.Entry.COLUMN_USERNAME, entry.getString(Contract.Entry.COLUMN_USERNAME))
-                        .withValue(Contract.Entry.COLUMN_MEDIAURL1, mediaURLs.get(0))
-                        .withValue(Contract.Entry.COLUMN_MEDIAURL2, mediaURLs.get(1))
-                        .withValue(Contract.Entry.COLUMN_MEDIAURL3, mediaURLs.get(2))
-                        .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, entry.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT))
-                        .withValue(Contract.Entry.COLUMN_USER_UPVOTED, upvotedInt)
-                        .build());
-                syncResult.stats.numInserts++;
-            }
-            Log.i(TAG, "Merge solution ready. Applying batch update");
-            mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
-            mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
-            VoteInterface.onUpvotesRecorded(getContext(), serverResponse);
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, SyncResult syncResult)
+            throws RemoteException, OperationApplicationException, JSONException {
+        if (serverResponse == null)
+            return; // TODO: add error statement
+
+        JSONArray reportsArray = serverResponse.getJSONArray("reports");
+        for (int i = 0; i < reportsArray.length(); i++) {
+            Report report = new Report(reportsArray.getJSONObject(i), -1);
+            batch.add(ContentProviderOperation
+                    .newInsert(Contract.Entry.CONTENT_URI)
+                    .withValues(report.getContentValues())
+                    .build());
+            syncResult.stats.numInserts++;
         }
-        getDbIds(syncResult, false);
+        VoteInterface.onUpvotesRecorded(getContext(), serverResponse);
     }
 
     // retrieves from server a list of the objects
@@ -225,7 +195,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 fetchRequest.accumulate("ids", serverIds.get(i));
             VoteInterface.recordUpvoteLog(getContext(), fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            return convertStringToJson(getFromServer(fetchReportsURL, fetchRequest.toString()));
+            return convertStringToJson(makeRequest(fetchReportsURL, fetchRequest.toString()));
         }
         return null;
     }
@@ -238,7 +208,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             JSONObject locationJSON = new JSONObject()
                     .put("latitude", cachedLocation.getLatitude())
                     .put("longitude", cachedLocation.getLongitude());
-            String responseString = getFromServer(FEED_URL, locationJSON.toString());
+            String responseString = makeRequest(FEED_URL, locationJSON.toString());
             String[] responseStringArray =  responseString
                     .replaceAll("\\[", "").replaceAll("\\]", "")
                     .split(", ");
@@ -253,19 +223,14 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
     private ArrayList<Integer> getDbIds(SyncResult syncResult, boolean isPreMerge){
         // Get list of all items
-        final ContentResolver contentResolver = getContext().getContentResolver();
         Log.i(TAG, "getting local entries for merge");
         String[] projection = new String[1];
-        String logText;
-        if(isPreMerge)
-            logText = "PRE-merge Db id: ";
-        else
-            logText = "POST-merge Db id: ";
         projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor c = contentResolver.query(Contract.Entry.CONTENT_URI, projection,
-                Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'",
-                null, null); // Get all entries that aren't pending reports
+        Cursor c = getContext().getContentResolver() // Get all entries that aren't pending reports
+                .query(Contract.Entry.CONTENT_URI, projection,
+                    Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'", null, null);
         assert c != null;
+
         Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
         ArrayList<Integer> dbIds = new ArrayList<Integer>();
         while (c.moveToNext()) {
@@ -275,7 +240,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         c.close();
         return dbIds;
     }
-    private String getFromServer(String url, String entity) throws IOException {
+    private String makeRequest(String url, String entity) throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Accept", "application/json");

@@ -7,8 +7,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
@@ -25,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +40,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
+    String canceller;
+
+    private static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
@@ -47,7 +53,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mContext = context;
         mFragment = frag;
         pendingReport = report;
-        screenW = 400; // getScreenWidth();
+        screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
+        canceller = "";
     }
 
     @Override
@@ -67,6 +74,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             }
             return 1;
         } catch (Exception e) {
+            cancel(true);
             e.printStackTrace();
         }
         return -1;
@@ -77,7 +85,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         HttpPost httpPost = new HttpPost(BASE_WRITE_URL);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(pendingReport.getJsonForText().toString()));
+        httpPost.setEntity(new StringEntity(pendingReport.getJsonStringRep()));
         return processResponse(httpclient.execute(httpPost));
     }
 
@@ -91,7 +99,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         urlConnection.setChunkedStreamingMode(0);
         urlConnection.connect();
         DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
-        out.write(pendingReport.getBytesForPic(pendingReport.pendingState - 1));
+        byte[] bytes = pendingReport.getBytesForPic(pendingReport.pendingState - 1);
+        Log.e("BYTES 2 SERVER", "Bytes being sent:" + bytes.length);
+        out.write(bytes);
         out.flush();
         out.close();
         InputStream is = urlConnection.getInputStream();
@@ -105,16 +115,23 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
         publishProgress(pendingReport.pendingState);
         ContentValues updateValues = new ContentValues();
+        File localPicToDelete = null;
         if (pendingReport.pendingState == 1) {
             updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-        } else if (pendingReport.pendingState == 2)
+        } else if (pendingReport.pendingState == 2){
+            localPicToDelete = new File(pendingReport.mediaPaths.get(0));
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-        else if (pendingReport.pendingState == 3)
+        } else if (pendingReport.pendingState == 3){
+            localPicToDelete = new File(pendingReport.mediaPaths.get(1));
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        else if (pendingReport.pendingState == -1)
+        } else if (pendingReport.pendingState == -1){
+            localPicToDelete = new File(pendingReport.mediaPaths.get(2));
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+        }
+        if(localPicToDelete != null)
+            localPicToDelete.delete();
         updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         if (pendingReport.pendingState > 0)
             updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
@@ -146,7 +163,31 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }
     @Override
-    protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
+    protected void onPostExecute(Integer result) {
+        if(!isCancelled())
+            mFragment.reportUploadSuccess();
+    }
+
+    public void cancelSession(){
+        cancel(true);
+        canceller = CANCEL_SESSION;
+    }
+    public void deleteReport(){
+        cancel(true);
+        canceller = DELETE_BUTTON;
+    }
     @Override
-    protected void onCancelled() { }
+    protected void onCancelled() {
+        ContentValues updateValues = new ContentValues();
+        updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
+        Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
+                    .appendPath(Integer.toString(pendingReport.dbId)).build();
+        mContext.getContentResolver().update(reportUri, updateValues, null, null);
+        if (canceller.equals(CANCEL_SESSION))
+            mFragment.onSessionCancelled();
+        else if(canceller.equals(DELETE_BUTTON))
+            mFragment.onPendingReportDeleted();
+        else
+            mFragment.changeHeader("Error", R.color.DarkRed, ReportUploadingFragment.HIDE_CANCEL);
+    }
 }
