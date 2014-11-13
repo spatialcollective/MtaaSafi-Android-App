@@ -1,24 +1,17 @@
 package com.sc.mtaasafi.android.uploading;
 
-import android.accounts.NetworkErrorException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.Contract;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -41,7 +34,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
-    boolean userCancelled;
+    boolean userCancelled = false;
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
@@ -53,7 +46,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mFragment = frag;
         pendingReport = report;
         screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
-        userCancelled = false;
     }
 
     @Override
@@ -63,7 +55,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             for (int i = 0; i < 4; i++) {
                 if (isCancelled())
                     return 0;
-                // verifyUploadProgress();
                 if (pendingReport.pendingState == 0)
                     serverResponse = writeTextToServer();
                 else if (pendingReport.pendingState > 0)
