@@ -34,7 +34,9 @@ public class ComplexPreferences {
 
 		return complexPreferences;
 	}
-
+    public void putString(String key, String value){
+        editor.putString(key, value);
+    }
 	public void putObject(String key, Object object) {
 		if(object == null){
 			throw new IllegalArgumentException("object is null");

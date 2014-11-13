@@ -220,9 +220,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void saveUserName(Intent data) {
-        String userName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-        userName = PrefUtils.trimUsername(userName);
-        cp.putObject(PrefUtils.USERNAME, userName);
+        cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
         cp.commit();
     }
 
@@ -233,7 +231,7 @@ public class MainActivity extends ActionBarActivity implements
     public void uploadSavedReports() {
         if(getLocation() != null){
             Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                    .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
+                    .setAction(String.valueOf(0));
             startActivity(intent);
         } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);

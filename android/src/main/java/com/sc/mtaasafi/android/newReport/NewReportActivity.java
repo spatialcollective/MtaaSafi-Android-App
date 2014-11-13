@@ -77,7 +77,7 @@ public class NewReportActivity extends ActionBarActivity implements
     public void uploadSavedReports() {
        if(getLocation() != null){
            Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                   .setAction(String.valueOf(ReportUploadingFragment.ACTION_SEND_ALL));
+                   .setAction(String.valueOf(0));
            startActivity(intent);
        } else
             Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
@@ -138,7 +138,7 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        if (frag != null)
+        if (frag != null) // are we sure this isn't holding the fragment longer than necessary?
             getSupportFragmentManager().putFragment(bundle, NEW_REPORT_TAG, frag);
     }
 
@@ -153,11 +153,14 @@ public class NewReportActivity extends ActionBarActivity implements
     }
     public void attemptBeamOut(View view) {
         if (transporterHasLocation()) {
-            Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
+            NewReportFragment nrf =
+                    (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+            Uri newReportUri = saveNewReport(nrf);
             Intent intent = new Intent();
             intent.setClass(this, UploadingActivity.class);
             intent.setData(newReportUri);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -185,5 +188,4 @@ public class NewReportActivity extends ActionBarActivity implements
         c.close();
         return count;
     }
-
 }
