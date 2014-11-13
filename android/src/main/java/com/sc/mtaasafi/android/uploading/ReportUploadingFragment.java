@@ -88,22 +88,6 @@ public class ReportUploadingFragment extends ListFragment
         });
     }
 
-    private void cancelSession(View view) {
-        // tell the adapter to tell the uploader to stop. Once it stops, update the view
-        userCancelled = true;
-        changeHeader("Cancelling...", R.color.DarkGray, -1);
-        Log.e("cancel session", "cancelling!!");
-        if(uploader != null)
-            uploader.cancelSession();
-        else
-            onSessionCancelled();
-    }
-
-    public void onSessionCancelled() {
-        Log.e("cancel session", "session was cancelled!!");
-        changeHeader("Upload Cancelled", R.color.Crimson, 1);
-    }
-
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
@@ -113,11 +97,7 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(ReportContract.Entry.COLUMN_ID)){
-                    view.setTag(cursor.getInt(i));
-                if(cursor.getCount() < 2)
-                    view.setVisibility(View.INVISIBLE);
-            } else
+            else
                 return false;
             return true;
         }
@@ -126,17 +106,15 @@ public class ReportUploadingFragment extends ListFragment
     private void beamUpFirstReport() {
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-        else if (mAdapter.getCount() == 0){
-            onUploadsFinished();
-            getView().findViewById(R.id.cancel_button).setVisibility(View.INVISIBLE);
-        }
+        else if (mAdapter.getCount() == 0)
+            exitSmoothly();
     }
 
     private void beamUpReport(Report pendingReport) {
         userCancelled = false;
         Log.e("RUF", "Beam up report has been called!");
         if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
-            changeHeader("You must be online to upload.", R.color.DarkRed, 0);
+            changeHeader("You must be online to upload.", R.color.DarkRed, -1);
             return;
         }
         if (getView() != null)
@@ -146,10 +124,9 @@ public class ReportUploadingFragment extends ListFragment
         uploader.execute();
     }
 
-    private void onUploadsFinished(){
-        changeHeader("Poa! Upload Success!", R.color.Coral, 0);
+    private void exitSmoothly() {
         AlphaAnimation anim = new AlphaAnimation(1.0f, 1.0f);
-        anim.setDuration(1200);
+        anim.setDuration(1500);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {}
@@ -203,6 +180,22 @@ public class ReportUploadingFragment extends ListFragment
             cancelBtn.setImageResource(R.drawable.restart_upload_button);
             cancelBtn.setTag("restart");
         }
+    }
+
+    private void cancelSession(View view) {
+        // tell the adapter to tell the uploader to stop. Once it stops, update the view
+        userCancelled = true;
+        changeHeader("Cancelling...", R.color.DarkGray, -1);
+        Log.e("cancel session", "cancelling!!");
+        if(uploader != null)
+            uploader.cancelSession();
+        else
+            onSessionCancelled();
+    }
+
+    public void onSessionCancelled() {
+        Log.e("cancel session", "session was cancelled!!");
+        changeHeader("Upload Cancelled", R.color.Crimson, 1);
     }
 
     @Override
