@@ -154,6 +154,10 @@ public class ReportUploadingFragment extends ListFragment
                     R.color.mtaa_safi_blue, 0);
     }
 
+    public void onReportDeleted(boolean isUploading){
+        if(isUploading && uploader != null)
+            uploader.deleteReport();
+    }
     public void onPendingReportDeleted(){
         beamUpFirstReport();
     }

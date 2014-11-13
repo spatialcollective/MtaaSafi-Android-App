@@ -30,12 +30,10 @@ public class DeleteReportButton extends ImageButton {
                 if(c.moveToNext()){
                     boolean isUploading =
                             c.getInt(c.getColumnIndex(ReportContract.Entry.COLUMN_UPLOAD_IN_PROGRESS)) > 0;
-                    if(isUploading)
-                        ruf.uploader.deleteReport();
+                    ruf.onReportDeleted(isUploading);
                 }
                 c.close();
                 ua.getContentResolver().delete(Report.uriFor(dbId), null, null);
-
             }
         });
     }
