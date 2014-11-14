@@ -1,9 +1,6 @@
 package com.sc.mtaasafi.android.feed;
 
-import android.accounts.Account;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;

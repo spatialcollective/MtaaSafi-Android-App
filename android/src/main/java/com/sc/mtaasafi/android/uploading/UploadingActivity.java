@@ -9,12 +9,18 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
+import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.database.Contract;
+import com.sc.mtaasafi.android.newReport.NewReportFragment;
 
 import com.sc.mtaasafi.android.R;
 
 public class UploadingActivity extends ActionBarActivity {
 
-    private ReportUploader uploader;
     final static String UPLOAD_TAG = "upload", ACTION = "action", DATA = "data";
 
 
@@ -51,14 +57,15 @@ public class UploadingActivity extends ActionBarActivity {
     @Override
     public void finish() {
         super.finish();
-        Log.e("NRA.Finish", "Finish called! Cancelling uploading: " + (uploader != null));
-        if (uploader != null)
-            uploader.cancel(true);
+        ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager()
+                                        .findFragmentByTag(UPLOAD_TAG);
+        if(ruf != null)
+            ruf.setRetainInstance(false);
     }
 
     public boolean isOnline() {
         NetworkInfo netInfo = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
+        if (netInfo != null && netInfo.isConnected())
             return true;
         return false;
     }

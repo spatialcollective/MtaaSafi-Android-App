@@ -30,9 +30,10 @@ public class ReportUploadingFragment extends ListFragment
     ReportUploader uploader;
     SimpleUploadingCursorAdapter mAdapter;
 
+    public static final int SHOW_CANCEL = 0, SHOW_RETRY = 1, HIDE_CANCEL = -1;
     private int pendingReportCount = -1, 
                 mColor = R.color.mtaa_safi_blue, 
-                mBtnState = 0,
+                mBtnState = SHOW_CANCEL,
                 inProgressIndex = 0;
     private String mText = "Uploading...";
     private boolean userCancelled = false;
@@ -40,12 +41,14 @@ public class ReportUploadingFragment extends ListFragment
     public String[] LIST_FROM_COLUMNS = new String[] {
         Contract.Entry.COLUMN_CONTENT,
         Contract.Entry.COLUMN_TIMESTAMP,
-        Contract.Entry.COLUMN_PENDINGFLAG
+        Contract.Entry.COLUMN_PENDINGFLAG,
+        Contract.Entry.COLUMN_ID
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.itemDetails,
         R.id.timeElapsed,
-        R.id.expanded_layout
+        R.id.expanded_layout,
+        R.id.deleteReportButton
     };
     public ReportUploadingFragment() {}
 
@@ -87,22 +90,6 @@ public class ReportUploadingFragment extends ListFragment
         });
     }
 
-    private void cancelSession(View view) {
-        // tell the adapter to tell the uploader to stop. Once it stops, update the view
-        userCancelled = true;
-        changeHeader("Cancelling...", R.color.DarkGray, -1);
-        Log.e("cancel session", "cancelling!!");
-        if (uploader != null)
-            uploader.cancelSession();
-        else
-            onSessionCancelled();
-    }
-
-    public void onSessionCancelled() {
-        Log.e("cancel session", "session was cancelled!!");
-        changeHeader("Upload Cancelled", R.color.Crimson, 1);
-    }
-
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
@@ -113,9 +100,8 @@ public class ReportUploadingFragment extends ListFragment
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID)){
-//                    view.setTag(cursor.getInt(i));
-                if(cursor.getCount() < 2)
-                    view.setVisibility(View.INVISIBLE);
+                view.setTag(cursor.getInt(i));
+                view.setVisibility(View.VISIBLE);
             } else
                 return false;
             return true;
@@ -125,29 +111,27 @@ public class ReportUploadingFragment extends ListFragment
     private void beamUpFirstReport() {
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-        else if (mAdapter.getCount() == 0) {
-            changeHeader("Nothing to upload. Returning to the feed", R.color.Coral, -1);
+        else if (mAdapter.getCount() == 0)
             exitSmoothly();
-        }
     }
 
     private void beamUpReport(Report pendingReport) {
         userCancelled = false;
         Log.e("RUF", "Beam up report has been called!");
         if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
-            changeHeader("You must be online to upload.", R.color.DarkRed, 0);
+            changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
             return;
         }
         if (getView() != null)
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
-                    R.color.mtaa_safi_blue, 0);
+                    R.color.mtaa_safi_blue, SHOW_CANCEL);
         uploader = new ReportUploader(getActivity(), pendingReport, this);
         uploader.execute();
     }
 
     private void exitSmoothly() {
         AlphaAnimation anim = new AlphaAnimation(1.0f, 1.0f);
-        anim.setDuration(1200);
+        anim.setDuration(1500);
         anim.setAnimationListener(new Animation.AnimationListener() {
             @Override public void onAnimationStart(Animation animation) {}
             @Override
@@ -160,16 +144,24 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     public void reportUploadSuccess() {
-        changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, 0);
+        changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, HIDE_CANCEL);
         uploader = null;
         inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null) {
             changeHeader("Successfully uploaded " + pendingReportCount + " reports.",
-                    R.color.mtaa_safi_blue, 0);
+                    R.color.mtaa_safi_blue, HIDE_CANCEL);
             exitSmoothly();
         }
+    }
+
+    public void onReportDeleted(boolean isUploading){
+        if(isUploading && uploader != null)
+            uploader.deleteReport();
+    }
+    public void onPendingReportDeleted() {
+        beamUpFirstReport();
     }
 
     public void changeHeader(String message, int color, int btnState) {
@@ -183,20 +175,36 @@ public class ReportUploadingFragment extends ListFragment
         ((TextView) view.findViewById(R.id.uploadingText)).setTextColor(getResources().getColor(color));
 
         ImageButton cancelBtn = (ImageButton) getView().findViewById(R.id.cancel_button);
-        if (btnState == -1) {
+        if (btnState == HIDE_CANCEL) {
             cancelBtn.setClickable(false);
             cancelBtn.setAlpha(0f);
-        } else if (btnState == 0) {
+        } else if (btnState == SHOW_CANCEL) {
             cancelBtn.setClickable(true);
             cancelBtn.setAlpha(1.0f);
             cancelBtn.setImageResource(R.drawable.cancel_upload_button);
             cancelBtn.setTag("cancel");
-        } else if (btnState == 1) {
+        } else if (btnState == SHOW_RETRY) {
             cancelBtn.setClickable(true);
             cancelBtn.setAlpha(1.0f);
             cancelBtn.setImageResource(R.drawable.restart_upload_button);
             cancelBtn.setTag("restart");
         }
+    }
+
+    private void cancelSession(View view) {
+        // tell the adapter to tell the uploader to stop. Once it stops, update the view
+        userCancelled = true;
+        changeHeader("Cancelling...", R.color.DarkGray, HIDE_CANCEL);
+        Log.e("cancel session", "cancelling!!");
+        if(uploader != null)
+            uploader.cancelSession();
+        else
+            onSessionCancelled();
+    }
+
+    public void onSessionCancelled() {
+        Log.e("cancel session", "session was cancelled!!");
+        changeHeader("Upload Cancelled", R.color.Crimson, SHOW_RETRY);
     }
 
     @Override

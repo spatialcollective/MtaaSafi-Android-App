@@ -224,10 +224,8 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void saveUserName(Intent data) {
-        String userName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
-        userName = PrefUtils.trimUsername(userName);
-        cp.putObject(PrefUtils.USERNAME, userName);
         //cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
+        cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
         cp.commit();
     }
 
