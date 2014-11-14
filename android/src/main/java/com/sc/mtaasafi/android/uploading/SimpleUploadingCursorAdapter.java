@@ -44,32 +44,33 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     }
 
     public void indicateRow(int uploadInProgress, View row) {
-        if (uploadInProgress == 1) {
-            row.setMinimumHeight(200);
-            row.setBackgroundColor(mContext.getResources().getColor(R.color.mtaa_safi_blue_light));
-            ((TextView) row.findViewById(R.id.itemDetails)).setTextColor(Color.WHITE);
-            ((TextView) row.findViewById(R.id.timeElapsed)).setTextColor(Color.WHITE);
-            row.findViewById(R.id.expanded_layout).setVisibility(View.VISIBLE);
-        } else
+        if (uploadInProgress == 1)
+            row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
+        else
             resetView(row);
     }
-
+// view = the whole row
     public void updateProgressView(int progress, View view){
         switch (progress) {
             case 0:
-                updateState(view, 0, 0, R.id.progressBarReportText, 0);
+                TextView content = (TextView) view.findViewById(R.id.uploadingContent);
+                content.setTextColor(mContext.getResources().getColor(R.color.black));
+                TextView time = (TextView) view.findViewById(R.id.uploadingTime);
+                time.setTextColor(mContext.getResources().getColor(R.color.black));
                 break;
             case 1:
-                updateState(view, R.id.progressBarReportText, R.id.reportUploadingIcon, R.id.progressBarPic1, R.drawable.report_uploaded);
+                ((UploadingPic) view.findViewById(R.id.uploadingPic1)).startUpload();
                 break;
             case 2:
-                updateState(view, R.id.progressBarPic1, R.id.pic1UploadingIcon, R.id.progressBarPic2, R.drawable.pic1_uploaded);
+                ((UploadingPic) view.findViewById(R.id.uploadingPic1)).finishUpload();
+                ((UploadingPic) view.findViewById(R.id.uploadingPic2)).startUpload();
                 break;
             case 3:
-                updateState(view, R.id.progressBarPic2, R.id.pic2UploadingIcon, R.id.progressBarPic3, R.drawable.pic2_uploaded);
+                ((UploadingPic) view.findViewById(R.id.uploadingPic2)).finishUpload();
+                ((UploadingPic) view.findViewById(R.id.uploadingPic3)).startUpload();
                 break;
             case -1:
-                updateState(view, R.id.progressBarPic3, R.id.pic3UploadingIcon, 0, R.drawable.pic3_uploaded);
+                ((UploadingPic) view.findViewById(R.id.uploadingPic3)).finishUpload();
         }
     }
 
@@ -102,14 +103,14 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         }
     }
 
+    // called on rows for report that aren't currently uploading
     private void resetState(View view) {
-        ((ImageView) view.findViewById(R.id.reportUploadingIcon)).setImageResource(R.drawable.report_loading);
-        ((ImageView) view.findViewById(R.id.pic1UploadingIcon)).setImageResource(R.drawable.pic1_uploading);
-        ((ImageView) view.findViewById(R.id.pic2UploadingIcon)).setImageResource(R.drawable.pic2_uploading);
-        ((ImageView) view.findViewById(R.id.pic3UploadingIcon)).setImageResource(R.drawable.pic3_uploading);
-        view.findViewById(R.id.progressBarReportText).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.progressBarPic1).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.progressBarPic2).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.progressBarPic3).setVisibility(View.INVISIBLE);
+        // set text to light grey and hide the uploading pic row
+        TextView content = (TextView) view.findViewById(R.id.uploadingContent);
+        content.setTextColor(mContext.getResources().getColor(R.color.LightGrey));
+        TextView time = (TextView) view.findViewById(R.id.uploadingTime);
+        time.setTextColor(mContext.getResources().getColor(R.color.LightGrey));
+
+        view.findViewById(R.id.uploading_pic_row).setVisibility(View.GONE);
     }
 }

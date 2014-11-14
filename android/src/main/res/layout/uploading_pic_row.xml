@@ -1,7 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/uploading_pic_row">
 
+    <com.sc.mtaasafi.android.uploading.UploadingPic
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/uploadingPic1"
+        android:layout_marginRight="15dp"
+        android:src="@drawable/gray_uploading_pic_solid" />
+
+    <com.sc.mtaasafi.android.uploading.UploadingPic
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/uploadingPic2"
+        android:layout_marginRight="15dp"
+        android:src="@drawable/gray_uploading_pic_solid" />
+
+    <com.sc.mtaasafi.android.uploading.UploadingPic
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/uploadingPic3"
+        android:layout_marginRight="15dp"
+        android:src="@drawable/gray_uploading_pic_solid" />
 </LinearLayout>
