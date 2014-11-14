@@ -3,11 +3,13 @@
 
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
     	<item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item name="android:actionMenuTextColor">@color/action_menu_colors</item>
         <item name="android:colorPrimary">@color/mtaa_safi_blue</item>
         <item name="android:colorPrimaryDark">@color/mtaa_safi_blue_dark</item>
         <item name="android:colorAccent">@color/Coral</item>
 
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="actionMenuTextColor">@color/action_menu_colors</item>
         <item name="colorPrimary">@color/mtaa_safi_blue</item>
         <item name="colorPrimaryDark">@color/mtaa_safi_blue_dark</item>
         <item name="colorAccent">@color/Coral</item>
@@ -18,7 +20,7 @@
         <item name="android:background">@drawable/app_color</item>
         <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
         <item name="android:colorButtonNormal">@color/White</item>
-        <!--<item name="colorPrimary">@color/mtaa_safi_blue</item>-->
+
         <!-- Support library compatibility -->
         <item name="background">@drawable/app_color</item>
         <item name="titleTextStyle">@style/MyActionBarTitleText</item>

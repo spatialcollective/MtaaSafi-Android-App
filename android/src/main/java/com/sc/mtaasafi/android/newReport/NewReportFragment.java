@@ -11,12 +11,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,6 +32,7 @@ import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.feed.MainActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +47,7 @@ public class NewReportFragment extends Fragment {
     public String detailsText;
     public ArrayList<String> picPaths;
     private int previewClicked;
+    private boolean saveEnabled = false;
 
     public static final int REQUEST_IMAGE_CAPTURE = 1,
         REQUIRED_PIC_COUNT = 3,
@@ -53,6 +57,7 @@ public class NewReportFragment extends Fragment {
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setRetainInstance(true);
+        setHasOptionsMenu(true);
         detailsText = "";
         picPaths = new ArrayList<String>();
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++)
@@ -248,11 +253,18 @@ public class NewReportFragment extends Fragment {
             return;
         if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
             disableButton((Button) view.findViewById(R.id.sendButton));
-            disableButton((Button) view.findViewById(R.id.saveButton));
+            saveEnabled = false;
         } else {
             enableButton((Button) view.findViewById(R.id.sendButton));
-            enableButton((Button) view.findViewById(R.id.saveButton));
+            saveEnabled = true;
         }
+        ActivityCompat.invalidateOptionsMenu(getActivity());
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.save).setEnabled(saveEnabled);
     }
 
     private void enableButton(Button btn) {

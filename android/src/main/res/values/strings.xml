@@ -9,6 +9,7 @@
     <string name="title_activity_login">Login</string>
     <string name="accounts_header">Add or Remove Accounts</string>
     <string name="done">Done</string>
+    <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="description_refresh">Refresh</string>
     <string name="app_id">903751569639797</string>
