@@ -224,8 +224,9 @@ public class ReportUploadingFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         if (pendingReportCount == -1)
             pendingReportCount = mAdapter.getCount();
-        if (!userCancelled && pendingReportCount > 0) {
-            inProgressIndex = 1;
+        boolean shouldAutoStart = uploader == null || uploader.canceller.equals(uploader.DELETE_BUTTON);
+        if (pendingReportCount > 0 && shouldAutoStart){
+            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time.
             beamUpFirstReport();
         }
     }

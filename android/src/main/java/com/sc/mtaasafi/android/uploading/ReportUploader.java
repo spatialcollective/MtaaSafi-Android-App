@@ -42,7 +42,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     ReportUploadingFragment mFragment;
     String canceller;
 
-    private static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
+    public static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",

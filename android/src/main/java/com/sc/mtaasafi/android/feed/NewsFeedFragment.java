@@ -268,8 +268,9 @@ public class NewsFeedFragment extends ListFragment
         if(sortOrder == null) // default is by time TODO: sort by epoch time
             sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
         Log.e("Sort order: ", sortOrder);
+        String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 1;
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            Report.PROJECTION, null, null, null);
+            Report.PROJECTION, selection, null, sortOrder);
     }
 
     @Override

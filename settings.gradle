@@ -1,1 +1,1 @@
-include ':android', ':facebook', ':SlidingUpPanelLibrary'
+include ':android'

@@ -135,6 +135,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
         reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
+        reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
