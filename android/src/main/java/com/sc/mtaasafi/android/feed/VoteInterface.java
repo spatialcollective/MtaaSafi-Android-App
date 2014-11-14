@@ -50,7 +50,7 @@ public class VoteInterface extends LinearLayout {
                 try {
                     if(feedMode){
                     // newsFeedFragment stores VI's data in the view's tags because it can't call
-                        // updateData
+                    // updateData
                         voteCount = Integer.parseInt(voteCountTV.getText().toString());
                         serverId = (Integer) voteCountTV.getTag();
                         userVoted =
