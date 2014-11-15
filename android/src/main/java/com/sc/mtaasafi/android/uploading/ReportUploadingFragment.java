@@ -41,21 +41,21 @@ public class ReportUploadingFragment extends ListFragment
     private AQuery aq;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
-        Contract.Entry.COLUMN_CONTENT,
-        Contract.Entry.COLUMN_TIMESTAMP,
-        Contract.Entry.COLUMN_PENDINGFLAG,
         Contract.Entry.COLUMN_MEDIAURL1,
         Contract.Entry.COLUMN_MEDIAURL2,
         Contract.Entry.COLUMN_MEDIAURL3,
+        Contract.Entry.COLUMN_CONTENT,
+        Contract.Entry.COLUMN_TIMESTAMP,
+        Contract.Entry.COLUMN_PENDINGFLAG,
         Contract.Entry.COLUMN_ID
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
-        R.id.itemDetails,
-        R.id.timeElapsed,
-        R.id.upload_row,
         R.id.uploadingPic1,
         R.id.uploadingPic2,
         R.id.uploadingPic3,
+        R.id.uploadingContent,
+        R.id.uploadingTime,
+        R.id.upload_row,
         R.id.deleteReportButton
     };
     public ReportUploadingFragment() {}
@@ -106,14 +106,13 @@ public class ReportUploadingFragment extends ListFragment
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
                 mAdapter.updateProgressView(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
-                mAdapter.indicateRow(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID)){
-                view.setTag(cursor.getInt(i));
-                view.setVisibility(View.VISIBLE);
-            } else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)){
+            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)
+                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)
+                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3))
                 view.setTag(cursor.getString(i));
-            } else
+            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
+                view.setTag(cursor.getInt(i));
+            else
                 return false;
             return true;
         }
@@ -236,7 +235,7 @@ public class ReportUploadingFragment extends ListFragment
             pendingReportCount = mAdapter.getCount();
         boolean shouldAutoStart = uploader == null || uploader.canceller.equals(uploader.DELETE_BUTTON);
         if (pendingReportCount > 0 && shouldAutoStart){
-            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time.
+            inProgressIndex = 1; // TODO: fix that deleting report sets inprogress index to 1 every time.
             beamUpFirstReport();
         }
     }

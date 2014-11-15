@@ -6,90 +6,68 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxStatus;
+import com.androidquery.callback.BitmapAjaxCallback;
+import com.androidquery.callback.ImageOptions;
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Created by Agree on 11/14/2014.
+ * UploadingPic tags are mediaPath Strings
  */
 public class UploadingPic extends ImageView implements Animation.AnimationListener{
     boolean uploadSuccessful, uploadStarted;
-    Bitmap mThumbnail;
-    AQuery aq;
+    public Bitmap mThumb;
     public UploadingPic(Context context, AttributeSet attrs) {
         super(context, attrs);
         uploadStarted = uploadSuccessful = false;
-        aq = new AQuery(getContext());
+        setScaleType(ScaleType.CENTER_CROP);
     }
 
-    @Override
-    public void onFinishInflate(){
-        Bitmap sourcePic = BitmapFactory.decodeFile((String) getTag());
-        mThumbnail = getRoundedThumbnail(sourcePic);
-    }
     public void startUpload(){
         uploadStarted = true;
         setImageResource(R.drawable.coralspinny);
-        Animation anim = new RotateAnimation(0.0f, 1080.0f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF,
-                0.5f);
-        anim.setAnimationListener(this);
-        anim.setRepeatCount(15);
-        anim.setDuration(1000);
-        startAnimation(anim);
+        startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate));
     }
 
     public void finishUpload(){
         uploadSuccessful = true;
+        AQuery aq = new AQuery(getContext());
+        setImageResource(R.drawable.circle_overlay);
+        aq.id(this).image((String) getTag(), true, true, 0, 0, null, AQuery.FADE_IN);
         clearAnimation();
     }
 
     @Override
-    public void onAnimationStart(Animation animation) {
+    public void onAnimationStart(Animation animation){}
 
-    }
     // called by the rotate animation, not the alpha
     // fade-in a picture of the thumbnail
     @Override
     public void onAnimationEnd(Animation animation) {
-        if(uploadSuccessful){
-            setAlpha(0.0f);
-            Animation alphaAnim = new AlphaAnimation(0.0f, 1.0f);
-            alphaAnim.setDuration(500);
-            setImageBitmap(mThumbnail);
-            startAnimation(animation);
-        }
+//        if(uploadSuccessful){
+//            Animation alphaAnim = new AlphaAnimation(0.0f, 1.0f);
+//            alphaAnim.setDuration(500);
+//            startAnimation(animation);
+//        } else
+//            Log.e("upload", "not successful");
     }
-
     @Override
-    public void onAnimationRepeat(Animation animation) {
-
-    }
-    public Bitmap getRoundedThumbnail(Bitmap sourceBitmap) {
-        int targetWidth = getWidth();
-        int targetHeight = getHeight();
-        Bitmap targetBitmap = Bitmap.createBitmap(targetWidth,
-                targetHeight,Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(targetBitmap);
-        Path path = new Path();
-        path.addCircle(((float) targetWidth - 1) / 2,
-                ((float) targetHeight - 1) / 2,
-                (Math.min(((float) targetWidth),
-                        ((float) targetHeight)) / 2),
-                Path.Direction.CCW);
-        canvas.clipPath(path);
-        canvas.drawBitmap(sourceBitmap,
-                new Rect(0, 0, sourceBitmap.getWidth(),
-                        sourceBitmap.getHeight()),
-                new Rect(0, 0, targetWidth, targetHeight), null);
-        return targetBitmap;
-    }
-
+    public void onAnimationRepeat(Animation animation) {}
 }

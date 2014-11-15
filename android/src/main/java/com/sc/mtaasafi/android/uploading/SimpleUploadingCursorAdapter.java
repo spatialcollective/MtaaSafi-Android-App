@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android.uploading;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -36,41 +37,45 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     }
 
     public void resetView(View row) {
-        row.setMinimumHeight(0);
         row.setBackgroundColor(Color.WHITE);
-        ((TextView) row.findViewById(R.id.itemDetails)).setTextColor(Color.BLACK);
-        ((TextView) row.findViewById(R.id.timeElapsed)).setTextColor(Color.BLACK);
-        row.findViewById(R.id.expanded_layout).setVisibility(View.GONE);
+        ((TextView) row.findViewById(R.id.uploadingContent))
+                .setTextColor(mContext.getResources().getColor(R.color.LightGrey));
+        ((TextView) row.findViewById(R.id.uploadingTime)).setTextColor(mContext.getResources().getColor(R.color.LightGrey));
+        row.findViewById(R.id.uploading_pic_row).setVisibility(View.GONE);
     }
 
     public void indicateRow(int uploadInProgress, View row) {
-        if (uploadInProgress == 1)
+        Log.e("Adapter", "indicateRow. Upload in progress "+ uploadInProgress);
+        if (uploadInProgress == 1){
             row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
-        else
+            ((TextView) row.findViewById(R.id.uploadingContent))
+                    .setTextColor(666666);
+            ((TextView) row.findViewById(R.id.uploadingTime)).setTextColor(666666);
+        } else
             resetView(row);
     }
+
 // view = the whole row
-    public void updateProgressView(int progress, View view){
-        switch (progress) {
-            case 0:
-                TextView content = (TextView) view.findViewById(R.id.uploadingContent);
-                content.setTextColor(mContext.getResources().getColor(R.color.black));
-                TextView time = (TextView) view.findViewById(R.id.uploadingTime);
-                time.setTextColor(mContext.getResources().getColor(R.color.black));
-                break;
-            case 1:
-                ((UploadingPic) view.findViewById(R.id.uploadingPic1)).startUpload();
-                break;
-            case 2:
-                ((UploadingPic) view.findViewById(R.id.uploadingPic1)).finishUpload();
-                ((UploadingPic) view.findViewById(R.id.uploadingPic2)).startUpload();
-                break;
-            case 3:
-                ((UploadingPic) view.findViewById(R.id.uploadingPic2)).finishUpload();
-                ((UploadingPic) view.findViewById(R.id.uploadingPic3)).startUpload();
-                break;
-            case -1:
-                ((UploadingPic) view.findViewById(R.id.uploadingPic3)).finishUpload();
+    public void updateProgressView(int progress, View row){
+        Log.e("Adapter", "updateProgressView. Row id == R.id.upload_row: " +
+                (row.getId() == R.id.upload_row));
+        if(row != null){
+            switch (progress) {
+                case 1:
+                    row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
+                    ((UploadingPic) row.findViewById(R.id.uploadingPic1)).startUpload();
+                    break;
+                case 2:
+                    ((UploadingPic) row.findViewById(R.id.uploadingPic1)).finishUpload();
+                    ((UploadingPic) row.findViewById(R.id.uploadingPic2)).startUpload();
+                    break;
+                case 3:
+                    ((UploadingPic) row.findViewById(R.id.uploadingPic2)).finishUpload();
+                    ((UploadingPic) row.findViewById(R.id.uploadingPic3)).startUpload();
+                    break;
+                case -1:
+                    ((UploadingPic) row.findViewById(R.id.uploadingPic3)).finishUpload();
+            }
         }
     }
 
