@@ -2,8 +2,8 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/White">
+    android:layout_height="wrap_content"
+    android:background="@color/mtaa_safi_blue_light">
 
     <LinearLayout
         android:orientation="vertical"
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:id="@+id/recent_tab_button"
-            android:src="@drawable/recent_posts_clicked"
+            android:src="@drawable/recent_posts_white"
             android:background="@color/transparent"
             android:layout_gravity="center_horizontal"
             android:scaleType="fitCenter"
@@ -35,7 +35,7 @@
         android:layout_height="35dp"
         android:id="@+id/imageView"
         android:layout_marginTop="10dp"
-        android:background="@color/LightGrey" />
+        android:background="@color/mtaa_safi_blue_dark" />
 
     <LinearLayout
         android:orientation="vertical"
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:id="@+id/popular_tab_button"
-            android:src="@drawable/popular_reports_unclicked"
+            android:src="@drawable/popular_posts_white"
             android:background="@color/transparent"
             android:layout_gravity="center_horizontal"
             android:scaleType="fitCenter"

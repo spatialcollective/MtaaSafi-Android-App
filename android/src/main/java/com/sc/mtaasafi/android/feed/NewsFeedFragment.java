@@ -86,8 +86,8 @@ public class NewsFeedFragment extends ListFragment
         setUpTabs(view);
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener((MainActivity) getActivity());
-        refreshLayout.setColorSchemeResources(R.color.mtaa_safi_blue,
-                                                R.color.mtaa_safi_blue_light,
+        refreshLayout.setColorSchemeResources(R.color.Coral,
+                                                R.color.White,
                                                 R.color.Coral,
                                                 R.color.White);
         return view;
@@ -99,16 +99,15 @@ public class NewsFeedFragment extends ListFragment
             @Override
             public void onClick(View view) {
                 // make recent tab button and underscore blue
-                ((ImageButton) view).setImageResource(R.drawable.recent_posts_clicked);
+//                ((ImageButton) view).setImageResource(R.drawable.recent_posts_clicked);
                 View myParent = (View) view.getParent();
                 ImageView underscore = (ImageView) myParent.findViewById(R.id.recent_tab_underscore);
                 underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
+                underscore.setVisibility(View.VISIBLE);
                 // make the popular tab button and underscore gray
                 View myGrandParent = (View) myParent.getParent();
-                ImageButton otherTab = (ImageButton) myGrandParent.findViewById(R.id.popular_tab_button);
-                otherTab.setImageResource(R.drawable.popular_reports_unclicked);
                 ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.popular_tab_underscore);
-                otherUnderscore.setBackgroundColor(getResources().getColor(R.color.White));
+                otherUnderscore.setVisibility(View.INVISIBLE);
                 // sort the feed
                 Bundle args = new Bundle();
                 args.putString("SORT", "recent");
@@ -120,18 +119,13 @@ public class NewsFeedFragment extends ListFragment
         popularTab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // make popular tab button and underscore blue
-                ((ImageButton) view).setImageResource(R.drawable.popular_reports_clicked);
                 View myParent = (View) view.getParent();
                 ImageView underscore = (ImageView) myParent.findViewById(R.id.popular_tab_underscore);
                 underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
-                // make the recent tab button and underscore gray
+                underscore.setVisibility(View.VISIBLE);
                 View myGrandParent = (View) myParent.getParent();
-                ImageButton otherTab = (ImageButton) myGrandParent.findViewById(R.id.recent_tab_button);
-                otherTab.setImageResource(R.drawable.recent_posts_unclicked);
                 ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.recent_tab_underscore);
-                otherUnderscore.setBackgroundColor(getResources().getColor(R.color.White));
-                // sort the feed
+                otherUnderscore.setVisibility(View.INVISIBLE);
                 Bundle args = new Bundle();
                 args.putString("SORT", "popular");
                 NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
