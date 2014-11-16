@@ -47,7 +47,6 @@ public class NewReportFragment extends Fragment {
     public String detailsText;
     public ArrayList<String> picPaths;
     private int previewClicked;
-    private boolean saveEnabled = false;
 
     public static final int REQUEST_IMAGE_CAPTURE = 1,
         REQUIRED_PIC_COUNT = 3,
@@ -79,7 +78,6 @@ public class NewReportFragment extends Fragment {
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
-        attemptAddSendReportBtn(view);
         attemptEnableSendSave();
         updatePicPreviews();
         setListeners();
@@ -95,19 +93,6 @@ public class NewReportFragment extends Fragment {
         for(ImageView picPreview : picPreviews)
             picPreview = null;
         detailsView = null;
-    }
-
-    private void attemptAddSendReportBtn(View view) {
-        Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
-        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
-        if (savedReportCt > 0) {
-            String buttonText = "Send " + savedReportCt + " saved report";
-            if (savedReportCt > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-            sendSavedReports.setVisibility(View.VISIBLE);
-        } else
-            sendSavedReports.setVisibility(View.GONE);
     }
 
     private void updatePicPreviews() {
@@ -252,27 +237,11 @@ public class NewReportFragment extends Fragment {
         if (view == null)
             return;
         if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
-            disableButton((Button) view.findViewById(R.id.sendButton));
-            saveEnabled = false;
+            view.findViewById(R.id.sendButton).setEnabled(false);
+            view.findViewById(R.id.saveButton).setEnabled(false);
         } else {
-            enableButton((Button) view.findViewById(R.id.sendButton));
-            saveEnabled = true;
+            view.findViewById(R.id.sendButton).setEnabled(true);
+            view.findViewById(R.id.saveButton).setEnabled(true);
         }
-        ActivityCompat.invalidateOptionsMenu(getActivity());
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.save).setEnabled(saveEnabled);
-    }
-
-    private void enableButton(Button btn) {
-        btn.setClickable(true);
-        btn.setBackgroundColor(getResources().getColor(R.color.report_button_clickable));
-    }
-    private void disableButton(Button btn) {
-        btn.setClickable(false);
-        btn.setBackgroundColor(getResources().getColor(R.color.report_button_unclickable));
     }
 }

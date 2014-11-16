@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/new_report"
-    android:tag="new_report">
+    android:tag="new_report"
+    android:elevation="0dp">
 
     <LinearLayout
         android:orientation="vertical"
@@ -14,16 +15,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:id="@+id/top_layout">
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Send saved reports"
-            android:id="@+id/sendSavedReportButton"
-            android:background="@color/Coral"
-            android:textColor="@color/White"
-            android:textStyle="bold"
-            android:visibility="gone"
-            android:onClick="uploadSavedReportsClicked"/>
 
         <com.sc.mtaasafi.android.newReport.DescriptionEditText
             android:layout_width="match_parent"
@@ -40,53 +31,48 @@
 
     </LinearLayout>
 
-    <Button
+    <include layout="@layout/attach_pic_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/include"
+        android:layout_above="@+id/button_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="24dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="right"
+        android:id="@+id/button_layout"
+        android:elevation="0dp" >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save"
+            android:id="@+id/saveButton"
+            android:background="@drawable/secondary_button"
+            android:textColor="@color/disableable_button"
+            android:onClick="attemptSave"
+            android:translationZ="0dp"
+            android:enabled="false"
+            android:layout_margin="16dp" />
+
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/report_button_text"
             android:id="@+id/sendButton"
-            android:layout_gravity="right"
-            android:background="@color/report_button_unclickable"
-            android:textColor="@color/white"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:onClick="attemptBeamOut" />
-
-        <include layout="@layout/attach_pic_row"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/include"
-            android:layout_above="@+id/sendButton"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="30dp" />
-
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Save"-->
-        <!--android:id="@+id/saveButton"-->
-        <!--android:layout_above="@+id/sendButton"-->
-        <!--android:layout_alignParentRight="true"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:background="@color/report_button_unclickable"-->
-        <!--android:textColor="@color/white"-->
-        <!--android:onClick="attemptSave" />-->
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#999999"
-        android:paddingTop="10dp"
-        android:layout_weight="23.13"
-        android:layout_alignTop="@+id/sendButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            android:background="@drawable/primary_button"
+            android:textColor="@color/White"
+            android:onClick="attemptBeamOut"
+            android:translationZ="0dp"
+            android:enabled="false"
+            android:layout_margin="16dp"/>
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"

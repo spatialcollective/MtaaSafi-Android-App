@@ -146,7 +146,7 @@ public class NewReportActivity extends ActionBarActivity implements
             getSupportFragmentManager().putFragment(bundle, NEW_REPORT_TAG, frag);
     }
 
-    public void attemptSave() {
+    public void attemptSave(View view) {
         Log.e("New Report Activity", "attempting save");
         if (transporterHasLocation()) {
             Log.e("New Report Activity", "have location");
@@ -191,23 +191,5 @@ public class NewReportActivity extends ActionBarActivity implements
         int count = c.getCount();
         c.close();
         return count;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-         MenuInflater inflater = getMenuInflater();
-         inflater.inflate(R.menu.new_report, menu);
-         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.save:
-                attemptSave();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 }

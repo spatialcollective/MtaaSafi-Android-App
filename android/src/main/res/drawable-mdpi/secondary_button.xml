@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" >
+        <shape android:shape="rectangle">
+            <solid android:color="@color/White" />
+            <corners android:radius="2dp" />
+        </shape>
+        <padding
+            android:left="10dp"
+            android:top="10dp"
+            android:right="10dp"
+            android:bottom="10dp" />
+        <objectAnimator
+            android:propertyName="translationZ"
+            android:duration="@android:integer/config_shortAnimTime"
+            android:valueFrom="6dp"
+            android:valueTo="0dp"
+            android:valueType="floatType"/>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/White" />
+            <corners android:radius="2dp" />
+        </shape>
+        <padding
+            android:left="10dp"
+            android:top="10dp"
+            android:right="10dp"
+            android:bottom="10dp" />
+        <objectAnimator
+            android:propertyName="translationZ"
+            android:duration="@android:integer/config_shortAnimTime"
+            android:valueFrom="0dp"
+            android:valueTo="6dp"
+            android:valueType="floatType"/>
+    </item>
+</selector>
