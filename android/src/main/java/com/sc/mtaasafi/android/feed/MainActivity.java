@@ -5,9 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.Intent;
-import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -17,12 +15,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -39,15 +35,9 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
-import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
 import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 
 public class MainActivity extends ActionBarActivity implements
@@ -124,8 +114,11 @@ public class MainActivity extends ActionBarActivity implements
                 break;
         }
     }
-
-
+    @Override
+    public void onResume(){
+        super.onResume();
+        supportInvalidateOptionsMenu();
+    }
     @Override
     public void onAlertButtonPressed(int eventKey) {
         switch(eventKey){
@@ -172,27 +165,67 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         MenuInflater inflater = getMenuInflater();
-         inflater.inflate(R.menu.action_bar, menu);
-         return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity, menu);
+        setUpActionBar(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
+    private void setUpActionBar(Menu menu){
+        int savedReportCt = NewReportActivity.getSavedReportCount(this);
+        switch(savedReportCt){
+            case 1:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved1)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 2:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved2)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 3:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved3)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 4:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved4)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 5:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved5)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 6:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved6)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 7:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved7)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 8:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved8)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 9:
+                menu.add(0, 0, 0, "upload_saved_report").setIcon(R.drawable.button_uploadsaved9)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+        }
+        if(savedReportCt > 9)
+            menu.add(0, 0, 0, "upload_saved_report").setIcon(R.drawable.button_uploadsaved9plus)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        supportInvalidateOptionsMenu();
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id._action_report:
-                goToNewReport();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-    public int getActionBarHeight(){
-        TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) 
-            return TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-        return 0;
+        String title = item.getTitle().toString();
+        if(title.equals("New Report")){
+            goToNewReport();
+        } else if(title.equals("Upload Saved Reports"))
+            uploadSavedReports();
+        else
+            return super.onOptionsItemSelected(item);
+        return true;
     }
 
     private void determineUsername() {

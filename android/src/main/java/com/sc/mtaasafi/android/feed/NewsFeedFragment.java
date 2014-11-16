@@ -79,12 +79,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        view.findViewById(R.id.savedReportsButton).setOnClickListener(new View.OnClickListener(){
-            @Override
-            public  void onClick(View view){
-                ((MainActivity) getActivity()).uploadSavedReports();
-            }
-        });
         if (savedInstanceState != null) {
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
@@ -196,7 +190,6 @@ public class NewsFeedFragment extends ListFragment
                 return true;
             }
         });
-        updateSavedReportsBtn(view);
         setListAdapter(mAdapter);
     }
 
@@ -215,24 +208,10 @@ public class NewsFeedFragment extends ListFragment
         args.putString("SORT", "recent");
         NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
         nff.getLoaderManager().restartLoader(0, args, nff);
-        updateSavedReportsBtn(getView());
     }
     @Override
     public void onPause() {
         super.onPause();
-    }
-
-    private void updateSavedReportsBtn(View view) {
-        Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
-        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
-        if (savedReportCt > 0) {
-            String buttonText = "Send " + savedReportCt + " saved report";
-            if (savedReportCt > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-            sendSavedReports.setVisibility(View.VISIBLE);
-        } else
-            sendSavedReports.setVisibility(View.GONE);
     }
 
     @Override
