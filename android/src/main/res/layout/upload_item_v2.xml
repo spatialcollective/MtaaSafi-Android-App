@@ -26,7 +26,8 @@
         android:layout_height="wrap_content"
         android:text="5 hours ago"
         android:id="@+id/uploadingTime"
-        android:textColor="@color/LightGrey" />
+        android:textColor="@color/LightGrey"
+        android:paddingTop="8dp" />
 
     <com.sc.mtaasafi.android.uploading.DeleteReportButton
         android:layout_width="38dp"

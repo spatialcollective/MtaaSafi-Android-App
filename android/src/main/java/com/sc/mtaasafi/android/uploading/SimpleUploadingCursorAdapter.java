@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.database.Contract;
 
@@ -21,9 +22,11 @@ import com.sc.mtaasafi.android.database.Contract;
 public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
 
     Context mContext;
+    AQuery aq;
 
     public SimpleUploadingCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flag) {
         super(context, layout, c, from, to);
+        aq = new AQuery(context);
     }
 
     @Override
@@ -33,10 +36,26 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         resetState(view);
         indicateRow(cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);
         int progress = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
-        for (int i = 0; i <= progress; i++)
-            updateProgressView(i, view);
+        restoreProgress(progress, view);
     }
-
+    // Restores a progress point that has already been reached
+    private void restoreProgress(int progress, View row){
+        int restoreTo = progress-1;
+        switch(restoreTo){
+            case 3:
+                UploadingPic uP = (UploadingPic) row.findViewById(R.id.uploadingPic1);
+                aq.id(uP).image((String)uP.getTag());
+            case 2:
+                UploadingPic uP2 = (UploadingPic) row.findViewById(R.id.uploadingPic2);
+                aq.id(uP2).image((String)uP2.getTag());
+            case 1:
+                UploadingPic uP1 = (UploadingPic) row.findViewById(R.id.uploadingPic1);
+                aq.id(uP1).image((String)uP1.getTag());
+            case 0:
+                showUploadStarted(row);
+        }
+        updateProgressView(progress, row);
+    }
     public void resetView(View row) {
         row.setBackgroundColor(Color.WHITE);
         ((TextView) row.findViewById(R.id.uploadingContent))
@@ -48,17 +67,20 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     public void indicateRow(int uploadInProgress, View row) {
         Log.e("Adapter", "indicateRow. Upload in progress "+ uploadInProgress);
         if (uploadInProgress == 1){
-            row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
-            ((TextView) row.findViewById(R.id.uploadingContent))
-                    .setTextColor(mContext.getResources().getColor(R.color.textDarkGray));
-            ((TextView) row.findViewById(R.id.uploadingContent))
-                    .setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
-            ((TextView) row.findViewById(R.id.uploadingTime))
-                    .setTextColor(mContext.getResources().getColor(R.color.textDarkGray));
+            showUploadStarted(row);
         } else
             resetView(row);
     }
+    private void showUploadStarted(View row){
+        row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
+        ((TextView) row.findViewById(R.id.uploadingContent))
+                .setTextColor(mContext.getResources().getColor(R.color.textDarkGray));
+        ((TextView) row.findViewById(R.id.uploadingContent))
+                .setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
+        ((TextView) row.findViewById(R.id.uploadingTime))
+                .setTextColor(mContext.getResources().getColor(R.color.textDarkGray));
 
+    }
 // view = the whole row
     public void updateProgressView(int progress, View row){
         Log.e("Adapter", "updateProgressView. Row id == R.id.upload_row: " +
@@ -66,10 +88,6 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         if(row != null){
             switch (progress) {
                 case 1:
-//                    TextView content = (TextView) row.findViewById(R.id.uploadingContent);
-//                    content.setTextColor(mContext.getResources().getColor(R.color.black));
-//                    TextView time = (TextView) row.findViewById(R.id.uploadingTime);
-//                    time.setTextColor(mContext.getResources().getColor(R.color.black));
                     row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
                     ((UploadingPic) row.findViewById(R.id.uploadingPic1)).startUpload();
                     break;
