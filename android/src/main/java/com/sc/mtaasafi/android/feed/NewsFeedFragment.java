@@ -17,9 +17,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -242,6 +246,29 @@ public class NewsFeedFragment extends ListFragment
         }
     }
 
+    public void refreshFailed(){
+        View view = getView();
+        if(view != null){
+            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+            refreshLayout.setRefreshing(false);
+            final LinearLayout refreshFailed = (LinearLayout) view.findViewById(R.id.refresh_failed_bar);
+            Animation out = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_top);
+            out.setStartOffset(1500);
+            out.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    refreshFailed.setVisibility(View.GONE);
+                }
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+            refreshFailed.startAnimation(out);
+            refreshFailed.setVisibility(View.VISIBLE);
+        }
+
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrder = null;
@@ -273,9 +300,6 @@ public class NewsFeedFragment extends ListFragment
             else
                 view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
         }
-
-
-
     }
 
     @Override

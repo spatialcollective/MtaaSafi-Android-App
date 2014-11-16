@@ -263,15 +263,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return result.toString();
     }
 
-    private JSONArray convertStringToJsonArray(String input) throws JSONException {
-        JSONArray jsonArray = new JSONArray(input);
-        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-            throw new JSONException("Server returned error");
-        return jsonArray;
-    }
-
     private JSONObject convertStringToJson(String input) throws JSONException {
-        if(input.contains("error"))
+        if(input.contains("error") || input.contains("DOCTYPE HTML"))
             throw new JSONException("Server returned error");
         return new JSONObject(input);
     }

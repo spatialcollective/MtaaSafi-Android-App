@@ -281,15 +281,13 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onRefresh() {
-        if(isOnline()){
-            if(getLocation() != null)
+        if(isOnline() && getLocation() != null)
                 SyncUtils.TriggerRefresh();
-            else
-                AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED,
-                        this,
-                        getSupportFragmentManager());
-        } else
-            AlertDialogFragment.showAlert(AlertDialogFragment.CONNECTION_FAILED,
+        else
+            ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
+                    .refreshFailed();
+        if(getLocation() == null)
+            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED,
                     this,
                     getSupportFragmentManager());
     }
