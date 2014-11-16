@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -49,8 +50,11 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         if (uploadInProgress == 1){
             row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
             ((TextView) row.findViewById(R.id.uploadingContent))
-                    .setTextColor(666666);
-            ((TextView) row.findViewById(R.id.uploadingTime)).setTextColor(666666);
+                    .setTextColor(mContext.getResources().getColor(R.color.textDarkGray));
+            ((TextView) row.findViewById(R.id.uploadingContent))
+                    .setTextSize(TypedValue.COMPLEX_UNIT_DIP, 25);
+            ((TextView) row.findViewById(R.id.uploadingTime))
+                    .setTextColor(mContext.getResources().getColor(R.color.textDarkGray));
         } else
             resetView(row);
     }
@@ -62,6 +66,10 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         if(row != null){
             switch (progress) {
                 case 1:
+//                    TextView content = (TextView) row.findViewById(R.id.uploadingContent);
+//                    content.setTextColor(mContext.getResources().getColor(R.color.black));
+//                    TextView time = (TextView) row.findViewById(R.id.uploadingTime);
+//                    time.setTextColor(mContext.getResources().getColor(R.color.black));
                     row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
                     ((UploadingPic) row.findViewById(R.id.uploadingPic1)).startUpload();
                     break;
@@ -115,7 +123,6 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         content.setTextColor(mContext.getResources().getColor(R.color.LightGrey));
         TextView time = (TextView) view.findViewById(R.id.uploadingTime);
         time.setTextColor(mContext.getResources().getColor(R.color.LightGrey));
-
         view.findViewById(R.id.uploading_pic_row).setVisibility(View.GONE);
     }
 }

@@ -49,7 +49,7 @@ public class UploadingPic extends ImageView implements Animation.AnimationListen
     public void finishUpload(){
         uploadSuccessful = true;
         AQuery aq = new AQuery(getContext());
-        setImageResource(R.drawable.circle_overlay);
+        setImageResource(R.drawable.loading_uploadthumbnail);
         aq.id(this).image((String) getTag(), true, true, 0, 0, null, AQuery.FADE_IN);
         clearAnimation();
     }
