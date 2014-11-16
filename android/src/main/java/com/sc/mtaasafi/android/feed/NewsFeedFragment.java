@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -84,6 +85,17 @@ public class NewsFeedFragment extends ListFragment
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
+        setUpTabs(view);
+        SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        refreshLayout.setOnRefreshListener((MainActivity) getActivity());
+        refreshLayout.setColorSchemeResources(R.color.mtaa_safi_blue,
+                                                R.color.mtaa_safi_blue_light,
+                                                R.color.Coral,
+                                                R.color.White);
+        return view;
+    }
+
+    private void setUpTabs(View view){
         ImageButton recentTab = (ImageButton) view.findViewById(R.id.recent_tab_button);
         recentTab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,10 +140,7 @@ public class NewsFeedFragment extends ListFragment
                 nff.getLoaderManager().restartLoader(0, args, nff);
             }
         });
-
-        return view;
     }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -207,7 +216,6 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onPause() {
         super.onPause();
-        // saveListPosition();
     }
 
     private void updateSavedReportsBtn(View view) {
@@ -223,20 +231,6 @@ public class NewsFeedFragment extends ListFragment
             sendSavedReports.setVisibility(View.GONE);
     }
 
-    public void saveListPosition() {
-        index = getListView().getFirstVisiblePosition();
-        View v = getListView().getChildAt(0);
-        top = (v == null) ? 0 : v.getTop();
-        Bundle bundle = new Bundle();
-        bundle.putInt("index", index);
-        bundle.putInt("top", top);
-        onSaveInstanceState(bundle);
-    }
-
-    public void restoreListPosition() {
-        getListView().setSelectionFromTop(index, top);
-    }
-
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -246,15 +240,6 @@ public class NewsFeedFragment extends ListFragment
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
         }
-    }
-
-    public void startRefresh(){
-        if (getView() != null)
-            getView().findViewById(R.id.refreshingFeedView).setVisibility(View.VISIBLE);
-    }
-    public void endRefresh(){
-        if (getView() != null)
-            getView().findViewById(R.id.refreshingFeedView).setVisibility(View.GONE);
     }
 
     @Override
@@ -275,10 +260,22 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        endRefresh();
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
         mAdapter.notifyDataSetChanged();
+        View view = getView();
+        if(view != null){
+            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout)
+                    view.findViewById(R.id.swipeRefresh);
+            refreshLayout.setRefreshing(false);
+            if(cursor.getCount()==0)
+                view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
+            else
+                view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
+        }
+
+
+
     }
 
     @Override

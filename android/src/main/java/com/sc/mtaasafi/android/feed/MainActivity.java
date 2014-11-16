@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.TypedValue;
@@ -52,7 +53,8 @@ import java.io.InputStreamReader;
 public class MainActivity extends ActionBarActivity implements
         NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener,
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener{
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        SwipeRefreshLayout.OnRefreshListener{
 
     ReportDetailFragment detailFragment;
     private LocationClient mLocationClient;
@@ -181,20 +183,6 @@ public class MainActivity extends ActionBarActivity implements
             case R.id._action_report:
                 goToNewReport();
                 return true;
-            case R.id.action_refresh:
-                if(isOnline()){
-                    if(getLocation() != null){
-                        SyncUtils.TriggerRefresh();
-                        NewsFeedFragment nff = getNewsFeedFragment();
-                        if(nff != null)
-                            nff.startRefresh();
-                    }
-                } else{
-                    AlertDialogFragment.showAlert(AlertDialogFragment.CONNECTION_FAILED,
-                                                  this,
-                                                  getSupportFragmentManager());
-                }
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -291,4 +279,18 @@ public class MainActivity extends ActionBarActivity implements
         return false;
     }
 
+    @Override
+    public void onRefresh() {
+        if(isOnline()){
+            if(getLocation() != null)
+                SyncUtils.TriggerRefresh();
+            else
+                AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED,
+                        this,
+                        getSupportFragmentManager());
+        } else
+            AlertDialogFragment.showAlert(AlertDialogFragment.CONNECTION_FAILED,
+                    this,
+                    getSupportFragmentManager());
+    }
 }
