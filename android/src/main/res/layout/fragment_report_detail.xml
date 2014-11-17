@@ -113,11 +113,11 @@
             android:id="@+id/topVote"
             android:layout_marginLeft="10dp" />
 
-        <ListView
+        <include
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@android:id/list" />
-
+            layout="@layout/add_comment_bar"
+            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 
     <include

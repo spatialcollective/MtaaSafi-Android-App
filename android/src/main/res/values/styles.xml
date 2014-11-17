@@ -11,4 +11,9 @@
         <!-- Support library compatibility -->
     </style>
 
+    <style name="SafiEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/add_comment_background</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
 </resources>

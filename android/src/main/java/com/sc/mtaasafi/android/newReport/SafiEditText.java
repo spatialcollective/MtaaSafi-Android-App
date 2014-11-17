@@ -11,18 +11,18 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
-public class DescriptionEditText extends EditText{
-    public DescriptionEditText(Context context)
+public class SafiEditText extends EditText{
+    public SafiEditText(Context context)
     {
         super(context);
     }
 
-    public DescriptionEditText(Context context, AttributeSet attrs)
+    public SafiEditText(Context context, AttributeSet attrs)
     {
         super(context, attrs);
     }
 
-    public DescriptionEditText(Context context, AttributeSet attrs, int defStyle)
+    public SafiEditText(Context context, AttributeSet attrs, int defStyle)
     {
         super(context, attrs, defStyle);
     }

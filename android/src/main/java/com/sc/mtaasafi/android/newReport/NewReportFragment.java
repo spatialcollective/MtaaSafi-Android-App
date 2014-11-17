@@ -3,7 +3,6 @@ package com.sc.mtaasafi.android.newReport;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,7 +24,6 @@ import android.widget.Toast;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.Report;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +65,7 @@ public class NewReportFragment extends Fragment {
 	   picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
         picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
         picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
+        detailsView = (SafiEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptAddSendReportBtn(view);

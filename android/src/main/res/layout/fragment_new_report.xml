@@ -25,7 +25,7 @@
             android:visibility="gone"
             android:onClick="uploadSavedReportsClicked"/>
 
-        <com.sc.mtaasafi.android.newReport.DescriptionEditText
+        <com.sc.mtaasafi.android.newReport.SafiEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/newReportDetails"

@@ -38,7 +38,7 @@ import com.sc.mtaasafi.android.database.Contract;
 import java.text.SimpleDateFormat;
 
 
-public class ReportDetailFragment extends android.support.v4.app.Fragment {
+public class ReportDetailFragment extends android.support.v4.app.Fragment implements AddCommentBar.CommentSendListener{
 
     Report mReport;
     private String content, location, time, user, mediaUrl1, mediaUrl2, mediaUrl3, distance;
@@ -50,6 +50,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     public ViewPager viewPager;
     RelativeLayout bottomView;
     LinearLayout topView;
+    AddCommentBar addComment;
     private static String content_Key ="content",
         location_Key = "location",
         time_Key = "time",
@@ -95,11 +96,12 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         if(savedState != null)
             restoreMe(savedState);
         Location currentLocation = ((MainActivity) getActivity()).getLocation();
-        if(currentLocation != null){
+        if(currentLocation != null)
             distance = Report.getDistanceText(currentLocation, reportLocation);
-        } else
+        else
             distance = "error";
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
+        view.findViewById(R.id.add_comment_bar);
         return view;
     }
     
@@ -443,6 +445,25 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         }
     }
 
+// ============== Comment Listener ===========
+    @Override
+    public void sendCommentPressed() {
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void commentSentSuccess() {
+        setRetainInstance(false);
+        // update the comments list
+        // tell comments button to stop spinning
+    }
+
+    @Override
+    public void commentSentFailure() {
+        setRetainInstance(false);
+        // ????
+    }
+
     private class ImageSlideAdapter extends FragmentPagerAdapter {
         String[] mediaPaths;
         public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
@@ -459,6 +480,5 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
             iF.setArguments(args);
             return iF;
         }
-
     }
 }

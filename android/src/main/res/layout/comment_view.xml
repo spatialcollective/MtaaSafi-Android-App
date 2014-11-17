@@ -2,13 +2,16 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Here is the content of a single comment. Oh, how fascinationg!"
-        android:id="@+id/textView" />
+        android:text="Here is the content of a single comment. Oh, how fascinating!"
+        android:id="@+id/textView"
+        android:paddingBottom="8dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,7 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="agree.ahmed@gmail.com"
-            android:id="@+id/textView2" />
+            android:id="@+id/textView2"
+            android:textColor="@color/DarkGray" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -27,7 +31,8 @@
             android:id="@+id/textView3"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:textColor="@color/DarkGray" />
     </RelativeLayout>
 
 </LinearLayout>
