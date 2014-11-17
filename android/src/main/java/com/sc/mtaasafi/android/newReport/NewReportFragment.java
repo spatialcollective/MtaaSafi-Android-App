@@ -68,7 +68,6 @@ public class NewReportFragment extends Fragment {
         detailsView = (SafiEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
-        attemptAddSendReportBtn(view);
         attemptEnableSendSave();
         updatePicPreviews();
         setListeners();
@@ -84,19 +83,6 @@ public class NewReportFragment extends Fragment {
         for(ImageView picPreview : picPreviews)
             picPreview = null;
         detailsView = null;
-    }
-
-    private void attemptAddSendReportBtn(View view) {
-        Button sendSavedReports = (Button) view.findViewById(R.id.sendSavedReportButton);
-        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
-        if (savedReportCt > 0) {
-            String buttonText = "Send " + savedReportCt + " saved report";
-            if (savedReportCt > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-            sendSavedReports.setVisibility(View.VISIBLE);
-        } else
-            sendSavedReports.setVisibility(View.GONE);
     }
 
     private void updatePicPreviews() {

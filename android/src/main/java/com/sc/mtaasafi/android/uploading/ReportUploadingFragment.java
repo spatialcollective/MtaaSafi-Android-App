@@ -2,6 +2,8 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
@@ -35,18 +38,24 @@ public class ReportUploadingFragment extends ListFragment
                 mBtnState = SHOW_CANCEL,
                 inProgressIndex = 0;
     private String mText = "Uploading...";
-    private boolean userCancelled = false;
+    private AQuery aq;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
+        Contract.Entry.COLUMN_MEDIAURL1,
+        Contract.Entry.COLUMN_MEDIAURL2,
+        Contract.Entry.COLUMN_MEDIAURL3,
         Contract.Entry.COLUMN_CONTENT,
         Contract.Entry.COLUMN_TIMESTAMP,
         Contract.Entry.COLUMN_PENDINGFLAG,
         Contract.Entry.COLUMN_ID
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
-        R.id.itemDetails,
-        R.id.timeElapsed,
-        R.id.expanded_layout,
+        R.id.uploadingPic1,
+        R.id.uploadingPic2,
+        R.id.uploadingPic3,
+        R.id.uploadingContent,
+        R.id.uploadingTime,
+        R.id.upload_row,
         R.id.deleteReportButton
     };
     public ReportUploadingFragment() {}
@@ -55,6 +64,7 @@ public class ReportUploadingFragment extends ListFragment
     public void onCreate(Bundle instate){
         super.onCreate(instate);
         setRetainInstance(true);
+        aq = new AQuery(getActivity());
     }
 
     @Override
@@ -68,7 +78,7 @@ public class ReportUploadingFragment extends ListFragment
         super.onViewCreated(view, savedState);
         changeHeader(mText, mColor, mBtnState);
 
-        mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item,
+        mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item_v2,
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
         mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);
@@ -96,12 +106,13 @@ public class ReportUploadingFragment extends ListFragment
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
                 mAdapter.updateProgressView(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
-                mAdapter.indicateRow(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID)){
+            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)
+                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)
+                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3))
+                view.setTag(cursor.getString(i));
+            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
                 view.setTag(cursor.getInt(i));
-                view.setVisibility(View.VISIBLE);
-            } else
+            else
                 return false;
             return true;
         }
@@ -115,7 +126,6 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void beamUpReport(Report pendingReport) {
-        userCancelled = false;
         Log.e("RUF", "Beam up report has been called!");
         if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
             changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
@@ -192,7 +202,6 @@ public class ReportUploadingFragment extends ListFragment
 
     private void cancelSession(View view) {
         // tell the adapter to tell the uploader to stop. Once it stops, update the view
-        userCancelled = true;
         changeHeader("Cancelling...", R.color.DarkGray, HIDE_CANCEL);
         Log.e("cancel session", "cancelling!!");
         if(uploader != null)
@@ -226,7 +235,7 @@ public class ReportUploadingFragment extends ListFragment
             pendingReportCount = mAdapter.getCount();
         boolean shouldAutoStart = uploader == null || uploader.canceller.equals(uploader.DELETE_BUTTON);
         if (pendingReportCount > 0 && shouldAutoStart){
-            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time.
+            inProgressIndex = 1; // TODO: fix that deleting report sets inprogress index to 1 every time.
             beamUpFirstReport();
         }
     }

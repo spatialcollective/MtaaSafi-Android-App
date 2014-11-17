@@ -13,9 +13,11 @@
     <!--%%######-->
     <color name="mtaa_safi_blue">#009999</color>
     <color name="mtaa_safi_blue_light">#AAD5D5</color>
+    <color name="mtaa_safi_blue_dark">#005E5E</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="report_button_unclickable">#A4C8FF</color>
     <color name="report_button_clickable">#0099FF</color>
+    <color name="textDarkGray">#666666</color>
     <color name="white">#FFFFFF</color>
     <color name="yellow">#FFFF00</color>
     <color name="fuchsia">#FF00FF</color>

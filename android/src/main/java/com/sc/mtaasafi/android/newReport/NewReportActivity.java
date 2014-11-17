@@ -13,12 +13,16 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
@@ -39,9 +43,77 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFragment(savedInstanceState);
-        
         mLocationClient = new LocationClient(this, this, this);
         cp = PrefUtils.getPrefs(this);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.new_report, menu);
+        setUpActionBar(menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void setUpActionBar(Menu menu){
+        int savedReportCt = NewReportActivity.getSavedReportCount(this);
+        switch(savedReportCt){
+            case 1:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved1)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 2:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved2)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 3:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved3)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 4:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved4)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 5:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved5)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 6:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved6)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 7:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved7)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 8:
+                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved8)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+            case 9:
+                menu.add(0, 0, 0, "upload_saved_report").setIcon(R.drawable.button_uploadsaved9)
+                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                break;
+        }
+        if(savedReportCt > 9)
+            menu.add(0, 0, 0, "upload_saved_report").setIcon(R.drawable.button_uploadsaved9plus)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        supportInvalidateOptionsMenu();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String title = item.getTitle().toString();
+        if(title.equals("Upload Saved Reports"))
+            uploadSavedReports();
+        else
+            return super.onOptionsItemSelected(item);
+        return true;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        supportInvalidateOptionsMenu();
     }
 
     // Restore the previous fragment from the savedInstanceState
@@ -73,7 +145,6 @@ public class NewReportActivity extends ActionBarActivity implements
         mLocationClient.disconnect();
     }
 
-    public void uploadSavedReportsClicked(View view) { uploadSavedReports(); }
     public void uploadSavedReports() {
        if(getLocation() != null){
            Intent intent = new Intent().setClass(this, UploadingActivity.class)

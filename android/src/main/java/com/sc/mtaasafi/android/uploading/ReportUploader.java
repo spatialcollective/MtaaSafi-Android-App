@@ -13,6 +13,7 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.VoteInterface;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
@@ -47,8 +48,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     public static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
 
-    private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
-            NEXT_REPORT_PIECE_KEY = "nextfield",
+    private static final String NEXT_REPORT_PIECE_KEY = "nextfield",
             REPORT_ID_KEY = "id",
             OUTPUT_KEY = "output";
 
@@ -85,7 +85,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     private JSONObject writeTextToServer() throws IOException, JSONException {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(BASE_WRITE_URL);
+        HttpPost httpPost = new HttpPost(URLs.BASE_WRITE);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         // send along user's upvote data, if any, with the report text
@@ -96,7 +96,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
 
     private JSONObject writePicToServer() throws IOException, JSONException {
-        String urlString = BASE_WRITE_URL + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
+        String urlString = URLs.BASE_WRITE + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setInstanceFollowRedirects(false);

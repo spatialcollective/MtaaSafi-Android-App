@@ -94,6 +94,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/progressBarPic1"
                     android:layout_alignBottom="@+id/pic1UploadingIcon"
+                    android:indeterminateDrawable="@drawable/progress_spinner"
+
                     android:visibility="invisible"
                     android:paddingBottom="8dp"
                     android:paddingLeft="12dp"
@@ -119,6 +121,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/progressBarPic2"
                     android:layout_alignBottom="@+id/pic2UploadingIcon"
+                    android:indeterminateDrawable="@drawable/progress_spinner"
+
                     android:visibility="invisible"
                     android:paddingBottom="8dp"
                     android:paddingLeft="12dp"
@@ -144,6 +148,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/progressBarPic3"
                     android:layout_alignBottom="@+id/pic3UploadingIcon"
+                    android:indeterminateDrawable="@drawable/progress_spinner"
                     android:visibility="invisible"
                     android:paddingBottom="8dp"
                     android:paddingLeft="12dp"

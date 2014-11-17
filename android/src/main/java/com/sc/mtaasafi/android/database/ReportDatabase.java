@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -31,8 +31,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.UpvoteLog.TABLE_NAME + "("
             + Contract.UpvoteLog.COLUMN_ID + " integer primary key autoincrement, "
             + Contract.UpvoteLog.COLUMN_SERVER_ID + " integer, "
-            + Contract.UpvoteLog.COLUMN_LAT + " double not null, "
-            + Contract.UpvoteLog.COLUMN_LON + " double not null"
+            + Contract.UpvoteLog.COLUMN_LAT + " double, "
+            + Contract.UpvoteLog.COLUMN_LON + " double"
             + ")";
 
     public ReportDatabase(Context context) {
