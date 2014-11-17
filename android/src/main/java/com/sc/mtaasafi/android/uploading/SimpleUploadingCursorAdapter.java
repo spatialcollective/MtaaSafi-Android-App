@@ -105,35 +105,6 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         }
     }
 
-    private void updateState(View view, int doneProgressId, int doneViewId, int workingId, int drawable) {
-        if (view != null) {
-            if (doneViewId != 0 && drawable != 0)
-                ((ImageView) view.findViewById(doneViewId)).setImageResource(drawable);
-            if (workingId != 0)
-                view.findViewById(workingId).setVisibility(View.VISIBLE);
-            else{
-                view.findViewById(R.id.uploadSuccessText).setVisibility(View.VISIBLE);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(600);
-                anim.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {}
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        // notify data set changed?
-                        // TODO: move update Database call into this class. Current arch doesn't
-                        // allow this feature...
-                    }
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {}
-                });
-                view.startAnimation(anim);
-            }
-            if (doneProgressId != 0)
-                view.findViewById(doneProgressId).setVisibility(View.INVISIBLE);
-        }
-    }
-
     // called on rows for report that aren't currently uploading
     private void resetState(View view) {
         // set text to light grey and hide the uploading pic row
