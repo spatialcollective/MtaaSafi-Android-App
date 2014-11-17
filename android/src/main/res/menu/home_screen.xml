@@ -1,9 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.sc.mtaasafi.android.HomeScreen" >
-    
-    <item android:id="@+id/accounts_menu"
-        android:title="@string/accounts"
-        app:showAsAction="never" />
-</menu>
