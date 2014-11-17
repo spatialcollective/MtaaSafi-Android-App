@@ -64,7 +64,8 @@
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
+            android:minWidth="88dp"
             android:text="@string/save"
             android:id="@+id/saveButton"
             android:background="@drawable/secondary_button"
@@ -79,7 +80,8 @@
 
         <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="36dp"
+            android:minWidth="88dp"
             android:text="@string/report_button_text"
             android:id="@+id/sendButton"
             android:background="@drawable/primary_button"
