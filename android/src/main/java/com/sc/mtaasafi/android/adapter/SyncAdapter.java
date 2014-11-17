@@ -114,8 +114,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
         ArrayList<Integer> dbIds = getDbIds(syncResult, true);
-        // for each id from the server, if it is in the local DB,
-        // remove the id from both the DB ids and the server ids
         for (int i = 0; i < dbIds.size(); i++) {
             batch.add(ContentProviderOperation.newDelete(Report.getUri(dbIds.get(i))).build());
             syncResult.stats.numDeletes++;

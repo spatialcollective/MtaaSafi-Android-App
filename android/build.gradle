@@ -12,6 +12,7 @@ apply plugin: 'android'
 apply plugin: 'io.fabric'
 
 repositories {
+
     maven { url 'https://maven.fabric.io/repo' }
 }
 
@@ -35,7 +36,6 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':facebook')
     compile files('libs/android-query-full.0.26.8.jar', 'libs/gson-2.3.jar')
     compile('com.crashlytics.sdk.android:crashlytics:2.0.0@aar') {
         transitive = true;

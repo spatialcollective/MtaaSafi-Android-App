@@ -14,6 +14,11 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/feedLL">
 
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/feed_tabs" />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

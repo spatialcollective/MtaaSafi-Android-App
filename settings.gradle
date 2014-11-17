@@ -1,1 +1,1 @@
-include ':android', ':facebook'
+include ':android'

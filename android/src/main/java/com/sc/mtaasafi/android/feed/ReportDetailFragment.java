@@ -390,7 +390,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
     }
     public void updateView(View view) {
         VoteInterface topVote = (VoteInterface) view.findViewById(R.id.topVote);
-        topVote.updateData(upvoteCount, userVoted, dbId, serverId);
+        topVote.updateData(upvoteCount, userVoted, serverId);
         ((TextView) view.findViewById(R.id.reportViewContent)).setText(content);
         ((TextView) view.findViewById(R.id.itemLocation)).setText(location);
         ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
@@ -432,7 +432,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
         userVoted = bottomVote.userVoted;
         upvoteCount = bottomVote.voteCount;
-        topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, dbId, serverId);
+        topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, serverId);
     }
     // called upon inflation as well as whenever the viewpager is about to become visible
     private void updateBottomVote(){
@@ -441,7 +441,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment {
         VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
         userVoted = topVote.userVoted;
         upvoteCount = topVote.voteCount;
-        bottomVote.updateData(topVote.voteCount, topVote.userVoted, dbId, serverId);
+        bottomVote.updateData(topVote.voteCount, topVote.userVoted, serverId);
     }
     private String getSimpleTimeStamp(String timestamp) {
         SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");

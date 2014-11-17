@@ -2,14 +2,21 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
+<<<<<<< HEAD
+=======
+import com.sc.mtaasafi.android.feed.VoteInterface;
+import com.sc.mtaasafi.android.newReport.NewReportActivity;
+>>>>>>> development
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -37,7 +44,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     ReportUploadingFragment mFragment;
     String canceller = "";
 
-    private static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
+    public static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
 
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
@@ -78,7 +85,10 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         HttpPost httpPost = new HttpPost(BASE_WRITE_URL);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(pendingReport.getJsonStringRep()));
+        // send along user's upvote data, if any, with the report text
+        JSONObject withUpvoteData = VoteInterface.recordUpvoteLog(
+                mFragment.getActivity(), new JSONObject(pendingReport.getJsonStringRep()));
+        httpPost.setEntity(new StringEntity(withUpvoteData.toString()));
         return processResponse(httpclient.execute(httpPost));
     }
 
@@ -104,7 +114,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         return new JSONObject(response);
     }
     
-    private void updateDB(JSONObject response) throws JSONException {
+    private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
+        VoteInterface.onUpvotesRecorded(mFragment.getActivity(), response);
+        Log.e("SERVER RESPONSE", response.toString());
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
         publishProgress(pendingReport.pendingState);
         ContentValues updateValues = new ContentValues();

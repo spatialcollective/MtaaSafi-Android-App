@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android;
 
+import android.content.Context;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -134,6 +135,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
         reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
+        reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
@@ -144,6 +146,18 @@ public class Report {
     public static Uri getUri(int dbId) {
         return Contract.Entry.CONTENT_URI.buildUpon()
             .appendPath(Integer.toString(dbId)).build();
+    }
+    public static int serverIdToDBId(Context c, int serverId){
+        String[] projection = new String[1];
+        projection[0] = Contract.Entry.COLUMN_ID;
+        Cursor cursor = c.getContentResolver().query(Contract.Entry.CONTENT_URI, projection, Contract.Entry.COLUMN_SERVER_ID + " = " + serverId,
+            null, null);
+        if(cursor.moveToNext()){
+            int dbId = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_ID));
+            cursor.close();
+            return dbId;
+        }
+        return -1;
     }
 
     public String getJsonStringRep() throws JSONException {
@@ -156,7 +170,7 @@ public class Report {
         return json.toString();
     }
 
-    public static String getDistanceText(Location currentLocation, Location reportLocation){
+	public static String getDistanceText(Location currentLocation, Location reportLocation){
         float distInMeters = reportLocation.distanceTo(currentLocation);
         String distText;
         if(distInMeters > 1000){

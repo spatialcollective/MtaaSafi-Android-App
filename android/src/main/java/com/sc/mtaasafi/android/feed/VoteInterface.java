@@ -32,12 +32,12 @@ import java.util.ArrayList;
 public class VoteInterface extends LinearLayout {
     TextView voteCountTV;
     ImageButton upvote;
-    public int voteCount, dbId, serverId;
-    public boolean userVoted, dataSet;
+    public int voteCount, serverId;
+    public boolean userVoted, feedMode;
     private static final String UPVOTE_DATA_KEY = "upvote_data";
     public VoteInterface(Context context, AttributeSet attrs) {
         super(context, attrs);
-        dataSet = false;
+        feedMode = false;
     }
 
     @Override
@@ -48,27 +48,24 @@ public class VoteInterface extends LinearLayout {
             @Override
             public void onClick(View view) {
                 try {
-                    if(!dataSet){
+                    if(feedMode){
                     // newsFeedFragment stores VI's data in the view's tags because it can't call
-                        // updateData
-                        dbId = (Integer) view.getTag();
+                    // updateData
                         voteCount = Integer.parseInt(voteCountTV.getText().toString());
                         serverId = (Integer) voteCountTV.getTag();
-                        View parent = (View) view.getParent();
-                        userVoted = (Integer) parent.getTag() > 0;
-                        dataSet = true;
+                        userVoted =
+                                voteCountTV.getCurrentTextColor() == getResources().getColor(R.color.mtaa_safi_blue);
                     }
                     if(!userVoted){ // if user hasn't upvoted this item
                         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
                         batch.add(updateReportTable());
                         batch.add(addToUpvoteLog());
-                        updateData(voteCount+1, true, dbId, serverId);
+                        updateData(voteCount+1, true, serverId);
                         getContext().getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
                         getContext().getContentResolver().notifyChange(Contract.UpvoteLog.UPVOTE_URI, null, false);
                         getContext().getContentResolver().notifyChange(Contract.Entry.CONTENT_URI, null, false);
-                    } else {
-                        Log.e("VOTE INTERFACE", "You already upvoted this one, dawg!");
-                    }
+                    } else
+                        Log.e("VOTE INTERFACE", "Dawg the text is MtaaSafi blue! Means you upvoted this one.");
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 } catch (OperationApplicationException e) {
@@ -80,6 +77,7 @@ public class VoteInterface extends LinearLayout {
 
     //
     private ContentProviderOperation updateReportTable(){
+        int dbId = Report.serverIdToDBId(getContext(), serverId);
         return ContentProviderOperation.newUpdate(Report.getUri(dbId))
                 .withValue(Contract.Entry.COLUMN_USER_UPVOTED, 1)
                 .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, voteCount+1)
@@ -104,17 +102,15 @@ public class VoteInterface extends LinearLayout {
         upvote.setImageResource(R.drawable.button_upvote_unclicked_white);
     }
 
-    public void updateData(int voteCt, boolean voted, int dbId, int serverId){
+    public void updateData(int voteCt, boolean voted, int serverId){
         voteCount = voteCt;
         userVoted = voted;
-        this.dbId = dbId;
         this.serverId = serverId;
         voteCountTV.setText(Integer.toString(voteCount));
         if(userVoted){
             voteCountTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
             upvote.setImageResource(R.drawable.button_upvote_clicked);
         }
-        dataSet = true;
     }
     // ======================== Server-Client Upvote Communication ========================
 

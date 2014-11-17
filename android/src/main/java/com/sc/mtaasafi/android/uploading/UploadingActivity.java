@@ -33,13 +33,14 @@ public class UploadingActivity extends ActionBarActivity {
         ReportUploadingFragment frag = null;
         if (savedInstanceState != null)
             frag = (ReportUploadingFragment) getSupportFragmentManager().getFragment(savedInstanceState, UPLOAD_TAG);
-        if (frag == null)
+        if (frag == null){
             frag = new ReportUploadingFragment();
-        Bundle args = new Bundle();
-//        args.putString(ReportUploadingFragment.ACTION, getIntent().getAction());
-//        args.putString(ReportUploadingFragment.DATA, getIntent().getData().toString());
-//        frag.setArguments(args);
-
+            Bundle args = new Bundle();
+            if(getIntent().getData() != null ){
+                args.putString("ORDER", "descending");
+                frag.setArguments(args);
+            }
+        }
         getSupportFragmentManager().beginTransaction()
             .replace(android.R.id.content, frag, UPLOAD_TAG)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)

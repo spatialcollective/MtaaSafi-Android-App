@@ -209,8 +209,15 @@ public class ReportUploadingFragment extends ListFragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String sort = null;
+        if(getArguments() != null){
+            String order = getArguments().getString("ORDER");
+            if(order != null && order.equals("descending")){
+               sort = Contract.Entry.COLUMN_ID + " DESC";
+            }
+        }
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, sort);
     }
 
     @Override
@@ -218,8 +225,9 @@ public class ReportUploadingFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         if (pendingReportCount == -1)
             pendingReportCount = mAdapter.getCount();
-        if (!userCancelled && pendingReportCount > 0) {
-            inProgressIndex = 1;
+        boolean shouldAutoStart = uploader == null || uploader.canceller.equals(uploader.DELETE_BUTTON);
+        if (pendingReportCount > 0 && shouldAutoStart){
+            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time.
             beamUpFirstReport();
         }
     }
