@@ -12,11 +12,7 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
-<<<<<<< HEAD
-=======
 import com.sc.mtaasafi.android.feed.VoteInterface;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
->>>>>>> development
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
