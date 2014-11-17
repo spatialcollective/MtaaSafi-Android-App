@@ -168,6 +168,19 @@ public class NewReportActivity extends ActionBarActivity implements
         }
     }
 
+    public void takePic1(View view) {
+        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+        frag.takePicture(0);
+    }
+    public void takePic2(View view) {
+        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+        frag.takePicture(1);
+    }
+    public void takePic3(View view) {
+        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+        frag.takePicture(2);
+    }
+
     private boolean transporterHasLocation() {
         if (getLocation() != null)
             return true;

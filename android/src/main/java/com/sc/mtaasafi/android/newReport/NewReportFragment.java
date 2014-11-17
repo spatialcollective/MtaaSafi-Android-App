@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -72,9 +73,9 @@ public class NewReportFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
-	   picPreviews[PIC1] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic1)).findViewById(R.id.pic);
-        picPreviews[PIC2] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic2)).findViewById(R.id.pic);
-        picPreviews[PIC3] = (ImageView) ((RelativeLayout) view.findViewById(R.id.pic3)).findViewById(R.id.pic);
+	    picPreviews[PIC1] = (ImageButton) view.findViewById(R.id.pic1);
+        picPreviews[PIC2] = (ImageButton) view.findViewById(R.id.pic2);
+        picPreviews[PIC3] = (ImageButton) view.findViewById(R.id.pic3);
         detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
@@ -98,13 +99,11 @@ public class NewReportFragment extends Fragment {
     private void updatePicPreviews() {
         AQuery aq = new AQuery(getActivity());
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
-            if (picPaths.get(i) != null){
-                aq.id(picPreviews[i]).image(getThumbnail(picPaths.get(i)));
-                ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.VISIBLE);
-            } else{
-                aq.id(picPreviews[i]).image(R.drawable.pic_placeholder);
-                ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.INVISIBLE);
-            }
+            if (picPaths.get(i) != null)
+                picPreviews[i].setImageBitmap(getThumbnail(picPaths.get(i)));
+                // ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.VISIBLE);
+            // } else
+                // ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.INVISIBLE);
         }
         int emptyPics = getEmptyPics();
         if (emptyPics == 0) {
@@ -158,9 +157,12 @@ public class NewReportFragment extends Fragment {
     private void setListeners() {
         detailsView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
+
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -168,31 +170,10 @@ public class NewReportFragment extends Fragment {
                 attemptEnableSendSave();
             }
         });
-
-        picPreviews[PIC1].setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                previewClicked = PIC1;
-                takePicture(PIC1);
-            }
-        });
-        picPreviews[PIC2].setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                previewClicked = PIC2;
-                takePicture(PIC2);
-            }
-        });
-        picPreviews[PIC3].setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                previewClicked = PIC3;
-                takePicture(PIC3);
-            }
-        });
     }
 
-    public void takePicture(int previewClicked) {
+    public void takePicture(int clicked) {
+        previewClicked = clicked;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null){
             File photoFile = null;
