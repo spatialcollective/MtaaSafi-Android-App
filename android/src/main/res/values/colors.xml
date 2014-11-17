@@ -13,7 +13,8 @@
     <!--%%######-->
     <color name="mtaa_safi_blue">#009999</color>
     <color name="mtaa_safi_blue_light">#AAD5D5</color>
-    <color name="mtaa_safi_blue_dark">#007F99</color>
+    <color name="mtaa_safi_blue_dark2">#007F99</color>
+    <color name="mtaa_safi_blue_dark">#005E5E</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="prim_button_unclickable">#42000000</color>
     <color name="prim_button_text_unclickable">#4D000000</color>

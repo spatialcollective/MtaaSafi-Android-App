@@ -5,23 +5,20 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.Intent;
-import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -38,36 +35,31 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
-import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
 import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 
 public class MainActivity extends ActionBarActivity implements
         NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener,
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener{
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        SwipeRefreshLayout.OnRefreshListener{
 
     ReportDetailFragment detailFragment;
     private LocationClient mLocationClient;
     ComplexPreferences cp;
-                        // onActivityResult
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-    public final static String  NEWSFEED_TAG = "newsFeed",
-                                DETAIL_TAG = "details";
+    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
         Fabric.with(this, new Crashlytics());
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
+
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
         restoreFragment(savedInstanceState);
@@ -85,13 +77,6 @@ public class MainActivity extends ActionBarActivity implements
                 .commit();
         }
         cp = PrefUtils.getPrefs(this);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle bundle){
-        super.onSaveInstanceState(bundle);
-        if (detailFragment != null && detailFragment.isAdded())
-            getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
     }
 
     @Override
@@ -124,7 +109,18 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-
+    @Override
+    protected void onSaveInstanceState(Bundle bundle){
+        super.onSaveInstanceState(bundle);
+        if (detailFragment != null && detailFragment.isAdded())
+            getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        supportInvalidateOptionsMenu();
+    }
+    
     @Override
     public void onAlertButtonPressed(int eventKey) {
         switch(eventKey){
@@ -151,9 +147,11 @@ public class MainActivity extends ActionBarActivity implements
             .addToBackStack(null)
             .commit();
     }
-    public NewsFeedFragment getNewsFeedFragment(){
+
+    public NewsFeedFragment getNewsFeedFragment() {
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
     }
+    
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
@@ -171,9 +169,10 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         MenuInflater inflater = getMenuInflater();
-         inflater.inflate(R.menu.action_bar, menu);
-         return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity, menu);
+        setUpActionBar(menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -185,30 +184,33 @@ public class MainActivity extends ActionBarActivity implements
             case R.id._action_report:
                 goToNewReport();
                 return true;
-            case R.id.action_refresh:
-                if(isOnline()){
-                    if(getLocation() != null){
-                        SyncUtils.TriggerRefresh();
-                        NewsFeedFragment nff = getNewsFeedFragment();
-                        if(nff != null)
-                            nff.startRefresh();
-                    }
-                } else{
-                    AlertDialogFragment.showAlert(AlertDialogFragment.CONNECTION_FAILED,
-                                                  this,
-                                                  getSupportFragmentManager());
-                }
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public int getActionBarHeight(){
-        TypedValue tv = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) 
-            return TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
-        return 0;
+    private void setUpActionBar(Menu menu){
+        int savedReportCt = NewReportActivity.getSavedReportCount(this);
+        int drawable = 0;
+        switch (savedReportCt) {
+            case 1: drawable = R.drawable.button_uploadsaved1; break;
+            case 2: drawable = R.drawable.button_uploadsaved2; break;
+            case 3: drawable = R.drawable.button_uploadsaved3; break;
+            case 4: drawable = R.drawable.button_uploadsaved4; break;
+            case 5: drawable = R.drawable.button_uploadsaved5; break;
+            case 6: drawable = R.drawable.button_uploadsaved6; break;
+            case 7: drawable = R.drawable.button_uploadsaved7; break;
+            case 8: drawable = R.drawable.button_uploadsaved8; break;
+            case 9: drawable = R.drawable.button_uploadsaved9; break;
+            default:
+                if (savedReportCt > 9)
+                    drawable = R.drawable.button_uploadsaved9plus
+        }
+        if (drawable != 0)
+            menu.add(0, 0, 0, "Upload Saved Reports")
+                .setIcon(drawable)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        supportInvalidateOptionsMenu();
     }
 
     private void determineUsername() {
@@ -296,4 +298,16 @@ public class MainActivity extends ActionBarActivity implements
         return false;
     }
 
+    @Override
+    public void onRefresh() {
+        if(isOnline() && getLocation() != null)
+                SyncUtils.TriggerRefresh();
+        else
+            ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
+                    .refreshFailed();
+        if(getLocation() == null)
+            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED,
+                    this,
+                    getSupportFragmentManager());
+    }
 }

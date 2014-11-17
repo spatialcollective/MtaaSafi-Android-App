@@ -17,6 +17,7 @@ import android.util.Log;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.VoteInterface;
 
@@ -43,7 +44,6 @@ import java.util.ArrayList;
 class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final String TAG = "SyncAdapter";
-    private static final String FEED_URL = "http://app.spatialcollective.com/fetch_reports/";
     private static final int NET_CONNECT_TIMEOUT_MILLIS = 15000;  // 15 seconds
     private static final int NET_READ_TIMEOUT_MILLIS = 10000;  // 10 seconds
 
@@ -71,7 +71,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider, SyncResult syncResult) {
         Log.i(TAG, "Beginning network synchronization");
         try {
-            Log.i(TAG, "Streaming data from network: " + FEED_URL);
+            Log.i(TAG, "Streaming data from network: " + URLs.FEED);
             ArrayList serverIds = getServerIds();
             if(serverIds != null)
                 updateLocalFeedData(serverIds, syncResult);
@@ -182,7 +182,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     // retrieves from server a list of the objects
     private JSONObject getNewReportsFromServer(ArrayList serverIds) throws IOException, JSONException{
-        String fetchReportsURL = FEED_URL + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
+        String fetchReportsURL = URLs.FEED + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         String username = cp.getString(PrefUtils.USERNAME, "");
         if(!username.isEmpty()){
@@ -206,7 +206,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             JSONObject locationJSON = new JSONObject()
                     .put("latitude", cachedLocation.getLatitude())
                     .put("longitude", cachedLocation.getLongitude());
-            String responseString = makeRequest(FEED_URL, locationJSON.toString());
+            String responseString = makeRequest(URLs.FEED, locationJSON.toString());
             String[] responseStringArray =  responseString
                     .replaceAll("\\[", "").replaceAll("\\]", "")
                     .split(", ");
@@ -263,15 +263,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return result.toString();
     }
 
-    private JSONArray convertStringToJsonArray(String input) throws JSONException {
-        JSONArray jsonArray = new JSONArray(input);
-        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-            throw new JSONException("Server returned error");
-        return jsonArray;
-    }
-
     private JSONObject convertStringToJson(String input) throws JSONException {
-        if(input.contains("error"))
+        if(input.contains("error") || input.contains("DOCTYPE HTML"))
             throw new JSONException("Server returned error");
         return new JSONObject(input);
     }

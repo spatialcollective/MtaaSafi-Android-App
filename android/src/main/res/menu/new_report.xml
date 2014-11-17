@@ -3,9 +3,4 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sc.mtaasafi.android.newReport.NewReportActivity" >
 
-    <item android:id="@+id/save"
-        android:title="@string/save"
-        android:orderInCategory="100"
-        app:showAsAction="always"
-        android:enabled="false" />
 </menu>

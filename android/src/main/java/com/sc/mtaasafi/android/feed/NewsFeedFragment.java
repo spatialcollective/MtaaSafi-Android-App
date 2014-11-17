@@ -9,13 +9,18 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -71,16 +76,21 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
-        view.findViewById(R.id.savedReportsButton).setOnClickListener(new View.OnClickListener(){
-            @Override
-            public  void onClick(View view){
-                ((MainActivity) getActivity()).uploadSavedReports();
-            }
-        });
         if (savedInstanceState != null) {
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
+        setUpTabs(view);
+        SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        refreshLayout.setOnRefreshListener((MainActivity) getActivity());
+        refreshLayout.setColorSchemeResources(R.color.mtaa_safi_blue,
+                                                R.color.mtaa_safi_blue_light,
+                                                R.color.Coral,
+                                                R.color.White);
+        return view;
+    }
+
+    private void setUpTabs(View view){
         ImageButton recentTab = (ImageButton) view.findViewById(R.id.recent_tab_button);
         recentTab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,10 +135,7 @@ public class NewsFeedFragment extends ListFragment
                 nff.getLoaderManager().restartLoader(0, args, nff);
             }
         });
-
-        return view;
     }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -180,7 +187,6 @@ public class NewsFeedFragment extends ListFragment
                 return true;
             }
         });
-        updateSavedReportsBtn(view);
         setListAdapter(mAdapter);
     }
 
@@ -199,39 +205,10 @@ public class NewsFeedFragment extends ListFragment
         args.putString("SORT", "recent");
         NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
         nff.getLoaderManager().restartLoader(0, args, nff);
-        updateSavedReportsBtn(getView());
     }
     @Override
     public void onPause() {
         super.onPause();
-        // saveListPosition();
-    }
-
-    private void updateSavedReportsBtn(View view) {
-        Button sendSavedReports = (Button) view.findViewById(R.id.savedReportsButton);
-        int savedReportCt = NewReportActivity.getSavedReportCount(getActivity());
-        if (savedReportCt > 0) {
-            String buttonText = "Send " + savedReportCt + " saved report";
-            if (savedReportCt > 1)
-                buttonText += "s";
-            sendSavedReports.setText(buttonText);
-            sendSavedReports.setVisibility(View.VISIBLE);
-        } else
-            sendSavedReports.setVisibility(View.GONE);
-    }
-
-    public void saveListPosition() {
-        index = getListView().getFirstVisiblePosition();
-        View v = getListView().getChildAt(0);
-        top = (v == null) ? 0 : v.getTop();
-        Bundle bundle = new Bundle();
-        bundle.putInt("index", index);
-        bundle.putInt("top", top);
-        onSaveInstanceState(bundle);
-    }
-
-    public void restoreListPosition() {
-        getListView().setSelectionFromTop(index, top);
     }
 
     @Override
@@ -245,15 +222,29 @@ public class NewsFeedFragment extends ListFragment
         }
     }
 
-    public void startRefresh(){
-        if (getView() != null)
-            getView().findViewById(R.id.refreshingFeedView).setVisibility(View.VISIBLE);
-    }
-    public void endRefresh(){
-        if (getView() != null)
-            getView().findViewById(R.id.refreshingFeedView).setVisibility(View.GONE);
-    }
+    public void refreshFailed(){
+        View view = getView();
+        if(view != null){
+            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+            refreshLayout.setRefreshing(false);
+            final LinearLayout refreshFailed = (LinearLayout) view.findViewById(R.id.refresh_failed_bar);
+            Animation out = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_top);
+            out.setStartOffset(1500);
+            out.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    refreshFailed.setVisibility(View.GONE);
+                }
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+            refreshFailed.startAnimation(out);
+            refreshFailed.setVisibility(View.VISIBLE);
+        }
 
+    }
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrder = null;
@@ -272,10 +263,19 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        endRefresh();
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
         mAdapter.notifyDataSetChanged();
+        View view = getView();
+        if(view != null){
+            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout)
+                    view.findViewById(R.id.swipeRefresh);
+            refreshLayout.setRefreshing(false);
+            if(cursor.getCount()==0)
+                view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
+            else
+                view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
+        }
     }
 
     @Override
