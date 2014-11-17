@@ -102,15 +102,15 @@ public class ReportUploadingFragment extends ListFragment
         public boolean setViewValue(View view, Cursor cursor, int i) {
             // Bug identified: index of COLUMN_ID == 0. i is never 0.
             Log.e("Binder", "Index:" + i + ". Index of ID: " + cursor.getColumnIndex(Contract.Entry.COLUMN_ID));
-            if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))
+            if (view.getId() == R.id.uploadingTime)
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
+            else if (view.getId() == R.id.upload_row)
                 mAdapter.updateProgressView(cursor.getInt(i), view);
-            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)
-                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)
-                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3))
+            else if(view.getId() == R.id.uploadingPic1
+                    || view.getId() == R.id.uploadingPic2
+                    || view.getId() == R.id.uploadingPic3)
                 view.setTag(cursor.getString(i));
-            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID)){
+            else if(view.getId() == R.id.deleteReportButton){
                 view.setTag(cursor.getInt(i));
                 Log.e("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^Delete report tag", "Tag: " + view.getTag());
             } else
@@ -166,9 +166,12 @@ public class ReportUploadingFragment extends ListFragment
                     R.color.mtaa_safi_blue, HIDE_CANCEL);
     }
 
-    public void onReportDeleted(boolean isUploading){
-        if(isUploading && uploader != null)
+    public void deleteReport(boolean isUploading){
+        if(isUploading && uploader != null){
             uploader.deleteReport();
+            changeHeader("Deleting...", R.color.DarkGray, HIDE_CANCEL);
+        } else
+            Log.e("DeleteReport", "Sorry but it wasn't uploading!");
     }
     public void onPendingReportDeleted(){
         beamUpFirstReport();

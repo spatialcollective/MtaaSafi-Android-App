@@ -186,6 +186,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
     @Override
     protected void onCancelled() {
+        Log.e("Uploader", "Okay, I admit it: I was cancelled");
         ContentValues updateValues = new ContentValues();
         updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
