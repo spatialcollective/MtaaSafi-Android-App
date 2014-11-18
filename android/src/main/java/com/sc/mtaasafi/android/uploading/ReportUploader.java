@@ -38,10 +38,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
-    String canceller = "";
+    int canceller = -1;
 
-    public static final String CANCEL_SESSION = "user", DELETE_BUTTON = "delete";
-
+    public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1;
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
             REPORT_ID_KEY = "id",
@@ -60,7 +59,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         try {
             for (int i = 0; i < 4; i++) {
                 if (isCancelled())
-                    return 0;
+                    return canceller;
                 if (pendingReport.pendingState == 0)
                     serverResponse = writeTextToServer();
                 else if (pendingReport.pendingState > 0)
@@ -112,27 +111,24 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
         VoteInterface.onUpvotesRecorded(mFragment.getActivity(), response);
-        Log.e("SERVER RESPONSE", response.toString());
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
-        publishProgress(pendingReport.pendingState);
+
         ContentValues updateValues = new ContentValues();
-        File localPicToDelete = null;
         if (pendingReport.pendingState == 1) {
             updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-        } else if (pendingReport.pendingState == 2){
-            localPicToDelete = new File(pendingReport.mediaPaths.get(0));
+        } else if (pendingReport.pendingState == 2) {
+            deleteLocalPic(0);
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == 3){
-            localPicToDelete = new File(pendingReport.mediaPaths.get(1));
+        } else if (pendingReport.pendingState == 3) {
+            deleteLocalPic(1);
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == -1){
-            localPicToDelete = new File(pendingReport.mediaPaths.get(2));
+        } else if (pendingReport.pendingState == -1) {
+            deleteLocalPic(2);
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
         }
-        if(localPicToDelete != null)
-            localPicToDelete.delete();
+
         updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         if (pendingReport.pendingState > 0)
             updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
@@ -141,7 +137,16 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
-        mContext.getContentResolver().update(reportUri, updateValues, null, null);
+        if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)
+            mContext.getContentResolver().update(reportUri, updateValues, null, null);
+        else
+            cancel(true);
+    }
+
+    private void deleteLocalPic(int picPos) {
+        File picFile = new File(pendingReport.mediaPaths.get(picPos));
+        if (picFile != null)
+            picFile.delete();
     }
 
     private String convertInputStreamToString(InputStream inputStream) throws IOException {
@@ -162,32 +167,27 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         return new JSONObject(responseString);
     }
 
-    protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }
     @Override
-    protected void onPostExecute(Integer result) {
-        if(!isCancelled())
-            mFragment.reportUploadSuccess();
+    protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
+
+    public void cancelSession(int reason) {
+        canceller = reason;
+        cancel(true);
     }
 
-    public void cancelSession(){
-        cancel(true);
-        canceller = CANCEL_SESSION;
-    }
-    public void deleteReport(){
-        cancel(true);
-        canceller = DELETE_BUTTON;
-    }
     @Override
-    protected void onCancelled() {
+    protected void onCancelled(Integer result) {
         ContentValues updateValues = new ContentValues();
         updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
-                    .appendPath(Integer.toString(pendingReport.dbId)).build();
-        mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        if (canceller.equals(CANCEL_SESSION))
-            mFragment.onSessionCancelled();
-        else if(canceller.equals(DELETE_BUTTON))
-            mFragment.onPendingReportDeleted();
+                .appendPath(Integer.toString(pendingReport.dbId)).build();
+        if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)
+            mContext.getContentResolver().update(reportUri, updateValues, null, null);
+
+        if (result == CANCEL_SESSION)
+            mFragment.changeHeader("Upload Cancelled", R.color.Crimson, mFragment.SHOW_RETRY);
+        else if (result == DELETE_BUTTON)
+            mFragment.beamUpFirstReport();
         else
             mFragment.changeHeader("Error", R.color.DarkRed, ReportUploadingFragment.HIDE_CANCEL);
     }

@@ -38,8 +38,8 @@ public class NewsFeedFragment extends ListFragment
 
     SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
-
     int index, top;
+
     public String[] FROM_COLUMNS = new String[] {
             Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_USER_UPVOTED,
@@ -63,9 +63,7 @@ public class NewsFeedFragment extends ListFragment
 
     public NewsFeedFragment() {}
         
-    public interface ReportSelectedListener {
-        public void goToDetailView(Report r, int position);
-    }
+    public interface ReportSelectedListener { public void goToDetailView(Report r, int position); }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -136,6 +134,7 @@ public class NewsFeedFragment extends ListFragment
             }
         });
     }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -206,10 +205,6 @@ public class NewsFeedFragment extends ListFragment
         NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
         nff.getLoaderManager().restartLoader(0, args, nff);
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -256,7 +251,7 @@ public class NewsFeedFragment extends ListFragment
         if(sortOrder == null) // default is by time TODO: sort by epoch time
             sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
         Log.e("Sort order: ", sortOrder);
-        String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 1;
+        String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
             Report.PROJECTION, selection, null, sortOrder);
     }
@@ -265,7 +260,6 @@ public class NewsFeedFragment extends ListFragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
-        mAdapter.notifyDataSetChanged();
         View view = getView();
         if(view != null){
             SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout)
@@ -281,7 +275,5 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.changeCursor(null);
-        mAdapter.notifyDataSetChanged();
     }
-
 }

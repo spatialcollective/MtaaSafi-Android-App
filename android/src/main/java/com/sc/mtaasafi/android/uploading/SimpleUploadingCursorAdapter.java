@@ -3,14 +3,17 @@ package com.sc.mtaasafi.android.uploading;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
 
 /**
@@ -28,6 +31,7 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         // super.bindView(view, context, cursor);
         mContext = context;
+        addDeleteListener(view, cursor);
         resetState(view);
         indicateRow(cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);
         int progress = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
@@ -84,10 +88,8 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
                 AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
                 anim.setDuration(600);
                 anim.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {}
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
+                    @Override public void onAnimationStart(Animation animation) {}
+                    @Override public void onAnimationEnd(Animation animation) {
                         // notify data set changed?
                         // TODO: move update Database call into this class. Current arch doesn't
                         // allow this feature...
@@ -111,5 +113,26 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         view.findViewById(R.id.progressBarPic1).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.progressBarPic2).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.progressBarPic3).setVisibility(View.INVISIBLE);
+    }
+
+    private void addDeleteListener(View view, Cursor c) {
+        Log.e("Simple Cursor", "adding click listener");
+        final int dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
+        final boolean isUploading = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)) > 0;
+        ImageButton delete = (ImageButton) view.findViewById(R.id.deleteReportButton);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e("Simple Cursor", "delete clicked");
+                if (isUploading) {
+                    ReportUploadingFragment frag = (ReportUploadingFragment) ((UploadingActivity) mContext).getSupportFragmentManager()
+                            .findFragmentByTag(UploadingActivity.UPLOAD_TAG);
+                    frag.cancelSession(ReportUploader.DELETE_BUTTON);
+                }
+                int rowsDeleted = mContext.getContentResolver().delete(Report.getUri(dbId), null, null);
+                notifyDataSetChanged();
+                Log.e("Simple Cursor", "delete finished... " + rowsDeleted );
+            }
+        });
     }
 }

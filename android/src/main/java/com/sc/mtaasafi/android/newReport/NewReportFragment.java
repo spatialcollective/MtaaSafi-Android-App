@@ -1,39 +1,28 @@
 package com.sc.mtaasafi.android.newReport;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.feed.MainActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,7 +94,7 @@ public class NewReportFragment extends Fragment {
             // } else
                 // ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.INVISIBLE);
         }
-        int emptyPics = getEmptyPics();
+        int emptyPics = emptyPicCount();
         if (emptyPics == 0) {
             getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
         } else {
@@ -146,7 +135,7 @@ public class NewReportFragment extends Fragment {
         Bitmap bmp = BitmapFactory.decodeFile(picPath);
         return Bitmap.createScaledBitmap(bmp, 120, 120, false);
     }
-    private int getEmptyPics(){
+    private int emptyPicCount(){
         int emptyPics = 0;
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
             if(picPaths.get(i) == null || picPaths.get(i).equals(""))
@@ -156,13 +145,8 @@ public class NewReportFragment extends Fragment {
     }
     private void setListeners() {
         detailsView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            @Override public void afterTextChanged(Editable s) { }
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -217,7 +201,7 @@ public class NewReportFragment extends Fragment {
         View view = getView();
         if (view == null)
             return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || getEmptyPics() > 0) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || emptyPicCount() > 0) {
             view.findViewById(R.id.sendButton).setEnabled(false);
             view.findViewById(R.id.saveButton).setEnabled(false);
         } else {

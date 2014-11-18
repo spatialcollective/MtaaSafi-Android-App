@@ -86,7 +86,7 @@ public class MainActivity extends ActionBarActivity implements
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
         cp.commit();
         int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        switch(gPlayCode){
+        switch(gPlayCode) {
             case ConnectionResult.SERVICE_MISSING:
                 AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
                 break;
@@ -204,7 +204,7 @@ public class MainActivity extends ActionBarActivity implements
             case 9: drawable = R.drawable.button_uploadsaved9; break;
             default:
                 if (savedReportCt > 9)
-                    drawable = R.drawable.button_uploadsaved9plus
+                    drawable = R.drawable.button_uploadsaved9plus;
         }
         if (drawable != 0)
             menu.add(0, 0, 0, "Upload Saved Reports")
@@ -231,10 +231,7 @@ public class MainActivity extends ActionBarActivity implements
         cp.commit();
     }
 
-    public void uploadSavedReportsClicked(View view) {
-        uploadSavedReports();
-    }
-
+    public void uploadSavedReportsClicked(View view) { uploadSavedReports(); }
     public void uploadSavedReports() {
         if(getLocation() != null){
             Intent intent = new Intent().setClass(this, UploadingActivity.class)

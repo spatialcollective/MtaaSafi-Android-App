@@ -58,47 +58,25 @@ public class NewReportActivity extends ActionBarActivity implements
 
     private void setUpActionBar(Menu menu){
         int savedReportCt = NewReportActivity.getSavedReportCount(this);
-        switch(savedReportCt){
-            case 1:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved1)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 2:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved2)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 3:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved3)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 4:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved4)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 5:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved5)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 6:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved6)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 7:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved7)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 8:
-                menu.add(0, 0, 0, "Upload Saved Reports").setIcon(R.drawable.button_uploadsaved8)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
-            case 9:
-                menu.add(0, 0, 0, "upload_saved_report").setIcon(R.drawable.button_uploadsaved9)
-                        .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-                break;
+        int drawable = 0;
+        switch (savedReportCt) {
+            case 1: drawable = R.drawable.button_uploadsaved1; break;
+            case 2: drawable = R.drawable.button_uploadsaved2; break;
+            case 3: drawable = R.drawable.button_uploadsaved3; break;
+            case 4: drawable = R.drawable.button_uploadsaved4; break;
+            case 5: drawable = R.drawable.button_uploadsaved5; break;
+            case 6: drawable = R.drawable.button_uploadsaved6; break;
+            case 7: drawable = R.drawable.button_uploadsaved7; break;
+            case 8: drawable = R.drawable.button_uploadsaved8; break;
+            case 9: drawable = R.drawable.button_uploadsaved9; break;
+            default:
+                if (savedReportCt > 9)
+                    drawable = R.drawable.button_uploadsaved9plus;
         }
-        if(savedReportCt > 9)
-            menu.add(0, 0, 0, "upload_saved_report").setIcon(R.drawable.button_uploadsaved9plus)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        if (drawable != 0)
+            menu.add(0, 0, 0, "Upload Saved Reports")
+                .setIcon(drawable)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         supportInvalidateOptionsMenu();
     }
 

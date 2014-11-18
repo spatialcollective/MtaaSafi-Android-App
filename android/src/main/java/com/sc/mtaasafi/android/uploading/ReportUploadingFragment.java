@@ -36,19 +36,16 @@ public class ReportUploadingFragment extends ListFragment
                 mBtnState = SHOW_CANCEL,
                 inProgressIndex = 0;
     private String mText = "Uploading...";
-    private boolean userCancelled = false;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         Contract.Entry.COLUMN_CONTENT,
         Contract.Entry.COLUMN_TIMESTAMP,
-        Contract.Entry.COLUMN_PENDINGFLAG,
-        Contract.Entry.COLUMN_ID
+        Contract.Entry.COLUMN_PENDINGFLAG
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
         R.id.itemDetails,
         R.id.timeElapsed,
-        R.id.expanded_layout,
-        R.id.deleteReportButton
+        R.id.expanded_layout
     };
     public ReportUploadingFragment() {}
 
@@ -82,7 +79,7 @@ public class ReportUploadingFragment extends ListFragment
                 String tag = (String) cancelButton.getTag();
                 if (tag != null) {
                     if (tag.equals("cancel"))
-                        cancelSession(view);
+                        cancelSession(ReportUploader.CANCEL_SESSION);
                     else if (tag.equals("restart"))
                         beamUpFirstReport();
                 }
@@ -99,34 +96,31 @@ public class ReportUploadingFragment extends ListFragment
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 mAdapter.indicateRow(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID)){
-                view.setTag(cursor.getInt(i));
-                view.setVisibility(View.VISIBLE);
-            } else
+            else
                 return false;
             return true;
         }
     }
 
-    private void beamUpFirstReport() {
+    public void beamUpFirstReport() {
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-        else if (mAdapter.getCount() == 0)
+        else if (mAdapter.getCount() == 0 && getView() != null)
             exitSmoothly();
+        else if (mAdapter.getCount() == 0 && getActivity() != null)
+            getActivity().finish();
+        else if (mAdapter.getCount() == 0)
+            setRetainInstance(false);
     }
 
     private void beamUpReport(Report pendingReport) {
-        userCancelled = false;
-        Log.e("RUF", "Beam up report has been called!");
-        if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
-            changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
-            return;
-        }
-        if (getView() != null)
+        if (((UploadingActivity) getActivity()).isOnline() && getView() != null) {
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
                     R.color.mtaa_safi_blue, SHOW_CANCEL);
-        uploader = new ReportUploader(getActivity(), pendingReport, this);
-        uploader.execute();
+            uploader = new ReportUploader(getActivity(), pendingReport, this);
+            uploader.execute();
+        } else if (getView() != null)
+            changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
     }
 
     private void exitSmoothly() {
@@ -156,14 +150,6 @@ public class ReportUploadingFragment extends ListFragment
         }
     }
 
-    public void onReportDeleted(boolean isUploading){
-        if(isUploading && uploader != null)
-            uploader.deleteReport();
-    }
-    public void onPendingReportDeleted() {
-        beamUpFirstReport();
-    }
-
     public void changeHeader(String message, int color, int btnState) {
         mText = message;
         mColor = color;
@@ -191,30 +177,19 @@ public class ReportUploadingFragment extends ListFragment
         }
     }
 
-    private void cancelSession(View view) {
-        // tell the adapter to tell the uploader to stop. Once it stops, update the view
-        userCancelled = true;
+    public void cancelSession(int reason) {
         changeHeader("Cancelling...", R.color.DarkGray, HIDE_CANCEL);
-        Log.e("cancel session", "cancelling!!");
-        if(uploader != null)
-            uploader.cancelSession();
-        else
-            onSessionCancelled();
-    }
-
-    public void onSessionCancelled() {
-        Log.e("cancel session", "session was cancelled!!");
-        changeHeader("Upload Cancelled", R.color.Crimson, SHOW_RETRY);
+        if (uploader != null)
+            uploader.cancelSession(reason);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sort = null;
-        if(getArguments() != null){
+        if (getArguments() != null) {
             String order = getArguments().getString("ORDER");
-            if(order != null && order.equals("descending")){
+            if (order != null && order.equals("descending"))
                sort = Contract.Entry.COLUMN_ID + " DESC";
-            }
         }
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
             Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, sort);
@@ -225,9 +200,9 @@ public class ReportUploadingFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         if (pendingReportCount == -1)
             pendingReportCount = mAdapter.getCount();
-        boolean shouldAutoStart = uploader == null || uploader.canceller.equals(uploader.DELETE_BUTTON);
+        boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
         if (pendingReportCount > 0 && shouldAutoStart){
-            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time.
+            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time. Need to keep a separate successful count
             beamUpFirstReport();
         }
     }

@@ -32,7 +32,7 @@ import java.util.Date;
 // Created by Agree on 9/4/2014.
 public class Report {
     public boolean upVoted = false;
-    public int serverId, dbId, pendingState = -1, upVoteCount;
+    public int serverId, dbId, pendingState = -1, upVoteCount, inProgress = 0;
     public double latitude, longitude;
     public String locationDescript, content, timeStamp, timeElapsed, userName;
     public ArrayList<String> mediaPaths;
