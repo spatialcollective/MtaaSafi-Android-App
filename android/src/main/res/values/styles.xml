@@ -13,7 +13,23 @@
 
     <style name="SafiEditTextStyle" parent="android:Widget.EditText">
         <item name="android:background">@drawable/add_comment_background</item>
-        <item name="android:textColor">#ffffff</item>
     </style>
+    <!-- Send Button styles -->
+
+    <style name="sendCommentPressed">
+        <item name="android:textSize">18dp</item>
+        <item name="android:textColor">@color/Coral</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="sendCommentEnabled">
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@color/Coral</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="sendCommentDisabled">
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@color/LightCoral</item>
+    </style>
+
 
 </resources>

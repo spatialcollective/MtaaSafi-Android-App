@@ -1,9 +1,6 @@
 package com.sc.mtaasafi.android.feed;
 
-import android.accounts.Account;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.SyncStatusObserver;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
@@ -18,9 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,19 +24,18 @@ import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
-import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.AuthenticatorService;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.database.SyncUtils;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
-
+    public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
+                                SORT_UPVOTES = Contract.Entry.COLUMN_SERVER_ID + " DESC",
+                                SORT_KEY = "sorting";
+    ;
     int index, top;
     public String[] FROM_COLUMNS = new String[] {
             Contract.Entry.COLUMN_ID,
@@ -78,12 +72,11 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
         if (savedInstanceState != null) {
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
-        setUpTabs(view);
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener((MainActivity) getActivity());
         refreshLayout.setColorSchemeResources(R.color.Coral,
@@ -91,47 +84,6 @@ public class NewsFeedFragment extends ListFragment
                                                 R.color.Coral,
                                                 R.color.White);
         return view;
-    }
-
-    private void setUpTabs(View view){
-        ImageButton recentTab = (ImageButton) view.findViewById(R.id.recent_tab_button);
-        recentTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // make recent tab button and underscore blue
-//                ((ImageButton) view).setImageResource(R.drawable.recent_posts_clicked);
-                View myParent = (View) view.getParent();
-                ImageView underscore = (ImageView) myParent.findViewById(R.id.recent_tab_underscore);
-                underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
-                underscore.setVisibility(View.VISIBLE);
-                // make the popular tab button and underscore gray
-                View myGrandParent = (View) myParent.getParent();
-                ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.popular_tab_underscore);
-                otherUnderscore.setVisibility(View.INVISIBLE);
-                // sort the feed
-                Bundle args = new Bundle();
-                args.putString("SORT", "recent");
-                NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
-                nff.getLoaderManager().restartLoader(0, args, nff);
-            }
-        });
-        ImageButton popularTab = (ImageButton) view.findViewById(R.id.popular_tab_button);
-        popularTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                View myParent = (View) view.getParent();
-                ImageView underscore = (ImageView) myParent.findViewById(R.id.popular_tab_underscore);
-                underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
-                underscore.setVisibility(View.VISIBLE);
-                View myGrandParent = (View) myParent.getParent();
-                ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.recent_tab_underscore);
-                otherUnderscore.setVisibility(View.INVISIBLE);
-                Bundle args = new Bundle();
-                args.putString("SORT", "popular");
-                NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
-                nff.getLoaderManager().restartLoader(0, args, nff);
-            }
-        });
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -198,10 +150,7 @@ public class NewsFeedFragment extends ListFragment
     public void onResume(){
         super.onResume();
         // restore default ordering
-        Bundle args = new Bundle();
-        args.putString("SORT", "recent");
-        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
-        nff.getLoaderManager().restartLoader(0, args, nff);
+        sortFeed("recent");
     }
     @Override
     public void onPause() {
@@ -222,8 +171,7 @@ public class NewsFeedFragment extends ListFragment
     public void refreshFailed(){
         View view = getView();
         if(view != null){
-            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-            refreshLayout.setRefreshing(false);
+            ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(false);
             final LinearLayout refreshFailed = (LinearLayout) view.findViewById(R.id.refresh_failed_bar);
             Animation out = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_top);
             out.setStartOffset(1500);
@@ -240,20 +188,23 @@ public class NewsFeedFragment extends ListFragment
             refreshFailed.startAnimation(out);
             refreshFailed.setVisibility(View.VISIBLE);
         }
-
     }
+    public void sortFeed(String sorting){
+        Bundle args = new Bundle();
+        args.putString(SORT_KEY, sorting);
+        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
+        nff.getLoaderManager().restartLoader(0, args, nff);
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrder = null;
-        if(args != null){
-            String sorting = (String) args.get("SORT");
-            if(sorting.equals("popular"))
-                sortOrder = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
-        }
+        if(args != null)
+                sortOrder = args.getString(SORT_KEY);
         if(sortOrder == null) // default is by time TODO: sort by epoch time
             sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
         Log.e("Sort order: ", sortOrder);
-        String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 1;
+        String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
             Report.PROJECTION, selection, null, sortOrder);
     }
@@ -262,11 +213,13 @@ public class NewsFeedFragment extends ListFragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
-        mAdapter.notifyDataSetChanged();
         View view = getView();
         if(view != null){
-            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout)
-                    view.findViewById(R.id.swipeRefresh);
+            SwipeRefreshLayout refreshLayout =
+                    (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+            if(refreshLayout.isRefreshing())
+            // refresh --> content displayed chronologically
+                getActivity().getActionBar().setSelectedNavigationItem(0);
             refreshLayout.setRefreshing(false);
             if(cursor.getCount()==0)
                 view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);

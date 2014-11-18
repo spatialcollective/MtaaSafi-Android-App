@@ -93,19 +93,20 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+        View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
+        addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
         if(savedState != null)
-            restoreMe(savedState);
+            restore(savedState);
         Location currentLocation = ((MainActivity) getActivity()).getLocation();
         if(currentLocation != null)
             distance = Report.getDistanceText(currentLocation, reportLocation);
         else
             distance = "error";
-        View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
-        view.findViewById(R.id.add_comment_bar);
+
         return view;
     }
     
-    private void restoreMe(Bundle instate){
+    private void restore(Bundle instate){
         content = instate.getString(content_Key);
         location = instate.getString(location_Key);
         time = instate.getString(time_Key);
@@ -122,6 +123,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         reportLocation.setLongitude(lon);
         userVoted = instate.getBoolean(userVoted_Key);
         upvoteCount = instate.getInt(upvoteCount_Key);
+        // make sure this method's only called after inflation
+        if(addComment != null)
+            addComment.restore(instate);
     }
     @Override
     public void onSaveInstanceState(Bundle outstate){
@@ -130,6 +134,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
             updateTopVote();
         else
             updateBottomVote();
+        if(addComment != null)
+            addComment.save(outstate);
         outstate.putString(content_Key, content);
         outstate.putString(location_Key, location);
         outstate.putString(time_Key,time);

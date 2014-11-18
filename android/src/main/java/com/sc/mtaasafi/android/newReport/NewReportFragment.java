@@ -214,7 +214,7 @@ public class NewReportFragment extends Fragment {
     private File createImageFile(int previewClicked) throws IOException {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
         String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         Log.e("FILE PATH", image.getAbsolutePath());
         picPaths.set(previewClicked, image.getAbsolutePath());

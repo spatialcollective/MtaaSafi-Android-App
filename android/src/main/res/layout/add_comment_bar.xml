@@ -14,12 +14,12 @@
     android:layout_weight="1"
     android:id="@+id/commentEditText"/>
 
-    <ImageButton
+    <Button
         android:layout_width="54dp"
         android:layout_height="52dp"
         android:id="@+id/sendComment"
         android:layout_gravity="right"
-        android:src="@drawable/add_comment_button"
+        android:text="Send"
         android:scaleType="fitCenter"
         android:background="@color/transparent"
         android:layout_weight="0"

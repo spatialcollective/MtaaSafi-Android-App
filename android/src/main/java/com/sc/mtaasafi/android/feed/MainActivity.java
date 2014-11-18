@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.feed;
 
 import android.accounts.AccountManager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
@@ -19,6 +20,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -70,10 +73,7 @@ public class MainActivity extends ActionBarActivity implements
         if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
         if (detailFragment == null) {
-            getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
-                .commit();
+            goToFeed();
         }
         cp = PrefUtils.getPrefs(this);
     }
@@ -144,6 +144,26 @@ public class MainActivity extends ActionBarActivity implements
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
             .addToBackStack(null)
             .commit();
+    }
+    public void goToFeed(){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
+                .commit();
+        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
+        getActionBar().setListNavigationCallbacks(mSpinnerAdapter, new ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int i, long l) {
+                if(i == 0) // sort items by recent
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+                else // sort items by most upvoted
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+                return false;
+            }
+        });
+        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getActionBar().setDisplayShowTitleEnabled(false);
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);

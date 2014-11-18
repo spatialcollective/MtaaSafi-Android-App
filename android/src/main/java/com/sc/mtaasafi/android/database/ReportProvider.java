@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.database;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -14,7 +15,9 @@ public class ReportProvider extends ContentProvider {
     public static final int ROUTE_ENTRIES = 1,
                             ROUTE_ENTRIES_ID = 2,
                             ROUTE_UPVOTES = 3,
-                            ROUTE_UPVOTES_ID = 4;
+                            ROUTE_UPVOTES_ID = 4,
+                            ROUTE_COMMENTS =5,
+                            ROUTE_COMMENTS_ID = 6;
 
     @Override
     public boolean onCreate() {
@@ -28,6 +31,8 @@ public class ReportProvider extends ContentProvider {
             sUriMatcher.addURI(AUTHORITY, "entries/*", ROUTE_ENTRIES_ID);
             sUriMatcher.addURI(AUTHORITY, "upvotes", ROUTE_UPVOTES);
             sUriMatcher.addURI(AUTHORITY, "upvotes/*", ROUTE_UPVOTES_ID);
+            sUriMatcher.addURI(AUTHORITY, "comments", ROUTE_UPVOTES);
+            sUriMatcher.addURI(AUTHORITY, "comments/*", ROUTE_COMMENTS_ID);
         }
 
     @Override
@@ -42,6 +47,10 @@ public class ReportProvider extends ContentProvider {
                 return Contract.UpvoteLog.CONTENT_TYPE;
             case ROUTE_UPVOTES_ID:
                 return Contract.UpvoteLog.CONTENT_ITEM_TYPE;
+            case ROUTE_COMMENTS:
+                return Contract.Comments.CONTENT_TYPE;
+            case ROUTE_COMMENTS_ID:
+                return Contract.Comments.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -59,32 +68,35 @@ public class ReportProvider extends ContentProvider {
                 String id = uri.getLastPathSegment();
                 builder.where(Contract.Entry._ID + "=?", id);
             case ROUTE_ENTRIES:
-                // Return all known entries.
                 builder.table(Contract.Entry.TABLE_NAME)
-                       .where(selection, selectionArgs);
-                Cursor c = builder.query(db, projection, sortOrder);
-                // Note: Notification URI must be manually set here for loaders to correctly
-                // register ContentObservers.
-                Context ctx = getContext();
-                assert ctx != null;
-                c.setNotificationUri(ctx.getContentResolver(), uri);
-                return c;
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
             case ROUTE_UPVOTES_ID:
                 String upvoteId = uri.getLastPathSegment();
-                builder.where(Contract.Entry._ID + "=?", upvoteId);
+                builder.where(Contract.UpvoteLog._ID + "=?", upvoteId);
             case ROUTE_UPVOTES:
                 builder.table(Contract.UpvoteLog.TABLE_NAME)
                         .where(selection, selectionArgs);
-                Cursor cursor = builder.query(db, projection, sortOrder);
-                Context context = getContext();
-                assert context != null;
-                cursor.setNotificationUri(context.getContentResolver(), uri);
-                return cursor;
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_COMMENTS_ID:
+                String commentId = uri.getLastPathSegment();
+                builder.where(Contract.Comments._ID + "=?", commentId);
+            case ROUTE_COMMENTS:
+                builder.table(Contract.Comments.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
-
+    private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db,
+                                String[] projection, String sortOrder){
+        Cursor cursor = builder.query(db, projection, sortOrder);
+        Context context = getContext();
+        assert context != null;
+        cursor.setNotificationUri(context.getContentResolver(), uri);
+        return cursor;
+    }
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
@@ -103,6 +115,12 @@ public class ReportProvider extends ContentProvider {
                 result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + upvoteId);
                 break;
             case ROUTE_UPVOTES_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+            case ROUTE_COMMENTS:
+                long commentId = db.insertOrThrow(Contract.Comments.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + commentId);
+                break;
+            case ROUTE_COMMENTS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -174,7 +192,7 @@ public class ReportProvider extends ContentProvider {
                         .where(selection, selectionArgs)
                         .delete(db);
                 break;
-            default:
+            default: // TODO: implement deleting comments .... eventually
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         // Send broadcast to registered ContentObservers, to refresh UI.

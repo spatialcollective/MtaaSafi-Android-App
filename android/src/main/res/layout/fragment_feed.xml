@@ -13,13 +13,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:id="@+id/feedLL">
-
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            layout="@layout/feed_tabs"
-            android:id="@+id/feedTabs" />
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
