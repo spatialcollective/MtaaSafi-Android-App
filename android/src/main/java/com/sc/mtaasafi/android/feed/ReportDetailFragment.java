@@ -5,16 +5,19 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +35,18 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 
 
-public class ReportDetailFragment extends android.support.v4.app.Fragment implements AddCommentBar.CommentSendListener{
+public class ReportDetailFragment extends android.support.v4.app.Fragment implements CommentLayout.CommentListener{
 
     Report mReport;
     private String content, location, time, user, mediaUrl1, mediaUrl2, mediaUrl3, distance;
@@ -50,7 +58,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
     public ViewPager viewPager;
     RelativeLayout bottomView;
     LinearLayout topView;
-    AddCommentBar addComment;
+    private CommentLayout commentLayout;
     private static String content_Key ="content",
         location_Key = "location",
         time_Key = "time",
@@ -94,7 +102,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
-        addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
         if(savedState != null)
             restore(savedState);
         Location currentLocation = ((MainActivity) getActivity()).getLocation();
@@ -105,7 +112,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
 
         return view;
     }
-    
+
     private void restore(Bundle instate){
         content = instate.getString(content_Key);
         location = instate.getString(location_Key);
@@ -124,8 +131,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         userVoted = instate.getBoolean(userVoted_Key);
         upvoteCount = instate.getInt(upvoteCount_Key);
         // make sure this method's only called after inflation
-        if(addComment != null)
-            addComment.restore(instate);
+        AddCommentBar addCommentBar = (AddCommentBar)
+                getView().findViewById(R.id.add_comment_bar);
+        addCommentBar.restore(instate);
     }
     @Override
     public void onSaveInstanceState(Bundle outstate){
@@ -134,8 +142,10 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
             updateTopVote();
         else
             updateBottomVote();
-        if(addComment != null)
-            addComment.save(outstate);
+        AddCommentBar addCommentBar = (AddCommentBar)
+                getView().findViewById(R.id.add_comment_bar);
+        if(addCommentBar != null)
+            addCommentBar.save(outstate);
         outstate.putString(content_Key, content);
         outstate.putString(location_Key, location);
         outstate.putString(time_Key,time);
@@ -160,6 +170,9 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         setClickListeners(view);
         updateView(view);
+        if(savedInstanceState != null)
+            restore(savedInstanceState);
+
     }
     private void setClickListeners(View view) {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
@@ -184,7 +197,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
 
     private void enterImageViewer(int i){
         updateBottomVote();
-//        getActivity().getActionBar().hide();
         getView().setBackgroundColor(getResources().getColor(R.color.DarkSlateGray));
         viewPager.setCurrentItem(i);
         if(PrefUtils.SDK > Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -451,23 +463,29 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         }
     }
 
-// ============== Comment Listener ===========
+// ================= Comment Listener ================
     @Override
-    public void sendCommentPressed() {
+    public void sendComment(String comment) throws JSONException {
         setRetainInstance(true);
+        JSONObject commentData = new JSONObject();
+        ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
+        long timeSince = CommentLayout.getLastCommentTimeStamp(serverId, getActivity());
+        commentData.put(CommentLayout.USERNAME, cp.getString(PrefUtils.USERNAME, ""))
+                .put(CommentLayout.TIMESTAMP, System.currentTimeMillis())
+                .put(CommentLayout.REPORT_ID, serverId)
+                .put(CommentLayout.TIMESTAMP, timeSince)
+                .put(CommentLayout.COMMENT, comment);
+        Log.e("SendComment!", commentData.toString());
     }
 
     @Override
-    public void commentSentSuccess() {
+    public void commentActionFinished(JSONObject result)
+            throws RemoteException, OperationApplicationException {
         setRetainInstance(false);
-        // update the comments list
-        // tell comments button to stop spinning
-    }
-
-    @Override
-    public void commentSentFailure() {
-        setRetainInstance(false);
-        // ????
+        CommentLayout.updateCommentsTable(result, getActivity());
+        if(commentLayout != null)
+            commentLayout.updateCommentsList(serverId);
+        if(true){} // if the result contained a success flag, clear the text of the comment bar
     }
 
     private class ImageSlideAdapter extends FragmentPagerAdapter {

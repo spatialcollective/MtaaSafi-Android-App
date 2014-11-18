@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
@@ -113,61 +114,22 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             OperationApplicationException, ParseException, JSONException {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-        ArrayList<Integer> dbIds = getDbIds(syncResult, true);
+        ArrayList<Integer> dbIds = getDbIds(syncResult);
         for (int i = 0; i < dbIds.size(); i++) {
             batch.add(ContentProviderOperation.newDelete(Report.getUri(dbIds.get(i))).build());
             syncResult.stats.numDeletes++;
         }
         writeNewReports(getNewReportsFromServer(serverIds), batch, syncResult);
         Log.i(TAG, "Merge solution ready. Applying batch update");
-        getDbIds(syncResult, false);
+        getDbIds(syncResult);
         mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
         mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
-//        Log.i(LogTags.BACKEND_W, "Db contained: " + dbIds.size() + " entries");
-//        int overLapct = 0;
-//        for(int i = 0; i < serverIds.size(); i++) {
-//            if(dbIds.remove(serverIds.get(i))){
-//                Log.i(TAG, "overlap: " + serverIds.get(i));
-//                serverIds.remove(i);
-//                overLapct++;
-//            } else {
-//                Log.i(TAG, "db ! contain: " + serverIds.get(i));
-//            }
-//        }
-//        Log.i(TAG, "Overlap ct: " + overLapct);
-//        Log.e(LogTags.BACKEND_R, "Deleting " + dbIds.size() + " DB entries");
-//        Object[] dbArray = dbIds.toArray();
-//        for(int i = 0; i < dbArray.length; i++){
-//            Log.i(TAG, "Deleting: " + dbArray[i]);
-//        }
-//        Log.i(TAG, "Deleting ct: "  + dbIds.size());
-//        for(int i = 0; i < serverIds.size(); i++){
-//            Log.i(TAG, "Fetching: " + serverIds.get(i));
-//        }
-//        Log.i(TAG, "Fetching ct: "  + serverIds.size());
-//        // delete all of the reports in the DB which the server didn't also have
-//        Integer dbIdToDelete = dbIds.pollFirst();
-//        Uri toDeleteUri;
-//        while(dbIdToDelete != null) {
-//            if(dbIdToDelete != 0){
-//                toDeleteUri = ReportContract.Entry.CONTENT_URI.buildUpon()
-//                        .appendPath(Integer.toString(dbIdToDelete)).build();
-//                batch.add(ContentProviderOperation.newDelete(toDeleteUri).build());
-////                Log.i(TAG, "Scheduled delete: " + toDeleteUri);
-//                syncResult.stats.numDeletes++;
-//            }
-//            dbIdToDelete = dbIds.pollFirst();
-//        }
-//        mContentResolver.applyBatch(ReportContract.CONTENT_AUTHORITY, batch);
-//        mContentResolver.notifyChange(ReportContract.Entry.CONTENT_URI, null, false);
-        // fetch the new reports, which the local DB didn't have, from the server and write them to DB
     }
 
     private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, SyncResult syncResult)
             throws RemoteException, OperationApplicationException, JSONException {
         if (serverResponse == null)
             return; // TODO: add error statement
-
         JSONArray reportsArray = serverResponse.getJSONArray("reports");
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
@@ -180,20 +142,18 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         VoteInterface.onUpvotesRecorded(getContext(), serverResponse);
     }
 
-    // retrieves from server a list of the objects
     private JSONObject getNewReportsFromServer(ArrayList serverIds) throws IOException, JSONException{
         String fetchReportsURL = URLs.FEED + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         String username = cp.getString(PrefUtils.USERNAME, "");
         if(!username.isEmpty()){
-            username = PrefUtils.trimUsername(username);
-            JSONObject fetchRequest = new JSONObject().put("username", username);
-            fetchRequest.put("ids", new JSONArray());
+            JSONObject fetchRequest = new JSONObject().put("username", PrefUtils.trimUsername(username))
+                                                      .put("ids", new JSONArray());
             for(int i=0; i < serverIds.size(); i++)
                 fetchRequest.accumulate("ids", serverIds.get(i));
             VoteInterface.recordUpvoteLog(getContext(), fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            return convertStringToJson(makeRequest(fetchReportsURL, fetchRequest.toString()));
+            return makeRequest(fetchReportsURL, fetchRequest);
         }
         return null;
     }
@@ -206,30 +166,28 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             JSONObject locationJSON = new JSONObject()
                     .put("latitude", cachedLocation.getLatitude())
                     .put("longitude", cachedLocation.getLongitude());
-            String responseString = makeRequest(URLs.FEED, locationJSON.toString());
+            String responseString = makeRequest(URLs.FEED, locationJSON).toString();
             String[] responseStringArray =  responseString
-                    .replaceAll("\\[", "").replaceAll("\\]", "")
-                    .split(", ");
+                                            .replaceAll("\\[", "").replaceAll("\\]", "")
+                                            .split(", ");
             ArrayList serverIds = new ArrayList();
             for(String id : responseStringArray)
                 serverIds.add(Integer.parseInt(id));
-            Log.i(TAG, "Server count: "  + serverIds.size());
             return serverIds;
         } else
             return null;
 
     }
-    private ArrayList<Integer> getDbIds(SyncResult syncResult, boolean isPreMerge){
+
+    private ArrayList<Integer> getDbIds(SyncResult syncResult){
         // Get list of all items
         Log.i(TAG, "getting local entries for merge");
         String[] projection = new String[1];
         projection[0] = Contract.Entry.COLUMN_ID;
         Cursor c = getContext().getContentResolver() // Get all entries that aren't pending reports
-                .query(Contract.Entry.CONTENT_URI, projection,
+                    .query(Contract.Entry.CONTENT_URI, projection,
                     Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'", null, null);
         assert c != null;
-
-        Log.i(TAG, "Found " + c.getCount() + " local entries. Computing merge solution...");
         ArrayList<Integer> dbIds = new ArrayList<Integer>();
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
@@ -238,41 +196,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         c.close();
         return dbIds;
     }
-    private String makeRequest(String url, String entity) throws IOException {
+
+    private JSONObject makeRequest(String url, JSONObject entity) throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(entity));
+        httpPost.setEntity(new StringEntity(entity.toString()));
         HttpResponse response = httpClient.execute(httpPost);
         if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
-        InputStream is = response.getEntity().getContent();
-        String responseString = convertInputStreamToString(is);
-        is.close();
-        return responseString;
-    }
-
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        StringBuilder result = new StringBuilder(inputStream.available());
-        String line;
-
-        while((line = bufferedReader.readLine()) != null)
-            result.append(line);
-        inputStream.close();
-        return result.toString();
-    }
-
-    private JSONArray convertStringToJsonArray(String input) throws JSONException {
-        JSONArray jsonArray = new JSONArray(input);
-        if (jsonArray.length() == 1 && jsonArray.getJSONObject(0).getString("error") != null)
-            throw new JSONException("Server returned error");
-        return jsonArray;
-    }
-
-    private JSONObject convertStringToJson(String input) throws JSONException {
-        if(input.contains("error"))
-            throw new JSONException("Server returned error");
-        return new JSONObject(input);
+        return NetworkUtils.convertHttpResponseToJSON(response);
     }
 }

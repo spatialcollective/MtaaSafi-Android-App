@@ -1,8 +1,10 @@
 package com.sc.mtaasafi.android.feed;
 
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -28,23 +30,14 @@ import org.json.JSONObject;
 public class AddCommentBar extends LinearLayout {
     Button sendButton;
     SafiEditText editText;
-    int reportId, defaultSendTextSize;
+    int defaultSendTextSize;
     String commentText;
-    CommentSendListener listener;
-    public interface CommentSendListener{
-        void sendCommentPressed();
-        void commentSentSuccess();
-        void commentSentFailure();
-    }
-    private static final String USERNAME = "username",
-                                COMMENT = "comment",
-                                TIMESTAMP = "timestamp",
-                                REPORT_ID = "id";
+    CommentLayout.CommentListener listener;
     public AddCommentBar(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
     // needs to be called before user can press send
-    public void setListener(CommentSendListener listener){
+    public void setListener(CommentLayout.CommentListener listener){
         this.listener = listener;
     }
     public void onFinishInflate(){
@@ -92,11 +85,11 @@ public class AddCommentBar extends LinearLayout {
     }
 
     private void attemptEnableSend(CharSequence s){
-        if(!s.toString().isEmpty())
+        commentText = s.toString();
+        if(commentText.isEmpty())
             enableSend();
         else
             disableSend();
-        commentText = s.toString();
     }
     private void enableSend(){
         sendButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
@@ -117,30 +110,17 @@ public class AddCommentBar extends LinearLayout {
     }
     private void send() throws JSONException {
         // send the server the comment, the username, the timestamp, the reportid
-        JSONObject commentData = new JSONObject();
-        ComplexPreferences cp = PrefUtils.getPrefs(getContext());
-        commentData.put(USERNAME, cp.getString(PrefUtils.USERNAME, ""))
-                    .put(TIMESTAMP, System.currentTimeMillis())
-                    .put(REPORT_ID, reportId)
-                    // put the timestamp of the last comment I have for this gosh dang report
-                    .put(COMMENT, commentText);
-        Log.e("SendComment!", commentData.toString());
         sendButton.setTextColor(getResources().getColor(R.color.LightCoral));
-//        new CommentSender(listener).execute(commentData);
+        listener.sendComment(editText.getText().toString());
+        // new CommentSender(listener).execute(commentData);
     }
 
-    // called by the AsyncTask handling this comment.... NO should be the
-    public void sendCommentSuccess(){
-        // update the database for comments about that particular post
-        // update the fragment for that post's newly added comments
-        // clear the comment bar
-    }
     public void save(Bundle outstate){
-        outstate.putString(COMMENT, commentText);
+        outstate.putString(CommentLayout.COMMENT, commentText);
     }
 
     public void restore(Bundle instate){
-        commentText = instate.getString(COMMENT);
+        commentText = instate.getString(CommentLayout.COMMENT);
         editText.setText(commentText);
     }
 }

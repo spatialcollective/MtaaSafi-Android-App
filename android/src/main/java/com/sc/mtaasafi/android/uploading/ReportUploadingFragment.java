@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.database.Contract;
 
 public class ReportUploadingFragment extends ListFragment
@@ -127,7 +128,7 @@ public class ReportUploadingFragment extends ListFragment
 
     private void beamUpReport(Report pendingReport) {
         Log.e("RUF", "Beam up report has been called!");
-        if (!((UploadingActivity) getActivity()).isOnline() && getView() != null) {
+        if (!NetworkUtils.isOnline(getActivity()) && getView() != null) {
             changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
             return;
         }

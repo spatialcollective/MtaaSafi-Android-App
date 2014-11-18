@@ -12,6 +12,7 @@ import android.util.Log;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
@@ -111,7 +112,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         out.flush();
         out.close();
         InputStream is = urlConnection.getInputStream();
-        String response = convertInputStreamToString(is);
+        String response = NetworkUtils.convertInputStreamToString(is);
         is.close();
         urlConnection.disconnect();
         return new JSONObject(response);
@@ -151,22 +152,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mContext.getContentResolver().update(reportUri, updateValues, null, null);
     }
 
-    private String convertInputStreamToString(InputStream inputStream) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
-        StringBuilder result = new StringBuilder(inputStream.available());
-        String line;
-        while((line = bufferedReader.readLine()) != null)
-            result.append(line);
-        inputStream.close();
-        return result.toString();
-    }
 
     private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {
         int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode >= 400)
             cancel(true);
-        String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-        return new JSONObject(responseString);
+        return NetworkUtils.convertHttpResponseToJSON(response);
     }
 
     protected void onProgressUpdate(Integer... progress) { }//mFragment.reportUploadProgress(progress[0]); }

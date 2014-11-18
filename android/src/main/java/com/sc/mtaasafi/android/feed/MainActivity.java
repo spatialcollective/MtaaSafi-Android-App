@@ -35,6 +35,7 @@ import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
@@ -323,18 +324,10 @@ public class MainActivity extends ActionBarActivity implements
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
 
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
-            return true;
-        return false;
-    }
 
     @Override
     public void onRefresh() {
-        if(isOnline() && getLocation() != null)
+        if(NetworkUtils.isOnline(this) && getLocation() != null)
                 SyncUtils.TriggerRefresh();
         else
             ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
