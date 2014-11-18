@@ -33,7 +33,7 @@ public class NewsFeedFragment extends ListFragment
     SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
-                                SORT_UPVOTES = Contract.Entry.COLUMN_SERVER_ID + " DESC",
+                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 SORT_KEY = "sorting";
     ;
     int index, top;
@@ -150,7 +150,7 @@ public class NewsFeedFragment extends ListFragment
     public void onResume(){
         super.onResume();
         // restore default ordering
-        sortFeed("recent");
+        sortFeed(SORT_RECENT);
     }
     @Override
     public void onPause() {
@@ -213,6 +213,7 @@ public class NewsFeedFragment extends ListFragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
         mAdapter.changeCursor(cursor);
+        mAdapter.notifyDataSetChanged();
         View view = getView();
         if(view != null){
             SwipeRefreshLayout refreshLayout =

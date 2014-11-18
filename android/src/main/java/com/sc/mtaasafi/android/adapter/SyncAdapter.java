@@ -27,6 +27,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -153,7 +154,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 fetchRequest.accumulate("ids", serverIds.get(i));
             VoteInterface.recordUpvoteLog(getContext(), fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            return makeRequest(fetchReportsURL, fetchRequest);
+            return new JSONObject(makeRequest(fetchReportsURL, fetchRequest));
         }
         return null;
     }
@@ -186,7 +187,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         projection[0] = Contract.Entry.COLUMN_ID;
         Cursor c = getContext().getContentResolver() // Get all entries that aren't pending reports
                     .query(Contract.Entry.CONTENT_URI, projection,
-                    Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'", null, null);
+                            Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'", null, null);
         assert c != null;
         ArrayList<Integer> dbIds = new ArrayList<Integer>();
         while (c.moveToNext()) {
@@ -197,7 +198,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return dbIds;
     }
 
-    private JSONObject makeRequest(String url, JSONObject entity) throws IOException {
+    private String makeRequest(String url, JSONObject entity) throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(url);
         httpPost.setHeader("Accept", "application/json");
@@ -205,6 +206,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         httpPost.setEntity(new StringEntity(entity.toString()));
         HttpResponse response = httpClient.execute(httpPost);
         if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
-        return NetworkUtils.convertHttpResponseToJSON(response);
+        return EntityUtils.toString(response.getEntity(), "UTF-8");
     }
 }
