@@ -11,6 +11,7 @@ import android.util.Log;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.VoteInterface;
 
@@ -58,8 +59,10 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         JSONObject serverResponse = null;
         try {
             for (int i = 0; i < 4; i++) {
-                if (isCancelled())
+                if (isCancelled()) {
+                    updateProgressStopped();
                     return canceller;
+                }
                 if (pendingReport.pendingState == 0)
                     serverResponse = writeTextToServer();
                 else if (pendingReport.pendingState > 0)
@@ -77,7 +80,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     private JSONObject writeTextToServer() throws IOException, JSONException {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(BASE_WRITE_URL);
+        HttpPost httpPost = new HttpPost(URLs.BASE_WRITE);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         // send along user's upvote data, if any, with the report text
@@ -88,7 +91,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
 
     private JSONObject writePicToServer() throws IOException, JSONException {
-        String urlString = BASE_WRITE_URL + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
+        String urlString = URLs.BASE_WRITE + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setInstanceFollowRedirects(false);
@@ -175,17 +178,19 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         cancel(true);
     }
 
-    @Override
-    protected void onCancelled(Integer result) {
+    private void updateProgressStopped() {
         ContentValues updateValues = new ContentValues();
         updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                 .appendPath(Integer.toString(pendingReport.dbId)).build();
         if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)
             mContext.getContentResolver().update(reportUri, updateValues, null, null);
+    }
 
+    @Override
+    protected void onCancelled(Integer result) {
         if (result == CANCEL_SESSION)
-            mFragment.changeHeader("Upload Cancelled", R.color.Crimson, mFragment.SHOW_RETRY);
+            mFragment.changeHeader("Upload Cancelled", R.color.Crimson, ReportUploadingFragment.SHOW_RETRY);
         else if (result == DELETE_BUTTON)
             mFragment.beamUpFirstReport();
         else

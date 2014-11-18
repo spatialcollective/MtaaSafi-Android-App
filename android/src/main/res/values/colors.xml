@@ -21,6 +21,9 @@
     <color name="sec_button_unclickable">#1F000000</color>
     <color name="sec_button_text_unclickable">#42000000</color>
     <color name="button_clickable">#0099FF</color>
+    <color name="report_button_unclickable">#A4C8FF</color>
+    <color name="report_button_clickable">#0099FF</color>
+    <color name="textDarkGray">#666666</color>
     <color name="white">#FFFFFF</color>
     <color name="yellow">#FFFF00</color>
     <color name="fuchsia">#FF00FF</color>

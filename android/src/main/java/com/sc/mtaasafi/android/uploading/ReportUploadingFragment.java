@@ -2,6 +2,8 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
@@ -36,6 +39,7 @@ public class ReportUploadingFragment extends ListFragment
                 mBtnState = SHOW_CANCEL,
                 inProgressIndex = 0;
     private String mText = "Uploading...";
+    private AQuery aq;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         Contract.Entry.COLUMN_CONTENT,
@@ -43,9 +47,9 @@ public class ReportUploadingFragment extends ListFragment
         Contract.Entry.COLUMN_PENDINGFLAG
     };
     private static final int[] LIST_TO_FIELDS = new int[] {
-        R.id.itemDetails,
-        R.id.timeElapsed,
-        R.id.expanded_layout
+        R.id.uploadingContent,
+        R.id.uploadingTime,
+        R.id.upload_row,
     };
     public ReportUploadingFragment() {}
 
@@ -53,6 +57,7 @@ public class ReportUploadingFragment extends ListFragment
     public void onCreate(Bundle instate){
         super.onCreate(instate);
         setRetainInstance(true);
+        aq = new AQuery(getActivity());
     }
 
     @Override
@@ -66,7 +71,7 @@ public class ReportUploadingFragment extends ListFragment
         super.onViewCreated(view, savedState);
         changeHeader(mText, mColor, mBtnState);
 
-        mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item,
+        mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item_v2,
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
         mAdapter.setViewBinder(new ViewBinder());
         setListAdapter(mAdapter);

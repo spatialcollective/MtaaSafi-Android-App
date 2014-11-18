@@ -89,16 +89,30 @@
                     android:scaleType="fitCenter" />
 
                 <ProgressBar
+                    android:id="@+id/progressBarPic1"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="65"
+                    android:rotation="270"
+                    android:progressDrawable="@drawable/progress_circle"
+                    android:visibility="visible"/>
+
+                <!-- <ProgressBar
                     style="?android:attr/progressBarStyleLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/progressBarPic1"
                     android:layout_alignBottom="@+id/pic1UploadingIcon"
+                    android:indeterminateDrawable="@drawable/progress_spinner"
+
                     android:visibility="invisible"
                     android:paddingBottom="8dp"
                     android:paddingLeft="12dp"
                     android:paddingRight="12dp"
-                    android:indeterminate="false" />
+                    android:indeterminate="false" /> -->
             </RelativeLayout>
 
             <RelativeLayout
@@ -119,6 +133,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/progressBarPic2"
                     android:layout_alignBottom="@+id/pic2UploadingIcon"
+                    android:indeterminateDrawable="@drawable/progress_spinner"
+
                     android:visibility="invisible"
                     android:paddingBottom="8dp"
                     android:paddingLeft="12dp"
@@ -144,6 +160,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/progressBarPic3"
                     android:layout_alignBottom="@+id/pic3UploadingIcon"
+                    android:indeterminateDrawable="@drawable/progress_spinner"
                     android:visibility="invisible"
                     android:paddingBottom="8dp"
                     android:paddingLeft="12dp"
