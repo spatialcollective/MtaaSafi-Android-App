@@ -1,4 +1,4 @@
-package com.sc.mtaasafi.android.feed;
+package com.sc.mtaasafi.android.feed.comments;
 
 import android.content.OperationApplicationException;
 import android.os.AsyncTask;
@@ -13,8 +13,8 @@ import org.json.JSONObject;
  * Created by Agree on 11/18/2014.
  */
 public class CommentRefresher extends AsyncTask<JSONObject, Integer, JSONObject> {
-    CommentLayout.CommentListener listener;
-    CommentRefresher(CommentLayout.CommentListener listener){
+    AddCommentBar.CommentListener listener;
+    public CommentRefresher(AddCommentBar.CommentListener listener){
         this.listener = listener;
     }
     @Override
@@ -35,6 +35,8 @@ public class CommentRefresher extends AsyncTask<JSONObject, Integer, JSONObject>
         } catch (RemoteException e) {
             e.printStackTrace();
         } catch (OperationApplicationException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }

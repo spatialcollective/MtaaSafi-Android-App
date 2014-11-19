@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.sc.mtaasafi.android.feed.AddCommentBar xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+<com.sc.mtaasafi.android.feed.comments.AddCommentBar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="10dp"
     android:id="@+id/add_comment_bar"
     android:paddingRight="8dp">
-<com.sc.mtaasafi.android.newReport.SafiEditText
-    android:layout_width="0dp"
-    android:layout_height="match_parent"
-    android:hint="Comment..."
-    style="@style/SafiEditTextStyle"
-    android:layout_weight="1"
-    android:id="@+id/commentEditText"/>
+    <com.sc.mtaasafi.android.newReport.SafiEditText
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Comment..."
+        style="@style/SafiEditTextStyle"
+        android:layout_weight="1"
+        android:id="@+id/commentEditText"/>
 
     <Button
         android:layout_width="54dp"
@@ -22,6 +24,5 @@
         android:text="Send"
         android:scaleType="fitCenter"
         android:background="@color/transparent"
-        android:layout_weight="0"
-        android:clickable="false" />
-</com.sc.mtaasafi.android.feed.AddCommentBar>
+        android:layout_weight="0"/>
+</com.sc.mtaasafi.android.feed.comments.AddCommentBar>

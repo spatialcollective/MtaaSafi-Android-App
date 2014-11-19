@@ -60,11 +60,10 @@ public class Contract {
         public static final Uri COMMENTS_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_COMMENTS).build();
         public static final String TABLE_NAME = "comments",
-            COLUMN_ID = "_id",
-            COLUMN_SERVER_ID = "server_id",
-            COLUMN_CONTENT = "content",
+            COLUMN_SERVER_ID = "commentId", // comment's unique id for the server
+            COLUMN_CONTENT = "comment",
             COLUMN_TIMESTAMP = "timestamp",
             COLUMN_USERNAME = "username",
-            COLUMN_REPORT_ID = "reportId";
+            COLUMN_REPORT_ID = "reportId"; // server id of the report associated with the comment
     }
 }

@@ -16,7 +16,9 @@ import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +27,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,15 +39,17 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
+import com.sc.mtaasafi.android.feed.comments.AddCommentBar;
+import com.sc.mtaasafi.android.feed.comments.CommentRefresher;
+import com.sc.mtaasafi.android.feed.comments.CommentSender;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 
 
-public class ReportDetailFragment extends android.support.v4.app.Fragment implements CommentLayout.CommentListener{
+public class ReportDetailFragment extends ListFragment implements AddCommentBar.CommentListener{
 
     Report mReport;
     private String content, location, time, user, mediaUrl1, mediaUrl2, mediaUrl3, distance;
@@ -58,7 +61,23 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
     public ViewPager viewPager;
     RelativeLayout bottomView;
     LinearLayout topView;
-    private CommentLayout commentLayout;
+    SimpleCursorAdapter mAdapter;
+    AddCommentBar addComment;
+
+    private final static String REFRESH_KEY= "refresh";
+    public static final String USERNAME = "username",
+            COMMENT = "comment";
+
+    public final String[] FROM_COLUMNS = new String[]{
+            Contract.Comments.COLUMN_CONTENT,
+            Contract.Comments.COLUMN_USERNAME,
+            Contract.Comments.COLUMN_TIMESTAMP
+    };
+    public final int[] TO_FIELDS = new int[]{
+            R.id.commentText,
+            R.id.commentUserName,
+            R.id.commentTime
+    };
     private static String content_Key ="content",
         location_Key = "location",
         time_Key = "time",
@@ -75,7 +94,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         aq = new AQuery(getActivity());
     }
 
@@ -101,6 +119,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         if(savedState != null)
             restore(savedState);
@@ -131,9 +150,8 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         userVoted = instate.getBoolean(userVoted_Key);
         upvoteCount = instate.getInt(upvoteCount_Key);
         // make sure this method's only called after inflation
-        AddCommentBar addCommentBar = (AddCommentBar)
-                getView().findViewById(R.id.add_comment_bar);
-        addCommentBar.restore(instate);
+        if(addComment != null)
+            addComment.restore(instate);
     }
     @Override
     public void onSaveInstanceState(Bundle outstate){
@@ -162,37 +180,39 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
         topView = (LinearLayout) view.findViewById(R.id.top_layout);
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         String[] mediaUrls ={mediaUrl1, mediaUrl2, mediaUrl3};
         viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mediaUrls));
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
+        addComment.setCommentListener(this);
         setClickListeners(view);
         updateView(view);
         if(savedInstanceState != null)
             restore(savedInstanceState);
-
+        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.comment_view, null,
+                FROM_COLUMNS, TO_FIELDS, 0);
+        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int i) {
+                return false;
+            }
+        });
+        setListAdapter(mAdapter);
     }
     private void setClickListeners(View view) {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                enterImageViewer(0);
-            }
-        });
+            public void onClick(View view) {enterImageViewer(0);}});
         view.findViewById(R.id.media2).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                enterImageViewer(1);
-            }
-        });
+            public void onClick(View view) {enterImageViewer(1);}});
         view.findViewById(R.id.media3).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                enterImageViewer(2);
-            }
-        });
+            public void onClick(View view) {enterImageViewer(2);}});
     }
 
     private void enterImageViewer(int i){
@@ -249,11 +269,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
             startBounds.top -= deltaHeight;
             startBounds.bottom += deltaHeight;
         }
-
-        // Hide the thumbnail and show the zoomed-in view. When the animation
-        // begins, it will position the zoomed-in view in the place of the
-        // thumbnail.
-//        media[i].setAlpha(0f);
         viewPager.setVisibility(View.VISIBLE);
 
         // Set the pivot point for SCALE_X and SCALE_Y transformations
@@ -303,7 +318,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         getView().setBackgroundColor(getResources().getColor(R.color.White));
         updateTopVote();
         topView.setVisibility(View.VISIBLE);
-//        viewPager.setVisibility(View.INVISIBLE);
         fadeOutBottomView();
     }
     private void fadeOutBottomView(){
@@ -328,10 +342,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void exitImageAnimation(int i){
-        // Animate the four positioning/sizing properties in parallel,
-        // back to their original values.
-        // Calculate the starting and ending bounds for the zoomed-in image.
-        // This step involves lots of math. Yay, math.
         final Rect startBounds = new Rect();
         final Rect finalBounds = new Rect();
         final Point globalOffset = new Point();
@@ -339,11 +349,7 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         viewPager.bringToFront();
         viewPager.getParent().requestLayout();
         ((View)viewPager.getParent()).invalidate();
-        // The start bounds are the global visible rectangle of the thumbnail,
-        // and the final bounds are the global visible rectangle of the container
-        // view. Also set the container view's offset as the origin for the
-        // bounds, since that's the origin for the positioning animation
-        // properties (X, Y).
+
         media[i].getGlobalVisibleRect(startBounds);
         getView().getGlobalVisibleRect(finalBounds, globalOffset);
         startBounds.offset(-globalOffset.x, -globalOffset.y);
@@ -388,7 +394,6 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
                     image.setAlpha(1f);
                 viewPager.setVisibility(View.INVISIBLE);
             }
-
             @Override
             public void onAnimationCancel(Animator animation) {
                 for(ImageView image : media)
@@ -469,23 +474,52 @@ public class ReportDetailFragment extends android.support.v4.app.Fragment implem
         setRetainInstance(true);
         JSONObject commentData = new JSONObject();
         ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
-        long timeSince = CommentLayout.getLastCommentTimeStamp(serverId, getActivity());
-        commentData.put(CommentLayout.USERNAME, cp.getString(PrefUtils.USERNAME, ""))
-                .put(CommentLayout.TIMESTAMP, System.currentTimeMillis())
-                .put(CommentLayout.REPORT_ID, serverId)
-                .put(CommentLayout.TIMESTAMP, timeSince)
-                .put(CommentLayout.COMMENT, comment);
+        long timeSince = AddCommentBar.getLastCommentTimeStamp(serverId, getActivity());
+        commentData.put(Contract.Comments.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
+                .put(Contract.Comments.COLUMN_TIMESTAMP, System.currentTimeMillis()/1000)
+                .put(Contract.Comments.COLUMN_REPORT_ID, serverId)
+                .put("last_comment_timestamp", timeSince)
+                .put(Contract.Comments.COLUMN_CONTENT, comment);
+        VoteInterface.recordUpvoteLog(getActivity(), commentData);
+        new CommentSender(this).execute(commentData);
         Log.e("SendComment!", commentData.toString());
     }
 
     @Override
     public void commentActionFinished(JSONObject result)
-            throws RemoteException, OperationApplicationException {
+            throws RemoteException, OperationApplicationException, JSONException {
         setRetainInstance(false);
-        CommentLayout.updateCommentsTable(result, getActivity());
-        if(commentLayout != null)
-            commentLayout.updateCommentsList(serverId);
-        if(true){} // if the result contained a success flag, clear the text of the comment bar
+        VoteInterface.recordUpvoteLog(getActivity(), result);
+        AddCommentBar.updateCommentsTable(result, getActivity());
+        updateCommentsList(serverId);
+        if((Integer) result.getInt(Contract.Comments.COLUMN_SERVER_ID) != null
+                && addComment != null)
+            addComment.clearText();
+    }
+
+    public void updateCommentsList(int reportId){
+        String notSelect = " NOT NULL";
+        String selection = Contract.Comments.COLUMN_REPORT_ID + " = "+ reportId + " AND "
+                + Contract.Comments.COLUMN_USERNAME + notSelect + " AND "
+                + Contract.Comments.COLUMN_TIMESTAMP + notSelect + " AND "
+                + Contract.Comments.COLUMN_USERNAME + notSelect + " AND "
+                + Contract.Comments.COLUMN_CONTENT + notSelect;
+        String[] projection = new String[]{ Contract.Comments._ID,
+                Contract.Comments.COLUMN_CONTENT,
+                Contract.Comments.COLUMN_USERNAME,
+                Contract.Comments.COLUMN_TIMESTAMP};
+        String sort = Contract.Comments.COLUMN_TIMESTAMP + " ASC";
+        Cursor c = getActivity().getContentResolver().query(Contract.Comments.COMMENTS_URI,
+                projection, selection, null, sort);
+        mAdapter.changeCursor(c);
+        Log.e("Cursor count", "Cursor Count: " + c.getCount() + ". LV count: " + getListView().getCount());
+        mAdapter.notifyDataSetChanged();
+    }
+    public void refreshComments(int reportId) throws JSONException {
+        // get all new comments for this report from the server
+        long sinceTime = AddCommentBar.getLastCommentTimeStamp(reportId, getActivity());
+        new CommentRefresher(this).execute(new JSONObject().put("ReportId", reportId)
+                .put("Since", sinceTime));
     }
 
     private class ImageSlideAdapter extends FragmentPagerAdapter {

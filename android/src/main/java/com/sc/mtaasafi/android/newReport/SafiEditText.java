@@ -12,20 +12,11 @@ import android.widget.EditText;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 public class SafiEditText extends EditText{
-    public SafiEditText(Context context)
-    {
-        super(context);
-    }
-
     public SafiEditText(Context context, AttributeSet attrs)
     {
         super(context, attrs);
     }
-
-    public SafiEditText(Context context, AttributeSet attrs, int defStyle)
-    {
-        super(context, attrs, defStyle);
-    }
+    public SafiEditText(Context context, AttributeSet attrs, int defStyle) {super(context, attrs, defStyle);}
 
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs)

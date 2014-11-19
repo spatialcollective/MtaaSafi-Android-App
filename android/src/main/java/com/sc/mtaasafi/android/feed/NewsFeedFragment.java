@@ -136,6 +136,7 @@ public class NewsFeedFragment extends ListFragment
                 return true;
             }
         });
+
         setListAdapter(mAdapter);
     }
 

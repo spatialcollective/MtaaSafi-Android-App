@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -35,6 +35,15 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.UpvoteLog.COLUMN_LON + " double"
             + ")";
 
+    private static final String COMMENTS_TABLE_CREATE = "create table "
+            + Contract.Comments.TABLE_NAME + "("
+            + Contract.Comments._ID + " integer primary key autoincrement, "
+            + Contract.Comments.COLUMN_SERVER_ID + " integer not null, "
+            + Contract.Comments.COLUMN_REPORT_ID + " integer not null, "
+            + Contract.Comments.COLUMN_CONTENT + " text, "
+            + Contract.Comments.COLUMN_TIMESTAMP + " long, "
+            + Contract.Comments.COLUMN_USERNAME + " text"
+            + ")";
     public ReportDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -43,6 +52,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(REPORT_TABLE_CREATE);
         database.execSQL(UPVOTE_TABLE_CREATE);
+        database.execSQL(COMMENTS_TABLE_CREATE);
     }
 
     @Override
@@ -53,7 +63,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
         );
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Entry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.UpvoteLog.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.Comments.TABLE_NAME);
         onCreate(db);
     }
-
 }
