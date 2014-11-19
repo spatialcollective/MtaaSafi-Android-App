@@ -100,7 +100,10 @@ public class ReportUploadingFragment extends ListFragment
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
-                mAdapter.indicateRow(cursor.getInt(i), view);
+                if (cursor.getInt(i) == 1)
+                    mAdapter.indicateRow(view);
+                else
+                    mAdapter.resetRow(view);
             else
                 return false;
             return true;
