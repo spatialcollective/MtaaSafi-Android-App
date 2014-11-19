@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -151,7 +152,7 @@ public class MainActivity extends ActionBarActivity implements
                 .beginTransaction()
                 .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
                 .commit();
-        SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(getActionBar().getThemedContext(),
                 R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
         getActionBar().setListNavigationCallbacks(mSpinnerAdapter, new ActionBar.OnNavigationListener() {
             @Override
@@ -165,6 +166,7 @@ public class MainActivity extends ActionBarActivity implements
         });
         getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         getActionBar().setDisplayShowTitleEnabled(false);
+        getActionBar().setDisplayShowHomeEnabled(false);
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);

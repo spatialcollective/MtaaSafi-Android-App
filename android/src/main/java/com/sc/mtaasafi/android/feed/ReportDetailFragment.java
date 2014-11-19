@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Point;
@@ -28,6 +29,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -481,6 +483,9 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
                 .put("last_comment_timestamp", timeSince)
                 .put(Contract.Comments.COLUMN_CONTENT, comment);
         VoteInterface.recordUpvoteLog(getActivity(), commentData);
+        InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
         new CommentSender(this).execute(commentData);
         Log.e("SendComment!", commentData.toString());
     }

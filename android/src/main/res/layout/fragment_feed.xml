@@ -12,15 +12,27 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/feedLL">
+        android:id="@+id/feedLL"
+        android:background="@color/mtaa_safi_blue">
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/mtaa_safi_blue">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="fitCenter"
+                android:src="@drawable/feed_background"
+                android:id="@+id/imageView"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"/>
 
             <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/swipeRefresh">
+            android:id="@+id/swipeRefresh"
+            android:background="@color/transparent">
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
