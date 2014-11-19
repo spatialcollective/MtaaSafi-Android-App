@@ -2,7 +2,18 @@ package com.sc.mtaasafi.android.uploading;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -39,24 +50,32 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
         resetState(view);
         indicateRow(cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)), view);
         int progress = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
-        restoreProgress(progress, view);
+        restoreProgress(progress, view, cursor);
     }
-    // Restores a progress point that has already been reached
-    private void restoreProgress(int progress, View row){
-        int restoreTo = progress-1;
-        switch(restoreTo){
-            case 3:
-                UploadingPic uP = (UploadingPic) row.findViewById(R.id.uploadingPic1);
-                aq.id(uP).image((String)uP.getTag());
-            case 2:
-//                UploadingPic uP2 = (UploadingPic) row.findViewById(R.id.uploadingPic2);
-//                aq.id(uP2).image((String)uP2.getTag());
-            case 1:
-                UploadingPic uP1 = (UploadingPic) row.findViewById(R.id.uploadingPic1);
-                aq.id(uP1).image((String)uP1.getTag());
-            case 0:
-                showUploadStarted(row);
-        }
+
+    private void restoreProgress(int progress, View row, Cursor cursor) {
+        View pic_1 = row.findViewById(R.id.upload_pic_3);
+        ImageView image = (ImageView) pic_1.findViewById(R.id.pic_image);
+
+        Bitmap thumb = BitmapFactory.decodeFile(cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
+
+        float image_px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 60, mContext.getResources().getDisplayMetrics());
+        float gap_px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, mContext.getResources().getDisplayMetrics());
+        Bitmap output = Bitmap.createBitmap((int) image_px, (int) image_px, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setShader(new BitmapShader(thumb, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+        canvas.drawCircle(image_px/2, image_px/2, image_px/2 - gap_px, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        final Rect rect = new Rect(0, 0, (int) image_px, (int) image_px);
+        canvas.drawBitmap(thumb, rect, rect, paint);
+
+        image.setImageBitmap(output);
+
+        showUploadStarted(row);
         updateProgressView(progress, row);
     }
     public void resetView(View row) {
@@ -113,24 +132,24 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     public void updateProgressView(int progress, View row){
         Log.e("Adapter", "updateProgressView. Row id == R.id.upload_row: " +
                 (row.getId() == R.id.upload_row));
-        if (row != null) {
-            switch (progress) {
-                case 1:
-                    row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
-                    ((UploadingPic) row.findViewById(R.id.uploadingPic1)).startUpload();
-                    break;
-                case 2:
-                    ((UploadingPic) row.findViewById(R.id.uploadingPic1)).finishUpload();
-//                    ((UploadingPic) row.findViewById(R.id.uploadingPic2)).startUpload();
-                    break;
-                case 3:
-//                    ((UploadingPic) row.findViewById(R.id.uploadingPic2)).finishUpload();
-                    ((UploadingPic) row.findViewById(R.id.uploadingPic3)).startUpload();
-                    break;
-                case -1:
-                    ((UploadingPic) row.findViewById(R.id.uploadingPic3)).finishUpload();
-            }
-        }
+//         if (row != null) {
+//             switch (progress) {
+//                 case 1:
+//                     row.findViewById(R.id.uploading_pic_row).setVisibility(View.VISIBLE);
+//                     ((UploadingPic) row.findViewById(R.id.uploadingPic1)).startUpload();
+//                     break;
+//                 case 2:
+//                     ((UploadingPic) row.findViewById(R.id.uploadingPic1)).finishUpload();
+// //                    ((UploadingPic) row.findViewById(R.id.uploadingPic2)).startUpload();
+//                     break;
+//                 case 3:
+// //                    ((UploadingPic) row.findViewById(R.id.uploadingPic2)).finishUpload();
+//                     ((UploadingPic) row.findViewById(R.id.uploadingPic3)).startUpload();
+//                     break;
+//                 case -1:
+//                     ((UploadingPic) row.findViewById(R.id.uploadingPic3)).finishUpload();
+//             }
+//         }
     }
 
     // called on rows for report that aren't currently uploading

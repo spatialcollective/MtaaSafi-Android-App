@@ -17,7 +17,7 @@
             android:pivotY="50%"
             android:repeatCount="infinite"
             android:fromDegrees="0"
-            android:toDegrees="255">
+            android:toDegrees="600">
 
             <shape
                 android:innerRadius="25dp"

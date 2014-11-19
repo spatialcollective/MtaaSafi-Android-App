@@ -5,62 +5,13 @@
     android:layout_height="match_parent"
     android:id="@+id/uploading_pic_row">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="15dp">
-        <com.sc.mtaasafi.android.uploading.UploadingPic
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/uploadingPic1"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/gray_uploading_pic_solid" />
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/imageView"
-            android:src="@drawable/circle_overlay"/>
-    </RelativeLayout>
+    <include android:id="@+id/upload_pic_1"
+        layout="@layout/uploading_pic" />
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="15dp">
+    <include android:id="@+id/upload_pic_2"
+        layout="@layout/uploading_pic" />
 
-        <ProgressBar
-            android:id="@+id/uploadingPic2"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginRight="15dp"
-            android:indeterminate="true"
-            android:progress="66"
-            android:indeterminateDrawable="@drawable/progress_circle"
-            android:visibility="visible"/>
-            
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/imageView2"
-            android:src="@drawable/circle_overlay" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="15dp">
-
-        <com.sc.mtaasafi.android.uploading.UploadingPic
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/uploadingPic3"
-            android:layout_marginRight="15dp"
-            android:src="@drawable/gray_uploading_pic_solid" />
-        <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/imageView3"
-            android:src="@drawable/circle_overlay" />
-    </RelativeLayout>
+    <include android:id="@+id/upload_pic_3"
+        layout="@layout/uploading_pic"/>
 
 </LinearLayout>
