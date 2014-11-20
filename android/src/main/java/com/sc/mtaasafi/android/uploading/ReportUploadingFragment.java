@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
@@ -122,7 +123,8 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     private void beamUpReport(Report pendingReport) {
-        if (((UploadingActivity) getActivity()).isOnline() && getView() != null) {
+        Log.e("RUF", "Beam up report has been called!");
+        if (NetworkUtils.isOnline(getActivity()) && getView() != null) {
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
                     R.color.mtaa_safi_blue, SHOW_CANCEL);
             uploader = new ReportUploader(getActivity(), pendingReport, this);

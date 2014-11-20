@@ -22,7 +22,7 @@ import com.sc.mtaasafi.android.R;
 public class UploadingActivity extends ActionBarActivity {
 
     final static String UPLOAD_TAG = "upload", ACTION = "action", DATA = "data";
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,10 +54,12 @@ public class UploadingActivity extends ActionBarActivity {
             getSupportFragmentManager().putFragment(bundle, UPLOAD_TAG, frag);
     }
 
-    public boolean isOnline() {
-        NetworkInfo netInfo = ((ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
-            return true;
-        return false;
+    @Override
+    public void finish() {
+        super.finish();
+        ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager()
+                                        .findFragmentByTag(UPLOAD_TAG);
+        if(ruf != null && ruf.uploader != null)
+            ruf.uploader.cancel(true);
     }
 }

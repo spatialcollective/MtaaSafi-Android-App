@@ -9,14 +9,14 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="72dp"
-        android:fillViewport="true" >
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/top_layout">
 
-        <LinearLayout
-            android:orientation="vertical"
+        <com.sc.mtaasafi.android.newReport.SafiEditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/top_layout">
+            android:layout_height="wrap_content">
 
             <com.sc.mtaasafi.android.newReport.DescriptionEditText
                 android:layout_width="match_parent"
@@ -50,7 +50,7 @@
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="16dp"
                 android:minHeight="50dp"/>
-        </LinearLayout>
+        </com.sc.mtaasafi.android.newReport.SafiEditText>
     </ScrollView>
 
     <LinearLayout

@@ -93,7 +93,6 @@
         android:id="@+id/bottomLine"
         android:background="#999999"
         android:paddingTop="10dp"
-        android:layout_weight="23.13"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/location"/>

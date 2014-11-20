@@ -1,13 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
-    	<item name="android:actionBarStyle">@style/MyActionBar</item>
-        <item name="android:actionMenuTextColor">@color/action_menu_colors</item>
-        <item name="android:colorPrimary">@color/mtaa_safi_blue</item>
-        <item name="android:colorPrimaryDark">@color/mtaa_safi_blue_dark</item>
-        <item name="android:colorAccent">@color/Coral</item>
-
+<style name="AppTheme" parent="@style/Theme.AppCompat.Light">
         <item name="actionBarStyle">@style/MyActionBar</item>
         <item name="actionMenuTextColor">@color/action_menu_colors</item>
         <item name="colorPrimary">@color/mtaa_safi_blue</item>
@@ -29,6 +22,26 @@
 
     <style name="MyActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/White</item>
+   </style>
+
+    <style name="SafiEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/add_comment_background</item>
+    </style>
+    <!-- Send Button styles -->
+
+    <style name="sendCommentPressed">
+        <item name="android:textSize">18dp</item>
+        <item name="android:textColor">@color/Coral</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="sendCommentEnabled">
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@color/Coral</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="sendCommentDisabled">
+        <item name="android:textSize">15dp</item>
+        <item name="android:textColor">@color/LightCoral</item>
     </style>
 
 </resources>

@@ -240,6 +240,7 @@ public class Report {
     public byte[] getBytesForPic(int i) throws IOException {
         File file = new File(mediaPaths.get(i));
         byte[] b = new byte[(int) file.length()];
+        Log.e("File path", file.getAbsolutePath());
         BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         inputStream.read(b);
         inputStream.close();

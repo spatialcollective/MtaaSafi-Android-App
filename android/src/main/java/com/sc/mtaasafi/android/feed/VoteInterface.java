@@ -88,13 +88,9 @@ public class VoteInterface extends LinearLayout {
                 ContentProviderOperation.newInsert(Contract.UpvoteLog.UPVOTE_URI);
         upvoteOperation.withValue(Contract.UpvoteLog.COLUMN_SERVER_ID, serverId);
         Location currentLocation = ((MainActivity) getContext()).getLocation();
-        if(currentLocation != null && 
-                (Double) currentLocation.getLatitude() != null &&
-                (Double) currentLocation.getLongitude() != null){
-            String latString = Double.toString(currentLocation.getLatitude());
-            String lonString = Double.toString(currentLocation.getLongitude());
-            upvoteOperation.withValue(Contract.UpvoteLog.COLUMN_LAT, latString)
-                           .withValue(Contract.UpvoteLog.COLUMN_LON, lonString);
+        if(currentLocation != null){
+            upvoteOperation.withValue(Contract.UpvoteLog.COLUMN_LAT, currentLocation.getLatitude())
+                           .withValue(Contract.UpvoteLog.COLUMN_LON, currentLocation.getLongitude());
         }
         return upvoteOperation.build();
     }

@@ -1,10 +1,12 @@
 package com.sc.mtaasafi.android.feed;
 
 import android.accounts.AccountManager;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentSender;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -19,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -32,6 +36,7 @@ import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
@@ -71,10 +76,7 @@ public class MainActivity extends ActionBarActivity implements
         if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
         if (detailFragment == null) {
-            getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
-                .commit();
+            goToFeed();
         }
         cp = PrefUtils.getPrefs(this);
     }
@@ -148,7 +150,28 @@ public class MainActivity extends ActionBarActivity implements
             .commit();
     }
 
-    public NewsFeedFragment getNewsFeedFragment() {
+    public void goToFeed(){
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
+                .commit();
+        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
+        getActionBar().setListNavigationCallbacks(mSpinnerAdapter, new ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int i, long l) {
+                if(i == 0) // sort items by recent
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+                else // sort items by most upvoted
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+                return false;
+            }
+        });
+        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getActionBar().setDisplayShowTitleEnabled(false);
+        getActionBar().setDisplayShowHomeEnabled(false);
+    }
+    public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
     }
     
@@ -286,18 +309,10 @@ public class MainActivity extends ActionBarActivity implements
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
 
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting())
-            return true;
-        return false;
-    }
 
     @Override
     public void onRefresh() {
-        if(isOnline() && getLocation() != null)
+        if(NetworkUtils.isOnline(this) && getLocation() != null)
                 SyncUtils.TriggerRefresh();
         else
             ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))

@@ -1,8 +1,10 @@
 package com.sc.mtaasafi.android.feed;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.database.Cursor;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -15,9 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,18 +26,18 @@ import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
-import com.sc.mtaasafi.android.database.AuthenticatorService;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.database.SyncUtils;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class NewsFeedFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
+    public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
+                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
+                                SORT_KEY = "sorting";
     int index, top;
 
     public String[] FROM_COLUMNS = new String[] {
@@ -73,68 +73,19 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_news_feed, container, false);
+        View view = inflater.inflate(R.layout.fragment_feed, container, false);
         if (savedInstanceState != null) {
              index = savedInstanceState.getInt("index");
              top = savedInstanceState.getInt("top");
         }
-        setUpTabs(view);
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener((MainActivity) getActivity());
-        refreshLayout.setColorSchemeResources(R.color.mtaa_safi_blue,
-                                                R.color.mtaa_safi_blue_light,
+        refreshLayout.setColorSchemeResources(R.color.Coral,
+                                                R.color.White,
                                                 R.color.Coral,
                                                 R.color.White);
         return view;
     }
-
-    private void setUpTabs(View view){
-        ImageButton recentTab = (ImageButton) view.findViewById(R.id.recent_tab_button);
-        recentTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // make recent tab button and underscore blue
-                ((ImageButton) view).setImageResource(R.drawable.recent_posts_clicked);
-                View myParent = (View) view.getParent();
-                ImageView underscore = (ImageView) myParent.findViewById(R.id.recent_tab_underscore);
-                underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
-                // make the popular tab button and underscore gray
-                View myGrandParent = (View) myParent.getParent();
-                ImageButton otherTab = (ImageButton) myGrandParent.findViewById(R.id.popular_tab_button);
-                otherTab.setImageResource(R.drawable.popular_reports_unclicked);
-                ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.popular_tab_underscore);
-                otherUnderscore.setBackgroundColor(getResources().getColor(R.color.White));
-                // sort the feed
-                Bundle args = new Bundle();
-                args.putString("SORT", "recent");
-                NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
-                nff.getLoaderManager().restartLoader(0, args, nff);
-            }
-        });
-        ImageButton popularTab = (ImageButton) view.findViewById(R.id.popular_tab_button);
-        popularTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // make popular tab button and underscore blue
-                ((ImageButton) view).setImageResource(R.drawable.popular_reports_clicked);
-                View myParent = (View) view.getParent();
-                ImageView underscore = (ImageView) myParent.findViewById(R.id.popular_tab_underscore);
-                underscore.setBackgroundColor(getResources().getColor(R.color.mtaa_safi_blue));
-                // make the recent tab button and underscore gray
-                View myGrandParent = (View) myParent.getParent();
-                ImageButton otherTab = (ImageButton) myGrandParent.findViewById(R.id.recent_tab_button);
-                otherTab.setImageResource(R.drawable.recent_posts_unclicked);
-                ImageView otherUnderscore = (ImageView) myGrandParent.findViewById(R.id.recent_tab_underscore);
-                otherUnderscore.setBackgroundColor(getResources().getColor(R.color.White));
-                // sort the feed
-                Bundle args = new Bundle();
-                args.putString("SORT", "popular");
-                NewsFeedFragment nff = ((MainActivity) view.getContext()).getNewsFeedFragment();
-                nff.getLoaderManager().restartLoader(0, args, nff);
-            }
-        });
-    }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -145,43 +96,43 @@ public class NewsFeedFragment extends ListFragment
             public boolean setViewValue(View view, Cursor cursor, int i) {
                 if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
                     view.setTag(cursor.getInt(i));
-                else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)){
+                else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) {
                     TextView upvoteTV = (TextView) view.findViewById(R.id.upvoteCount);
                     ImageButton upvoteButton = (ImageButton) view.findViewById(R.id.upvoteButton);
                     Log.i("BINDING userVoted", "Uservoted on this: " + cursor.getInt(i)
-                        + ". Server id:" + cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
+                            + ". Server id:" + cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
                     VoteInterface vi = (VoteInterface) view;
                     vi.feedMode = true;
-                    if(cursor.getInt(i) > 0){
+                    if (cursor.getInt(i) > 0) {
                         upvoteButton.setImageResource(R.drawable.button_upvote_clicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
                     } else {
                         upvoteButton.setImageResource(R.drawable.button_upvote_unclicked);
                         upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
                     }
-                } else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)) {
+                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)) {
                     view.setTag(cursor.getInt(i));
-                } else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)){
+                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)) {
                     ((TextView) view).setText(Integer.toString(cursor.getInt(i)));
-                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)){ // set the distance
+                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)) { // set the distance
                     Location currentLocation = ((MainActivity) getActivity()).getLocation();
-                    if(currentLocation != null){
+                    if (currentLocation != null) {
                         Location reportLocation = new Location("ReportLocation");
-                        reportLocation.setLatitude(cursor.getDouble(i-1));
-                   	    reportLocation.setLongitude(cursor.getDouble(i));
+                        reportLocation.setLatitude(cursor.getDouble(i - 1));
+                        reportLocation.setLongitude(cursor.getDouble(i));
                         String distText = Report.getDistanceText(currentLocation, reportLocation);
-                        ((TextView)view).setText(distText);
-                        if(distText.equals("here")){
-                            ((TextView)view).setTextColor(getResources().getColor(R.color.Coral));
+                        ((TextView) view).setText(distText);
+                        if (distText.equals("here")) {
+                            ((TextView) view).setTextColor(getResources().getColor(R.color.Coral));
                             View parent = (View) view.getParent();
-                            ((ImageView)parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker_coral);
-                        } else{
-                            ((TextView)view).setTextColor(getResources().getColor(R.color.DarkGray));
+                            ((ImageView) parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker_coral);
+                        } else {
+                            ((TextView) view).setTextColor(getResources().getColor(R.color.DarkGray));
                             View parent = (View) view.getParent();
-                            ((ImageView)parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker);
+                            ((ImageView) parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker);
                         }
                     }
-               } else
+                } else
                     return false;
                 return true;
             }
@@ -200,10 +151,7 @@ public class NewsFeedFragment extends ListFragment
     public void onResume(){
         super.onResume();
         // restore default ordering
-        Bundle args = new Bundle();
-        args.putString("SORT", "recent");
-        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
-        nff.getLoaderManager().restartLoader(0, args, nff);
+        sortFeed(SORT_RECENT);
     }
 
     @Override
@@ -220,8 +168,7 @@ public class NewsFeedFragment extends ListFragment
     public void refreshFailed(){
         View view = getView();
         if(view != null){
-            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-            refreshLayout.setRefreshing(false);
+            ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(false);
             final LinearLayout refreshFailed = (LinearLayout) view.findViewById(R.id.refresh_failed_bar);
             Animation out = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_top);
             out.setStartOffset(1500);
@@ -238,16 +185,19 @@ public class NewsFeedFragment extends ListFragment
             refreshFailed.startAnimation(out);
             refreshFailed.setVisibility(View.VISIBLE);
         }
-
     }
+    public void sortFeed(String sorting){
+        Bundle args = new Bundle();
+        args.putString(SORT_KEY, sorting);
+        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
+        nff.getLoaderManager().restartLoader(0, args, nff);
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrder = null;
-        if(args != null){
-            String sorting = (String) args.get("SORT");
-            if(sorting.equals("popular"))
-                sortOrder = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
-        }
+        if(args != null)
+                sortOrder = args.getString(SORT_KEY);
         if(sortOrder == null) // default is by time TODO: sort by epoch time
             sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
         Log.e("Sort order: ", sortOrder);
@@ -262,8 +212,11 @@ public class NewsFeedFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         View view = getView();
         if(view != null){
-            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout)
-                    view.findViewById(R.id.swipeRefresh);
+            SwipeRefreshLayout refreshLayout =
+                    (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+            if(refreshLayout.isRefreshing())
+            // refresh --> content displayed chronologically
+                getActivity().getActionBar().setSelectedNavigationItem(0);
             refreshLayout.setRefreshing(false);
             if(cursor.getCount()==0)
                 view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);

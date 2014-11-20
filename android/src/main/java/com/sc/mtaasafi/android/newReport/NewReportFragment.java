@@ -62,10 +62,10 @@ public class NewReportFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
-	    picPreviews[PIC1] = (ImageButton) view.findViewById(R.id.pic1);
+	   picPreviews[PIC1] = (ImageButton) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageButton) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageButton) view.findViewById(R.id.pic3);
-        detailsView = (DescriptionEditText) view.findViewById(R.id.newReportDetails);
+        detailsView = (SafiEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
         attemptEnableSendSave();
@@ -189,7 +189,7 @@ public class NewReportFragment extends Fragment {
     private File createImageFile(int previewClicked) throws IOException {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
         String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         Log.e("FILE PATH", image.getAbsolutePath());
         picPaths.set(previewClicked, image.getAbsolutePath());
