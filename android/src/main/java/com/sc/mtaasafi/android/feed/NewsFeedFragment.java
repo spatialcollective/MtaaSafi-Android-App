@@ -216,7 +216,7 @@ public class NewsFeedFragment extends ListFragment
                     (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
             if(refreshLayout.isRefreshing())
             // refresh --> content displayed chronologically
-                getActivity().getActionBar().setSelectedNavigationItem(0);
+                ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(0);
             refreshLayout.setRefreshing(false);
             if(cursor.getCount()==0)
                 view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);

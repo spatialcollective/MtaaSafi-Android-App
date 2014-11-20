@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android.newReport;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -82,7 +84,8 @@ public class NewReportFragment extends Fragment {
         super.onStop();
         for(ImageView picPreview : picPreviews)
             picPreview = null;
-        detailsView = null;
+        if(detailsView != null)
+            detailsView = null;
     }
 
     private void updatePicPreviews() {
@@ -90,9 +93,6 @@ public class NewReportFragment extends Fragment {
         for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
             if (picPaths.get(i) != null)
                 picPreviews[i].setImageBitmap(getThumbnail(picPaths.get(i)));
-                // ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.VISIBLE);
-            // } else
-                // ((RelativeLayout) picPreviews[i].getParent()).findViewById(R.id.editIcon).setVisibility(View.INVISIBLE);
         }
         int emptyPics = emptyPicCount();
         if (emptyPics == 0) {

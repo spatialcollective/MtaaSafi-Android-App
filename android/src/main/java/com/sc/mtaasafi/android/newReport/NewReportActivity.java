@@ -2,6 +2,7 @@ package com.sc.mtaasafi.android.newReport;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.database.Cursor;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -82,11 +84,13 @@ public class NewReportActivity extends ActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        String title = item.getTitle().toString();
-        if(title.equals("Upload Saved Reports"))
+        if(item.getTitle() != null &&
+                item.getTitle().toString().equals("Upload Saved Reports"))
             uploadSavedReports();
-        else
+        else{
+
             return super.onOptionsItemSelected(item);
+        }
         return true;
     }
 

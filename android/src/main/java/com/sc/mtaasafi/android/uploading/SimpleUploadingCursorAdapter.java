@@ -54,9 +54,10 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        // super.bindView(view, context, cursor);
+        super.bindView(view, context, cursor);
         addDeleteListener(view, cursor);
         resetRow(view);
+        Log.e("Binder", "ViewBinderNull: " + (getViewBinder() == null));
 
         boolean inProgress = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)) == 1;
         int progress = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));

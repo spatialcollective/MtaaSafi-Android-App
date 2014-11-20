@@ -64,7 +64,6 @@ public class MainActivity extends ActionBarActivity implements
         Fabric.with(this, new Crashlytics());
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
-
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
         restoreFragment(savedInstanceState);
@@ -120,6 +119,23 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onResume(){
         super.onResume();
+        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
+        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
+                android.support.v7.app.ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int i, long l) {
+                if(i == 0) // sort items by recent
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+                else // sort items by most upvoted
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+                return false;
+            }
+        });
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+
         supportInvalidateOptionsMenu();
     }
     
@@ -155,21 +171,6 @@ public class MainActivity extends ActionBarActivity implements
                 .beginTransaction()
                 .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
                 .commit();
-        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
-        getActionBar().setListNavigationCallbacks(mSpinnerAdapter, new ActionBar.OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int i, long l) {
-                if(i == 0) // sort items by recent
-                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
-                else // sort items by most upvoted
-                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
-                return false;
-            }
-        });
-        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getActionBar().setDisplayShowTitleEnabled(false);
-        getActionBar().setDisplayShowHomeEnabled(false);
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
@@ -200,16 +201,15 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id._action_report:
-                goToNewReport();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        String title = item.getTitle().toString();
+        if(title.equals("New Report")){
+            goToNewReport();
+        } else if(title.equals("Upload Saved Reports"))
+            uploadSavedReports();
+        else
+            return super.onOptionsItemSelected(item);
+        return true;
+
     }
 
     private void setUpActionBar(Menu menu){

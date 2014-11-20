@@ -1,11 +1,6 @@
 package com.sc.mtaasafi.android.uploading;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -26,7 +21,6 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.database.Contract;
-import com.sc.mtaasafi.android.newReport.NewReportActivity;
 
 public class ReportUploadingFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -40,7 +34,6 @@ public class ReportUploadingFragment extends ListFragment
                 mBtnState = SHOW_CANCEL,
                 inProgressIndex = 0;
     private String mText = "Uploading...";
-    private AQuery aq;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         Contract.Entry.COLUMN_CONTENT,
@@ -58,7 +51,6 @@ public class ReportUploadingFragment extends ListFragment
     public void onCreate(Bundle instate){
         super.onCreate(instate);
         setRetainInstance(true);
-        aq = new AQuery(getActivity());
     }
 
     @Override
@@ -74,7 +66,8 @@ public class ReportUploadingFragment extends ListFragment
 
         mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item_v2,
                 null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
-        mAdapter.setViewBinder(new ViewBinder());
+        mAdapter.setViewBinder(new CustomViewBinder());
+        Log.e("Binder", "ViewBinderNull: " + (mAdapter.getViewBinder() == null));
         setListAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
 
@@ -93,12 +86,15 @@ public class ReportUploadingFragment extends ListFragment
         });
     }
 
-    public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
+    public class CustomViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
-            if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))
+            Log.e("ViewBinder", "Column for Time: " + cursor.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP)
+                    + ". Column for content: " + cursor.getColumnIndex(Contract.Entry.COLUMN_CONTENT)
+                    + ". Current column" + i);
+            if (view.getId() == R.id.uploadingTime)
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
+            else if (view.getId() == R.id.upload_row)
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
                 if (cursor.getInt(i) == 1)
@@ -112,6 +108,8 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     public void beamUpFirstReport() {
+        Log.e("Binder", "ViewBinderNull: " + (mAdapter.getViewBinder() == null));
+
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
         else if (mAdapter.getCount() == 0 && getView() != null)
