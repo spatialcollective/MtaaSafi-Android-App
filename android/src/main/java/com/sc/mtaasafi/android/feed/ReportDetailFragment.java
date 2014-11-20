@@ -505,7 +505,6 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
     @Override
     public void commentActionFinished(JSONObject result)
             throws RemoteException, OperationApplicationException, JSONException {
-        setRetainInstance(false);
         VoteInterface.recordUpvoteLog(getActivity(), result);
         AddCommentBar.updateCommentsTable(result, getActivity());
         updateCommentsList(serverId);
@@ -551,6 +550,7 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         public Fragment getItem(int i) {
             ImageFragment iF = new ImageFragment();
             Bundle args = new Bundle();
+            args.putString("mediaPath", mediaPaths[i]);
             iF.setArguments(args);
             return iF;
         }

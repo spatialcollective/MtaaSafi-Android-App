@@ -201,7 +201,12 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        String title = item.getTitle().toString();
+        CharSequence titleChar = item.getTitle();
+        if(titleChar == null){
+            onBackPressed();
+            return true;
+        }
+        String title = titleChar.toString();
         if(title.equals("New Report")){
             goToNewReport();
         } else if(title.equals("Upload Saved Reports"))
@@ -209,7 +214,6 @@ public class MainActivity extends ActionBarActivity implements
         else
             return super.onOptionsItemSelected(item);
         return true;
-
     }
 
     private void setUpActionBar(Menu menu){
