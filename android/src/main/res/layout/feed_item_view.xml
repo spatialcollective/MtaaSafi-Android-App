@@ -10,12 +10,11 @@
     android:id="@+id/feed_item"
     android:weightSum="1">
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/voteAndText"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:descendantFocusability="blocksDescendants"
-        android:id="@+id/voteAndText">
+        android:descendantFocusability="blocksDescendants" >
 
         <include android:id="@+id/voteInterface"
             android:layout_width="wrap_content"
@@ -24,11 +23,10 @@
             android:layout_marginLeft="8dp"
             layout="@layout/vote_interface" />
 
-        <LinearLayout
+        <LinearLayout android:id="@+id/linearLayout2"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/linearLayout2">
+            android:layout_height="wrap_content" >
 
             <TextView android:id="@+id/itemTitle"
                 android:layout_width="wrap_content"
@@ -49,7 +47,7 @@
         android:id="@+id/location">
 
         <TextView android:id="@+id/itemLocation"
-            android:text="Near Ngong Hills Hotel and The Agenda"
+            android:text="Near Nowhereville"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="8dp"
@@ -62,7 +60,7 @@
             android:textColor="@color/DarkGray" />
 
         <TextView android:id="@+id/itemDistance"
-            android:text="5km"
+            android:text="infinite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="8dp"

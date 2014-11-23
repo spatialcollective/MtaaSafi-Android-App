@@ -16,6 +16,8 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements
         NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-        SwipeRefreshLayout.OnRefreshListener{
+        SwipeRefreshLayout.OnRefreshListener {
 
     ReportDetailFragment detailFragment;
     private LocationClient mLocationClient;
@@ -66,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
+
         restoreFragment(savedInstanceState);
         cp = PrefUtils.getPrefs(this);
         determineUsername();
@@ -312,7 +315,6 @@ public class MainActivity extends ActionBarActivity implements
     private void onLocationDisabled(){
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
-
 
     @Override
     public void onRefresh() {

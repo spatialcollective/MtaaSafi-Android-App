@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,10 +30,14 @@ import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.database.SyncUtils;
 
-public class NewsFeedFragment extends ListFragment
+public class NewsFeedFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    SimpleCursorAdapter mAdapter;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
+//    SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
@@ -80,10 +87,19 @@ public class NewsFeedFragment extends ListFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
-            null, FROM_COLUMNS, TO_FIELDS, 0);
-        mAdapter.setViewBinder(new CustomFeedViewBinder());
-        setListAdapter(mAdapter);
+        // mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
+        //     null, FROM_COLUMNS, TO_FIELDS, 0);
+        // mAdapter.setViewBinder(new CustomFeedViewBinder());
+        // setListAdapter(mAdapter);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycle);
+        // mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new FeedAdapter(null);
+        mRecyclerView.setAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
     }
 
     public class CustomFeedViewBinder implements SimpleCursorAdapter.ViewBinder {
@@ -117,12 +133,12 @@ public class NewsFeedFragment extends ListFragment
         }
     }
 
-   @Override
-   public void onListItemClick(ListView l, View view, int position, long id) {
-       super.onListItemClick(l, view, position, id);
-       Report r = new Report((Cursor) mAdapter.getItem(position));
-       mCallback.goToDetailView(r, position);
-   }
+   // @Override
+   // public void onListItemClick(ListView l, View view, int position, long id) {
+   //     super.onListItemClick(l, view, position, id);
+   //     Report r = new Report((Cursor) mAdapter.getItem(position));
+   //     mCallback.goToDetailView(r, position);
+   // }
 
     @Override
     public void onResume(){
@@ -166,29 +182,29 @@ public class NewsFeedFragment extends ListFragment
     public void sortFeed(String sorting){
         Bundle args = new Bundle();
         args.putString(SORT_KEY, sorting);
-        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
-        nff.getLoaderManager().restartLoader(0, args, nff);
+//        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
+//        nff.getLoaderManager().restartLoader(0, args, nff);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String sortOrder = null;
-        if(args != null)
-                sortOrder = args.getString(SORT_KEY);
-        if(sortOrder == null) // default is by time TODO: sort by epoch time
-            sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
-        Log.e("Sort order: ", sortOrder);
+//        String sortOrder = null;
+//        if(args != null)
+//                sortOrder = args.getString(SORT_KEY);
+//        if(sortOrder == null) // default is by time TODO: sort by epoch time
+//            sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
+//        Log.e("Sort order: ", sortOrder);
         String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            Report.PROJECTION, selection, null, sortOrder);
+            Report.PROJECTION, selection, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
-        mAdapter.changeCursor(cursor);
+        ((FeedAdapter) mAdapter).changeCursor(cursor);
         View view = getView();
-        if(view != null){
+        if (view != null) {
             SwipeRefreshLayout refreshLayout =
                     (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
             if(refreshLayout.isRefreshing())
@@ -204,6 +220,6 @@ public class NewsFeedFragment extends ListFragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.changeCursor(null);
+        ((FeedAdapter) mAdapter).changeCursor(null);
     }
 }
