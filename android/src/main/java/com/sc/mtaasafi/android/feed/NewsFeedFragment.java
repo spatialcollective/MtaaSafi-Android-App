@@ -105,10 +105,10 @@ public class NewsFeedFragment extends ListFragment
                     ((TextView) view).setText(distText);
                     if (distText.equals("here")) {
                         ((TextView) view).setTextColor(getResources().getColor(R.color.Coral));
-//                        ((TextView) view).setCompoundDrawables(null, null, getResources().getDrawable(R.drawable.marker_coral_small), null);
+                       ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.marker_coral_small), null);
                     } else {
                         ((TextView) view).setTextColor(getResources().getColor(R.color.DarkGray));
-//                        ((TextView) view).setCompoundDrawables(null, null, getResources().getDrawable(R.drawable.marker_small), null);
+                       ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.marker_small), null);
                     }
                 }
             } else
