@@ -18,7 +18,6 @@
                     android:text="Report Title"
                     android:id="@+id/reportViewContent"
                     android:textSize="30dp"
-                    android:paddingLeft="10dp"
                     android:layout_toRightOf="@+id/topVote"
                     android:layout_alignParentTop="true"
                     android:paddingTop="5dp" />
@@ -30,7 +29,8 @@
                     android:layout_height="wrap_content"
                     layout="@layout/vote_interface"
                     android:id="@+id/topVote"
-                    android:layout_marginLeft="10dp" />
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"/>
 
                 </RelativeLayout>
 
@@ -112,10 +112,10 @@
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="10dp" />
 
-            <include
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                layout="@layout/add_comment_bar" />
+            <!--<include-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--layout="@layout/add_comment_bar" />-->
             <ListView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -55,21 +55,20 @@ import java.text.SimpleDateFormat;
 public class ReportDetailFragment extends ListFragment implements AddCommentBar.CommentListener{
 
     Report mReport;
-    private String content, location, time, user, mediaUrl1, mediaUrl2, mediaUrl3, distance;
-    private int upvoteCount, serverId, dbId;
-    ImageView[] media;
-    private Location reportLocation;
+    private String distance = "None";
+    private int upvoteCount;
     private boolean userVoted;
+    Location currentLocation;
+
     public AQuery aq;
+    ImageView[] media;
     public ViewPager viewPager;
     RelativeLayout bottomView;
     LinearLayout topView;
     SimpleCursorAdapter mAdapter;
     AddCommentBar addComment;
 
-    private final static String REFRESH_KEY= "refresh";
-    public static final String USERNAME = "username",
-            COMMENT = "comment";
+    public static final String USERNAME = "username", REFRESH_KEY= "refresh", COMMENT = "comment";
 
     public final String[] FROM_COLUMNS = new String[]{
             Contract.Comments.COLUMN_CONTENT,
@@ -81,78 +80,28 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
             R.id.commentUserName,
             R.id.commentTime
     };
-    private static String content_Key ="content",
-        location_Key = "location",
-        time_Key = "time",
-        user_Key = "user",
-        mediaUrl1_Key = "url1",
-        mediaUrl2_Key = "url2",
-        mediaUrl3_Key = "url3",
-        serverId_Key = "serverId",
-        dbId_Key = "dbId",
-        lat_Key = "lat",
-        lon_Key = "lon",
-        userVoted_Key = "userVoted",
-        upvoteCount_Key = "upvoteCt";
+
+    public void ReportDetailFragment() { }
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
     }
-
-    public void setData(Report r) {
-        mReport = r;
-        content = r.content;
-        location = r.locationDescript;
-        time = getSimpleTimeStamp(r.timeStamp);
-        user = r.userName;
-        if (user.equals(""))
-            user = "Unknown user";
-        mediaUrl1 = r.mediaPaths.get(0);
-        mediaUrl2 = r.mediaPaths.get(1);
-        mediaUrl3 = r.mediaPaths.get(2);
-        serverId = r.serverId;
-        dbId = r.dbId;
-        userVoted = r.upVoted;
-        upvoteCount = r.upVoteCount;
-        reportLocation = new Location("report location");
-        reportLocation.setLatitude(r.latitude);
-        reportLocation.setLongitude(r.longitude);
-    }
+    public void setData(Report r) { mReport = r; }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         if(savedState != null)
             restore(savedState);
-        Location currentLocation = ((MainActivity) getActivity()).getLocation();
-        if(currentLocation != null)
-            distance = Report.getDistanceText(currentLocation, reportLocation);
-        else
-            distance = "error";
-
+        currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
     }
 
     private void restore(Bundle instate){
-        content = instate.getString(content_Key);
-        location = instate.getString(location_Key);
-        time = instate.getString(time_Key);
-        user = instate.getString(user_Key);
-        mediaUrl1 = instate.getString(mediaUrl1_Key);
-        mediaUrl2 = instate.getString(mediaUrl2_Key);
-        mediaUrl3 = instate.getString(mediaUrl3_Key);
-        serverId = instate.getInt(serverId_Key);
-        dbId = instate.getInt(dbId_Key);
-        double lat = instate.getDouble(lat_Key);
-        double lon = instate.getDouble(lon_Key);
-        reportLocation = new Location("report_location");
-        reportLocation.setLatitude(lat);
-        reportLocation.setLongitude(lon);
-        userVoted = instate.getBoolean(userVoted_Key);
-        upvoteCount = instate.getInt(upvoteCount_Key);
-        // make sure this method's only called after inflation
-        if(addComment != null)
+        mReport = new Report(instate);
+        if (addComment != null)
             addComment.restore(instate);
     }
     @Override
@@ -164,21 +113,10 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
             updateBottomVote();
         AddCommentBar addCommentBar = (AddCommentBar)
                 getView().findViewById(R.id.add_comment_bar);
-        if(addCommentBar != null)
+        if (addCommentBar != null)
             addCommentBar.save(outstate);
-        outstate.putString(content_Key, content);
-        outstate.putString(location_Key, location);
-        outstate.putString(time_Key,time);
-        outstate.putString(user_Key, user);
-        outstate.putString(mediaUrl1_Key, mediaUrl1);
-        outstate.putString(mediaUrl2_Key, mediaUrl2);
-        outstate.putString(mediaUrl3_Key, mediaUrl3);
-        outstate.putInt(serverId_Key, serverId);
-        outstate.putInt(dbId_Key, dbId);
-        outstate.putDouble(lat_Key, reportLocation.getLatitude());
-        outstate.putDouble(lon_Key, reportLocation.getLongitude());
-        outstate.putBoolean(userVoted_Key, userVoted);
-        outstate.putInt(upvoteCount_Key, upvoteCount);
+
+        outstate = mReport.saveState(outstate);
     }
 
     @Override
@@ -197,8 +135,7 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         super.onViewCreated(view, savedInstanceState);
         topView = (LinearLayout) view.findViewById(R.id.top_layout);
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        String[] mediaUrls ={mediaUrl1, mediaUrl2, mediaUrl3};
-        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mediaUrls));
+        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
@@ -220,13 +157,13 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
     private void setClickListeners(View view) {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {enterImageViewer(0);}});
+            public void onClick(View view) { enterImageViewer(0); }});
         view.findViewById(R.id.media2).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {enterImageViewer(1);}});
+            public void onClick(View view) { enterImageViewer(1); }});
         view.findViewById(R.id.media3).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {enterImageViewer(2);}});
+            public void onClick(View view) { enterImageViewer(2); }});
     }
 
     private void enterImageViewer(int i){
@@ -418,13 +355,16 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         set.start();
     }
     public void updateView(View view) {
-        VoteInterface topVote = (VoteInterface) view.findViewById(R.id.topVote);
-        topVote.updateData(upvoteCount, userVoted, serverId);
-        ((TextView) view.findViewById(R.id.reportViewContent)).setText(content);
-        ((TextView) view.findViewById(R.id.itemLocation)).setText(location);
-        ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
-        ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(time);
-        ((TextView) view.findViewById(R.id.reportViewUsername)).setText(user);
+        VoteButton topVote = (VoteButton) view.findViewById(R.id.topVote);
+//        topVote.updateData(upvoteCount, userVoted, mReport.serverId);
+        ((TextView) view.findViewById(R.id.reportViewContent)).setText(mReport.content);
+        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
+        if (currentLocation != null) {
+            distance = mReport.getDistanceText(currentLocation);
+            ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
+        }
+        ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(mReport.timeStamp);
+        ((TextView) view.findViewById(R.id.reportViewUsername)).setText(mReport.userName);
 
         bottomView = (RelativeLayout) view.findViewById(R.id.report_BottomView);
         updateBottomView(bottomView);
@@ -439,38 +379,38 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         media[1].requestLayout();
         media[2].getLayoutParams().height = mediaHeight;
         media[2].requestLayout();
-        aq.id(media[0]).image(mediaUrl1);
-        aq.id(media[1]).image(mediaUrl2);
-        aq.id(media[2]).image(mediaUrl3);
+        aq.id(media[0]).image(mReport.mediaPaths.get(0));
+        aq.id(media[1]).image(mReport.mediaPaths.get(1));
+        aq.id(media[2]).image(mReport.mediaPaths.get(2));
     }
     private void updateBottomView(View view){
         String bottomUserDisplay;
-        if(user.length() > 16){
-            bottomUserDisplay = user.substring(0, 14) + "...";
+        if(mReport.userName.length() > 16){
+            bottomUserDisplay = mReport.userName.substring(0, 14) + "...";
         } else
-            bottomUserDisplay = user.toString();
-        ((TextView) view.findViewById(R.id.bottomContent)).setText(content);
+            bottomUserDisplay = mReport.userName;
+        ((TextView) view.findViewById(R.id.bottomContent)).setText(mReport.content);
         ((TextView) view.findViewById(R.id.bottomUsername)).setText(bottomUserDisplay);
-        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(getSimpleTimeStamp(time));
-        ((TextView) view.findViewById(R.id.itemLocation)).setText(location);
+        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(getSimpleTimeStamp(mReport.timeStamp));
+        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
         ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
         updateBottomVote();
     }
     private void updateTopVote(){
-        VoteInterface bottomVote = (VoteInterface) bottomView.findViewById(R.id.bottomVote);
-        VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
-        userVoted = bottomVote.userVoted;
-        upvoteCount = bottomVote.voteCount;
-        topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, serverId);
+//        VoteButton bottomVote = (VoteButton) bottomView.findViewById(R.id.bottomVote);
+//        VoteButton topVote = (VoteButton) getView().findViewById(R.id.topVote);
+//        userVoted = bottomVote.userVoted;
+//        upvoteCount = bottomVote.voteCount;
+//        topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, mReport.serverId);
     }
     // called upon inflation as well as whenever the viewpager is about to become visible
     private void updateBottomVote(){
-        VoteInterface bottomVote = (VoteInterface) bottomView.findViewById(R.id.bottomVote);
-        bottomVote.setBottomMode();
-        VoteInterface topVote = (VoteInterface) getView().findViewById(R.id.topVote);
-        userVoted = topVote.userVoted;
-        upvoteCount = topVote.voteCount;
-        bottomVote.updateData(topVote.voteCount, topVote.userVoted, serverId);
+//        VoteButton bottomVote = (VoteButton) bottomView.findViewById(R.id.bottomVote);
+//        bottomVote.setBottomMode();
+//        VoteButton topVote = (VoteButton) getView().findViewById(R.id.topVote);
+//        userVoted = topVote.userVoted;
+//        upvoteCount = topVote.voteCount;
+//        bottomVote.updateData(topVote.voteCount, topVote.userVoted, mReport.serverId);
     }
     private String getSimpleTimeStamp(String timestamp) {
         SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
@@ -488,13 +428,13 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         setRetainInstance(true);
         JSONObject commentData = new JSONObject();
         ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
-        long timeSince = AddCommentBar.getLastCommentTimeStamp(serverId, getActivity());
+        long timeSince = AddCommentBar.getLastCommentTimeStamp(mReport.serverId, getActivity());
         commentData.put(Contract.Comments.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
                 .put(Contract.Comments.COLUMN_TIMESTAMP, System.currentTimeMillis()/1000)
-                .put(Contract.Comments.COLUMN_REPORT_ID, serverId)
+                .put(Contract.Comments.COLUMN_REPORT_ID, mReport.serverId)
                 .put("last_comment_timestamp", timeSince)
                 .put(Contract.Comments.COLUMN_CONTENT, comment);
-        VoteInterface.recordUpvoteLog(getActivity(), commentData);
+//        VoteInterface.recordUpvoteLog(getActivity(), commentData);
         InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
@@ -505,9 +445,9 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
     @Override
     public void commentActionFinished(JSONObject result)
             throws RemoteException, OperationApplicationException, JSONException {
-        VoteInterface.recordUpvoteLog(getActivity(), result);
+//        VoteInterface.recordUpvoteLog(getActivity(), result);
         AddCommentBar.updateCommentsTable(result, getActivity());
-        updateCommentsList(serverId);
+        updateCommentsList(mReport.serverId);
         if((Integer) result.getInt(Contract.Comments.COLUMN_SERVER_ID) != null
                 && addComment != null)
             addComment.clearText();

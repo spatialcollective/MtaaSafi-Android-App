@@ -1,10 +1,8 @@
 package com.sc.mtaasafi.android.feed;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.database.Cursor;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
@@ -26,7 +24,6 @@ import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.database.SyncUtils;
 
@@ -41,23 +38,17 @@ public class NewsFeedFragment extends ListFragment
     int index, top;
 
     public String[] FROM_COLUMNS = new String[] {
-            Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_USER_UPVOTED,
             Contract.Entry.COLUMN_UPVOTE_COUNT,
-            Contract.Entry.COLUMN_SERVER_ID,
-            Contract.Entry.COLUMN_LOCATION,
             Contract.Entry.COLUMN_CONTENT,
-            Contract.Entry.COLUMN_LAT,
+            Contract.Entry.COLUMN_LOCATION,
             Contract.Entry.COLUMN_LNG
     };
     private static final int[] TO_FIELDS = new int[] {
-            R.id.upvoteButton,
             R.id.voteInterface,
-            R.id.upvoteCount,
-            R.id.upvoteCount,
-            R.id.itemLocation,
+            R.id.voteInterface,
             R.id.itemTitle,
-            R.id.itemDistance,
+            R.id.itemLocation,
             R.id.itemDistance
     };
 
@@ -91,53 +82,39 @@ public class NewsFeedFragment extends ListFragment
         super.onViewCreated(view, savedInstanceState);
         mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
             null, FROM_COLUMNS, TO_FIELDS, 0);
-        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int i) {
-                if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
-                    view.setTag(cursor.getInt(i));
-                else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) {
-                    TextView upvoteTV = (TextView) view.findViewById(R.id.upvoteCount);
-                    ImageButton upvoteButton = (ImageButton) view.findViewById(R.id.upvoteButton);
-                    Log.i("BINDING userVoted", "Uservoted on this: " + cursor.getInt(i)
-                            + ". Server id:" + cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
-                    VoteInterface vi = (VoteInterface) view;
-                    vi.feedMode = true;
-                    if (cursor.getInt(i) > 0) {
-                        upvoteButton.setImageResource(R.drawable.button_upvote_clicked);
-                        upvoteTV.setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
-                    } else {
-                        upvoteButton.setImageResource(R.drawable.button_upvote_unclicked);
-                        upvoteTV.setTextColor(getResources().getColor(R.color.DarkGray));
-                    }
-                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)) {
-                    view.setTag(cursor.getInt(i));
-                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)) {
-                    ((TextView) view).setText(Integer.toString(cursor.getInt(i)));
-                } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)) { // set the distance
-                    Location currentLocation = ((MainActivity) getActivity()).getLocation();
-                    if (currentLocation != null) {
-                        Location reportLocation = new Location("ReportLocation");
-                        reportLocation.setLatitude(cursor.getDouble(i - 1));
-                        reportLocation.setLongitude(cursor.getDouble(i));
-                        String distText = Report.getDistanceText(currentLocation, reportLocation);
-                        ((TextView) view).setText(distText);
-                        if (distText.equals("here")) {
-                            ((TextView) view).setTextColor(getResources().getColor(R.color.Coral));
-                            View parent = (View) view.getParent();
-                            ((ImageView) parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker_coral);
-                        } else {
-                            ((TextView) view).setTextColor(getResources().getColor(R.color.DarkGray));
-                            View parent = (View) view.getParent();
-                            ((ImageView) parent.findViewById(R.id.markerIcon)).setImageResource(R.drawable.marker);
-                        }
-                    }
-                } else
-                    return false;
-                return true;
-            }
-        });
+        mAdapter.setViewBinder(new CustomFeedViewBinder());
         setListAdapter(mAdapter);
+    }
+
+    public class CustomFeedViewBinder implements SimpleCursorAdapter.ViewBinder {
+        @Override
+        public boolean setViewValue(View view, Cursor cursor, int i) {
+            if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) {
+                if (cursor.getInt(i) > 0)
+                    ((VoteButton) view).setChecked(true);
+                else
+                    ((VoteButton) view).setChecked(false);
+            } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)) {
+                ((VoteButton) view).setText(Integer.toString(cursor.getInt(i)));
+            } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LOCATION)) {
+                ((TextView) view).setText(cursor.getString(i));
+            } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)) { // set the distance
+                Location currentLocation = ((MainActivity) getActivity()).getLocation();
+                if (currentLocation != null) {
+                    String distText = Report.getDistanceText(currentLocation, cursor.getDouble(i - 1), cursor.getDouble(i));
+                    ((TextView) view).setText(distText);
+                    if (distText.equals("here")) {
+                        ((TextView) view).setTextColor(getResources().getColor(R.color.Coral));
+//                        ((TextView) view).setCompoundDrawables(null, null, getResources().getDrawable(R.drawable.marker_coral_small), null);
+                    } else {
+                        ((TextView) view).setTextColor(getResources().getColor(R.color.DarkGray));
+//                        ((TextView) view).setCompoundDrawables(null, null, getResources().getDrawable(R.drawable.marker_small), null);
+                    }
+                }
+            } else
+                return false;
+            return true;
+        }
     }
 
    @Override
