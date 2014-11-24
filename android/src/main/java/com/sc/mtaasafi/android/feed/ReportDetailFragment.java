@@ -138,8 +138,8 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-        addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
-        addComment.setCommentListener(this);
+//        addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
+//        addComment.setCommentListener(this);
         setClickListeners(view);
         updateView(view);
         if(savedInstanceState != null)

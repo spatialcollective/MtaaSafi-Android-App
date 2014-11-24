@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,27 +17,12 @@ import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
 
 public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolder> {
-
     public FeedAdapter(Context context, Cursor cursor) { super(context, cursor); }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mTitleView, mLocation, mDist;
-        public VoteButton mVoteButton;
-
-        public ViewHolder(View v) {
-            super(v);
-            mTitleView = (TextView) v.findViewById(R.id.itemTitle);
-            mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
-            mLocation = (TextView) v.findViewById(R.id.itemLocation);
-            mDist = (TextView) v.findViewById(R.id.itemDistance);
-        }
-    }
 
     @Override
     public FeedAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_item_view, parent, false);
-        ViewHolder vh = new ViewHolder(v);
-        return vh;
+        return new ViewHolder(v);
     }
 
     @Override
@@ -48,7 +34,20 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             holder.mVoteButton.setChecked(true);
         else
             holder.mVoteButton.setChecked(false);
+        setDistanceView(holder, c);
+        addClick(holder, c);
+    }
 
+    private void addClick(ViewHolder holder, Cursor c) {
+        final int pos = holder.getPosition();
+        final Report report = new Report(c);
+        final MainActivity activity = (MainActivity) getContext();
+        holder.mListener = new FeedAdapter.ViewHolder.ViewHolderClicks() {
+            public void detailClick(View caller) { activity.goToDetailView(report, pos);; };
+        };
+    }
+
+    private void setDistanceView(ViewHolder holder, Cursor c) {
         Location currentLocation = ((MainActivity) getContext()).getLocation();
         if (currentLocation != null) {
             String distText = Report.getDistanceText(currentLocation,
@@ -63,6 +62,31 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
                 holder.mDist.setTextColor(resources.getColor(R.color.DarkGray));
                 holder.mDist.setCompoundDrawablesWithIntrinsicBounds(null, null, resources.getDrawable(R.drawable.marker_small), null);
             }
+        }
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        public ViewHolderClicks mListener;
+        public TextView mTitleView, mLocation, mDist;
+        public VoteButton mVoteButton;
+
+        public static interface ViewHolderClicks { public void detailClick(View caller); }
+
+        public ViewHolder(View v) {
+            super(v);
+            mTitleView = (TextView) v.findViewById(R.id.itemTitle);
+            mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
+            mLocation = (TextView) v.findViewById(R.id.itemLocation);
+            mDist = (TextView) v.findViewById(R.id.itemDistance);
+
+            v.setOnClickListener(this);
+            mVoteButton.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (!(v instanceof VoteButton))
+                mListener.detailClick(v);
         }
     }
 }
