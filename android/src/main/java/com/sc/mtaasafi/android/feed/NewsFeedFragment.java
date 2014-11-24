@@ -2,14 +2,11 @@ package com.sc.mtaasafi.android.feed;
 
 import android.app.Activity;
 import android.database.Cursor;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,11 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
@@ -37,28 +30,11 @@ public class NewsFeedFragment extends Fragment
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-//    SimpleCursorAdapter mAdapter;
     ReportSelectedListener mCallback;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 SORT_KEY = "sorting";
     int index, top;
-
-    public String[] FROM_COLUMNS = new String[] {
-            Contract.Entry.COLUMN_USER_UPVOTED,
-            Contract.Entry.COLUMN_UPVOTE_COUNT,
-            Contract.Entry.COLUMN_CONTENT,
-            Contract.Entry.COLUMN_LOCATION,
-            Contract.Entry.COLUMN_LNG
-    };
-    private static final int[] TO_FIELDS = new int[] {
-            R.id.voteInterface,
-            R.id.voteInterface,
-            R.id.itemTitle,
-            R.id.itemLocation,
-            R.id.itemDistance
-    };
-
     public NewsFeedFragment() {}
         
     public interface ReportSelectedListener { public void goToDetailView(Report r, int position); }
@@ -87,50 +63,14 @@ public class NewsFeedFragment extends Fragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.feed_item_view,
-        //     null, FROM_COLUMNS, TO_FIELDS, 0);
-        // mAdapter.setViewBinder(new CustomFeedViewBinder());
-        // setListAdapter(mAdapter);
-
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycle);
-        // mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new FeedAdapter(null);
+        mAdapter = new FeedAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
-    }
-
-    public class CustomFeedViewBinder implements SimpleCursorAdapter.ViewBinder {
-        @Override
-        public boolean setViewValue(View view, Cursor cursor, int i) {
-            if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) {
-                if (cursor.getInt(i) > 0)
-                    ((VoteButton) view).setChecked(true);
-                else
-                    ((VoteButton) view).setChecked(false);
-            } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)) {
-                ((VoteButton) view).setText(Integer.toString(cursor.getInt(i)));
-            } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LOCATION)) {
-                ((TextView) view).setText(cursor.getString(i));
-            } else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_LNG)) { // set the distance
-                Location currentLocation = ((MainActivity) getActivity()).getLocation();
-                if (currentLocation != null) {
-                    String distText = Report.getDistanceText(currentLocation, cursor.getDouble(i - 1), cursor.getDouble(i));
-                    ((TextView) view).setText(distText);
-                    if (distText.equals("here")) {
-                        ((TextView) view).setTextColor(getResources().getColor(R.color.Coral));
-                       ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.marker_coral_small), null);
-                    } else {
-                        ((TextView) view).setTextColor(getResources().getColor(R.color.DarkGray));
-                       ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(null, null, getResources().getDrawable(R.drawable.marker_small), null);
-                    }
-                }
-            } else
-                return false;
-            return true;
-        }
     }
 
    // @Override
