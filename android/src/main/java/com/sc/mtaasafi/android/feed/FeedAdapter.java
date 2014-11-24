@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +15,14 @@ import com.sc.mtaasafi.android.RecyclerViewCursorAdapter;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.database.Contract;
 
+import java.util.ArrayList;
+
 public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolder> {
-    public FeedAdapter(Context context, Cursor cursor) { super(context, cursor); }
+    ArrayList<Integer> upvoteList;
+    public FeedAdapter(Context context, Cursor cursor) {
+        super(context, cursor);
+        upvoteList = new ArrayList<Integer>();
+    }
 
     @Override
     public FeedAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -29,11 +34,9 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
         holder.mTitleView.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT)));
         holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION)));
-        holder.mVoteButton.setText(Integer.toString(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT))));
-        if (c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0)
-            holder.mVoteButton.setChecked(true);
-        else
-            holder.mVoteButton.setChecked(false);
+        holder.mVoteButton.mServerId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
+        holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
+        setCheckedState(holder, c);
         setDistanceView(holder, c);
         addClick(holder, c);
     }
@@ -43,26 +46,37 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         final Report report = new Report(c);
         final MainActivity activity = (MainActivity) getContext();
         holder.mListener = new FeedAdapter.ViewHolder.ViewHolderClicks() {
-            public void detailClick(View caller) { activity.goToDetailView(report, pos);; };
-        };
+            public void detailClick(View caller) { activity.goToDetailView(report, pos); };
+            public void upvoteClick(VoteButton b) { upvoteList.add(b.mServerId); }; };
+    }
+
+    private void setCheckedState(ViewHolder holder, Cursor c) {
+        holder.mVoteButton.enabled = !(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0);
+        if (upvoteList.contains(holder.mVoteButton.mServerId) && holder.mVoteButton.enabled) {
+            holder.mVoteButton.setText(Integer.toString(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)) + 1));
+            holder.mVoteButton.enabled = false;
+        } else
+            holder.mVoteButton.setText(Integer.toString(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT))));
+
+        holder.mVoteButton.setChecked(!holder.mVoteButton.enabled);
     }
 
     private void setDistanceView(ViewHolder holder, Cursor c) {
-        Location currentLocation = ((MainActivity) getContext()).getLocation();
-        if (currentLocation != null) {
-            String distText = Report.getDistanceText(currentLocation,
-                    c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT)),
-                    c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG)));
-            holder.mDist.setText(distText);
-            Resources resources = getContext().getResources();
-            if (distText.equals("here")) {
-                holder.mDist.setTextColor(resources.getColor(R.color.Coral));
-                holder.mDist.setCompoundDrawablesWithIntrinsicBounds(null, null, resources.getDrawable(R.drawable.marker_coral_small), null);
-            } else {
-                holder.mDist.setTextColor(resources.getColor(R.color.DarkGray));
-                holder.mDist.setCompoundDrawablesWithIntrinsicBounds(null, null, resources.getDrawable(R.drawable.marker_small), null);
-            }
-        }
+//        Location currentLocation = ((MainActivity) getContext()).getLocation();
+//        if (currentLocation != null) {
+//            String distText = Report.getDistanceText(currentLocation,
+//                    c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT)),
+//                    c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG)));
+//            holder.mDist.setText(distText);
+//            Resources resources = getContext().getResources();
+//            if (distText.equals("here")) {
+//                holder.mDist.setTextColor(resources.getColor(R.color.Coral));
+//                holder.mDist.setCompoundDrawablesWithIntrinsicBounds(null, null, resources.getDrawable(R.drawable.marker_coral_small), null);
+//            } else {
+//                holder.mDist.setTextColor(resources.getColor(R.color.DarkGray));
+//                holder.mDist.setCompoundDrawablesWithIntrinsicBounds(null, null, resources.getDrawable(R.drawable.marker_small), null);
+//            }
+//        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -70,7 +84,10 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         public TextView mTitleView, mLocation, mDist;
         public VoteButton mVoteButton;
 
-        public static interface ViewHolderClicks { public void detailClick(View caller); }
+        public static interface ViewHolderClicks {
+            public void detailClick(View caller);
+            public void upvoteClick(VoteButton vote);
+        }
 
         public ViewHolder(View v) {
             super(v);
@@ -87,6 +104,8 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         public void onClick(View v) {
             if (!(v instanceof VoteButton))
                 mListener.detailClick(v);
+            else
+                mListener.upvoteClick((VoteButton) v);
         }
     }
 }

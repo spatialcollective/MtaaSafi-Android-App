@@ -142,16 +142,15 @@ public class NewsFeedFragment extends Fragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.e("Feed Cursor", "My count is " + cursor.getCount());
-        ((FeedAdapter) mAdapter).changeCursor(cursor);
+        ((FeedAdapter) mAdapter).swapCursor(cursor);
         View view = getView();
         if (view != null) {
             SwipeRefreshLayout refreshLayout =
                     (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-            if(refreshLayout.isRefreshing())
-            // refresh --> content displayed chronologically
+            if (refreshLayout.isRefreshing()) // refresh --> content displayed chronologically
                 ((MainActivity) getActivity()).getSupportActionBar().setSelectedNavigationItem(0);
             refreshLayout.setRefreshing(false);
-            if(cursor.getCount()==0)
+            if (cursor.getCount()==0)
                 view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
             else
                 view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
@@ -160,6 +159,6 @@ public class NewsFeedFragment extends Fragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        ((FeedAdapter) mAdapter).changeCursor(null);
+        ((FeedAdapter) mAdapter).swapCursor(null);
     }
 }
