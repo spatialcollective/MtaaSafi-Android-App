@@ -29,7 +29,6 @@ import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
 import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 public class NewReportActivity extends ActionBarActivity implements
@@ -168,6 +167,7 @@ public class NewReportActivity extends ActionBarActivity implements
         mLocationRequest.setFastestInterval(1000);
         mLocationClient.requestLocationUpdates(mLocationRequest, this);
     }
+
     @Override
     public void onDisconnected() {
         Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
@@ -261,7 +261,5 @@ public class NewReportActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-        mCurrentLocation = location;
-    }
+    public void onLocationChanged(Location location) { mCurrentLocation = location; }
 }

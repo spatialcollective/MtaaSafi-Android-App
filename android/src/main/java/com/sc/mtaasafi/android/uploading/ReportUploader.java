@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeoutException;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
@@ -42,7 +43,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     ReportUploadingFragment mFragment;
     int canceller = -1;
 
-    public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1;
+    public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1, NETWORK_ERROR = 2;
     private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
             NEXT_REPORT_PIECE_KEY = "nextfield",
             REPORT_ID_KEY = "id",
@@ -72,10 +73,17 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     updateDB(serverResponse);
             }
             return 1;
-        } catch (Exception e) {
-            cancel(true);
-            Log.e("Cancelled!", e.getCause().getMessage());
+        } catch (RemoteException e) {
             e.printStackTrace();
+        } catch (OperationApplicationException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+            canceller = NETWORK_ERROR;
+            cancel(true);
+            return NETWORK_ERROR;
         }
         return -1;
     }
@@ -188,7 +196,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             mFragment.changeHeader("Upload Cancelled", R.color.Crimson, ReportUploadingFragment.SHOW_RETRY);
         else if (result == DELETE_BUTTON)
             mFragment.beamUpFirstReport();
-        else
-            mFragment.changeHeader("Error", R.color.DarkRed, ReportUploadingFragment.HIDE_CANCEL);
+        else if(result == NETWORK_ERROR)
+            mFragment.changeHeader("Connection Error: Retry?", R.color.DarkRed, ReportUploadingFragment.SHOW_RETRY);
     }
 }
