@@ -74,6 +74,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             return 1;
         } catch (Exception e) {
             cancel(true);
+            Log.e("Cancelled!", e.getCause().getMessage());
             e.printStackTrace();
         }
         return -1;
@@ -116,7 +117,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
         VoteInterface.onUpvotesRecorded(mFragment.getActivity(), response);
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
-
         ContentValues updateValues = new ContentValues();
         if (pendingReport.pendingState == 1) {
             updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
@@ -143,8 +143,10 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)
             mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        else
+        else{
             cancel(true);
+            Log.e("Cancelled!", "From UpdateDB");
+        }
     }
 
     private void deleteLocalPic(int picPos) {
@@ -156,8 +158,10 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {
         int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode >= 400)
+        if (statusCode >= 400){
+            Log.e("Cancelled!", "From ProcessRequest");
             cancel(true);
+        }
         return NetworkUtils.convertHttpResponseToJSON(response);
     }
 

@@ -15,8 +15,7 @@
         style="@style/SafiEditTextStyle"
         android:imeOptions="actionDone"
         android:layout_weight="1"
-        android:id="@+id/commentEditText"
-        android:background="@color/transparent"/>
+        android:id="@+id/commentEditText"/>
 
     <Button
         android:layout_width="54dp"
