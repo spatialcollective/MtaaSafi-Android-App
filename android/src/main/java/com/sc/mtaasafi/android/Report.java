@@ -167,6 +167,7 @@ public class Report {
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_LAT, this.latitude);
         json.put(Contract.Entry.COLUMN_LNG, this.longitude);
+        json.put("accuracy", "High Accuracy On");
         return json.toString();
     }
 

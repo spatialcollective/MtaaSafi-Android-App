@@ -159,6 +159,13 @@ public class NewReportActivity extends ActionBarActivity implements
     }
 
     @Override
+    public void onLocationChanged(Location location) {
+//        if(mCurrentLocation != null)
+//            Toast.makeText(this, "diff: " + location.distanceTo(mCurrentLocation) + ". Accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT).show();
+        mCurrentLocation = location;
+    }
+
+    @Override
     public void onConnected(Bundle bundle) {
         LocationRequest mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(
@@ -259,7 +266,4 @@ public class NewReportActivity extends ActionBarActivity implements
         c.close();
         return count;
     }
-
-    @Override
-    public void onLocationChanged(Location location) { mCurrentLocation = location; }
 }

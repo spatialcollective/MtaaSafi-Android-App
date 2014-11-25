@@ -118,6 +118,7 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         reportLocation = new Location("report location");
         reportLocation.setLatitude(r.latitude);
         reportLocation.setLongitude(r.longitude);
+        refreshComments();
     }
 
     @Override
@@ -507,15 +508,15 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
             throws RemoteException, OperationApplicationException, JSONException {
         VoteInterface.recordUpvoteLog(getActivity(), result);
         AddCommentBar.updateCommentsTable(result, getActivity());
-        updateCommentsList(serverId);
+        updateCommentsList();
         if((Integer) result.getInt(Contract.Comments.COLUMN_SERVER_ID) != null
                 && addComment != null)
             addComment.clearText();
     }
 
-    public void updateCommentsList(int reportId){
+    public void updateCommentsList(){
         String notSelect = " NOT NULL";
-        String selection = Contract.Comments.COLUMN_REPORT_ID + " = "+ reportId + " AND "
+        String selection = Contract.Comments.COLUMN_REPORT_ID + " = "+ serverId + " AND "
                 + Contract.Comments.COLUMN_USERNAME + notSelect + " AND "
                 + Contract.Comments.COLUMN_TIMESTAMP + notSelect + " AND "
                 + Contract.Comments.COLUMN_USERNAME + notSelect + " AND "
@@ -531,11 +532,17 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         Log.e("Cursor count", "Cursor Count: " + c.getCount() + ". LV count: " + getListView().getCount());
         mAdapter.notifyDataSetChanged();
     }
-    public void refreshComments(int reportId) throws JSONException {
-        // get all new comments for this report from the server
-        long sinceTime = AddCommentBar.getLastCommentTimeStamp(reportId, getActivity());
-        new CommentRefresher(this).execute(new JSONObject().put("ReportId", reportId)
-                .put("Since", sinceTime));
+
+    public void refreshComments(){
+        try {
+            long sinceTime = AddCommentBar.getLastCommentTimeStamp(serverId, getActivity());
+            JSONObject refreshData = null;
+            refreshData = new JSONObject().put("ReportId", serverId)
+                                          .put("Since", sinceTime);
+            new CommentRefresher(this).execute(VoteInterface.recordUpvoteLog(getActivity(), refreshData));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private class ImageSlideAdapter extends FragmentPagerAdapter {
