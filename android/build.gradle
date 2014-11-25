@@ -23,8 +23,8 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 8
-        versionName "lolli"
+        versionCode 12
+        versionName ".9.1"
     }
     buildTypes {
         release {

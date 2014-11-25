@@ -168,8 +168,7 @@ public class NewReportActivity extends ActionBarActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         LocationRequest mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(
-                LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(2500);
         mLocationRequest.setFastestInterval(1000);
         mLocationClient.requestLocationUpdates(mLocationRequest, this);
@@ -214,7 +213,8 @@ public class NewReportActivity extends ActionBarActivity implements
             Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
             Log.e("New Report Activity", "Report inserted. Uri is: " + newReportUri.toString());
             finish();
-        }
+        } else
+            Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
     }
     public void attemptBeamOut(View view) {
         if (transporterHasLocation()) {
@@ -226,7 +226,8 @@ public class NewReportActivity extends ActionBarActivity implements
             intent.setData(newReportUri);
             startActivity(intent);
             finish();
-        }
+        } else
+            Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
     }
 
     public void takePic1(View view) {
