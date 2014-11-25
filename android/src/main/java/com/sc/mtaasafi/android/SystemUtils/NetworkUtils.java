@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android.SystemUtils;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -38,6 +39,7 @@ public class NetworkUtils {
     public static JSONObject convertHttpResponseToJSON(HttpResponse response){
         try {
             String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+            Log.e("Network Utils: Server Response: ", responseString);
             return new JSONObject(responseString);
         } catch (IOException e) {
             e.printStackTrace();

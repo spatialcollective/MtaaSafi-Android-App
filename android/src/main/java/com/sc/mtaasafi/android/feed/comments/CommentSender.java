@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.feed.comments;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.AsyncTask;
@@ -52,12 +53,12 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
         return 0;
     }
 
-    private JSONObject sendToServer(JSONObject... jsons) throws IOException {
+    private JSONObject sendToServer(JSONObject json) throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(URLs.SEND_COMMENT);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(jsons[0].toString()));
+        httpPost.setEntity(new StringEntity(json.toString()));
         HttpResponse response = httpClient.execute(httpPost);
         return NetworkUtils.convertHttpResponseToJSON(response);
     }

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class Comment {
     String mText, mUsername;
-    int mReportId, mServerId;
+    int mReportId;
     double mTimeStamp, mTimeSince;
 
 	public static final String[] FROM_COLUMNS = new String[]{
@@ -37,10 +37,10 @@ public class Comment {
 		Contract.Comments.COLUMN_USERNAME,
 		Contract.Comments.COLUMN_TIMESTAMP };
 
-	public static final String DEFAULT_SORT = Contract.Comments.COLUMN_TIMESTAMP + " ASC";
+	public static final String DEFAULT_SORT = Contract.Comments.COLUMN_TIMESTAMP + " DESC";
     
 	public static String getSelection(int reportId) {
-		return Contract.Comments.COLUMN_REPORT_ID + " = "+ reportId + " AND "
+		return Contract.Comments.COLUMN_REPORT_ID + " = " + reportId + " AND "
 			+ Contract.Comments.COLUMN_USERNAME + " NOT NULL AND "
 			+ Contract.Comments.COLUMN_TIMESTAMP + " NOT NULL AND "
 			+ Contract.Comments.COLUMN_CONTENT + " NOT NULL";
@@ -48,7 +48,7 @@ public class Comment {
 
     public Comment setTime(double timeStamp, Context context) {
         mTimeStamp = timeStamp;
-        mTimeSince = getLastCommentTimeStamp(mServerId, context);
+        mTimeSince = getLastCommentTimeStamp(mReportId, context);
         return this;
     }
 
@@ -58,7 +58,7 @@ public class Comment {
                     .put(Contract.Comments.COLUMN_USERNAME, mUsername)
                     .put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp)
                     .put("last_comment_timestamp", mTimeSince)
-                    .put(Contract.Comments.COLUMN_REPORT_ID, mServerId);
+                    .put(Contract.Comments.COLUMN_REPORT_ID, mReportId);
         return commentData;
     }
 
@@ -67,7 +67,7 @@ public class Comment {
         commentValues.put(Contract.Comments.COLUMN_CONTENT, mText);
         commentValues.put(Contract.Comments.COLUMN_USERNAME, mUsername);
         commentValues.put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp);
-        commentValues.put(Contract.Comments.COLUMN_SERVER_ID, mServerId);
+        commentValues.put(Contract.Comments.COLUMN_REPORT_ID, mReportId);
         return commentValues;
     }
 

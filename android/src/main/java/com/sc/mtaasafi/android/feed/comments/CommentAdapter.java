@@ -3,6 +3,7 @@ package com.sc.mtaasafi.android.feed.comments;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +24,10 @@ public class CommentAdapter extends RecyclerViewCursorAdapter<CommentAdapter.Vie
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
-        holder.mTextView.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT)));
-        holder.mUserNameView.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME)));
-        holder.mTimeView.setText("" + c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP)));
+        holder.mTextView.setText(c.getString(c.getColumnIndex(Contract.Comments.COLUMN_CONTENT)));
+        holder.mUserNameView.setText(c.getString(c.getColumnIndex(Contract.Comments.COLUMN_USERNAME)));
+        holder.mTimeView.setText("" + c.getInt(c.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP)));
+        Log.e("Comment Adapter", "binding");
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

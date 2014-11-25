@@ -46,8 +46,7 @@ public class NewCommentLayout extends LinearLayout {
 
     public void addData(Report report) {
         mComment.mUsername = report.userName;
-        mComment.mServerId = report.serverId;
-        mComment.mReportId = report.dbId;
+        mComment.mReportId = report.serverId;
     }
 
     public void onFinishInflate() {
@@ -80,17 +79,13 @@ public class NewCommentLayout extends LinearLayout {
     }
 
     private void attemptSend() throws JSONException {
-        Log.e("layout", "attempting send");
         if (NetworkUtils.isOnline(getContext())) {
-            Log.e("layout", "online");
             mSendButton.setTextColor(getResources().getColor(R.color.LightCoral));
             new CommentSender(getContext(), mComment, this).execute();
-            // FireAndForgetExecutor.exec(new SaveComment(getContext(), mComment.setTime(System.currentTimeMillis()/1000)));
         }// else { tell user she must be online to send }
     }
 
     public void onSuccessfulSend() {
-        Log.e("layout", "successful send");
         InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(
                 ((MainActivity) getContext()).getCurrentFocus().getWindowToken(),

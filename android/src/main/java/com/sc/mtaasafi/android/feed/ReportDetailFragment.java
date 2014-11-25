@@ -23,6 +23,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,8 +69,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     LinearLayout topView;
 
     public static final String USERNAME = "username", REFRESH_KEY= "refresh", COMMENT = "comment";
-
-    public void ReportDetailFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -412,11 +411,14 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.e("Frag", "Load started");
         return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
-            Comment.PROJECTION, Comment.getSelection(mReport.dbId), null, Comment.DEFAULT_SORT);
+            Comment.PROJECTION, Comment.getSelection(mReport.serverId), null, Comment.DEFAULT_SORT);
     }
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) { ((CommentAdapter) mAdapter).swapCursor(cursor); }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.e("Frag", "Load finished: " + cursor.getCount());
+        ((CommentAdapter) mAdapter).swapCursor(cursor); }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { ((CommentAdapter) mAdapter).swapCursor(null); }
 
