@@ -46,9 +46,8 @@ import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
 
-
 public class MainActivity extends ActionBarActivity implements
-        NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener,
+        AlertDialogFragment.AlertDialogListener,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
         SwipeRefreshLayout.OnRefreshListener {

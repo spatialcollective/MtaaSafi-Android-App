@@ -5,23 +5,24 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -39,47 +39,35 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
-import com.sc.mtaasafi.android.feed.comments.AddCommentBar;
-import com.sc.mtaasafi.android.feed.comments.CommentRefresher;
-import com.sc.mtaasafi.android.feed.comments.CommentSender;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.sc.mtaasafi.android.feed.comments.Comment;
+import com.sc.mtaasafi.android.feed.comments.CommentAdapter;
+import com.sc.mtaasafi.android.feed.comments.NewCommentLayout;
 
 import java.text.SimpleDateFormat;
 
 
-public class ReportDetailFragment extends ListFragment implements AddCommentBar.CommentListener{
+public class ReportDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     Report mReport;
+    NewCommentLayout mNewComment;
     private String distance = "None";
     private int upvoteCount;
     private boolean userVoted;
     Location currentLocation;
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     public AQuery aq;
     ImageView[] media;
     public ViewPager viewPager;
     RelativeLayout bottomView;
     LinearLayout topView;
-    SimpleCursorAdapter mAdapter;
-    AddCommentBar addComment;
 
     public static final String USERNAME = "username", REFRESH_KEY= "refresh", COMMENT = "comment";
-
-    public final String[] FROM_COLUMNS = new String[]{
-            Contract.Comments.COLUMN_CONTENT,
-            Contract.Comments.COLUMN_USERNAME,
-            Contract.Comments.COLUMN_TIMESTAMP
-    };
-    public final int[] TO_FIELDS = new int[]{
-            R.id.commentText,
-            R.id.commentUserName,
-            R.id.commentTime
-    };
 
     public void ReportDetailFragment() { }
 
@@ -93,17 +81,41 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
-        if(savedState != null)
-            restore(savedState);
+        if (savedState != null)
+            mReport = new Report(savedState);
         currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
     }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        topView = (LinearLayout) view.findViewById(R.id.top_layout);
+        setUpViewPager(view);
 
-    private void restore(Bundle instate){
-        mReport = new Report(instate);
-        if (addComment != null)
-            addComment.restore(instate);
+
+        mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
+        mNewComment.addData(mReport);
+        
+        setClickListeners(view);
+        updateView(view);
+
+        super.onViewCreated(view, savedInstanceState);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new CommentAdapter(getActivity(), null);
+        mRecyclerView.setAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
     }
+
+    private void setUpViewPager(View view) {
+        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
+        viewPager.setOffscreenPageLimit(3);
+        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);
@@ -111,10 +123,10 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
             updateTopVote();
         else
             updateBottomVote();
-        AddCommentBar addCommentBar = (AddCommentBar)
-                getView().findViewById(R.id.add_comment_bar);
-        if (addCommentBar != null)
-            addCommentBar.save(outstate);
+
+        String commentText = ((TextView) getView().findViewById(R.id.commentEditText)).getText().toString();
+        if (commentText != null)
+            outstate.putString(Contract.Comments.COLUMN_CONTENT, commentText);
 
         outstate = mReport.saveState(outstate);
     }
@@ -130,30 +142,6 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState){
-        super.onViewCreated(view, savedInstanceState);
-        topView = (LinearLayout) view.findViewById(R.id.top_layout);
-        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
-        viewPager.setOffscreenPageLimit(3);
-        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-//        addComment = (AddCommentBar) view.findViewById(R.id.add_comment_bar);
-//        addComment.setCommentListener(this);
-        setClickListeners(view);
-        updateView(view);
-        if(savedInstanceState != null)
-            restore(savedInstanceState);
-        mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.comment_view, null,
-                FROM_COLUMNS, TO_FIELDS, 0);
-        mAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-            @Override
-            public boolean setViewValue(View view, Cursor cursor, int i) {
-                return false;
-            }
-        });
-        setListAdapter(mAdapter);
-    }
     private void setClickListeners(View view) {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -281,7 +269,7 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
             @Override
             public void onAnimationEnd(Animation animation) {
                 bottomView.setVisibility(View.INVISIBLE);
-                if(PrefUtils.SDK > Build.VERSION_CODES.HONEYCOMB_MR2)
+                if (PrefUtils.SDK > Build.VERSION_CODES.HONEYCOMB_MR2)
                     exitImageAnimation(viewPager.getCurrentItem());
 //                getActivity().getActionBar().show();
             }
@@ -422,61 +410,15 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         }
     }
 
-// ================= Comment Listener ================
     @Override
-    public void sendComment(String comment) throws JSONException {
-        setRetainInstance(true);
-        JSONObject commentData = new JSONObject();
-        ComplexPreferences cp = PrefUtils.getPrefs(getActivity());
-        long timeSince = AddCommentBar.getLastCommentTimeStamp(mReport.serverId, getActivity());
-        commentData.put(Contract.Comments.COLUMN_USERNAME, cp.getString(PrefUtils.USERNAME, ""))
-                .put(Contract.Comments.COLUMN_TIMESTAMP, System.currentTimeMillis()/1000)
-                .put(Contract.Comments.COLUMN_REPORT_ID, mReport.serverId)
-                .put("last_comment_timestamp", timeSince)
-                .put(Contract.Comments.COLUMN_CONTENT, comment);
-//        VoteInterface.recordUpvoteLog(getActivity(), commentData);
-        InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
-        new CommentSender(this).execute(commentData);
-        Log.e("SendComment!", commentData.toString());
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
+            Comment.PROJECTION, Comment.getSelection(mReport.dbId), null, Comment.DEFAULT_SORT);
     }
-
     @Override
-    public void commentActionFinished(JSONObject result)
-            throws RemoteException, OperationApplicationException, JSONException {
-//        VoteInterface.recordUpvoteLog(getActivity(), result);
-        AddCommentBar.updateCommentsTable(result, getActivity());
-        updateCommentsList(mReport.serverId);
-        if((Integer) result.getInt(Contract.Comments.COLUMN_SERVER_ID) != null
-                && addComment != null)
-            addComment.clearText();
-    }
-
-    public void updateCommentsList(int reportId){
-        String notSelect = " NOT NULL";
-        String selection = Contract.Comments.COLUMN_REPORT_ID + " = "+ reportId + " AND "
-                + Contract.Comments.COLUMN_USERNAME + notSelect + " AND "
-                + Contract.Comments.COLUMN_TIMESTAMP + notSelect + " AND "
-                + Contract.Comments.COLUMN_USERNAME + notSelect + " AND "
-                + Contract.Comments.COLUMN_CONTENT + notSelect;
-        String[] projection = new String[]{ Contract.Comments._ID,
-                Contract.Comments.COLUMN_CONTENT,
-                Contract.Comments.COLUMN_USERNAME,
-                Contract.Comments.COLUMN_TIMESTAMP};
-        String sort = Contract.Comments.COLUMN_TIMESTAMP + " ASC";
-        Cursor c = getActivity().getContentResolver().query(Contract.Comments.COMMENTS_URI,
-                projection, selection, null, sort);
-        mAdapter.changeCursor(c);
-        Log.e("Cursor count", "Cursor Count: " + c.getCount() + ". LV count: " + getListView().getCount());
-        mAdapter.notifyDataSetChanged();
-    }
-    public void refreshComments(int reportId) throws JSONException {
-        // get all new comments for this report from the server
-        long sinceTime = AddCommentBar.getLastCommentTimeStamp(reportId, getActivity());
-        new CommentRefresher(this).execute(new JSONObject().put("ReportId", reportId)
-                .put("Since", sinceTime));
-    }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) { ((CommentAdapter) mAdapter).swapCursor(cursor); }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) { ((CommentAdapter) mAdapter).swapCursor(null); }
 
     private class ImageSlideAdapter extends FragmentPagerAdapter {
         String[] mediaPaths;

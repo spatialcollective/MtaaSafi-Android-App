@@ -30,14 +30,11 @@ public class NewsFeedFragment extends Fragment
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    ReportSelectedListener mCallback;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 SORT_KEY = "sorting";
     int index, top;
     public NewsFeedFragment() {}
-        
-    public interface ReportSelectedListener { public void goToDetailView(Report r, int position); }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,29 +70,16 @@ public class NewsFeedFragment extends Fragment
         getLoaderManager().initLoader(0, null, this);
     }
 
-   // @Override
-   // public void onListItemClick(ListView l, View view, int position, long id) {
-   //     super.onListItemClick(l, view, position, id);
-   //     Report r = new Report((Cursor) mAdapter.getItem(position));
-   //     mCallback.goToDetailView(r, position);
-   // }
-
     @Override
     public void onResume(){
         super.onResume();
-        // restore default ordering
-        sortFeed(SORT_RECENT);
+        sortFeed(SORT_RECENT); // restore default ordering
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         SyncUtils.CreateSyncAccount(activity);
-        try { // This makes sure that the container activity has implemented the callback interface.
-            mCallback = (ReportSelectedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement ReportSelectedListener");
-        }
     }
 
     public void refreshFailed(){
@@ -158,7 +142,5 @@ public class NewsFeedFragment extends Fragment
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        ((FeedAdapter) mAdapter).swapCursor(null);
-    }
+    public void onLoaderReset(Loader<Cursor> loader) { ((FeedAdapter) mAdapter).swapCursor(null); }
 }
