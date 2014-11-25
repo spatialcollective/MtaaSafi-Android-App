@@ -89,9 +89,6 @@ public class ReportUploadingFragment extends ListFragment
     public class CustomViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
-            Log.e("ViewBinder", "Column for Time: " + cursor.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP)
-                    + ". Column for content: " + cursor.getColumnIndex(Contract.Entry.COLUMN_CONTENT)
-                    + ". Current column" + i);
             if (view.getId() == R.id.uploadingTime)
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
             else if (view.getId() == R.id.upload_row)
@@ -108,8 +105,6 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     public void beamUpFirstReport() {
-        Log.e("Binder", "ViewBinderNull: " + (mAdapter.getViewBinder() == null));
-
         if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
             beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
         else if (mAdapter.getCount() == 0 && getView() != null)

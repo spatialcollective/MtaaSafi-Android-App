@@ -1,8 +1,6 @@
 package com.sc.mtaasafi.android.newReport;
 
 import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.database.Cursor;
@@ -18,25 +16,26 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.AlertDialogFragment;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.Report;
-import com.sc.mtaasafi.android.uploading.ReportUploadingFragment;
 import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 public class NewReportActivity extends ActionBarActivity implements
         GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener {
-
+        GooglePlayServicesClient.OnConnectionFailedListener,
+        LocationListener {
+    private Location mCurrentLocation;
     private LocationClient mLocationClient;
     private ComplexPreferences cp;
     public final static String NEW_REPORT_TAG = "newreport";
@@ -144,26 +143,31 @@ public class NewReportActivity extends ActionBarActivity implements
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 
     public Location getLocation() {
-        Location mCurrentLocation = null;
-        if(mLocationClient != null && mLocationClient.isConnected()){
-            mCurrentLocation = mLocationClient.getLastLocation();
-            if(mCurrentLocation != null){
-                cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
-                cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
-                cp.commit();
-            }
-        } else{
-            int minsSinceLastLocation = PrefUtils.getTimeSinceInMinutes(cp.getObject(PrefUtils.LOCATION_TIMESTAMP, Float.class));
-            if (minsSinceLastLocation < 2)
-                return cp.getObject(PrefUtils.LOCATION, Location.class);
+        // use cached location if it's fre$h & accurate enough
+        if(mLocationClient != null && mLocationClient.isConnected() && mCurrentLocation == null){
+           Location lastLocation = mLocationClient.getLastLocation();
+           long timeElapsedMillis = System.currentTimeMillis() - lastLocation.getTime();
+           float timeElapsedSeconds =(float)(timeElapsedMillis / 1000);
+           float timeElapsedMinutes = timeElapsedSeconds / 60;
+           // getAccuracy returns a radius in m of 68% (1 deviation) accuracy
+           if(lastLocation.getAccuracy() != 0.0
+              && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5){
+               mCurrentLocation = lastLocation;
+           }
         }
         return mCurrentLocation;
     }
 
     @Override
     public void onConnected(Bundle bundle) {
-        getLocation();
+        LocationRequest mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(
+                LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(2500);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationClient.requestLocationUpdates(mLocationRequest, this);
     }
+
     @Override
     public void onDisconnected() {
         Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
@@ -255,4 +259,7 @@ public class NewReportActivity extends ActionBarActivity implements
         c.close();
         return count;
     }
+
+    @Override
+    public void onLocationChanged(Location location) { mCurrentLocation = location; }
 }

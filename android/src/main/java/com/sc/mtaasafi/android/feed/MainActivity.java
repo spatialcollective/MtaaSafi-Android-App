@@ -3,13 +3,9 @@ package com.sc.mtaasafi.android.feed;
 import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.content.IntentSender;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,9 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -260,7 +254,6 @@ public class MainActivity extends ActionBarActivity implements
         cp.commit();
     }
 
-    public void uploadSavedReportsClicked(View view) { uploadSavedReports(); }
     public void uploadSavedReports() {
         if(getLocation() != null){
             Intent intent = new Intent().setClass(this, UploadingActivity.class)
