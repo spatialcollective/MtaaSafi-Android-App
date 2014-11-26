@@ -41,6 +41,7 @@ import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.comments.AddCommentBar;
 import com.sc.mtaasafi.android.feed.comments.CommentRefresher;
@@ -118,7 +119,6 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         reportLocation = new Location("report location");
         reportLocation.setLatitude(r.latitude);
         reportLocation.setLongitude(r.longitude);
-        refreshComments();
     }
 
     @Override
@@ -443,6 +443,7 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         aq.id(media[0]).image(mediaUrl1);
         aq.id(media[1]).image(mediaUrl2);
         aq.id(media[2]).image(mediaUrl3);
+        refreshComments();
     }
     private void updateBottomView(View view){
         String bottomUserDisplay;
@@ -506,12 +507,14 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
     @Override
     public void commentActionFinished(JSONObject result)
             throws RemoteException, OperationApplicationException, JSONException {
-        VoteInterface.recordUpvoteLog(getActivity(), result);
-        AddCommentBar.updateCommentsTable(result, getActivity());
+        if(result != null){
+            VoteInterface.recordUpvoteLog(getActivity(), result);
+            AddCommentBar.updateCommentsTable(result, getActivity());
+            if((Integer) result.getInt(Contract.Comments.COLUMN_SERVER_ID) != null
+                    && addComment != null)
+                addComment.clearText();
+        }
         updateCommentsList();
-        if((Integer) result.getInt(Contract.Comments.COLUMN_SERVER_ID) != null
-                && addComment != null)
-            addComment.clearText();
     }
 
     public void updateCommentsList(){
@@ -536,9 +539,8 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
     public void refreshComments(){
         try {
             long sinceTime = AddCommentBar.getLastCommentTimeStamp(serverId, getActivity());
-            JSONObject refreshData = null;
-            refreshData = new JSONObject().put("ReportId", serverId)
-                                          .put("Since", sinceTime);
+            JSONObject refreshData = new JSONObject().put("ReportId", serverId)
+                                                     .put("Since", sinceTime);
             new CommentRefresher(this).execute(VoteInterface.recordUpvoteLog(getActivity(), refreshData));
         } catch (JSONException e) {
             e.printStackTrace();
