@@ -36,7 +36,9 @@
             android:layout_gravity="end"
             android:layout_weight="0"
             android:background="@color/transparent"
-            android:textColor="@color/Coral"/>
+            android:textColor="@color/disableable_button"
+            android:enabled="false" />
+
     </com.sc.mtaasafi.android.feed.comments.NewCommentLayout>
 
     <android.support.v7.widget.RecyclerView android:id="@+id/comments"

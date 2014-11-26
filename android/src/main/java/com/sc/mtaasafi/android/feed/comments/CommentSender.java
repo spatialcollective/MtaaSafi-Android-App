@@ -80,7 +80,7 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
     protected void onPostExecute(Integer result) {
         if (mLayout != null) {
             if (result == 1) mLayout.onSuccessfulSend();
-            else Log.e("sender", "failure");
+            else mLayout.onSendFailure();
         }
     }
 }

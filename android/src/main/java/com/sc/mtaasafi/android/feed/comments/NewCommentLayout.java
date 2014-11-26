@@ -82,8 +82,8 @@ public class NewCommentLayout extends LinearLayout {
     }
 
     private void attemptSend() throws JSONException {
-        if (NetworkUtils.isOnline(getContext())) {
-            mSendButton.setTextColor(getResources().getColor(R.color.LightCoral));
+        if (NetworkUtils.isOnline(getContext()) && !mComment.mText.isEmpty()) {
+            mSendButton.setEnabled(false);
             new CommentSender(getContext(), mComment, this).execute();
             InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(
@@ -95,5 +95,10 @@ public class NewCommentLayout extends LinearLayout {
     public void onSuccessfulSend() {
 //        mFrag.insertComment();
         mEditText.setText("");
+        mSendButton.setEnabled(true);
+    }
+
+    public void onSendFailure() {
+        mSendButton.setEnabled(true);
     }
 }
