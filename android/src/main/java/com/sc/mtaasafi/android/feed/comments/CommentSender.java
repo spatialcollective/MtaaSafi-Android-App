@@ -43,7 +43,7 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
     @Override
     protected Integer doInBackground(JSONObject... jsons) {
         try {
-            mComment.setTime(System.currentTimeMillis()/1000, mContext);
+            mComment.setTime(System.currentTimeMillis(), mContext);
             JSONObject response = sendToServer(mComment.getJson());
             addNewCommentsToDb(response);
             return 1;
@@ -78,7 +78,9 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
 
     @Override
     protected void onPostExecute(Integer result) {
-        if (result == 1) mLayout.onSuccessfulSend();
-        else Log.e("sender", "failure");
+        if (mLayout != null) {
+            if (result == 1) mLayout.onSuccessfulSend();
+            else Log.e("sender", "failure");
+        }
     }
 }

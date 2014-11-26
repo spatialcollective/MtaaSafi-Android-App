@@ -5,8 +5,16 @@
         android:drawable="@drawable/add_comment_pressed"/>
     <item android:state_focused="true"
         android:drawable="@drawable/add_comment_focused"/>
-    <item android:state_enabled="false"
-        android:drawable="@drawable/add_comment_disabled"/>
+    <item android:state_enabled="false">
+        <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+            <item android:top="-6dp" android:left="-6dp" android:right="-6dp">
+                <shape>
+                    <solid android:color="@color/White"/>
+                    <stroke android:color="@color/LightCoral" android:width="1dp"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
     <item android:drawable="@drawable/add_comment_default"/>
 </selector>
 

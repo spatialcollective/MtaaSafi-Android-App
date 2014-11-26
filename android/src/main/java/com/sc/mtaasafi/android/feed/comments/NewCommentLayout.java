@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.feed.comments;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -16,6 +17,7 @@ import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.MainActivity;
+import com.sc.mtaasafi.android.feed.ReportDetailFragment;
 import com.sc.mtaasafi.android.newReport.SafiEditText;
 
 import org.apache.http.HttpResponse;
@@ -49,6 +51,7 @@ public class NewCommentLayout extends LinearLayout {
         mComment.mReportId = report.serverId;
     }
 
+    @Override
     public void onFinishInflate() {
         mSendButton = (Button) findViewById(R.id.sendComment);
         mEditText = (SafiEditText) findViewById(R.id.commentEditText);
@@ -82,14 +85,15 @@ public class NewCommentLayout extends LinearLayout {
         if (NetworkUtils.isOnline(getContext())) {
             mSendButton.setTextColor(getResources().getColor(R.color.LightCoral));
             new CommentSender(getContext(), mComment, this).execute();
+            InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(
+                ((MainActivity) getContext()).getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
         }// else { tell user she must be online to send }
     }
 
     public void onSuccessfulSend() {
-        InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputManager.hideSoftInputFromWindow(
-                ((MainActivity) getContext()).getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
+//        mFrag.insertComment();
         mEditText.setText("");
     }
 }

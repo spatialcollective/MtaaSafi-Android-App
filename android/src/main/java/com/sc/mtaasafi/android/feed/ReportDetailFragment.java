@@ -378,7 +378,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             bottomUserDisplay = mReport.userName;
         ((TextView) view.findViewById(R.id.bottomContent)).setText(mReport.content);
         ((TextView) view.findViewById(R.id.bottomUsername)).setText(bottomUserDisplay);
-        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(getSimpleTimeStamp(mReport.timeStamp));
+        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(PrefUtils.getSimpleTimeStamp(mReport.timeStamp));
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
         ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
         updateBottomVote();
@@ -399,19 +399,9 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 //        upvoteCount = topVote.voteCount;
 //        bottomVote.updateData(topVote.voteCount, topVote.userVoted, mReport.serverId);
     }
-    private String getSimpleTimeStamp(String timestamp) {
-        SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-        SimpleDateFormat displayFormat = new SimpleDateFormat("K:mm a  d MMM yy");
-        try {
-            return displayFormat.format(fromFormat.parse(timestamp));
-        } catch (Exception e) {
-            return timestamp;
-        }
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.e("Frag", "Load started");
         return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
             Comment.PROJECTION, Comment.getSelection(mReport.serverId), null, Comment.DEFAULT_SORT);
     }

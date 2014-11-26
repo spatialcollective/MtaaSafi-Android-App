@@ -20,6 +20,7 @@ import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 
 public class ReportUploadingFragment extends ListFragment
@@ -90,7 +91,7 @@ public class ReportUploadingFragment extends ListFragment
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
             if (view.getId() == R.id.uploadingTime)
-                ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
+                ((TextView) view).setText(PrefUtils.getElapsedTime(cursor.getString(i)));
             else if (view.getId() == R.id.upload_row)
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))

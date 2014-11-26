@@ -56,7 +56,7 @@ public class Comment {
         JSONObject commentData = new JSONObject();
         commentData.put(Contract.Comments.COLUMN_CONTENT, mText)
                     .put(Contract.Comments.COLUMN_USERNAME, mUsername)
-                    .put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp)
+                    .put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp/1000)
                     .put("last_comment_timestamp", mTimeSince)
                     .put(Contract.Comments.COLUMN_REPORT_ID, mReportId);
         return commentData;

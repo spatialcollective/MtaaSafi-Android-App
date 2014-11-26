@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.RecyclerViewCursorAdapter;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 
 public class CommentAdapter extends RecyclerViewCursorAdapter<CommentAdapter.ViewHolder> {
@@ -26,8 +27,7 @@ public class CommentAdapter extends RecyclerViewCursorAdapter<CommentAdapter.Vie
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
         holder.mTextView.setText(c.getString(c.getColumnIndex(Contract.Comments.COLUMN_CONTENT)));
         holder.mUserNameView.setText(c.getString(c.getColumnIndex(Contract.Comments.COLUMN_USERNAME)));
-        holder.mTimeView.setText("" + c.getInt(c.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP)));
-        Log.e("Comment Adapter", "binding");
+        holder.mTimeView.setText(PrefUtils.getElapsedTime(c.getInt(c.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP))));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

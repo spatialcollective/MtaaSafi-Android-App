@@ -11,6 +11,7 @@ import android.util.Log;
 import android.location.Location;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 
 import org.json.JSONArray;
@@ -98,7 +99,7 @@ public class Report {
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
         locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
         timeStamp = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
-        timeElapsed = getElapsedTime(timeStamp);
+        timeElapsed = PrefUtils.getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         if(userName.equals(""))
             userName = "Unknown user";
@@ -128,7 +129,7 @@ public class Report {
         locationDescript = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
         content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
         timeStamp = jsonData.getString(Contract.Entry.COLUMN_TIMESTAMP);
-        timeElapsed = getElapsedTime(this.timeStamp);
+        timeElapsed = PrefUtils.getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         latitude = jsonData.getDouble(Contract.Entry.COLUMN_LAT);
         longitude = jsonData.getDouble(Contract.Entry.COLUMN_LNG);
@@ -241,46 +242,10 @@ public class Report {
         return distText;
     }
 
-    public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
-        long second = 1000,
-                minute = 60 * second,
-                hour = 60* minute,
-                day = 24 * hour,
-                week = 7 * day,
-                year = 365 * day;
-
-        if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL yy").format(date);
-        else if (timeElapsed > week)
-            return new SimpleDateFormat("dd LLL").format(date);
-        else if (timeElapsed > 1.5 * day)
-            return (long) Math.floor(timeElapsed/day) + " days";
-        else if (timeElapsed > day)
-            return "1 day";
-        else if (timeElapsed > hour)
-            return (long) Math.floor(timeElapsed/hour) + " hours";
-        else if (timeElapsed > minute)
-            return (long) Math.floor(timeElapsed/minute) + " min";
-        return "just now";
-    }
-    public static String getElapsedTime(String timestamp) {
-        if (timestamp != null) {
-            SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-            try {
-                long postEpochTime = df.parse(timestamp).getTime();
-                long currentEpochTime = System.currentTimeMillis();
-                return getHumanReadableTimeElapsed(currentEpochTime - postEpochTime, df.parse(timestamp));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
     private String createTimeStamp() {
         return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
                 .format(new java.util.Date(System.currentTimeMillis()));
     }
-
 
     private String getEncodedBytesForPic(int i) throws IOException {
         String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
