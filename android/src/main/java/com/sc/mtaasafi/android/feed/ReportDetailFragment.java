@@ -47,6 +47,7 @@ import com.sc.mtaasafi.android.feed.comments.CommentAdapter;
 import com.sc.mtaasafi.android.feed.comments.NewCommentLayout;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 
 public class ReportDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -54,8 +55,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     Report mReport;
     NewCommentLayout mNewComment;
     private String distance = "None";
-    private int upvoteCount;
-    private boolean userVoted;
+    private ArrayList<Integer> upVoteId;
     Location currentLocation;
 
     private RecyclerView mRecyclerView;
@@ -66,7 +66,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     ImageView[] media;
     public ViewPager viewPager;
     RelativeLayout bottomView;
-    LinearLayout topView;
 
     public static final String USERNAME = "username", REFRESH_KEY= "refresh", COMMENT = "comment";
 
@@ -83,22 +82,42 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         if (savedState != null)
             mReport = new Report(savedState);
         currentLocation = ((MainActivity) getActivity()).getLocation();
+        upVoteId = new ArrayList<Integer>();
         return view;
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        topView = (LinearLayout) view.findViewById(R.id.top_layout);
         setUpViewPager(view);
+        setDataInViews(view);
+        addImages(view);
+        setClickListeners(view);
+    }
 
+    private void setDataInViews(View view) {
+        bottomView = (RelativeLayout) getView().findViewById(R.id.report_BottomView);
+        updateVote((VoteButton) view.findViewById(R.id.topVote));
+        updateVote((VoteButton) view.findViewById(R.id.bottomVote));
+        updateDetails(view.findViewById(R.id.top_layout));
+        updateDetails(view.findViewById(R.id.report_BottomView));
+        addComments(view);
+    }
 
+    private void updateDetails(View view) {
+        ((TextView) view.findViewById(R.id.r_username)).setText(mReport.userName);
+        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
+        ((TextView) view.findViewById(R.id.r_timestamp)).setText(mReport.timeStamp);
+        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
+        if (currentLocation != null) {
+            distance = mReport.getDistanceText(currentLocation);
+            ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
+        }
+    }
+
+    private void addComments(View view) {
         mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
         mNewComment.addData(mReport);
-        
-        setClickListeners(view);
-        updateView(view);
 
-        super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -108,25 +127,28 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         getLoaderManager().initLoader(0, null, this);
     }
 
-    private void setUpViewPager(View view) {
-        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
-        viewPager.setOffscreenPageLimit(3);
-        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+    private void updateVote(VoteButton voter) {
+        final View wholeView = getView();
+        voter.mServerId = mReport.serverId;
+        voter.mReportUri = Report.getUri(mReport.dbId);
+        voter.setCheckedState(mReport.upVoted, mReport.upVoteCount, upVoteId);
+        voter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                upVoteId.add(mReport.serverId);
+                if (wholeView.findViewById(R.id.bottomVote) == view)
+                    ((VoteButton) wholeView.findViewById(R.id.topVote)).toggle();
+                else
+                    ((VoteButton) wholeView.findViewById(R.id.bottomVote)).toggle();
+        }});
     }
 
     @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);
-        if(viewPager.getVisibility() == View.VISIBLE)
-            updateTopVote();
-        else
-            updateBottomVote();
-
         String commentText = ((TextView) getView().findViewById(R.id.commentEditText)).getText().toString();
         if (commentText != null)
             outstate.putString(Contract.Comments.COLUMN_CONTENT, commentText);
-
         outstate = mReport.saveState(outstate);
     }
 
@@ -141,6 +163,21 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
+            Comment.PROJECTION, Comment.getSelection(mReport.serverId), null, Comment.DEFAULT_SORT);
+    }
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.e("Frag", "Load finished: " + cursor.getCount());
+        ((CommentAdapter) mAdapter).swapCursor(cursor); }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) { ((CommentAdapter) mAdapter).swapCursor(null); }
+
+
+// ==========================   Images   ===============================
+
     private void setClickListeners(View view) {
         view.findViewById(R.id.media1).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,8 +190,53 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             public void onClick(View view) { enterImageViewer(2); }});
     }
 
+    public void addImages(View view) {
+        updateDetails(view.findViewById(R.id.report_BottomView));
+        int mediaHeight = ((MainActivity) getActivity()).getScreenHeight()/4;
+        media = new ImageView[3];
+        media[0] = (ImageView) view.findViewById(R.id.media1);
+        media[1] = (ImageView) view.findViewById(R.id.media2);
+        media[2] = (ImageView) view.findViewById(R.id.media3);
+        media[0].getLayoutParams().height = mediaHeight;
+        media[0].requestLayout();
+        media[1].getLayoutParams().height = mediaHeight;
+        media[1].requestLayout();
+        media[2].getLayoutParams().height = mediaHeight;
+        media[2].requestLayout();
+        aq.id(media[0]).image(mReport.mediaPaths.get(0));
+        aq.id(media[1]).image(mReport.mediaPaths.get(1));
+        aq.id(media[2]).image(mReport.mediaPaths.get(2));
+    }
+
+    private void setUpViewPager(View view) {
+        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
+        viewPager.setOffscreenPageLimit(3);
+        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+    }
+
+    private class ImageSlideAdapter extends FragmentPagerAdapter {
+        String[] mediaPaths;
+        public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
+            super(fm);
+            this.mediaPaths = mediaPaths;
+        }
+        @Override
+        public int getCount() {return mediaPaths.length;}
+        @Override
+        public Fragment getItem(int i) {
+            ImageFragment iF = new ImageFragment();
+            Bundle args = new Bundle();
+            args.putString("mediaPath", mediaPaths[i]);
+            iF.setArguments(args);
+            return iF;
+        }
+    }
+
+
+// ==========================   Picture Animation   ===============================
+
     private void enterImageViewer(int i){
-        updateBottomVote();
         getView().setBackgroundColor(getResources().getColor(R.color.DarkSlateGray));
         viewPager.setCurrentItem(i);
         if(PrefUtils.SDK > Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -163,7 +245,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             viewPager.setVisibility(View.VISIBLE);
             fadeInBottomView();
         }
-        topView.setVisibility(View.INVISIBLE);
+        getView().findViewById(R.id.top_layout).setVisibility(View.INVISIBLE);
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
@@ -254,8 +336,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
     public void exitImageViewer(){
         getView().setBackgroundColor(getResources().getColor(R.color.White));
-        updateTopVote();
-        topView.setVisibility(View.VISIBLE);
+        getView().findViewById(R.id.top_layout).setVisibility(View.VISIBLE);
         fadeOutBottomView();
     }
     private void fadeOutBottomView(){
@@ -340,93 +421,5 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             }
         });
         set.start();
-    }
-    public void updateView(View view) {
-        VoteButton topVote = (VoteButton) view.findViewById(R.id.topVote);
-//        topVote.updateData(upvoteCount, userVoted, mReport.serverId);
-        ((TextView) view.findViewById(R.id.reportViewContent)).setText(mReport.content);
-        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
-        if (currentLocation != null) {
-            distance = mReport.getDistanceText(currentLocation);
-            ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
-        }
-        ((TextView) view.findViewById(R.id.reportViewTimeStamp)).setText(mReport.timeStamp);
-        ((TextView) view.findViewById(R.id.reportViewUsername)).setText(mReport.userName);
-
-        bottomView = (RelativeLayout) view.findViewById(R.id.report_BottomView);
-        updateBottomView(bottomView);
-        int mediaHeight = ((MainActivity) getActivity()).getScreenHeight()/4;
-        media = new ImageView[3];
-        media[0] = (ImageView) view.findViewById(R.id.media1);
-        media[1] = (ImageView) view.findViewById(R.id.media2);
-        media[2] = (ImageView) view.findViewById(R.id.media3);
-        media[0].getLayoutParams().height = mediaHeight;
-        media[0].requestLayout();
-        media[1].getLayoutParams().height = mediaHeight;
-        media[1].requestLayout();
-        media[2].getLayoutParams().height = mediaHeight;
-        media[2].requestLayout();
-        aq.id(media[0]).image(mReport.mediaPaths.get(0));
-        aq.id(media[1]).image(mReport.mediaPaths.get(1));
-        aq.id(media[2]).image(mReport.mediaPaths.get(2));
-    }
-    private void updateBottomView(View view){
-        String bottomUserDisplay;
-        if(mReport.userName.length() > 16){
-            bottomUserDisplay = mReport.userName.substring(0, 14) + "...";
-        } else
-            bottomUserDisplay = mReport.userName;
-        ((TextView) view.findViewById(R.id.bottomContent)).setText(mReport.content);
-        ((TextView) view.findViewById(R.id.bottomUsername)).setText(bottomUserDisplay);
-        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(PrefUtils.getSimpleTimeStamp(mReport.timeStamp));
-        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
-        ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
-        updateBottomVote();
-    }
-    private void updateTopVote(){
-//        VoteButton bottomVote = (VoteButton) bottomView.findViewById(R.id.bottomVote);
-//        VoteButton topVote = (VoteButton) getView().findViewById(R.id.topVote);
-//        userVoted = bottomVote.userVoted;
-//        upvoteCount = bottomVote.voteCount;
-//        topVote.updateData(bottomVote.voteCount, bottomVote.userVoted, mReport.serverId);
-    }
-    // called upon inflation as well as whenever the viewpager is about to become visible
-    private void updateBottomVote(){
-//        VoteButton bottomVote = (VoteButton) bottomView.findViewById(R.id.bottomVote);
-//        bottomVote.setBottomMode();
-//        VoteButton topVote = (VoteButton) getView().findViewById(R.id.topVote);
-//        userVoted = topVote.userVoted;
-//        upvoteCount = topVote.voteCount;
-//        bottomVote.updateData(topVote.voteCount, topVote.userVoted, mReport.serverId);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
-            Comment.PROJECTION, Comment.getSelection(mReport.serverId), null, Comment.DEFAULT_SORT);
-    }
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.e("Frag", "Load finished: " + cursor.getCount());
-        ((CommentAdapter) mAdapter).swapCursor(cursor); }
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) { ((CommentAdapter) mAdapter).swapCursor(null); }
-
-    private class ImageSlideAdapter extends FragmentPagerAdapter {
-        String[] mediaPaths;
-        public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
-            super(fm);
-            this.mediaPaths = mediaPaths;
-        }
-        @Override
-        public int getCount() {return mediaPaths.length;}
-        @Override
-        public Fragment getItem(int i) {
-            ImageFragment iF = new ImageFragment();
-            Bundle args = new Bundle();
-            args.putString("mediaPath", mediaPaths[i]);
-            iF.setArguments(args);
-            return iF;
-        }
     }
 }

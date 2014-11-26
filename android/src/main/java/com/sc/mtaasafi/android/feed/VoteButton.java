@@ -2,11 +2,9 @@ package com.sc.mtaasafi.android.feed;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
-import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.CompoundButton;
 
 import com.sc.mtaasafi.android.database.Contract;
@@ -39,6 +37,17 @@ public class VoteButton extends CompoundButton {
                 setChecked(true);
             }
         }
+    }
+
+    public void setCheckedState(boolean upvoted, int upvoteCount, ArrayList<Integer> upvoteList) {
+        this.enabled = !upvoted;
+        if (!upvoteList.isEmpty() && upvoteList.contains(this.mServerId) && this.enabled) {
+            this.setText(Integer.toString(upvoteCount + 1));
+            this.enabled = false;
+        } else
+            this.setText(Integer.toString(upvoteCount));
+
+        this.setChecked(!this.enabled);
     }
 
     public static class SaveUpvote implements Runnable {

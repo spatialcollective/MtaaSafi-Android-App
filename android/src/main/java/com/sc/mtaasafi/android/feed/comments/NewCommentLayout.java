@@ -82,14 +82,15 @@ public class NewCommentLayout extends LinearLayout {
     }
 
     private void attemptSend() throws JSONException {
-        if (NetworkUtils.isOnline(getContext()) && !mComment.mText.isEmpty()) {
-            mSendButton.setEnabled(false);
-            new CommentSender(getContext(), mComment, this).execute();
-            InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(
+        mSendButton.setEnabled(false);
+        InputMethodManager inputManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(
                 ((MainActivity) getContext()).getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
-        }// else { tell user she must be online to send }
+        if (NetworkUtils.isOnline(getContext()) && !mComment.mText.isEmpty())
+            new CommentSender(getContext(), mComment, this).execute();
+        else // tell user she must be online to send
+            mSendButton.setEnabled(true);
     }
 
     public void onSuccessfulSend() {

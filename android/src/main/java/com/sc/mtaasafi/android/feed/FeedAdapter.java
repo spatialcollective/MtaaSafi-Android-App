@@ -36,7 +36,8 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION)));
         holder.mVoteButton.mServerId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
-        setCheckedState(holder, c);
+        holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
+                c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
         setDistanceView(holder, c);
         addClick(holder, c);
     }
@@ -48,17 +49,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mListener = new FeedAdapter.ViewHolder.ViewHolderClicks() {
             public void detailClick(View caller) { activity.goToDetailView(report, pos); };
             public void upvoteClick(VoteButton b) { upvoteList.add(b.mServerId); }; };
-    }
-
-    private void setCheckedState(ViewHolder holder, Cursor c) {
-        holder.mVoteButton.enabled = !(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0);
-        if (upvoteList.contains(holder.mVoteButton.mServerId) && holder.mVoteButton.enabled) {
-            holder.mVoteButton.setText(Integer.toString(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)) + 1));
-            holder.mVoteButton.enabled = false;
-        } else
-            holder.mVoteButton.setText(Integer.toString(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT))));
-
-        holder.mVoteButton.setChecked(!holder.mVoteButton.enabled);
     }
 
     private void setDistanceView(ViewHolder holder, Cursor c) {
