@@ -1,56 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/news_feed"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/news_feed">
+    android:layout_height="fill_parent" >
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/feedLL"
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/feedLL"
         android:background="@color/mtaa_safi_blue">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/mtaa_safi_blue">
 
-            <ImageView
+            <ImageView android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="fitCenter"
                 android:src="@drawable/feed_background"
-                android:id="@+id/imageView"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"/>
 
             <android.support.v4.widget.SwipeRefreshLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/swipeRefresh"
-            android:background="@color/transparent">
-            <ListView
+                android:id="@+id/swipeRefresh"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@android:id/list"
-                android:clickable="false"
-                android:layout_alignParentStart="true"
-                android:divider="@null"
-                android:dividerHeight="0dp"
-                android:background="#FFFFFF"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-        </android.support.v4.widget.SwipeRefreshLayout>
+                android:background="@color/transparent">
 
-            <include
+                <android.support.v7.widget.RecyclerView android:id="@+id/recycle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:background="#FFFFFF" />
+
+            </android.support.v4.widget.SwipeRefreshLayout>
+
+            <include android:id="@+id/refresh_failed_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 layout="@layout/refresh_failed_bar"
-                android:id="@+id/refresh_failed_bar"
                 android:layout_gravity="center_horizontal"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
@@ -58,12 +51,11 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <include
+    <include android:id="@+id/refreshNotice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         layout="@layout/pull_down_to_refresh_notice"
         android:visibility="gone"
-        android:id="@+id/refreshNotice"
         android:layout_centerInParent="true"/>
 
 </RelativeLayout>

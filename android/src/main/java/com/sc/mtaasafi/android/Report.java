@@ -10,6 +10,7 @@ import android.util.Log;
 import android.location.Location;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 
 import org.json.JSONArray;
@@ -68,11 +69,31 @@ public class Report {
         this.serverId = this.dbId = 0;
     }
 
+    public Report(Bundle bundle) {
+        content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
+        locationDescript = bundle.getString(Contract.Entry.COLUMN_LOCATION);
+        timeStamp = bundle.getString(Contract.Entry.COLUMN_TIMESTAMP);
+        userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
+        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL1));
+        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL2));
+        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL3));
+        serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
+        dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
+        double lat = bundle.getDouble(Contract.Entry.COLUMN_LAT);
+        double lon = bundle.getDouble(Contract.Entry.COLUMN_LNG);
+        location = new Location("report_location");
+        location.setLatitude(lat);
+        location.setLongitude(lon);
+        upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
+        upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
+        // make sure this method's only called after inflation
+    }
+
     public Report(Cursor c) {
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
         locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
         timeStamp = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
-        timeElapsed = getElapsedTime(timeStamp);
+        timeElapsed = PrefUtils.getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         if(userName.equals(""))
             userName = "Unknown user";
@@ -106,12 +127,12 @@ public class Report {
         locationDescript = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
         content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
         timeStamp = jsonData.getString(Contract.Entry.COLUMN_TIMESTAMP);
-        timeElapsed = getElapsedTime(this.timeStamp);
+        timeElapsed = PrefUtils.getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         latitude = jsonData.getDouble(Contract.Entry.COLUMN_LAT);
         longitude = jsonData.getDouble(Contract.Entry.COLUMN_LNG);
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
-        upVoted = jsonData.getBoolean("upvoted"); // Contract.Entry.COLUMN_USER_UPVOTED);
+        upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         pendingState = pending;
         
         JSONArray mediaPathsInJSON = jsonData.getJSONArray("mediaURLs");
@@ -142,6 +163,23 @@ public class Report {
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 0);
         return reportValues;
     }
+
+    public Bundle saveState(Bundle output) {
+        output.putString(Contract.Entry.COLUMN_CONTENT, content);
+        output.putString(Contract.Entry.COLUMN_LOCATION, locationDescript);
+        output.putString(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
+        output.putString(Contract.Entry.COLUMN_USERNAME, userName);
+        output.putString(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
+        output.putString(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
+        output.putString(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
+        output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
+        output.putInt(Contract.Entry.COLUMN_ID, dbId);
+        output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        output.putDouble(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
+        output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
+        return output;
+    }
     
     public static Uri getUri(int dbId) {
         return Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
@@ -170,8 +208,21 @@ public class Report {
         return json.toString();
     }
 
-	public static String getDistanceText(Location currentLocation, Location reportLocation){
-        float distInMeters = reportLocation.distanceTo(currentLocation);
+    public static String getDistanceText(Location currentLocation, Double reportLat, Double reportLng) {
+        Location reportLocation = new Location("ReportLocation");
+        reportLocation.setLatitude(reportLat);
+        reportLocation.setLongitude(reportLng);
+        return getDistanceText(currentLocation, reportLocation);
+    }
+
+	public String getDistanceText(Location currentLocation) {
+        if (location == null)
+            return "error";
+        return getDistanceText(currentLocation, location);
+    }
+
+    public static String getDistanceText(Location current, Location reportLoc) {
+        float distInMeters = reportLoc.distanceTo(current);
         String distText;
         if(distInMeters > 1000){
             distText = Float.toString(distInMeters/1000);
@@ -191,46 +242,10 @@ public class Report {
         return distText;
     }
 
-    public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
-        long second = 1000,
-                minute = 60 * second,
-                hour = 60* minute,
-                day = 24 * hour,
-                week = 7 * day,
-                year = 365 * day;
-
-        if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL yy").format(date);
-        else if (timeElapsed > week)
-            return new SimpleDateFormat("dd LLL").format(date);
-        else if (timeElapsed > 1.5 * day)
-            return (long) Math.floor(timeElapsed/day) + " days";
-        else if (timeElapsed > day)
-            return "1 day";
-        else if (timeElapsed > hour)
-            return (long) Math.floor(timeElapsed/hour) + " hours";
-        else if (timeElapsed > minute)
-            return (long) Math.floor(timeElapsed/minute) + " min";
-        return "just now";
-    }
-    public static String getElapsedTime(String timestamp) {
-        if (timestamp != null) {
-            SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-            try {
-                long postEpochTime = df.parse(timestamp).getTime();
-                long currentEpochTime = System.currentTimeMillis();
-                return getHumanReadableTimeElapsed(currentEpochTime - postEpochTime, df.parse(timestamp));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
     private String createTimeStamp() {
         return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
                 .format(new java.util.Date(System.currentTimeMillis()));
     }
-
 
     private String getEncodedBytesForPic(int i) throws IOException {
         String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
