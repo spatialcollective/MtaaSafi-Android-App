@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
@@ -31,9 +32,9 @@ public class NewsFeedFragment extends Fragment
     private RecyclerView.LayoutManager mLayoutManager;
 
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
-                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
-                                SORT_KEY = "sorting";
+                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
     int index, top;
+    String sortOrder = SORT_RECENT;
     public NewsFeedFragment() {}
     
     @Override
@@ -46,8 +47,8 @@ public class NewsFeedFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
         if (savedInstanceState != null) {
-             index = savedInstanceState.getInt("index");
-             top = savedInstanceState.getInt("top");
+            index = savedInstanceState.getInt("index");
+            top = savedInstanceState.getInt("top");
         }
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener((MainActivity) getActivity());
@@ -71,9 +72,10 @@ public class NewsFeedFragment extends Fragment
     }
 
     @Override
-    public void onResume(){
-        super.onResume();
-        sortFeed(SORT_RECENT); // restore default ordering
+    public void onSaveInstanceState(Bundle outstate){
+        super.onSaveInstanceState(outstate);
+        outstate.putInt("top", top);
+        outstate.putInt("index", index);
     }
 
     @Override
@@ -103,24 +105,17 @@ public class NewsFeedFragment extends Fragment
             refreshFailed.setVisibility(View.VISIBLE);
         }
     }
-    public void sortFeed(String sorting){
-        Bundle args = new Bundle();
-        args.putString(SORT_KEY, sorting);
-//        NewsFeedFragment nff = ((MainActivity) getActivity()).getNewsFeedFragment();
-//        nff.getLoaderManager().restartLoader(0, args, nff);
+    public void sortFeed(String sorting) {
+        if (sorting != sortOrder) {
+            sortOrder = sorting;
+            getLoaderManager().restartLoader(0, null, this);
+        }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        String sortOrder = null;
-//        if(args != null)
-//                sortOrder = args.getString(SORT_KEY);
-//        if(sortOrder == null) // default is by time TODO: sort by epoch time
-//            sortOrder = Contract.Entry.COLUMN_SERVER_ID + " DESC";
-//        Log.e("Sort order: ", sortOrder);
-        String selection = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            Report.PROJECTION, selection, null, null);
+            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0, null, sortOrder);
     }
 
     @Override

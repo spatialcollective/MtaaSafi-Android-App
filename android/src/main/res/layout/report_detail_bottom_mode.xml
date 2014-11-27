@@ -41,7 +41,8 @@
         android:layout_alignLeft="@+id/r_content"
         android:layout_alignStart="@+id/r_content"
         android:textSize="10sp"
-        android:maxLength="16" />
+        android:maxLength="16"
+        android:ellipsize="end" />
 
     <TextView android:id="@+id/r_timestamp"
         android:layout_width="wrap_content"
