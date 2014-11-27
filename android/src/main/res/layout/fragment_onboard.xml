@@ -5,345 +5,30 @@
     android:background="@color/White"
     android:id="@+id/">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/feed"
-        android:background="@color/White">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:id="@+id/feed_item"
-            android:weightSum="1">
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants"
-                android:id="@+id/voteAndText">
-
-                <include
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    layout="@layout/vote_interface"
-                    android:id="@+id/" />
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/linearLayout2"
-                    android:layout_toRightOf="@+id/voteInterface"
-                    android:layout_alignParentStart="true">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="The Mtaa Safi feed..."
-                        android:id="@+id/itemTitle"
-                        android:layout_alignParentTop="true"
-                        android:textColor="#666666"
-                        android:textSize="25dp"
-                        android:paddingLeft="8dp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/voteAndText"
-                android:id="@+id/location">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Near Ngong Hills Hotel and The Agenda"
-                    android:id="@+id/itemLocation"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp"
-                    android:textColor="@color/DarkGray" />
-
-                <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="18dp"
-                    android:id="@+id/markerIcon"
-                    android:src="@drawable/marker"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5km"
-                    android:id="@+id/itemDistance"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:textColor="@color/DarkGray"
-                    android:layout_toRightOf="@+id/markerIcon"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp" />
-            </RelativeLayout>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:id="@+id/bottomLine"
-                android:background="#999999"
-                android:paddingTop="10dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/location"/>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:id="@+id/relativeLayout2"
-            android:weightSum="1"
-            android:layout_gravity="right">
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants"
-                android:id="@+id/linearLayout3" >
-
-                <include
-                    layout="@layout/vote_interface"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/" />
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/linearLayout"
-                    android:layout_toRightOf="@+id/voteInterface"
-                    android:layout_alignParentStart="true" >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Is like your Facebook feed..."
-                        android:id="@+id/textView2"
-                        android:layout_alignParentTop="true"
-                        android:textColor="#666666"
-                        android:textSize="25dp"
-                        android:paddingLeft="8dp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/linearLayout3"
-                android:id="@+id/relativeLayout" >
-
-                <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="18dp"
-                    android:id="@+id/imageView"
-                    android:src="@drawable/marker"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Near Ngong Hills Hotel and The Agenda"
-                    android:id="@+id/textView3"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp"
-                    android:textColor="@color/DarkGray" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1km"
-                    android:id="@+id/textView4"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:textColor="@color/DarkGray"
-                    android:layout_toRightOf="@+id/imageView"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp" />
-            </RelativeLayout>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:id="@+id/imageView2"
-                android:background="#999999"
-                android:paddingTop="10dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/relativeLayout" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:paddingTop="@dimen/activity_vertical_margin"
-            android:paddingBottom="@dimen/activity_vertical_margin"
-            android:id="@+id/relativeLayout4"
-            android:weightSum="1" >
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:descendantFocusability="blocksDescendants"
-                android:id="@+id/linearLayout5" >
-
-                <include
-                    layout="@layout/vote_interface"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/voteInterface3" />
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/linearLayout4"
-                    android:layout_toRightOf="@+id/voteInterface"
-                    android:layout_alignParentStart="true" >
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Except with reports of nearby issues"
-                        android:id="@+id/textView5"
-                        android:layout_alignParentTop="true"
-                        android:textColor="#666666"
-                        android:textSize="25dp"
-                        android:paddingLeft="8dp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/linearLayout5"
-                android:id="@+id/relativeLayout3" >
-
-                <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="18dp"
-                    android:id="@+id/imageView3"
-                    android:src="@drawable/marker"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Near Ngong Hills Hotel and The Agenda"
-                    android:id="@+id/textView6"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp"
-                    android:textColor="@color/DarkGray" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="200m"
-                    android:id="@+id/textView7"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="14dp"
-                    android:paddingTop="5dp"
-                    android:textColor="@color/DarkGray"
-                    android:layout_toRightOf="@+id/imageView3"
-                    android:layout_gravity="right"
-                    android:paddingBottom="7dp" />
-            </RelativeLayout>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:id="@+id/imageView4"
-                android:background="#999999"
-                android:paddingTop="10dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/relativeLayout3" />
-        </RelativeLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="100dp"
-        android:layout_height="190dp"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="false"
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="232dp"
+        android:layout_height="80dp"
         android:id="@+id/bookMarkBar"
-        android:background="@drawable/bookmark_bar_thru_sort"
+        android:background="@drawable/bookmark_bar_first"
         android:baselineAligned="false"
         android:measureWithLargestChild="false"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="false"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp">
+        android:paddingLeft="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
 
         <ImageButton
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:id="@+id/feedBookmark"
-            android:layout_below="@+id/bookMarkBar"
-            android:layout_alignLeft="@+id/bookMarkBar"
-            android:layout_alignStart="@+id/bookMarkBar"
             android:src="@drawable/bookmark_feed_hl"
             android:scaleType="fitCenter"
             android:background="@color/transparent"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="16dp" />
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/newReportBookmark"
+            android:layout_alignParentStart="true" />
 
         <ImageButton
             android:layout_width="40dp"
@@ -353,7 +38,10 @@
             android:scaleType="fitCenter"
             android:background="@color/transparent"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp" />
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp" />
 
         <ImageButton
             android:layout_width="40dp"
@@ -363,22 +51,9 @@
             android:layout_gravity="center_horizontal"
             android:scaleType="fitCenter"
             android:background="@color/transparent"
-            android:layout_marginBottom="16dp" />
+            android:layout_alignTop="@+id/feedBookmark"
+            android:layout_toRightOf="@+id/newReportBookmark" />
 
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="The triangle in those reports is the upvote button. Press it to show you care about an issue!"
-        android:id="@+id/textView8"
-        android:layout_alignTop="@+id/bookMarkBar"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_toLeftOf="@+id/bookMarkBar"
-        android:textColor="@color/mtaa_safi_blue"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:paddingLeft="8dp" />
+    </RelativeLayout>
 
 </RelativeLayout>
