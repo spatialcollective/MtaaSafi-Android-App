@@ -159,11 +159,7 @@ public class NewReportActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-//        if(mCurrentLocation != null)
-//            Toast.makeText(this, "diff: " + location.distanceTo(mCurrentLocation) + ". Accuracy: " + location.getAccuracy(), Toast.LENGTH_SHORT).show();
-        mCurrentLocation = location;
-    }
+    public void onLocationChanged(Location location) { mCurrentLocation = location; }
 
     @Override
     public void onConnected(Bundle bundle) {

@@ -54,7 +54,8 @@
         <activity
             android:name=".newReport.NewReportActivity"
             android:label="@string/new_report"
-            android:parentActivityName=".feed.MainActivity" >
+            android:parentActivityName=".feed.MainActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan" >
 
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data

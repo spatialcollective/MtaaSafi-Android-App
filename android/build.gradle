@@ -23,8 +23,8 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 12
-        versionName ".9.1"
+        versionCode 13
+        versionName "newNewReport"
     }
     buildTypes {
         release {

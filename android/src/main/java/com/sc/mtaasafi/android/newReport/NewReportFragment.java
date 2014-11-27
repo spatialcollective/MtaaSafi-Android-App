@@ -1,6 +1,5 @@
 package com.sc.mtaasafi.android.newReport;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,14 +14,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 
@@ -41,7 +37,7 @@ public class NewReportFragment extends Fragment {
     private int previewClicked;
 
     public static final int REQUEST_IMAGE_CAPTURE = 1,
-        REQUIRED_PIC_COUNT = 3,
+        MAX_PIC_COUT = 3,
         PIC1 = 0, PIC2 = 1, PIC3 = 2;
 
     @Override
@@ -51,10 +47,10 @@ public class NewReportFragment extends Fragment {
         setHasOptionsMenu(true);
         detailsText = "";
         picPaths = new ArrayList<String>();
-        for(int i = 0; i < REQUIRED_PIC_COUNT; i++)
+        for(int i= 0; i < MAX_PIC_COUT; i++)
             picPaths.add(null);
         Log.e(LogTags.NEWREPORT, "OnCreate " + this.toString());
-        picPreviews = new ImageView[REQUIRED_PIC_COUNT];
+        picPreviews = new ImageView[MAX_PIC_COUT];
     }
 
     @Override
@@ -64,7 +60,7 @@ public class NewReportFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
-	   picPreviews[PIC1] = (ImageButton) view.findViewById(R.id.pic1);
+	    picPreviews[PIC1] = (ImageButton) view.findViewById(R.id.pic1);
         picPreviews[PIC2] = (ImageButton) view.findViewById(R.id.pic2);
         picPreviews[PIC3] = (ImageButton) view.findViewById(R.id.pic3);
         detailsView = (SafiEditText) view.findViewById(R.id.newReportDetails);
@@ -89,21 +85,20 @@ public class NewReportFragment extends Fragment {
     }
 
     private void updatePicPreviews() {
-        AQuery aq = new AQuery(getActivity());
-        for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
-            if (picPaths.get(i) != null)
-                picPreviews[i].setImageBitmap(getThumbnail(picPaths.get(i)));
+        int emptyPics = 0;
+        for(int i = 0; i < picPaths.size(); i++){
+            if(picPaths.get(i) != null)
+               picPreviews[i].setImageBitmap(getThumbnail(picPaths.get(i)));
+            else
+                emptyPics++;
         }
-        int emptyPics = emptyPicCount();
-        if (emptyPics == 0) {
-            getView().findViewById(R.id.attachPicsTV).setVisibility(View.INVISIBLE);
-        } else {
-            TextView attachPicsTV = (TextView) getView().findViewById(R.id.attachPicsTV);
-            String needMoreString = "Need " + emptyPics + " more picture";
-            if(emptyPics > 1)
-                needMoreString +="s";
-            attachPicsTV.setText(needMoreString);
+        switch (emptyPics){
+            case 0: picPreviews[PIC3].setVisibility(View.VISIBLE);
+            case 1: picPreviews[PIC3].setVisibility(View.VISIBLE);
+            case 2: picPreviews[PIC2].setVisibility(View.VISIBLE);
+            case 3: picPreviews[PIC1].setVisibility(View.VISIBLE);
         }
+        Log.e("PicPreviews", "Pic paths was size " + picPaths.size());
     }
 
     // Returns dynamically sized thumbnail to populate picPreviews.
@@ -135,19 +130,11 @@ public class NewReportFragment extends Fragment {
         Bitmap bmp = BitmapFactory.decodeFile(picPath);
         return Bitmap.createScaledBitmap(bmp, 120, 120, false);
     }
-    private int emptyPicCount(){
-        int emptyPics = 0;
-        for(int i = 0; i < REQUIRED_PIC_COUNT; i++){
-            if(picPaths.get(i) == null || picPaths.get(i).equals(""))
-                emptyPics++;
-        }
-        return emptyPics;
-    }
+
     private void setListeners() {
         detailsView.addTextChangedListener(new TextWatcher() {
             @Override public void afterTextChanged(Editable s) { }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 detailsText = s.toString();
@@ -160,30 +147,29 @@ public class NewReportFragment extends Fragment {
         previewClicked = clicked;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null){
-            File photoFile = null;
             try {
-                photoFile = createImageFile(previewClicked);
+                File photoFile = createImageFile(previewClicked);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             } catch (IOException ex){
                 Toast.makeText(getActivity(), "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
-        } else {
+        } else
             Toast.makeText(getActivity(), "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_IMAGE_CAPTURE) {
-            Log.e("FILE PATH ON AC RESULT", picPaths.get(previewClicked));
-            File file = new File(picPaths.get(previewClicked));
-            if (file.length() == 0)
-                picPaths.set(previewClicked, null);
-            updatePicPreviews();
-            attemptEnableSendSave();
+        if (requestCode != REQUEST_IMAGE_CAPTURE)
+            return;
+        File file = new File(picPaths.get(previewClicked));
+        if (file.length() == 0){
+            picPaths.remove(previewClicked);
+            file.delete();
         }
+        updatePicPreviews();
+        attemptEnableSendSave();
     }
 
     private File createImageFile(int previewClicked) throws IOException {
@@ -201,7 +187,7 @@ public class NewReportFragment extends Fragment {
         View view = getView();
         if (view == null)
             return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || emptyPicCount() > 0) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty()) {
             view.findViewById(R.id.sendButton).setEnabled(false);
             view.findViewById(R.id.saveButton).setEnabled(false);
         } else {

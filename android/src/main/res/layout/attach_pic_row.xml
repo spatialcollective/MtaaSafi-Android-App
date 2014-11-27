@@ -28,6 +28,7 @@
         android:background="@drawable/pic_button"
         android:translationZ="0dp"
         android:layout_margin="16dp"
+        android:visibility="gone"
         android:onClick="takePic2" />
 
     <ImageButton android:id="@+id/pic3"
@@ -40,6 +41,7 @@
         android:background="@drawable/pic_button"
         android:translationZ="0dp"
         android:layout_margin="16dp"
+        android:visibility="gone"
         android:onClick="takePic3" />
 
 </LinearLayout>

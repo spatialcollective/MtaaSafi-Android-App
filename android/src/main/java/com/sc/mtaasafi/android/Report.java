@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
@@ -26,7 +25,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 // Created by Agree on 9/4/2014.
@@ -67,10 +65,6 @@ public class Report {
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
         this.mediaPaths = picPaths;
-        Log.e(LogTags.NEWREPORT, "In Report(): # pics" +
-                mediaPaths.get(0).toString() + ". " +
-                mediaPaths.get(1).toString() + ". " +
-                mediaPaths.get(2).toString());
         this.serverId = this.dbId = 0;
     }
 
@@ -85,8 +79,12 @@ public class Report {
 
         mediaPaths = new ArrayList<String>();
         mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
-        mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
-        mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
+        String mediaPath2 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2));
+        if(mediaPath2 != null)
+            mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
+        String mediaPath3 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3));
+        if(mediaPath3 != null)
+            mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
 
         serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
         dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
@@ -132,8 +130,10 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_LNG, longitude);
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
         reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
+        if(mediaPaths.get(1) != null)
+            reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
+        if(mediaPaths.get(2) != null)
+            reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(2));
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
@@ -144,8 +144,7 @@ public class Report {
     }
     
     public static Uri getUri(int dbId) {
-        return Contract.Entry.CONTENT_URI.buildUpon()
-            .appendPath(Integer.toString(dbId)).build();
+        return Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
     }
     public static int serverIdToDBId(Context c, int serverId){
         String[] projection = new String[1];
@@ -256,6 +255,7 @@ public class Report {
         byte[] sha1hash = md.digest();
         return convertToHex(sha1hash);
     }
+
     private String convertToHex(byte[] data) {
         StringBuilder buf = new StringBuilder();
         for (byte b : data) {
