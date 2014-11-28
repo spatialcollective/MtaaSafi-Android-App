@@ -116,19 +116,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         }
     }
 
-    private void addComments(View view) {
-        mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
-        mNewComment.addData(mReport);
-
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
-        mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mAdapter = new CommentAdapter(getActivity(), null);
-        mRecyclerView.setAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this);
-    }
-
     private void updateVote(VoteButton voter) {
         final View wholeView = getView();
         voter.mServerId = mReport.serverId;
@@ -139,9 +126,9 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             public void onClick(View view) {
                 upVoteId.add(mReport.serverId);
                 if (wholeView.findViewById(R.id.bottomVote) == view)
-                    ((VoteButton) wholeView.findViewById(R.id.topVote)).toggle();
+                    ((VoteButton) wholeView.findViewById(R.id.topVote)).setCheckedState(true, mReport.upVoteCount + 1, upVoteId);
                 else
-                    ((VoteButton) wholeView.findViewById(R.id.bottomVote)).toggle();
+                    ((VoteButton) wholeView.findViewById(R.id.bottomVote)).setCheckedState(true, mReport.upVoteCount + 1, upVoteId);
         }});
     }
 
@@ -167,6 +154,19 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((MainActivity) getActivity()).getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
+    private void addComments(View view) {
+        mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
+        mNewComment.addData(mReport);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new CommentAdapter(getActivity(), null);
+        mRecyclerView.setAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
@@ -174,7 +174,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.e("Frag", "Load finished: " + cursor.getCount());
         ((CommentAdapter) mAdapter).swapCursor(cursor); }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { ((CommentAdapter) mAdapter).swapCursor(null); }
@@ -201,15 +200,11 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         media[0] = (ImageView) view.findViewById(R.id.media1);
         media[1] = (ImageView) view.findViewById(R.id.media2);
         media[2] = (ImageView) view.findViewById(R.id.media3);
-        media[0].getLayoutParams().height = mediaHeight;
-        media[0].requestLayout();
-        media[1].getLayoutParams().height = mediaHeight;
-        media[1].requestLayout();
-        media[2].getLayoutParams().height = mediaHeight;
-        media[2].requestLayout();
-        aq.id(media[0]).image(mReport.mediaPaths.get(0));
-        aq.id(media[1]).image(mReport.mediaPaths.get(1));
-        aq.id(media[2]).image(mReport.mediaPaths.get(2));
+        for (int i = 0; i < mReport.mediaPaths.size(); i++) {
+            media[i].getLayoutParams().height = mediaHeight;
+            media[i].requestLayout();
+            aq.id(media[i]).image(mReport.mediaPaths.get(i));
+        }
     }
 
     private void setUpViewPager(View view) {
@@ -226,7 +221,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             this.mediaPaths = mediaPaths;
         }
         @Override
-        public int getCount() {return mediaPaths.length;}
+        public int getCount() { return mediaPaths.length; }
         @Override
         public Fragment getItem(int i) {
             ImageFragment iF = new ImageFragment();
@@ -236,7 +231,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             return iF;
         }
     }
-
 
 // ==========================   Picture Animation   ===============================
 

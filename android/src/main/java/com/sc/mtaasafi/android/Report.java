@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
