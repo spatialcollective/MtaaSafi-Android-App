@@ -57,7 +57,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     Report mReport;
     NewCommentLayout mNewComment;
     private String distance = "None";
-    private ArrayList<Integer> upVoteId;
     Location currentLocation;
 
     private RecyclerView mRecyclerView;
@@ -84,7 +83,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         if (savedState != null)
             mReport = new Report(savedState);
         currentLocation = ((MainActivity) getActivity()).getLocation();
-        upVoteId = new ArrayList<Integer>();
         return view;
     }
     @Override
@@ -120,15 +118,14 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         final View wholeView = getView();
         voter.mServerId = mReport.serverId;
         voter.mReportUri = Report.getUri(mReport.dbId);
-        voter.setCheckedState(mReport.upVoted, mReport.upVoteCount, upVoteId);
+        voter.setCheckedState(mReport.upVoted, mReport.upVoteCount, null);
         voter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                upVoteId.add(mReport.serverId);
                 if (wholeView.findViewById(R.id.bottomVote) == view)
-                    ((VoteButton) wholeView.findViewById(R.id.topVote)).setCheckedState(true, mReport.upVoteCount + 1, upVoteId);
+                    ((VoteButton) wholeView.findViewById(R.id.topVote)).setCheckedState(true, mReport.upVoteCount + 1, null);
                 else
-                    ((VoteButton) wholeView.findViewById(R.id.bottomVote)).setCheckedState(true, mReport.upVoteCount + 1, upVoteId);
+                    ((VoteButton) wholeView.findViewById(R.id.bottomVote)).setCheckedState(true, mReport.upVoteCount + 1, null);
         }});
     }
 
@@ -204,6 +201,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         media[0] = (ImageView) view.findViewById(R.id.media1);
         media[1] = (ImageView) view.findViewById(R.id.media2);
         media[2] = (ImageView) view.findViewById(R.id.media3);
+        Log.e("MEDIA PATHS RDF", "Size: " + mReport.mediaPaths.size());
         for (int i = 0; i < mReport.mediaPaths.size(); i++) {
             media[i].getLayoutParams().height = mediaHeight;
             media[i].requestLayout();

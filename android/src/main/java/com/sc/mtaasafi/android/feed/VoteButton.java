@@ -41,12 +41,12 @@ public class VoteButton extends CompoundButton {
 
     public void setCheckedState(boolean upvoted, int upvoteCount, ArrayList<Integer> upvoteList) {
         this.enabled = !upvoted;
-        if (!upvoteList.isEmpty() && upvoteList.contains(this.mServerId) && this.enabled) {
+        if (upvoteList != null && !upvoteList.isEmpty()
+                && upvoteList.contains(this.mServerId) && this.enabled) {
             this.setText(Integer.toString(upvoteCount + 1));
             this.enabled = false;
         } else
             this.setText(Integer.toString(upvoteCount));
-
         this.setChecked(!this.enabled);
     }
 

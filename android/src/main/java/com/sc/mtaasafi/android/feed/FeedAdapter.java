@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,8 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
                 c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
+        Log.e("FeedAdapter Cursor", "Media Path 3 is null: " +
+                (c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)) == null));
         setDistanceView(holder, c);
         addClick(holder, c);
     }
@@ -85,7 +88,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
             mLocation = (TextView) v.findViewById(R.id.itemLocation);
             mDist = (TextView) v.findViewById(R.id.itemDistance);
-
             v.setOnClickListener(this);
             mVoteButton.setOnClickListener(this);
         }

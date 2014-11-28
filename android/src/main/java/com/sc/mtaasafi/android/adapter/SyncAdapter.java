@@ -133,12 +133,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
             batch.add(ContentProviderOperation
-                    .newInsert(Contract.Entry.CONTENT_URI)
-                    .withValues(report.getContentValues())
-                    .build());
+                 .newInsert(Contract.Entry.CONTENT_URI)
+                 .withValues(report.getContentValues())
+                 .build());
             syncResult.stats.numEntries++;
             syncResult.stats.numInserts++;
-
             mContentResolver.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
         }
     }
