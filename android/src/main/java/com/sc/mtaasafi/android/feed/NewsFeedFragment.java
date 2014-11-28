@@ -12,10 +12,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -30,7 +34,7 @@ public class NewsFeedFragment extends Fragment
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-
+    ImageButton newReport;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
     int index, top;
@@ -69,8 +73,38 @@ public class NewsFeedFragment extends Fragment
         mAdapter = new FeedAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
+        setUpNewReportButton();
     }
 
+    private void setUpNewReportButton(){
+        newReport = (ImageButton) getView().findViewById(R.id.newReportButton);
+        newReport.getLayoutParams().width = ((MainActivity) getActivity()).getScreenWidth()/4;
+        newReport.getLayoutParams().height = ((MainActivity) getActivity()).getScreenWidth()/4;
+        newReport.requestLayout();
+        newReport.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ((ViewGroup) v.getParent()).setClipChildren(false);
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    Animation scaleUp = new ScaleAnimation(1.0f, 1.2f, 1.0f, 1.2f,
+                            Animation.RELATIVE_TO_SELF, .5f,
+                            Animation.RELATIVE_TO_SELF, .5f);
+                    scaleUp.setDuration(200);
+                    scaleUp.setInterpolator(new AccelerateInterpolator());
+                    v.startAnimation(scaleUp);
+
+                } else {
+                    Animation scaleDown = new ScaleAnimation(1.2f, 1.0f, 1.2f, 1.0f,
+                            Animation.RELATIVE_TO_SELF,.5f,
+                            Animation.RELATIVE_TO_SELF, .5f);
+                    scaleDown.setDuration(201);
+                    scaleDown.setInterpolator(new AccelerateInterpolator());
+                    v.startAnimation(scaleDown);
+                }
+                return false;
+            }
+        });
+    }
     @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);

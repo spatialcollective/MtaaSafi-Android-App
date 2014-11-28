@@ -2,18 +2,30 @@ package com.sc.mtaasafi.android.feed;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 
+import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.database.Contract;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class VoteButton extends CompoundButton {
+public class VoteButton extends CompoundButton implements Animation.AnimationListener{
     public Uri mReportUri;
     public int mServerId;
     public boolean enabled;
@@ -21,16 +33,50 @@ public class VoteButton extends CompoundButton {
     public VoteButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.setOnCheckedChangeListener(new MyListener());
+        this.setOnTouchListener(new MyTouchListener());
     }
+    @Override
+    public void onFinishInflate(){
+        int screenW = ((MainActivity)getContext()).getWindowManager().getDefaultDisplay().getWidth();
+        Drawable upvoteButton = getResources().getDrawable(R.drawable.up_vote_button);
+        upvoteButton.setBounds(0, 0, screenW / 7, screenW / 7);
+        upvoteButton.draw(new Canvas());
+        setCompoundDrawables(null, upvoteButton, null, null);
+        getLayoutParams().height = screenW/5;
+        getLayoutParams().width = screenW/5;
+        requestLayout();
+        if(isChecked()){
+            setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+            setTypeface(Typeface.DEFAULT_BOLD);
+        } else{
+            setTextColor(getResources().getColor(R.color.textDarkGray));
+            setTypeface(Typeface.DEFAULT);
+        }
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {}
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        if(animation.getDuration() == 201){
+            int voteCount = Integer.parseInt(getText().toString());
+            setText(voteCount + 1 + "");
+            setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+            setTypeface(Typeface.DEFAULT_BOLD);
+        }
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {}
 
     private class MyListener implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton view, boolean isChecked) {
             if (enabled && isChecked) {
                 enabled = false;
-                Location location = ((MainActivity) getContext()).getLocation();
                 int voteCount = Integer.parseInt(getText().toString());
-                setText(voteCount + 1 + "");
+                Location location = ((MainActivity) getContext()).getLocation();
                 FireAndForgetExecutor.exec(new SaveUpvote(getContext(), mReportUri,
                         location.getLatitude(), location.getLongitude(), mServerId, voteCount));
             } else if (!enabled && !isChecked) {
@@ -38,7 +84,29 @@ public class VoteButton extends CompoundButton {
             }
         }
     }
+    private class MyTouchListener implements OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            ((ViewGroup) getParent()).setClipChildren(false);
+            if(event.getAction() == MotionEvent.ACTION_DOWN){
+                Animation scaleUp = new ScaleAnimation(1.0f, 1.2f, 1.0f, 1.2f,
+                                                       Animation.RELATIVE_TO_SELF, .5f,
+                                                       Animation.RELATIVE_TO_SELF, .5f);
+                scaleUp.setDuration(200);
+                scaleUp.setInterpolator(new AccelerateInterpolator());
+                v.startAnimation(scaleUp);
 
+            } else {
+                Animation scaleDown = new ScaleAnimation(1.2f, 1.0f, 1.2f, 1.0f,
+                                                        Animation.RELATIVE_TO_SELF,.5f,
+                                                        Animation.RELATIVE_TO_SELF, .5f);
+                scaleDown.setDuration(201);
+                scaleDown.setInterpolator(new AccelerateInterpolator());
+                v.startAnimation(scaleDown);
+            }
+            return false;
+        }
+    }
     public void setCheckedState(boolean upvoted, int upvoteCount, ArrayList<Integer> upvoteList) {
         this.enabled = !upvoted;
         if (upvoteList != null && !upvoteList.isEmpty()

@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -151,7 +152,10 @@ public class MainActivity extends ActionBarActivity implements
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
     }
-    
+    public void goToNewReport(View view) {
+        goToNewReport();
+    }
+
     public void goToNewReport(){
         Intent intent = new Intent();
         intent.setClass(this, NewReportActivity.class);
@@ -186,9 +190,7 @@ public class MainActivity extends ActionBarActivity implements
             return true;
         }
         String title = titleChar.toString();
-        if(title.equals("New Report")){
-            goToNewReport();
-        } else if(title.equals("Upload Saved Reports"))
+        if(title.equals("Upload Saved Reports"))
             uploadSavedReports();
         else
             return super.onOptionsItemSelected(item);
@@ -249,7 +251,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void saveUserName(Intent data) {
-        //cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
         cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
         cp.commit();
     }
