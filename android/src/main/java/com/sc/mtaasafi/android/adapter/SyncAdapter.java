@@ -110,7 +110,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         String[] projection = new String[1];
         projection[0] = Contract.Entry.COLUMN_ID;
         Cursor c = mContentResolver.query(Contract.Entry.CONTENT_URI, projection,
-                            Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'", null, null);
+                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         assert c != null;
         while (c.moveToNext()) {
             batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());

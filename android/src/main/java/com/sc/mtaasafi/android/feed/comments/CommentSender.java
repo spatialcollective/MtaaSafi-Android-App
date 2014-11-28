@@ -65,7 +65,6 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
 
     public void addNewCommentsToDb(JSONObject commentsData)
                 throws JSONException, RemoteException, OperationApplicationException {
-        // context.getContentResolver().insert(Contract.Comments.COMMENTS_URI, comment.getContentValues()); //for inserting just the sent comment
         JSONArray commentsArray = commentsData.getJSONArray(Contract.Comments.TABLE_NAME);
         if (commentsArray != null) {
             ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();

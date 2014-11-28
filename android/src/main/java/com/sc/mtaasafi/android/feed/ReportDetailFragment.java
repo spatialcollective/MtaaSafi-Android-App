@@ -108,7 +108,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     private void updateDetails(View view) {
         ((TextView) view.findViewById(R.id.r_username)).setText(mReport.userName);
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
-        ((TextView) view.findViewById(R.id.r_timestamp)).setText(mReport.timeStamp);
+        ((TextView) view.findViewById(R.id.r_timestamp)).setText(createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
         if (currentLocation != null) {
             distance = mReport.getDistanceText(currentLocation);
@@ -152,6 +152,10 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         super.onStop();
         ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ((MainActivity) getActivity()).getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+    }
+    private String createHumanReadableTimestamp() {
+        return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
+                .format(new java.util.Date(mReport.timeStamp));
     }
 
     private void addComments(View view) {

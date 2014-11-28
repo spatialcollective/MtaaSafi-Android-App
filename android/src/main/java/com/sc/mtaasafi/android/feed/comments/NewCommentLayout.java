@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.MainActivity;
@@ -47,7 +48,7 @@ public class NewCommentLayout extends LinearLayout {
     }
 
     public void addData(Report report) {
-        mComment.mUsername = report.userName;
+        mComment.mUsername = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
         mComment.mReportId = report.serverId;
     }
 
