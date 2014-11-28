@@ -90,7 +90,7 @@ public class ReportUploadingFragment extends ListFragment
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
             if (view.getId() == R.id.uploadingTime)
-                ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
+                ((TextView) view).setText(Report.getElapsedTime(cursor.getLong(i)));
             else if (view.getId() == R.id.upload_row)
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))

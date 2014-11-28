@@ -32,7 +32,8 @@ public class Report {
     public boolean upVoted = false;
     public int serverId, dbId, pendingState = -1, upVoteCount, inProgress = 0;
     public double latitude, longitude;
-    public String locationDescript, content, timeStamp, timeElapsed, userName;
+    public String locationDescript, content, timeElapsed, userName;
+    public long timeStamp;
     public ArrayList<String> mediaPaths;
     public Uri uri;
     public Location location;
@@ -60,7 +61,7 @@ public class Report {
         this.content = details;
         this.locationDescript = "";
         this.pendingState = 0;
-        this.timeStamp = createTimeStamp();
+        this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
         this.latitude = location.getLatitude();
         this.longitude =  location.getLongitude();
@@ -71,7 +72,7 @@ public class Report {
     public Report(Cursor c) {
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
         locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
-        timeStamp = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
+        timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         timeElapsed = getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         if(userName.equals(""))
@@ -105,7 +106,7 @@ public class Report {
         serverId = jsonData.getInt("unique_id");
         locationDescript = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
         content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
-        timeStamp = jsonData.getString(Contract.Entry.COLUMN_TIMESTAMP);
+        timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         latitude = jsonData.getDouble(Contract.Entry.COLUMN_LAT);
@@ -149,8 +150,9 @@ public class Report {
     public static int serverIdToDBId(Context c, int serverId){
         String[] projection = new String[1];
         projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor cursor = c.getContentResolver().query(Contract.Entry.CONTENT_URI, projection, Contract.Entry.COLUMN_SERVER_ID + " = " + serverId,
-            null, null);
+        Cursor cursor = c.getContentResolver().query(Contract.Entry.CONTENT_URI, projection,
+                                                    Contract.Entry.COLUMN_SERVER_ID + " = " + serverId,
+                                                    null, null);
         if(cursor.moveToNext()){
             int dbId = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_ID));
             cursor.close();
@@ -213,24 +215,12 @@ public class Report {
             return (long) Math.floor(timeElapsed/minute) + " min";
         return "just now";
     }
-    public static String getElapsedTime(String timestamp) {
-        if (timestamp != null) {
-            SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-            try {
-                long postEpochTime = df.parse(timestamp).getTime();
-                long currentEpochTime = System.currentTimeMillis();
-                return getHumanReadableTimeElapsed(currentEpochTime - postEpochTime, df.parse(timestamp));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+
+    public static String getElapsedTime(long timestamp) {
+        if (timestamp != 0)
+            return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp, new Date(timestamp));
         return "";
     }
-    private String createTimeStamp() {
-        return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
-                .format(new java.util.Date(System.currentTimeMillis()));
-    }
-
 
     private String getEncodedBytesForPic(int i) throws IOException {
         String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);

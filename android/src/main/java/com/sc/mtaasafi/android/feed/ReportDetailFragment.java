@@ -51,6 +51,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class ReportDetailFragment extends ListFragment implements AddCommentBar.CommentListener{
@@ -453,7 +454,7 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
             bottomUserDisplay = user.toString();
         ((TextView) view.findViewById(R.id.bottomContent)).setText(content);
         ((TextView) view.findViewById(R.id.bottomUsername)).setText(bottomUserDisplay);
-        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(getSimpleTimeStamp(time));
+        ((TextView) view.findViewById(R.id.bottomTimestamp)).setText(time);
         ((TextView) view.findViewById(R.id.itemLocation)).setText(location);
         ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
         updateBottomVote();
@@ -474,14 +475,8 @@ public class ReportDetailFragment extends ListFragment implements AddCommentBar.
         upvoteCount = topVote.voteCount;
         bottomVote.updateData(topVote.voteCount, topVote.userVoted, serverId);
     }
-    private String getSimpleTimeStamp(String timestamp) {
-        SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-        SimpleDateFormat displayFormat = new SimpleDateFormat("K:mm a  d MMM yy");
-        try {
-            return displayFormat.format(fromFormat.parse(timestamp));
-        } catch (Exception e) {
-            return timestamp;
-        }
+    private String getSimpleTimeStamp(long timestamp) {
+        return new SimpleDateFormat("K:mm a  d MMM yy").format(new Date(timestamp));
     }
 
 // ================= Comment Listener ================
