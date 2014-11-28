@@ -14,23 +14,19 @@ import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
-import com.sc.mtaasafi.android.feed.VoteInterface;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.TimeoutException;
@@ -94,9 +90,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         // send along user's upvote data, if any, with the report text
-        JSONObject withUpvoteData = VoteInterface.recordUpvoteLog(
-                mFragment.getActivity(), new JSONObject(pendingReport.getJsonStringRep()));
-        httpPost.setEntity(new StringEntity(withUpvoteData.toString()));
+//        JSONObject withUpvoteData = VoteInterface.recordUpvoteLog(
+//                mFragment.getActivity(), new JSONObject(pendingReport.getJsonStringRep())).toString();
+        httpPost.setEntity(new StringEntity(pendingReport.getJsonStringRep()));
         return processResponse(httpclient.execute(httpPost));
     }
 
@@ -123,7 +119,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
     
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
-        VoteInterface.onUpvotesRecorded(mFragment.getActivity(), response);
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
         ContentValues updateValues = new ContentValues();
         if (pendingReport.pendingState == 1) {
@@ -163,7 +158,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         if (picFile != null)
             picFile.delete();
     }
-
 
     private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {
         int statusCode = response.getStatusLine().getStatusCode();

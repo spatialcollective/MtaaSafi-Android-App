@@ -12,6 +12,8 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,12 +40,11 @@ import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
 
-
 public class MainActivity extends ActionBarActivity implements
-        NewsFeedFragment.ReportSelectedListener, AlertDialogFragment.AlertDialogListener,
+        AlertDialogFragment.AlertDialogListener,
         GooglePlayServicesClient.ConnectionCallbacks,
         GooglePlayServicesClient.OnConnectionFailedListener,
-        SwipeRefreshLayout.OnRefreshListener{
+        SwipeRefreshLayout.OnRefreshListener {
 
     ReportDetailFragment detailFragment;
     private LocationClient mLocationClient;
@@ -51,26 +52,28 @@ public class MainActivity extends ActionBarActivity implements
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details";
+    int sortOrderIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
-        Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
+
         restoreFragment(savedInstanceState);
         cp = PrefUtils.getPrefs(this);
         determineUsername();
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
-        if (savedInstanceState != null)
+        if (savedInstanceState != null) {
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
-        if (detailFragment == null) {
-            goToFeed();
+            sortOrderIndex = savedInstanceState.getInt("selectedNavItem");
         }
+        if (detailFragment == null)
+            goToFeed();
         cp = PrefUtils.getPrefs(this);
     }
 
@@ -109,28 +112,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
-    }
-    @Override
-    public void onResume(){
-        super.onResume();
-        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
-        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
-                android.support.v7.app.ActionBar.OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int i, long l) {
-                if(i == 0) // sort items by recent
-                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
-                else // sort items by most upvoted
-                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
-                return false;
-            }
-        });
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
-
-        supportInvalidateOptionsMenu();
+        bundle.putInt("selectedNavItem", getSupportActionBar().getSelectedNavigationIndex());
     }
     
     @Override
@@ -189,7 +171,10 @@ public class MainActivity extends ActionBarActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity, menu);
-        setUpActionBar(menu);
+        addUploadAction(menu);
+        addSortSpinner();
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -210,7 +195,25 @@ public class MainActivity extends ActionBarActivity implements
         return true;
     }
 
-    private void setUpActionBar(Menu menu){
+    private void addSortSpinner() {
+        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
+        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
+                android.support.v7.app.ActionBar.OnNavigationListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(int i, long l) {
+                        if (i == 0) // sort items by recent
+                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+                        else // sort items by most upvoted
+                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+                        return false;
+                    }
+                });
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getSupportActionBar().setSelectedNavigationItem(sortOrderIndex);
+    }
+
+    private void addUploadAction(Menu menu){
         int savedReportCt = NewReportActivity.getSavedReportCount(this);
         int drawable = 0;
         switch (savedReportCt) {
@@ -231,7 +234,6 @@ public class MainActivity extends ActionBarActivity implements
             menu.add(0, 0, 0, "Upload Saved Reports")
                 .setIcon(drawable)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        supportInvalidateOptionsMenu();
     }
 
     private void determineUsername() {
@@ -305,7 +307,6 @@ public class MainActivity extends ActionBarActivity implements
     private void onLocationDisabled(){
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
-
 
     @Override
     public void onRefresh() {

@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 
 import android.location.Location;
 
 import com.sc.mtaasafi.android.SystemUtils.LogTags;
+import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.Contract;
 
 import org.json.JSONArray;
@@ -69,6 +71,26 @@ public class Report {
         this.serverId = this.dbId = 0;
     }
 
+    public Report(Bundle bundle) {
+        content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
+        locationDescript = bundle.getString(Contract.Entry.COLUMN_LOCATION);
+        timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
+        userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
+        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL1));
+        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL2));
+        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL3));
+        serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
+        dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
+        double lat = bundle.getDouble(Contract.Entry.COLUMN_LAT);
+        double lon = bundle.getDouble(Contract.Entry.COLUMN_LNG);
+        location = new Location("report_location");
+        location.setLatitude(lat);
+        location.setLongitude(lon);
+        upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
+        upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
+        // make sure this method's only called after inflation
+    }
+
     public Report(Cursor c) {
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
         locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
@@ -112,7 +134,7 @@ public class Report {
         latitude = jsonData.getDouble(Contract.Entry.COLUMN_LAT);
         longitude = jsonData.getDouble(Contract.Entry.COLUMN_LNG);
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
-        upVoted = jsonData.getBoolean("upvoted"); // Contract.Entry.COLUMN_USER_UPVOTED);
+        upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         pendingState = pending;
         
         JSONArray mediaPathsInJSON = jsonData.getJSONArray("mediaURLs");
@@ -143,6 +165,23 @@ public class Report {
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 0);
         return reportValues;
     }
+
+    public Bundle saveState(Bundle output) {
+        output.putString(Contract.Entry.COLUMN_CONTENT, content);
+        output.putString(Contract.Entry.COLUMN_LOCATION, locationDescript);
+        output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
+        output.putString(Contract.Entry.COLUMN_USERNAME, userName);
+        output.putString(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
+        output.putString(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
+        output.putString(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
+        output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
+        output.putInt(Contract.Entry.COLUMN_ID, dbId);
+        output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        output.putDouble(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
+        output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
+        return output;
+    }
     
     public static Uri getUri(int dbId) {
         return Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
@@ -172,8 +211,21 @@ public class Report {
         return json.toString();
     }
 
-	public static String getDistanceText(Location currentLocation, Location reportLocation){
-        float distInMeters = reportLocation.distanceTo(currentLocation);
+    public static String getDistanceText(Location currentLocation, Double reportLat, Double reportLng) {
+        Location reportLocation = new Location("ReportLocation");
+        reportLocation.setLatitude(reportLat);
+        reportLocation.setLongitude(reportLng);
+        return getDistanceText(currentLocation, reportLocation);
+    }
+
+	public String getDistanceText(Location currentLocation) {
+        if (location == null)
+            return "error";
+        return getDistanceText(currentLocation, location);
+    }
+
+    public static String getDistanceText(Location current, Location reportLoc) {
+        float distInMeters = reportLoc.distanceTo(current);
         String distText;
         if(distInMeters > 1000){
             distText = Float.toString(distInMeters/1000);
