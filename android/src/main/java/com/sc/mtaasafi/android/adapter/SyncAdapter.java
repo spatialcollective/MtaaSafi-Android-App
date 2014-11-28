@@ -135,9 +135,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
             batch.add(ContentProviderOperation
-                    .newInsert(Contract.Entry.CONTENT_URI)
-                    .withValues(report.getContentValues())
-                    .build());
+                .newInsert(Contract.Entry.CONTENT_URI)
+                .withValues(report.getContentValues())
+                .build());
             syncResult.stats.numInserts++;
         }
         VoteInterface.onUpvotesRecorded(getContext(), serverResponse);
@@ -154,6 +154,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 fetchRequest.accumulate("ids", serverIds.get(i));
             VoteInterface.recordUpvoteLog(getContext(), fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
+            Log.e("FETCH SIZE:", "Reports requested: " + serverIds.size());
             return new JSONObject(makeRequest(fetchReportsURL, fetchRequest));
         }
         return null;
@@ -187,9 +188,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         projection[0] = Contract.Entry.COLUMN_ID;
         Cursor c = getContext().getContentResolver() // Get all entries that aren't pending reports
                     .query(Contract.Entry.CONTENT_URI, projection,
-                            Contract.Entry.COLUMN_MEDIAURL3 + " LIKE 'http%'", null, null);
+                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1" , null, null);
         assert c != null;
         ArrayList<Integer> dbIds = new ArrayList<Integer>();
+        Log.e("CURSOR SIZE", "Found " + c.getCount());
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
             dbIds.add(c.getInt(0));

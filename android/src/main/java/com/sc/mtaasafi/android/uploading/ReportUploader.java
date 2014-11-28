@@ -136,17 +136,18 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         } else if (pendingReport.pendingState == 3) {
             deleteLocalPic(1);
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == -1) {
+        } else if (pendingReport.pendingState == 4) {
             deleteLocalPic(2);
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
         }
-
-        updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
+            updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         if (pendingReport.pendingState > 0)
             updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
-        else
+        if(pendingReport.pendingState > pendingReport.mediaPaths.size()){
             updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
-
+            pendingReport.pendingState = -1;
+        }
+        updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)

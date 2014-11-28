@@ -33,6 +33,7 @@ import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.database.SyncUtils;
+import com.sc.mtaasafi.android.feed.onboarding.OnboardingFragment;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
 import com.sc.mtaasafi.android.uploading.UploadingActivity;
 
@@ -60,7 +61,7 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.MAIN_ACTIVITY, "onCreate");
         mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
-        restoreFragment(savedInstanceState);
+//        restoreFragment(savedInstanceState);
         cp = PrefUtils.getPrefs(this);
         determineUsername();
     }
@@ -81,6 +82,11 @@ public class MainActivity extends ActionBarActivity implements
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
         cp.commit();
         int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new OnboardingFragment(), NEWSFEED_TAG)
+                .commit();
+
         switch(gPlayCode) {
             case ConnectionResult.SERVICE_MISSING:
                 AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
@@ -115,17 +121,17 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
-        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
-                android.support.v7.app.ActionBar.OnNavigationListener() {
-            @Override
-            public boolean onNavigationItemSelected(int i, long l) {
-                if(i == 0) // sort items by recent
-                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
-                else // sort items by most upvoted
-                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
-                return false;
-            }
-        });
+//        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
+//                android.support.v7.app.ActionBar.OnNavigationListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(int i, long l) {
+//                if(i == 0) // sort items by recent
+//                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+//                else // sort items by most upvoted
+//                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+//                return false;
+//            }
+//        });
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowHomeEnabled(false);

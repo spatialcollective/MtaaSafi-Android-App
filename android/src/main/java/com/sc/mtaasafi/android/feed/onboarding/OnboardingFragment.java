@@ -12,6 +12,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -34,12 +35,16 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
     ViewPager viewPager;
     SlideAdapter adapter;
     RelativeLayout bookmarkBar;
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState){
-        View view = inflater.inflate(R.layout.fragment_onboard_launch, container, false);
-        setUpAnimations();
-        villageNameTV = (TextView) getView().findViewById(R.id.villageNames);
-        bookmarkBar = (RelativeLayout) view.findViewById(R.id.bookMarkBar);
 
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState){
+        View view = inflater.inflate(R.layout.fragment_onboard, container, false);
+        setUpAnimations();
+        villageNameTV = (TextView) view.findViewById(R.id.villageNames);
+        bookmarkBar = (RelativeLayout) view.findViewById(R.id.bookMarkBar);
+        ImageView logo = (ImageView) view.findViewById(R.id.logo);
+        logo.getLayoutParams().width = getActivity().getWindowManager().getDefaultDisplay().getWidth()/2;
+        logo.getLayoutParams().height = getActivity().getWindowManager().getDefaultDisplay().getWidth()/2;
+        logo.requestLayout();
         subVillages = new String[4];
         villageMod = (int) (System.currentTimeMillis() % 4);
         for (int i = 0; i < subVillages.length; i++)
@@ -61,6 +66,11 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
         fadeOut.setInterpolator(new DecelerateInterpolator());
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        startVillageNamesAnimation();
+    }
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -103,7 +113,10 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
         });
     }
 
-    public void startTutorial(){ viewPager.setCurrentItem(0); }
+    public void startTutorial(){
+        viewPager.setCurrentItem(0);
+        bookmarkBar.setVisibility(View.VISIBLE);
+    }
 
     public void setBookmarkActive(int i){
         switch(i){
