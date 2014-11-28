@@ -19,7 +19,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -233,9 +238,8 @@ public class MainActivity extends ActionBarActivity implements
                     drawable = R.drawable.button_uploadsaved9plus;
         }
         if (drawable != 0)
-            menu.add(0, 0, 0, "Upload Saved Reports")
-                .setIcon(drawable)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+            menu.add(0, 0, 0, "Upload Saved Reports").setIcon(drawable)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
     }
 
     private void determineUsername() {

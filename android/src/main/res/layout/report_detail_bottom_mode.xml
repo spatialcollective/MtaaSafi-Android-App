@@ -6,7 +6,9 @@
     android:layout_height="wrap_content"
     android:background="@drawable/background_gradient"
     android:paddingLeft="5dp"
-    android:paddingRight="5dp">
+    android:paddingRight="5dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <TextView android:id="@+id/r_content"
         android:layout_width="match_parent"
