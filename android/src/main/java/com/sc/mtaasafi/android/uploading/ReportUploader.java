@@ -56,7 +56,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     protected Integer doInBackground(Integer... p) {
         JSONObject serverResponse = null;
         try {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < pendingReport.mediaPaths.size() + 1; i++) {
                 if (isCancelled()) {
                     updateProgressStopped();
                     return canceller;

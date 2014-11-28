@@ -72,6 +72,7 @@ public class Report {
     }
 
     public Report(Bundle bundle) {
+        mediaPaths = new ArrayList<String>();
         content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
         locationDescript = bundle.getString(Contract.Entry.COLUMN_LOCATION);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
