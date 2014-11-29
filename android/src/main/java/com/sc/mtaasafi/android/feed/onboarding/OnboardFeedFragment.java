@@ -27,6 +27,7 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
         fadeIn = new AlphaAnimation(0f, 1f);
         fadeIn.setDuration(500);
         fadeIn.setStartOffset(850);
+        fadeIn.setAnimationListener(this);
         feedItem1 = (RelativeLayout) view.findViewById(R.id.feedItem1);
         feedItem2 = (RelativeLayout) view.findViewById(R.id.feedItem2);
         feedItem3 = (RelativeLayout) view.findViewById(R.id.feedItem3);

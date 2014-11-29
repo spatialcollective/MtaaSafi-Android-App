@@ -1,5 +1,6 @@
 package com.sc.mtaasafi.android.feed.onboarding;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -59,11 +60,15 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
 
     private void setUpAnimations(){
         fadeIn = new AlphaAnimation(0, 1);
-        fadeIn.setStartOffset(1200);
+        fadeIn.setStartOffset(300);
         fadeIn.setDuration(400);
+        fadeIn.setInterpolator(new DecelerateInterpolator());
         fadeOut = new AlphaAnimation(1, 0);
+        fadeOut.setStartOffset(1200);
         fadeOut.setDuration(350);
         fadeOut.setInterpolator(new DecelerateInterpolator());
+        fadeIn.setAnimationListener(this);
+        fadeOut.setAnimationListener(this);
     }
 
     @Override
@@ -79,7 +84,6 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
     }
 
     private void startVillageNamesAnimation(){
-        villageNameTV.setAlpha(0);
         villageNameTV.setText(subVillages[fadeInCount]);
         villageNameTV.startAnimation(fadeIn);
         fadeInCount++;
@@ -96,23 +100,41 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
             villageNameTV.startAnimation(fadeOut);
         else if(animation.getDuration() == 350 && fadeInCount == 4)
             // you've done your final fade out--prepare for final fade in: MATHARE!
-            finalFadeOut();
+            finalFadeIn();
+        else if(animation.getDuration() == 401)
+            revealTapScreenToContinue();
+        else if(animation.getDuration() == 402)
+            getView().findViewById(R.id.launchScreen).setVisibility(View.GONE);
+
     }
 
-    public void finalFadeOut(){
+    public void finalFadeIn(){
+        Animation finalfadeIn = new AlphaAnimation(0, 1);
+        finalfadeIn.setStartOffset(1200);
+        finalfadeIn.setDuration(401);
+        finalfadeIn.setAnimationListener(this);
         villageNameTV.setText("Mathare");
-        villageNameTV.startAnimation(fadeIn);
-        getView().findViewById(R.id.tapScreenTV).setVisibility(View.VISIBLE);
-        getView().setOnClickListener(new View.OnClickListener() {
+        villageNameTV.setTypeface(Typeface.DEFAULT_BOLD);
+        villageNameTV.startAnimation(finalfadeIn);
+        final Animation finalFadeOut = new AlphaAnimation(1, 0);
+        finalFadeOut.setDuration(402);
+        finalFadeOut.setAnimationListener(this);
+        getView().findViewById(R.id.launchScreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 fadeOut.setStartOffset(0);
-                v.startAnimation(fadeOut);
+                v.startAnimation(finalFadeOut);
                 startTutorial();
             }
         });
     }
-
+    private void revealTapScreenToContinue(){
+        getView().findViewById(R.id.tapScreenTV).setVisibility(View.VISIBLE);
+        Animation revealTapScreen = new AlphaAnimation(0, 1);
+        revealTapScreen.setStartOffset(1200);
+        revealTapScreen.setDuration(404);
+        getView().findViewById(R.id.tapScreenTV).startAnimation(revealTapScreen);
+    }
     public void startTutorial(){
         viewPager.setCurrentItem(0);
         bookmarkBar.setVisibility(View.VISIBLE);
