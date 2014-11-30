@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <com.sc.mtaasafi.android.feed.comments.NewCommentLayout
+        android:id="@+id/new_comment_bar"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <com.sc.mtaasafi.android.newReport.SafiEditText
+            android:id="@+id/commentEditText"
+            android:hint="Comment..."
+            android:textColorHighlight="@color/Coral"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_weight="1"
+            android:imeOptions="actionDone"
+            android:background="@drawable/add_comment_background"/>
+
+        <Button android:id="@+id/sendComment"
+            android:text="Send"
+            android:layout_width="wrap_content"
+            android:minWidth="88dp"
+            android:layout_height="48dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_gravity="end"
+            android:layout_weight="0"
+            android:background="@color/transparent"
+            android:textColor="@color/disableable_button"
+            android:enabled="false" />
+
+    </com.sc.mtaasafi.android.feed.comments.NewCommentLayout>
+
+    <android.support.v7.widget.RecyclerView android:id="@+id/comments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        tools:layout="@layout/comment_view"/>
+</LinearLayout>

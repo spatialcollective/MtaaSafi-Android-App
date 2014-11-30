@@ -2,11 +2,4 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sc.mtaasafi.android.feed.MainActivity" >
-
-    <item android:id="@+id/_action_report"
-        android:title="@string/new_report"
-        android:icon="@drawable/pencil"
-        android:orderInCategory="1"
-        app:showAsAction="ifRoom" />
-
 </menu>

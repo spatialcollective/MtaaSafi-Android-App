@@ -5,26 +5,25 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/news_feed">
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/feedLL"
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:id="@+id/feedLL"
         android:background="@color/mtaa_safi_blue">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/mtaa_safi_blue">
 
-            <ImageView
+            <ImageView android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:scaleType="fitCenter"
                 android:src="@drawable/feed_background"
-                android:id="@+id/doneButton"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"/>
 
@@ -33,37 +32,45 @@
             android:layout_height="match_parent"
             android:id="@+id/swipeRefresh"
             android:background="@color/transparent">
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@android:id/list"
-                android:clickable="false"
-                android:layout_alignParentStart="true"
-                android:divider="@null"
-                android:dividerHeight="0dp"
-                android:background="#FFFFFF"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true" />
-        </android.support.v4.widget.SwipeRefreshLayout>
+                <android.support.v7.widget.RecyclerView android:id="@+id/recycle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:background="#FFFFFF" />
 
-            <include
+            </android.support.v4.widget.SwipeRefreshLayout>
+
+            <include android:id="@+id/refresh_failed_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 layout="@layout/refresh_failed_bar"
-                android:id="@+id/refresh_failed_bar"
                 android:layout_gravity="center_horizontal"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:visibility="gone"/>
+
         </RelativeLayout>
     </LinearLayout>
 
-    <include
+    <include android:id="@+id/refreshNotice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         layout="@layout/pull_down_to_refresh_notice"
         android:visibility="gone"
-        android:id="@+id/refreshNotice"
         android:layout_centerInParent="true"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/newReportButton"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/button_new_report"
+        android:background="@color/transparent"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:scaleType="fitCenter"
+        android:onClick="goToNewReport"/>
 
 </RelativeLayout>

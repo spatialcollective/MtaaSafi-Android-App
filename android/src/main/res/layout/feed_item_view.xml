@@ -8,37 +8,33 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:id="@+id/feed_item"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:weightSum="1">
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/voteAndText"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:descendantFocusability="blocksDescendants"
-        android:id="@+id/voteAndText">
+        android:descendantFocusability="blocksDescendants"        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <include
+        <include android:id="@+id/voteInterface"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            layout="@layout/vote_interface" />
+            android:layout_height="wrap_content"/>
 
-        <LinearLayout
+        <LinearLayout android:id="@+id/linearLayout2"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/linearLayout2"
-            android:layout_toRightOf="@+id/voteInterface"
-            android:layout_alignParentStart="true">
+            android:layout_height="wrap_content" >
 
-            <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Report description"
-                    android:id="@+id/itemTitle"
-                    android:layout_alignParentTop="true"
-                    android:textColor="#666666"
-                android:textSize="25dp"
-                android:paddingLeft="8dp" />
+            <TextView android:id="@+id/itemTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Report description"
+                android:layout_alignParentTop="true"
+                android:textColor="#666666"
+                android:textSize="25dp" />
 
         </LinearLayout>
 
@@ -50,42 +46,33 @@
         android:layout_below="@+id/voteAndText"
         android:id="@+id/location">
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Near Ngong Hills Hotel and The Agenda"
-                android:id="@+id/itemLocation"
-                android:paddingLeft="10dp"
-                android:paddingRight="5dp"
-                android:textSize="14dp"
-                android:paddingTop="5dp"
-                android:layout_alignParentRight="true"
-                android:layout_gravity="right"
-                android:paddingBottom="7dp"
-            android:textColor="@color/DarkGray" />
-
-        <ImageView
-            android:layout_width="12dp"
-            android:layout_height="18dp"
-            android:id="@+id/markerIcon"
-            android:src="@drawable/marker"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <TextView
+        <TextView android:id="@+id/itemLocation"
+            android:text="Near Nowhereville"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5km"
-            android:id="@+id/itemDistance"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
             android:textSize="14dp"
-            android:paddingTop="5dp"
+            android:layout_alignParentLeft="true"
+            android:layout_gravity="left"
+            android:textColor="@color/DarkGray" />
+
+        <TextView android:id="@+id/itemDistance"
+            android:text="infinite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_alignParentRight="true"
+            android:textSize="14dp"
+            android:drawableRight="@drawable/marker_small"
+            android:drawablePadding="8dp"
             android:textColor="@color/DarkGray"
-            android:layout_toRightOf="@+id/markerIcon"
-            android:layout_gravity="right"
-            android:paddingBottom="7dp" />
+            android:layout_gravity="right" />
     </RelativeLayout>
 
     <ImageView

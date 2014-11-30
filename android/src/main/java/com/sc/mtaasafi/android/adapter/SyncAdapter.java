@@ -16,11 +16,9 @@ import android.util.Log;
 
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.SystemUtils.ComplexPreferences;
-import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
-import com.sc.mtaasafi.android.feed.VoteInterface;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -33,10 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -51,8 +46,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private final ContentResolver mContentResolver;
     private ComplexPreferences cp;
-    // Project used when querying content provider. Returns all known fields.
-    // Constants representing column positions from PROJECTION.
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -75,10 +68,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             Log.i(TAG, "Streaming data from network: " + URLs.FEED);
             ArrayList serverIds = getServerIds();
-            if(serverIds != null)
+            if (serverIds != null)
                 updateLocalFeedData(serverIds, syncResult);
-            else //throw a fit?
-                 // TODO : handle null location errors, which will occur first time user opens app
+            else // TODO : handle null location errors, which will occur first time user opens app
                 return;
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Feed URL is malformed", e);
@@ -115,14 +107,20 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             OperationApplicationException, ParseException, JSONException {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-        ArrayList<Integer> dbIds = getDbIds(syncResult);
-        for (int i = 0; i < dbIds.size(); i++) {
-            batch.add(ContentProviderOperation.newDelete(Report.getUri(dbIds.get(i))).build());
+        String[] projection = new String[1];
+        projection[0] = Contract.Entry.COLUMN_ID;
+        Cursor c = mContentResolver.query(Contract.Entry.CONTENT_URI, projection,
+                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
+        assert c != null;
+        while (c.moveToNext()) {
+            batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());
+            syncResult.stats.numEntries++;
             syncResult.stats.numDeletes++;
         }
         writeNewReports(getNewReportsFromServer(serverIds), batch, syncResult);
+        c.close();
+
         Log.i(TAG, "Merge solution ready. Applying batch update");
-        getDbIds(syncResult);
         mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
         mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
     }
@@ -135,29 +133,44 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
             batch.add(ContentProviderOperation
-                .newInsert(Contract.Entry.CONTENT_URI)
-                .withValues(report.getContentValues())
-                .build());
+                 .newInsert(Contract.Entry.CONTENT_URI)
+                 .withValues(report.getContentValues())
+                 .build());
+            syncResult.stats.numEntries++;
             syncResult.stats.numInserts++;
+            mContentResolver.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
         }
-        VoteInterface.onUpvotesRecorded(getContext(), serverResponse);
     }
 
-    private JSONObject getNewReportsFromServer(ArrayList serverIds) throws IOException, JSONException{
+    private JSONObject getNewReportsFromServer(ArrayList serverIds) throws
+            IOException, JSONException, OperationApplicationException, RemoteException {
         String fetchReportsURL = URLs.FEED + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         String username = cp.getString(PrefUtils.USERNAME, "");
-        if(!username.isEmpty()){
+        if (!username.isEmpty()) {
             JSONObject fetchRequest = new JSONObject().put("username", PrefUtils.trimUsername(username))
                                                       .put("ids", new JSONArray());
-            for(int i=0; i < serverIds.size(); i++)
+            for (int i=0; i < serverIds.size(); i++)
                 fetchRequest.accumulate("ids", serverIds.get(i));
-            VoteInterface.recordUpvoteLog(getContext(), fetchRequest);
+            fetchRequest = addNewUpvotes(fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            Log.e("FETCH SIZE:", "Reports requested: " + serverIds.size());
             return new JSONObject(makeRequest(fetchReportsURL, fetchRequest));
         }
         return null;
+    }
+
+    private JSONObject addNewUpvotes(JSONObject fetchRequest) throws RemoteException, OperationApplicationException, JSONException {
+        String userName = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
+        userName = PrefUtils.trimUsername(userName);
+        JSONObject upvoteData = new JSONObject().put("username", userName);
+        upvoteData.put("ids", new JSONArray());
+
+        Cursor upvoteLog = mContentResolver.query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);
+        while (upvoteLog.moveToNext())
+            upvoteData.accumulate("ids", upvoteLog.getInt(upvoteLog.getColumnIndex(Contract.UpvoteLog.COLUMN_SERVER_ID)));
+        fetchRequest.put("upvote_data", upvoteData);
+        upvoteLog.close();
+        return fetchRequest;
     }
 
     // retrieves from the server a list of ids that are within some radius of the user's current location
@@ -178,26 +191,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             return serverIds;
         } else
             return null;
-
-    }
-
-    private ArrayList<Integer> getDbIds(SyncResult syncResult){
-        // Get list of all items
-        Log.i(TAG, "getting local entries for merge");
-        String[] projection = new String[1];
-        projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor c = getContext().getContentResolver() // Get all entries that aren't pending reports
-                    .query(Contract.Entry.CONTENT_URI, projection,
-                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1" , null, null);
-        assert c != null;
-        ArrayList<Integer> dbIds = new ArrayList<Integer>();
-        Log.e("CURSOR SIZE", "Found " + c.getCount());
-        while (c.moveToNext()) {
-            syncResult.stats.numEntries++;
-            dbIds.add(c.getInt(0));
-        }
-        c.close();
-        return dbIds;
     }
 
     private String makeRequest(String url, JSONObject entity) throws IOException {

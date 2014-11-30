@@ -1,71 +1,74 @@
-<RelativeLayout
+<RelativeLayout android:id="@+id/reportDetailViewText"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:id="@+id/reportDetailViewText">
+        android:layout_height="fill_parent"
+        android:paddingTop="16dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-        <LinearLayout
+        <LinearLayout android:id="@+id/top_layout"
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/top_layout">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp">
+
             <RelativeLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
-                <TextView
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:padding="8dp">
+
+                <TextView android:id="@+id/r_content"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Report Title"
-                    android:id="@+id/reportViewContent"
                     android:textSize="30dp"
-                    android:paddingLeft="10dp"
                     android:layout_toRightOf="@+id/topVote"
                     android:layout_alignParentTop="true"
                     android:paddingTop="5dp" />
-                <include
+
+                <include android:id="@+id/topVote"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     layout="@layout/vote_interface"
-                    android:id="@+id/topVote"
-                    android:layout_marginLeft="10dp" />
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"/>
 
-                </RelativeLayout>
+            </RelativeLayout>
 
-            <LinearLayout
+            <LinearLayout android:id="@+id/detailPics"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/LightGrey"
-                android:id="@+id/detailPics">
+                android:background="@color/LightGrey" >
 
-                <ImageView
+                <ImageView android:id="@+id/media1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/media1"
                     android:src="@drawable/pic_placeholder"
                     android:layout_weight="1"
                     android:paddingRight="5dp"
                     android:paddingLeft="5dp"
                     android:scaleType="centerCrop" />
 
-                <ImageView
+                <ImageView android:id="@+id/media2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/media2"
                     android:src="@drawable/pic_placeholder"
                     android:layout_weight="1"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     android:scaleType="centerCrop" />
 
-                <ImageView
+                <ImageView android:id="@+id/media3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/media3"
                     android:src="@drawable/pic_placeholder"
                     android:layout_weight="1"
                     android:paddingRight="5dp"
@@ -77,11 +80,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
+                <TextView android:id="@+id/r_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="User Name"
-                    android:id="@+id/reportViewUsername"
                     android:textColor="#666666"
                     android:paddingLeft="10dp"
                     android:textSize="12dp"
@@ -90,11 +92,10 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true" />
 
-                <TextView
+                <TextView android:id="@+id/r_timestamp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="5h"
-                    android:id="@+id/reportViewTimeStamp"
                     android:paddingRight="10dp"
                     android:textSize="12dp"
                     android:layout_alignParentTop="true"
@@ -105,37 +106,30 @@
                     android:paddingTop="5dp" />
             </RelativeLayout>
 
-            <include
+            <include layout="@layout/location_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                layout="@layout/location_bar"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginRight="5dp"
                 android:layout_marginLeft="10dp" />
 
-            <include
+            <include layout="@layout/comments_interface"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                layout="@layout/add_comment_bar" />
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@android:id/list" />
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
-        <android.support.v4.view.ViewPager
+        <android.support.v4.view.ViewPager android:id="@+id/viewpager"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/viewpager"
             android:visibility="invisible"
             android:background="@color/DarkSlateGray"/>
 
-        <include
+        <include android:id="@+id/report_BottomView"
+            layout="@layout/report_detail_bottom_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            layout="@layout/report_detail_bottom_mode"
             android:layout_gravity="center_horizontal"
             android:layout_alignParentBottom="true"
-            android:id="@+id/report_BottomView"
             android:visibility="gone"/>
 
     </RelativeLayout>

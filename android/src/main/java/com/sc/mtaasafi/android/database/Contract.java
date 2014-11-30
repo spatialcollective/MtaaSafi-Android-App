@@ -35,8 +35,7 @@ public class Contract {
             COLUMN_PENDINGFLAG = "pending",
             COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
             COLUMN_UPVOTE_COUNT = "upvote_count",
-            COLUMN_USER_UPVOTED = "user_upvoted";
-            // keep track of whether the user upvoted this particular report
+            COLUMN_USER_UPVOTED = "upvoted";
     }
 
     public static class UpvoteLog implements BaseColumns{

@@ -77,7 +77,7 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
 
     private void addThumb(View thumbView, String picPath) {
         Bitmap thumb = BitmapFactory.decodeFile(picPath);
-        if (thumb != null) {
+        if (picPath != null && thumb != null) {
             thumb = Bitmap.createScaledBitmap(thumb, image_px, image_px, false);
             Bitmap circleThumb = createCircleThumb(thumb);
             ((ImageView) thumbView.findViewById(R.id.pic_image)).setImageBitmap(circleThumb);
@@ -127,7 +127,7 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
                     row.findViewById(R.id.upload_pic_2).findViewById(R.id.pic_progress).setVisibility(View.INVISIBLE);
                     row.findViewById(R.id.upload_pic_3).findViewById(R.id.pic_progress).setVisibility(View.VISIBLE);
                     break;
-                case -1:
+                case 4:
                     row.findViewById(R.id.upload_pic_3).findViewById(R.id.pic_progress).setVisibility(View.INVISIBLE);
             }
         }
