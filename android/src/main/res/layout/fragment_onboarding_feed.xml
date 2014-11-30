@@ -321,7 +321,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Those triangles are upvote buttons. Press them to show you care about an issue!"
-        android:id="@+id/textView"
+        android:id="@+id/triangleText"
         android:textColor="@color/mtaa_safi_blue"
         android:textSize="20dp"
         android:textStyle="bold"
@@ -331,5 +331,68 @@
         android:layout_centerHorizontal="true"
         android:paddingRight="8dp"
         android:visibility="invisible" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/mtaa_safi_blue"
+        android:id="@+id/launchScreen">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/logo"
+            android:src="@drawable/logo_v3"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thank you for joining the Mtaa Safi movement!"
+            android:id="@+id/thankyouTV"
+            android:gravity="center_horizontal"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/logo"
+            android:layout_margin="16dp"
+            android:textColor="@color/White"
+            android:textSize="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap screen to continue"
+            android:id="@+id/tapScreenTV"
+            android:textColor="@color/White"
+            android:layout_below="@+id/thankyouTV"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="96dp"
+            android:visibility="invisible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Together we can make a better"
+            android:id="@+id/togetherWeCan"
+            android:gravity="center_horizontal"
+            android:textColor="@color/White"
+            android:textSize="24dp"
+            android:layout_below="@+id/thankyouTV"
+            android:layout_alignRight="@+id/thankyouTV"
+            android:layout_alignEnd="@+id/thankyouTV" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mathare"
+            android:id="@+id/villageNames"
+            android:gravity="center_horizontal"
+            android:textColor="@color/White"
+            android:textSize="24dp"
+            android:layout_below="@+id/togetherWeCan"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

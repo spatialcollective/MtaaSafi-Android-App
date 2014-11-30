@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Feed refresh failed"
-        android:id="@+id/textView"
+        android:id="@+id/thankyouTV"
         android:background="@color/Red"
         android:textColor="@color/White"
         android:gravity="center_horizontal"
