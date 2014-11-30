@@ -85,7 +85,6 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
         villageFadeInFadeOut.addAnimation(fadeOut);
         villageFadeInFadeOut.setAnimationListener(this);
     }
-
     @Override
     public void onAnimationEnd(Animation animation) {
         Log.e("Scene just finished:", "Scene " + scene);

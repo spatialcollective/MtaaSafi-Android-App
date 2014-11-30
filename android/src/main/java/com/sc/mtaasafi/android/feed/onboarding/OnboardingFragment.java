@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ import com.sc.mtaasafi.android.feed.ZoomOutPageTransformer;
 /**
  * Created by Agree on 11/28/2014.
  */
-public class OnboardingFragment extends Fragment implements Animation.AnimationListener{
+public class OnboardingFragment extends Fragment implements Animation.AnimationListener, ViewPager.OnPageChangeListener{
 
     ViewPager viewPager;
     SlideAdapter adapter;
@@ -35,13 +36,33 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        viewPager.setOnPageChangeListener(this);
         feedBookMark = (ImageButton) view.findViewById(R.id.feedBookmark);
         newReportBookMark = (ImageButton) view.findViewById(R.id.newReportBookmark);
         doneBookMark = (ImageButton) view.findViewById(R.id.doneBookmark);
+        setBookMarkListeners();
         return view;
+    }
+    private void setBookMarkListeners(){
+        feedBookMark.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBookmarkActive(0);
+                viewPager.setCurrentItem(0); }
+        });
+        newReportBookMark.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBookmarkActive(1);
+                viewPager.setCurrentItem(1); }
+        });
+        doneBookMark.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                setBookmarkActive(2);
+                viewPager.setCurrentItem(2); }
+        });
     }
 
     public void setBookmarkActive(int i){
+        Log.e("BookMark", "Active Int val: " + i);
         switch(i){
             case 0:
                 ((ImageButton)bookmarkBar.findViewById(R.id.feedBookmark))
@@ -63,7 +84,6 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
                 break;
         }
     }
-
     private void setBookMarkPassive(int passiveBookMarkId){
         int passiveDrawableId = 0;
         switch(passiveBookMarkId){
@@ -108,12 +128,15 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
         doneBookMark.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void onPageSelected(int i) { setBookmarkActive(i); }
+
     private class SlideAdapter extends FragmentPagerAdapter {
         public SlideAdapter(FragmentManager fm) { super(fm); }
-        @Override public int getCount() { return 3; }
+        @Override
+        public int getCount() { return 3; }
         @Override
         public Fragment getItem(int i) {
-            setBookmarkActive(i);
             switch(i){
                 case 0: return new OnboardFeedFragment();
                 case 1: return new OnboardNewReportFragment();
@@ -124,4 +147,8 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
     }
     @Override public void onAnimationRepeat(Animation animation) {}
     @Override public void onAnimationStart(Animation animation) {}
+    @Override public void onPageScrollStateChanged(int i) {}
+    @Override public void onPageScrolled(int i, float v, int i2) { }
+
+
 }
