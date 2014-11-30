@@ -31,7 +31,8 @@
             android:layout_gravity="center_horizontal"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/newReportBookmark"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:visibility="invisible" />
 
         <ImageButton
             android:layout_width="40dp"
@@ -44,7 +45,8 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginRight="16dp"
-            android:layout_marginLeft="16dp" />
+            android:layout_marginLeft="16dp"
+            android:visibility="invisible" />
 
         <ImageButton
             android:layout_width="40dp"
@@ -55,7 +57,8 @@
             android:scaleType="fitCenter"
             android:background="@color/transparent"
             android:layout_alignTop="@+id/feedBookmark"
-            android:layout_toRightOf="@+id/newReportBookmark" />
+            android:layout_toRightOf="@+id/newReportBookmark"
+            android:visibility="invisible" />
 
     </RelativeLayout>
 

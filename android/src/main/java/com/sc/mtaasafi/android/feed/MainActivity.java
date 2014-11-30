@@ -82,11 +82,7 @@ public class MainActivity extends ActionBarActivity implements
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
         cp.commit();
         int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new OnboardingFragment(), NEWSFEED_TAG)
-                .commit();
-
+        goToOnboarding();
         switch(gPlayCode) {
             case ConnectionResult.SERVICE_MISSING:
                 AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
@@ -170,6 +166,13 @@ public class MainActivity extends ActionBarActivity implements
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
+                .commit();
+    }
+    private void goToOnboarding(){
+        getSupportActionBar().hide();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new OnboardingFragment(), NEWSFEED_TAG)
                 .commit();
     }
     public NewsFeedFragment getNewsFeedFragment(){

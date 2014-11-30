@@ -1,6 +1,5 @@
 package com.sc.mtaasafi.android.feed.onboarding;
 
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,13 +8,11 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.feed.ZoomOutPageTransformer;
@@ -23,21 +20,24 @@ import com.sc.mtaasafi.android.feed.ZoomOutPageTransformer;
 /**
  * Created by Agree on 11/28/2014.
  */
-public class OnboardingFragment extends Fragment {
+public class OnboardingFragment extends Fragment implements Animation.AnimationListener{
 
     ViewPager viewPager;
     SlideAdapter adapter;
     RelativeLayout bookmarkBar;
+    ImageButton feedBookMark, newReportBookMark, doneBookMark;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState){
         View view = inflater.inflate(R.layout.fragment_onboard, container, false);
         adapter = new SlideAdapter(getChildFragmentManager());
         bookmarkBar = (RelativeLayout) view.findViewById(R.id.bookMarkBar);
-
         viewPager = (ViewPager) view.findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        feedBookMark = (ImageButton) view.findViewById(R.id.feedBookmark);
+        newReportBookMark = (ImageButton) view.findViewById(R.id.newReportBookmark);
+        doneBookMark = (ImageButton) view.findViewById(R.id.doneBookmark);
         return view;
     }
 
@@ -73,6 +73,40 @@ public class OnboardingFragment extends Fragment {
         }
         ((ImageButton)bookmarkBar.findViewById(passiveBookMarkId)).setImageResource(passiveDrawableId);
     }
+    public void revealBookMarkBar(){
+        Animation slideUp = AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_in_bottom);
+        slideUp.setAnimationListener(this);
+        bookmarkBar.startAnimation(slideUp);
+        bookmarkBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        Animation revealFeedBM = new ScaleAnimation(0, 1, 0, 1,
+                                                    Animation.RELATIVE_TO_SELF, .5f,
+                                                    Animation.RELATIVE_TO_SELF, .5f);
+        revealFeedBM.setDuration(250);
+        revealFeedBM.setStartOffset(150);
+
+        Animation revealNewReportBM = new ScaleAnimation(0, 1, 0, 1,
+                                                    Animation.RELATIVE_TO_SELF, .5f,
+                                                    Animation.RELATIVE_TO_SELF, .5f);
+        revealNewReportBM.setDuration(250);
+        revealNewReportBM.setStartOffset(300);
+
+        Animation revealDoneBM = new ScaleAnimation(0, 1, 0, 1,
+                                                    Animation.RELATIVE_TO_SELF, .5f,
+                                                    Animation.RELATIVE_TO_SELF, .5f);
+        revealDoneBM.setDuration(250);
+        revealDoneBM.setStartOffset(450);
+
+        feedBookMark.startAnimation(revealFeedBM);
+        newReportBookMark.startAnimation(revealNewReportBM);
+        doneBookMark.startAnimation(revealDoneBM);
+        feedBookMark.setVisibility(View.VISIBLE);
+        newReportBookMark.setVisibility(View.VISIBLE);
+        doneBookMark.setVisibility(View.VISIBLE);
+    }
 
     private class SlideAdapter extends FragmentPagerAdapter {
         public SlideAdapter(FragmentManager fm) { super(fm); }
@@ -88,4 +122,6 @@ public class OnboardingFragment extends Fragment {
             }
         }
     }
+    @Override public void onAnimationRepeat(Animation animation) {}
+    @Override public void onAnimationStart(Animation animation) {}
 }

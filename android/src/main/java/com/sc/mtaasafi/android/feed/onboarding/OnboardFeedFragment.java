@@ -97,6 +97,7 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
                 case 7:
                     if(continueTapped){
                         getView().findViewById(R.id.launchScreen).setVisibility(View.GONE);
+                        ((OnboardingFragment)getParentFragment()).revealBookMarkBar();
                         feedItem2.startAnimation(feedFadeIn);
                         feedItem2.setVisibility(View.VISIBLE);
                     }
@@ -111,10 +112,6 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
                     getView().findViewById(R.id.triangleText).setVisibility(View.VISIBLE);
                     getView().findViewById(R.id.triangleText).startAnimation(feedFadeIn);
                     break;
-//                case 10:
-//                    getView().findViewById(R.id.triangleText).setVisibility(View.VISIBLE);
-//                    getView().findViewById(R.id.triangleText).startAnimation(feedFadeIn);
-//                    break;
         }
         Log.e("FItem1", "visible: " + (feedItem1.getVisibility()==View.VISIBLE));
         scene++;

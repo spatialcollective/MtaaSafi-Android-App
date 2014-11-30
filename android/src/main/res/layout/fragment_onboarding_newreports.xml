@@ -11,7 +11,7 @@
         android:src="@drawable/button_new_report"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp" />
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -37,7 +37,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center_horizontal">
+            android:gravity="center_horizontal"
+            android:id="@+id/describeProblem"
+            android:visibility="invisible">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -60,7 +62,9 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:id="@+id/takePhotos"
+            android:visibility="invisible">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -81,7 +85,9 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:id="@+id/sendReport"
+            android:visibility="invisible">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -104,7 +110,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="You can also save reports to send later"
-        android:id="@+id/textView4"
+        android:id="@+id/canSendSave"
         android:textColor="@color/mtaa_safi_blue"
         android:textSize="20dp"
         android:textStyle="bold"
@@ -114,6 +120,7 @@
         android:paddingLeft="8dp"
         android:textAlignment="center"
         android:gravity="center_horizontal"
-        android:paddingTop="8dp" />
+        android:paddingTop="8dp"
+        android:visibility="invisible" />
 
 </RelativeLayout>
