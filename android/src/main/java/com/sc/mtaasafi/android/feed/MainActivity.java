@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements
     ComplexPreferences cp;
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details";
+    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", ONBOARD_TAG = "onboard";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,17 +117,17 @@ public class MainActivity extends ActionBarActivity implements
         super.onResume();
         ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
-//        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
-//                android.support.v7.app.ActionBar.OnNavigationListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(int i, long l) {
-//                if(i == 0) // sort items by recent
-//                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
-//                else // sort items by most upvoted
-//                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
-//                return false;
-//            }
-//        });
+        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
+                android.support.v7.app.ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int i, long l) {
+                if(i == 0) // sort items by recent
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+                else // sort items by most upvoted
+                    getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+                return false;
+            }
+        });
         getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowHomeEnabled(false);
@@ -169,11 +169,20 @@ public class MainActivity extends ActionBarActivity implements
                 .commit();
     }
     private void goToOnboarding(){
+        OnboardingFragment onboardingFragment = (OnboardingFragment)
+                                                    getSupportFragmentManager().findFragmentByTag(ONBOARD_TAG);
+        if(onboardingFragment != null)
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, onboardingFragment, ONBOARD_TAG)
+                    .commit();
+        else
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new OnboardingFragment(), ONBOARD_TAG)
+                    .commit();
+
         getSupportActionBar().hide();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new OnboardingFragment(), NEWSFEED_TAG)
-                .commit();
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);

@@ -34,6 +34,7 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
     AnimationSet villageFadeInFadeOut;
     TextView villageNameTV;
     boolean continueTapped;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState){
         super.onCreateView(inflater, container, savedState);
@@ -45,7 +46,6 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
         logo.getLayoutParams().height = getActivity().getWindowManager().getDefaultDisplay().getWidth()/2;
         logo.requestLayout();
         subVillages = new String[4];
-        continueTapped = false;
         villageMod = (int) (System.currentTimeMillis() % 4);
         for (int i = 0; i < subVillages.length; i++)
             subVillages[i] = villages[i * 4 + villageMod];
@@ -54,8 +54,19 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
         feedItem2 = (RelativeLayout) view.findViewById(R.id.feedItem2);
         feedItem3 = (RelativeLayout) view.findViewById(R.id.feedItem3);
         setUpVoteInterface();
-        directLaunchScreen();
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle saveState){
+        super.onViewCreated(view, saveState);
+        continueTapped = ((OnboardingFragment)getParentFragment()).continueTapped;
+        if(continueTapped){
+            Log.e("Continue Tapped", "Continue was tapped!");
+            startFeedFadeIn();
+            scene = 7;
+        } else
+            directLaunchScreen();
     }
     private void setUpVoteInterface(){
         VoteInterface voteInterface1 = (VoteInterface) feedItem1.findViewById(R.id.voteInterface1);
@@ -94,23 +105,15 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
                 case 4: finalFadeIn(); break;
                 case 5: revealTapScreenToContinue(); break;
                 case 7:
-                    if(continueTapped){
-                        getView().findViewById(R.id.launchScreen).setVisibility(View.GONE);
-                        ((OnboardingFragment)getParentFragment()).revealBookMarkBar();
-                        feedItem2.startAnimation(feedFadeIn);
-                        feedItem2.setVisibility(View.VISIBLE);
-                    }
+                    if(continueTapped)
+                        startFeedFadeIn();
                     break;
                 case 8:
                     feedItem2.clearAnimation();
                     feedItem3.startAnimation(feedFadeIn);
                     feedItem3.setVisibility(View.VISIBLE);
                     break;
-                case 9:
-                    feedItem3.clearAnimation();
-                    getView().findViewById(R.id.triangleText).setVisibility(View.VISIBLE);
-                    getView().findViewById(R.id.triangleText).startAnimation(feedFadeIn);
-                    break;
+                case 9: feedItem3.clearAnimation(); break;
         }
         Log.e("FItem1", "visible: " + (feedItem1.getVisibility()==View.VISIBLE));
         scene++;
@@ -120,7 +123,12 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
          villageNameTV.setText(subVillages[scene]);
          villageNameTV.startAnimation(villageFadeInFadeOut);
     }
-
+    private void startFeedFadeIn(){
+        getView().findViewById(R.id.launchScreen).setVisibility(View.GONE);
+        ((OnboardingFragment)getParentFragment()).revealBookMarkBar();
+        feedItem2.startAnimation(feedFadeIn);
+        feedItem2.setVisibility(View.VISIBLE);
+    }
     public void finalFadeIn(){
         Animation finalfadeIn = new AlphaAnimation(0, 1);
         finalfadeIn.setStartOffset(1200);
@@ -146,6 +154,7 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
             public void onClick(View v) {
                 v.startAnimation(finalFadeOut);
                 continueTapped = true;
+                ((OnboardingFragment)getParentFragment()).continueTapped();
             }
         });
     }

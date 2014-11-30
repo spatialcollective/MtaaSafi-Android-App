@@ -23,16 +23,25 @@ import com.sc.mtaasafi.android.feed.ZoomOutPageTransformer;
  */
 public class OnboardingFragment extends Fragment implements Animation.AnimationListener, ViewPager.OnPageChangeListener{
 
-    ViewPager viewPager;
+    OnboardPager viewPager;
     SlideAdapter adapter;
     RelativeLayout bookmarkBar;
     ImageButton feedBookMark, newReportBookMark, doneBookMark;
+    Boolean continueTapped;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState){
         View view = inflater.inflate(R.layout.fragment_onboard, container, false);
+        setRetainInstance(true);
+        if(savedState == null)
+            continueTapped = false;
+        else{
+            continueTapped = savedState.getBoolean("ContinueTapped");
+            Log.e("OnboardingFragment", "From bundle: " + continueTapped);
+        }
+        Log.e("OnboardingFragment", "CreateView: " + continueTapped);
         adapter = new SlideAdapter(getChildFragmentManager());
         bookmarkBar = (RelativeLayout) view.findViewById(R.id.bookMarkBar);
-        viewPager = (ViewPager) view.findViewById(R.id.viewPager);
+        viewPager = (OnboardPager) view.findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
@@ -45,19 +54,23 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
     }
     private void setBookMarkListeners(){
         feedBookMark.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
                 setBookmarkActive(0);
-                viewPager.setCurrentItem(0); }
+                viewPager.setCurrentItem(0);
+            }
         });
         newReportBookMark.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 setBookmarkActive(1);
-                viewPager.setCurrentItem(1); }
+                viewPager.setCurrentItem(1);
+            }
         });
         doneBookMark.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 setBookmarkActive(2);
-                viewPager.setCurrentItem(2); }
+                viewPager.setCurrentItem(2);
+            }
         });
     }
 
@@ -127,7 +140,11 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
         newReportBookMark.setVisibility(View.VISIBLE);
         doneBookMark.setVisibility(View.VISIBLE);
     }
-
+    public void continueTapped(){
+        viewPager.swipeEnabled = true;
+        continueTapped = true;
+        Log.e("Onboard Fragment", "Continue was tapped!");
+    }
     @Override
     public void onPageSelected(int i) { setBookmarkActive(i); }
 
@@ -145,10 +162,18 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
             }
         }
     }
+    @Override
+    public void onSaveInstanceState(Bundle saveState){
+        super.onSaveInstanceState(saveState);
+        saveState.putBoolean("ContinueTapped", continueTapped);
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.e("Onboarding Fragment", "Set retain instance: " + getRetainInstance());
+    }
     @Override public void onAnimationRepeat(Animation animation) {}
     @Override public void onAnimationStart(Animation animation) {}
     @Override public void onPageScrollStateChanged(int i) {}
     @Override public void onPageScrolled(int i, float v, int i2) { }
-
-
 }
