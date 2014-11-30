@@ -87,7 +87,6 @@ public class VoteButton extends CompoundButton implements Animation.AnimationLis
     private class MyTouchListener implements OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            ((ViewGroup) getParent()).setClipChildren(false);
             if(event.getAction() == MotionEvent.ACTION_DOWN){
                 Animation scaleUp = new ScaleAnimation(1.0f, 1.2f, 1.0f, 1.2f,
                                                        Animation.RELATIVE_TO_SELF, .5f,
@@ -95,7 +94,6 @@ public class VoteButton extends CompoundButton implements Animation.AnimationLis
                 scaleUp.setDuration(200);
                 scaleUp.setInterpolator(new AccelerateInterpolator());
                 v.startAnimation(scaleUp);
-
             } else {
                 Animation scaleDown = new ScaleAnimation(1.2f, 1.0f, 1.2f, 1.0f,
                                                         Animation.RELATIVE_TO_SELF,.5f,
