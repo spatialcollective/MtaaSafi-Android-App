@@ -81,29 +81,6 @@ public class NewsFeedFragment extends Fragment
         newReport.getLayoutParams().width = ((MainActivity) getActivity()).getScreenWidth()/4;
         newReport.getLayoutParams().height = ((MainActivity) getActivity()).getScreenWidth()/4;
         newReport.requestLayout();
-        newReport.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                ((ViewGroup) v.getParent()).setClipChildren(false);
-                if(event.getAction() == MotionEvent.ACTION_DOWN){
-                    Animation scaleUp = new ScaleAnimation(1.0f, 1.2f, 1.0f, 1.2f,
-                            Animation.RELATIVE_TO_SELF, .5f,
-                            Animation.RELATIVE_TO_SELF, .5f);
-                    scaleUp.setDuration(200);
-                    scaleUp.setInterpolator(new AccelerateInterpolator());
-                    v.startAnimation(scaleUp);
-
-                } else {
-                    Animation scaleDown = new ScaleAnimation(1.2f, 1.0f, 1.2f, 1.0f,
-                            Animation.RELATIVE_TO_SELF,.5f,
-                            Animation.RELATIVE_TO_SELF, .5f);
-                    scaleDown.setDuration(201);
-                    scaleDown.setInterpolator(new AccelerateInterpolator());
-                    v.startAnimation(scaleDown);
-                }
-                return false;
-            }
-        });
     }
     @Override
     public void onSaveInstanceState(Bundle outstate){

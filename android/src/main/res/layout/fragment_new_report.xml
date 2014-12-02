@@ -40,7 +40,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
                 android:background="@drawable/safi_text_background"
-                android:hint="Enter Ward"
+                android:hint="Which village?"
                 android:singleLine="true"
                 android:imeOptions="actionDone" />
 

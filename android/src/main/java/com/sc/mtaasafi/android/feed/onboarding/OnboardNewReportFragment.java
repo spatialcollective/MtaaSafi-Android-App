@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.feed.MainActivity;
 
 import org.w3c.dom.Text;
 
@@ -34,6 +36,10 @@ public class OnboardNewReportFragment extends Fragment implements Animation.Anim
         fadeIn.setDuration(500);
         fadeIn.setStartOffset(850);
         fadeIn.setAnimationListener(this);
+        ImageView logo = (ImageView) view.findViewById(R.id.newReportIcon);
+        logo.getLayoutParams().height = ((MainActivity) getActivity()).getScreenWidth() / 3;
+        logo.getLayoutParams().width = ((MainActivity) getActivity()).getScreenWidth() / 3;
+        logo.requestLayout();
         describe = (RelativeLayout) view.findViewById(R.id.describeProblem);
         photograph = (RelativeLayout) view.findViewById(R.id.takePhotos);
         send = (RelativeLayout) view.findViewById(R.id.sendReport);

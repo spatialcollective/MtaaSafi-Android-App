@@ -116,7 +116,11 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
                     feedItem3.startAnimation(feedFadeIn);
                     feedItem3.setVisibility(View.VISIBLE);
                     break;
-                case 9: feedItem3.clearAnimation(); break;
+                case 9:
+                    feedItem3.clearAnimation();
+                    getView().findViewById(R.id.swipeToContinue).startAnimation(feedFadeIn);
+                    getView().findViewById(R.id.swipeToContinue).setVisibility(View.VISIBLE);
+                    break;
         }
         Log.e("FItem1", "visible: " + (feedItem1.getVisibility()==View.VISIBLE));
         scene++;

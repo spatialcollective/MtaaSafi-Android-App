@@ -24,8 +24,8 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
-        versionCode 13
-        versionName "enterLocation"
+        versionCode 14
+        versionName ".9.2"
     }
     buildTypes {
         release {

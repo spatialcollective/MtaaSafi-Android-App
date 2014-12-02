@@ -17,26 +17,4 @@
             android:paddingBottom="7dp"
             android:textColor="@color/DarkGray" />
 
-        <ImageView
-            android:layout_width="12dp"
-            android:layout_height="18dp"
-            android:id="@+id/markerIcon"
-            android:src="@drawable/marker"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5km"
-            android:id="@+id/itemDistance"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textSize="14dp"
-            android:paddingTop="5dp"
-            android:textColor="@color/DarkGray"
-            android:layout_toRightOf="@+id/markerIcon"
-            android:layout_gravity="right"
-            android:paddingBottom="7dp" />
 </RelativeLayout>

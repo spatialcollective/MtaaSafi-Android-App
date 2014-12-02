@@ -53,7 +53,7 @@
         android:paddingRight="10sp"
         android:textColor="@color/White"
         android:layout_alignTop="@+id/r_username"
-        android:layout_alignRight="@+id/r_username"
+        android:layout_alignParentRight="true"
         android:layout_alignEnd="@+id/r_username"
         android:textSize="10sp" />
 </RelativeLayout>

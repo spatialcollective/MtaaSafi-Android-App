@@ -108,10 +108,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
         ((TextView) view.findViewById(R.id.r_timestamp)).setText(createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
-        if (currentLocation != null) {
-            distance = mReport.getDistanceText(currentLocation);
-            ((TextView) view.findViewById(R.id.itemDistance)).setText(distance);
-        }
     }
 
     private void updateVote(VoteButton voter) {
