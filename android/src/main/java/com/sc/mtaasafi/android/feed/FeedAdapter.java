@@ -39,8 +39,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
                 c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
-        Log.e("FeedAdapter Cursor", "Media Path 3 is null: " +
-                (c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)) == null));
         setDistanceView(holder, c);
         addClick(holder, c);
     }

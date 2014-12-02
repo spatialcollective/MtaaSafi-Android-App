@@ -41,13 +41,14 @@
                 android:layout_marginRight="8dp"
                 android:background="@drawable/safi_text_background"
                 android:hint="Enter Ward"
-                android:imeOptions="actionDone"
-                />
+                android:singleLine="true"
+                android:imeOptions="actionDone" />
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/spinner" />
+                android:id="@+id/landMarkSpinner"
+                android:visibility="invisible"/>
 
             <include layout="@layout/attach_pic_row"
                 android:layout_width="match_parent"

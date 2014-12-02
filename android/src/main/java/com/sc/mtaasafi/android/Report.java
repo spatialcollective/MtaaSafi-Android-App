@@ -106,14 +106,9 @@ public class Report {
         String mediaPath2 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2));
         if(mediaPath2 != null)
             mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
-        else
-            Log.e("Cursor constructor", "MPath 2 was null");
-
         String mediaPath3 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3));
         if(mediaPath3 != null)
             mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
-        else
-            Log.e("Cursor constructor", "MPath 3 was null");
 
         serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
         dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
@@ -144,7 +139,6 @@ public class Report {
         pendingState = pending;
         
         JSONArray mediaPathsInJSON = jsonData.getJSONArray("mediaURLs");
-        Log.e("Report from JSON/ServerJSON", mediaPathsInJSON.toString());
         mediaPaths = new ArrayList<String>();
         for (int i = 0; i < mediaPathsInJSON.length(); i++)
             mediaPaths.add(mediaPathsInJSON.get(i).toString());
@@ -162,12 +156,8 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
         if(mediaPaths.get(1) != null)
             reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
-        else
-            Log.e("Report's DB Values", "mediaPaths 2 was null");
         if(mediaPaths.get(2) != null)
             reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
-        else
-            Log.e("Report's DB Values", "mediaPaths 3 was null");
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
@@ -218,7 +208,7 @@ public class Report {
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_LAT, this.latitude);
         json.put(Contract.Entry.COLUMN_LNG, this.longitude);
-        json.put("accuracy", "High Accuracy On");
+//        json.put("accuracy", "High Accuracy On");
         return json.toString();
     }
 

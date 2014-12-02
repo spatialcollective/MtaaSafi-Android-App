@@ -60,21 +60,6 @@
             android:layout_alignParentLeft="true"
             android:layout_gravity="left"
             android:textColor="@color/DarkGray" />
-
-        <TextView android:id="@+id/itemDistance"
-            android:text="infinite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_alignParentRight="true"
-            android:textSize="14dp"
-            android:drawableRight="@drawable/marker_small"
-            android:drawablePadding="8dp"
-            android:textColor="@color/DarkGray"
-            android:layout_gravity="right" />
     </RelativeLayout>
 
     <ImageView

@@ -25,7 +25,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 21
         versionCode 13
-        versionName "onBoarding"
+        versionName "enterLocation"
     }
     buildTypes {
         release {

@@ -201,7 +201,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         media[0] = (ImageView) view.findViewById(R.id.media1);
         media[1] = (ImageView) view.findViewById(R.id.media2);
         media[2] = (ImageView) view.findViewById(R.id.media3);
-        Log.e("MEDIA PATHS RDF", "Size: " + mReport.mediaPaths.size());
         for (int i = 0; i < mReport.mediaPaths.size(); i++) {
             media[i].getLayoutParams().height = mediaHeight;
             media[i].requestLayout();

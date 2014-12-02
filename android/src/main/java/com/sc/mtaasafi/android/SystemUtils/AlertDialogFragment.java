@@ -79,17 +79,17 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                         });
                 break;
             case LOCATION_FAILED:
-                builder.setMessage("We couldn't access your location. Enable to continue.")
+                builder.setMessage("Enter the report's village and a nearby landmark to continue!")
                         .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // accept failure, and therefore defeat.
                             }
                         })
-                        .setNegativeButton("Enable location", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                            }
-                        });
+//                                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                           }
+                       });
                 break;
             case CONNECTION_FAILED:
                 builder.setMessage("Uh-oh! Looks like there's a problem with your network connection")
