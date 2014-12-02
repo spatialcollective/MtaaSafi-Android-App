@@ -16,8 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sc.mtaasafi.android.R;
-import com.sc.mtaasafi.android.feed.VoteInterface;
-
+import com.sc.mtaasafi.android.feed.VoteButton;
 
 /**
  * Created by Agree on 11/27/2014.
@@ -69,12 +68,13 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
             directLaunchScreen();
     }
     private void setUpVoteInterface(){
-        VoteInterface voteInterface1 = (VoteInterface) feedItem1.findViewById(R.id.voteInterface1);
-        VoteInterface voteInterface2 = (VoteInterface) feedItem2.findViewById(R.id.voteInterface2);
-        VoteInterface voteInterface3 = (VoteInterface) feedItem3.findViewById(R.id.voteInterface3);
-        voteInterface1.updateData(13, false, 0);
-        voteInterface2.updateData(5, false, 0);
-        voteInterface3.updateData(34, false, 0);
+        VoteButton voteInterface1 = (VoteButton) feedItem1.findViewById(R.id.voteInterface1);
+        VoteButton voteInterface2 = (VoteButton) feedItem2.findViewById(R.id.voteInterface2);
+        VoteButton voteInterface3 = (VoteButton) feedItem3.findViewById(R.id.voteInterface3);
+        // set random vote values
+//        voteInterface1.updateData(13, false, 0);
+//        voteInterface2.updateData(5, false, 0);
+//        voteInterface3.updateData(34, false, 0);
     }
 
     private void setUpAnimations(){

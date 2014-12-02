@@ -8,11 +8,8 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.feed.MainActivity;
-import com.sc.mtaasafi.android.feed.VoteInterface;
 
 /**
  * Created by Agree on 11/28/2014.

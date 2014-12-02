@@ -32,9 +32,6 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyBInHMS_WYhfKtvX3k6i-iZFc4Kxk2C3iw" />
         <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/app_id" />
-        <meta-data
             android:name="com.google.android.gms.version"
             android:value="6171000" />
         <meta-data

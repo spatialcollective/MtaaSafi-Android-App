@@ -1,7 +1,8 @@
 buildscript {
-    repositories {
-        maven { url 'https://maven.fabric.io/repo' }
-    }
+    repositories
+            {
+                maven { url 'https://maven.fabric.io/repo' }
+            }
 
     dependencies {
         classpath 'io.fabric.tools:gradle:1.+'
@@ -18,7 +19,7 @@ repositories {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.1.1'
+    buildToolsVersion '20'
 
     defaultConfig {
         minSdkVersion 11
@@ -28,7 +29,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
@@ -38,8 +39,12 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('libs/android-query-full.0.26.8.jar')
     compile files('libs/gson-2.3.jar')
-    compile 'com.android.support:appcompat-v7:21.1.1'
-    compile 'com.android.support:support-v4:21.1.1'
-    compile 'com.android.support:recyclerview-v7:21.1.1'
+    compile 'com.android.support:appcompat-v7:21.+'
+    compile 'com.android.support:support-v4:21.+'
+    compile 'com.android.support:recyclerview-v7:21.+'
     compile 'com.google.android.gms:play-services:6.1.71'
+    compile('com.crashlytics.sdk.android:crashlytics:2.0.0@aar') {
+        transitive = true;
+    }
+
 }

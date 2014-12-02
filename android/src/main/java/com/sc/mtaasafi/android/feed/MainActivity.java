@@ -12,19 +12,12 @@ import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -59,7 +52,7 @@ public class MainActivity extends ActionBarActivity implements
     ComplexPreferences cp;
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details";
+    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", ONBOARD_TAG= "onboard";
     int sortOrderIndex = 0;
 
     @Override
