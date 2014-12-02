@@ -85,7 +85,6 @@ public class MainActivity extends ActionBarActivity implements
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
         cp.commit();
         int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        goToOnboarding();
         switch(gPlayCode) {
             case ConnectionResult.SERVICE_MISSING:
                 AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
@@ -184,8 +183,10 @@ public class MainActivity extends ActionBarActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
-        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
+        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT){
             saveUserName(data);
+            goToOnboarding();
+        }
     }
 
     @Override

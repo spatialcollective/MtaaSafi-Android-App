@@ -9,4 +9,7 @@
     android:textColor="@color/textDarkGray"
     android:checkable="true"
     android:checked="false"
-    android:clickable="true" />
+    android:clickable="true"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    />

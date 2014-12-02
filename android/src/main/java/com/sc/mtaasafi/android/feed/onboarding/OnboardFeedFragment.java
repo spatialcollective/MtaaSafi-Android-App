@@ -68,9 +68,12 @@ public class OnboardFeedFragment extends Fragment implements Animation.Animation
             directLaunchScreen();
     }
     private void setUpVoteInterface(){
-        VoteButton voteInterface1 = (VoteButton) feedItem1.findViewById(R.id.voteInterface1);
-        VoteButton voteInterface2 = (VoteButton) feedItem2.findViewById(R.id.voteInterface2);
-        VoteButton voteInterface3 = (VoteButton) feedItem3.findViewById(R.id.voteInterface3);
+        VoteButton vote1 = (VoteButton) feedItem1.findViewById(R.id.voteInterface1);
+        VoteButton vote2 = (VoteButton) feedItem2.findViewById(R.id.voteInterface2);
+        VoteButton vote3 = (VoteButton) feedItem3.findViewById(R.id.voteInterface3);
+        vote1.setText("12");
+        vote2.setText("3");
+        vote3.setText("7");
         // set random vote values
 //        voteInterface1.updateData(13, false, 0);
 //        voteInterface2.updateData(5, false, 0);

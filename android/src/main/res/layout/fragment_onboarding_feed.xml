@@ -30,6 +30,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:descendantFocusability="blocksDescendants"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:id="@+id/voteAndText">
 
                 <include
@@ -125,6 +127,8 @@
             android:paddingBottom="@dimen/activity_vertical_margin"
             android:id="@+id/feedItem2"
             android:weightSum="1"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:layout_gravity="right"
             android:visibility="invisible">
 
@@ -133,6 +137,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:descendantFocusability="blocksDescendants"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:id="@+id/linearLayout3" >
 
                 <include
@@ -224,6 +230,8 @@
             android:paddingTop="@dimen/activity_vertical_margin"
             android:paddingBottom="@dimen/activity_vertical_margin"
             android:id="@+id/feedItem3"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:weightSum="1"
             android:visibility="invisible">
 
@@ -245,6 +253,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/linearLayout4"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:layout_toRightOf="@+id/voteInterface"
                     android:layout_alignParentStart="true" >
 
