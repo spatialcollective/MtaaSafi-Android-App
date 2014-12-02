@@ -21,7 +21,31 @@
     </style>
 
     <style name="MyActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/White</item>
+        <item name="android:textColor">@color/mtaa_safi_blue</item>
    </style>
+
+    <style name="NewReportTheme" parent="@style/Theme.AppCompat.Light">
+        <item name="actionBarStyle">@style/NewReportActionBar</item>
+        <item name="actionMenuTextColor">@color/action_menu_colors</item>
+        <item name="colorPrimary">@color/mtaa_safi_blue</item>
+        <item name="colorPrimaryDark">@color/mtaa_safi_blue_dark</item>
+        <item name="colorAccent">@color/Coral</item>
+    </style>
+
+    <style name="NewReportActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@drawable/app_color</item>
+        <item name="android:titleTextStyle">@style/MyActionBarTitleText</item>
+        <item name="android:colorButtonNormal">@color/White</item>
+
+        <!-- Support library compatibility -->
+        <item name="background">@drawable/action_bar_background_new_report</item>
+        <item name="titleTextStyle">@style/MyActionBarTitleText</item>
+        <item name="colorButtonNormal">@color/mtaa_safi_blue</item>
+    </style>
+
+    <style name="NewReportTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/mtaa_safi_blue</item>
+    </style>
+
 
 </resources>

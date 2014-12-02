@@ -21,6 +21,7 @@
         android:clipToPadding="false">
 
         <include android:id="@+id/voteInterface"
+            layout="@layout/vote_interface"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

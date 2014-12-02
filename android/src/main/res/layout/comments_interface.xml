@@ -23,7 +23,7 @@
             android:paddingBottom="8dp"
             android:layout_weight="1"
             android:imeOptions="actionDone"
-            android:background="@drawable/add_comment_background"/>
+            android:background="@drawable/safi_text_background"/>
 
         <Button android:id="@+id/sendComment"
             android:text="Send"

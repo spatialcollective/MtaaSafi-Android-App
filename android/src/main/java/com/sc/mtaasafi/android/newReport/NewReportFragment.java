@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -66,7 +67,7 @@ public class NewReportFragment extends Fragment {
         detailsView = (SafiEditText) view.findViewById(R.id.newReportDetails);
         if (detailsText != null && detailsText != "")
             detailsView.setText(detailsText);
-        attemptEnableSendSave();
+//        AutoCompleteTextView
         updatePicPreviews();
         setListeners();
     }
@@ -74,6 +75,7 @@ public class NewReportFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
+        attemptEnableSendSave();
     }
     @Override
     public void onStop(){
@@ -184,15 +186,9 @@ public class NewReportFragment extends Fragment {
     }
 
     public void attemptEnableSendSave() {
-        View view = getView();
-        if (view == null)
-            return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty()) {
-            view.findViewById(R.id.sendButton).setEnabled(false);
-            view.findViewById(R.id.saveButton).setEnabled(false);
-        } else {
-            view.findViewById(R.id.sendButton).setEnabled(true);
-            view.findViewById(R.id.saveButton).setEnabled(true);
-        }
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || picPaths.get(0) == null)
+            ((NewReportActivity) getActivity()).sendSaveDisabled();
+        else
+            ((NewReportActivity) getActivity()).sendSaveEnabled();
     }
 }

@@ -1,6 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.sc.mtaasafi.android.newReport.NewReportActivity" >
+    tools:context="com.sc.mtaasafi.android.newReport.NewReportActivity">
+    <item android:id="@+id/save"
+        android:title="Save Report"
+        android:icon="@drawable/actionbar_button_save_disabled"
+        app:showAsAction="always"/>
 
+    <item android:id="@+id/send"
+        android:title="Send Report"
+        android:icon="@drawable/actionbar_button_send_disabled"
+        app:showAsAction="always"/>
 </menu>

@@ -5,6 +5,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.IntentSender;
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ import com.sc.mtaasafi.android.SystemUtils.LogTags;
 import com.sc.mtaasafi.android.R;
 import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
+import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.database.SyncUtils;
 import com.sc.mtaasafi.android.feed.onboarding.OnboardingFragment;
 import com.sc.mtaasafi.android.newReport.NewReportActivity;
@@ -234,7 +236,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void addUploadAction(Menu menu){
-        int savedReportCt = NewReportActivity.getSavedReportCount(this);
+        int savedReportCt = getSavedReportCount(this);
         int drawable = 0;
         switch (savedReportCt) {
             case 1: drawable = R.drawable.button_uploadsaved1; break;
@@ -253,6 +255,18 @@ public class MainActivity extends ActionBarActivity implements
         if (drawable != 0)
             menu.add(0, 0, 0, "Upload Saved Reports").setIcon(drawable)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+    }
+
+    public static int getSavedReportCount(Activity ac){
+        String[] projection = new String[1];
+        projection[0] = Contract.Entry.COLUMN_ID;
+        Cursor c = ac.getContentResolver().query(
+                Contract.Entry.CONTENT_URI,
+                projection,
+                Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+        int count = c.getCount();
+        c.close();
+        return count;
     }
 
     private void determineUsername() {

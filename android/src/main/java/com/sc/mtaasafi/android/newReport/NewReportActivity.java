@@ -1,6 +1,7 @@
 package com.sc.mtaasafi.android.newReport;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.database.Cursor;
@@ -12,9 +13,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.Toast;
 
@@ -39,11 +42,14 @@ public class NewReportActivity extends ActionBarActivity implements
     private LocationClient mLocationClient;
     private ComplexPreferences cp;
     public final static String NEW_REPORT_TAG = "newreport";
+    private Menu menu;
+    private boolean sendSaveEnabled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFragment(savedInstanceState);
+        sendSaveEnabled = false;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
         mLocationClient = new LocationClient(this, this, this);
@@ -53,44 +59,38 @@ public class NewReportActivity extends ActionBarActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.new_report, menu);
-        setUpActionBar(menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    private void setUpActionBar(Menu menu){
-        int savedReportCt = NewReportActivity.getSavedReportCount(this);
-        int drawable = 0;
-        switch (savedReportCt) {
-            case 1: drawable = R.drawable.button_uploadsaved1; break;
-            case 2: drawable = R.drawable.button_uploadsaved2; break;
-            case 3: drawable = R.drawable.button_uploadsaved3; break;
-            case 4: drawable = R.drawable.button_uploadsaved4; break;
-            case 5: drawable = R.drawable.button_uploadsaved5; break;
-            case 6: drawable = R.drawable.button_uploadsaved6; break;
-            case 7: drawable = R.drawable.button_uploadsaved7; break;
-            case 8: drawable = R.drawable.button_uploadsaved8; break;
-            case 9: drawable = R.drawable.button_uploadsaved9; break;
-            default:
-                if (savedReportCt > 9)
-                    drawable = R.drawable.button_uploadsaved9plus;
+        this.menu = menu;
+        if(sendSaveEnabled) {
+            menu.findItem(R.id.send).setIcon(R.drawable.actionbar_button_send_enabled);
+            menu.findItem(R.id.save).setIcon(R.drawable.actionbar_button_save_enabled);
         }
-        if (drawable != 0)
-            menu.add(0, 0, 0, "Upload Saved Reports")
-                .setIcon(drawable)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        supportInvalidateOptionsMenu();
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getTitle() != null &&
-                item.getTitle().toString().equals("Upload Saved Reports"))
-            uploadSavedReports();
-        else{
-
+        if(sendSaveEnabled && item.getItemId() == R.id.send)
+            attemptBeamOut();
+        else if(sendSaveEnabled && item.getItemId() == R.id.save)
+            attemptSave();
+        else
             return super.onOptionsItemSelected(item);
-        }
         return true;
+    }
+
+    public void sendSaveEnabled(){
+        if(menu != null){
+            menu.findItem(R.id.send).setIcon(R.drawable.actionbar_button_send_enabled);
+            menu.findItem(R.id.save).setIcon(R.drawable.actionbar_button_save_enabled);
+        }
+        sendSaveEnabled = true;
+    }
+    public void sendSaveDisabled(){
+        if(menu != null){
+            menu.findItem(R.id.send).setIcon(R.drawable.actionbar_button_send_disabled);
+            menu.findItem(R.id.save).setIcon(R.drawable.actionbar_button_save_disabled);
+        }
+        sendSaveEnabled = false;
     }
 
     @Override
@@ -125,15 +125,6 @@ public class NewReportActivity extends ActionBarActivity implements
     protected void onStop() {
         super.onStop();
         mLocationClient.disconnect();
-    }
-
-    public void uploadSavedReports() {
-       if(getLocation() != null){
-           Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                   .setAction(String.valueOf(0));
-           startActivity(intent);
-       } else
-            Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
     }
 
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
@@ -202,7 +193,7 @@ public class NewReportActivity extends ActionBarActivity implements
             getSupportFragmentManager().putFragment(bundle, NEW_REPORT_TAG, frag);
     }
 
-    public void attemptSave(View view) {
+    public void attemptSave() {
         Log.e("New Report Activity", "attempting save");
         if (transporterHasLocation()) {
             Log.e("New Report Activity", "have location");
@@ -212,7 +203,7 @@ public class NewReportActivity extends ActionBarActivity implements
         } else
             Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
     }
-    public void attemptBeamOut(View view) {
+    public void attemptBeamOut() {
         if (transporterHasLocation()) {
             NewReportFragment nrf =
                     (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
@@ -250,17 +241,5 @@ public class NewReportActivity extends ActionBarActivity implements
         Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
         Log.e("New Report Activity", "inserting");
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
-    }
-
-    public static int getSavedReportCount(Activity ac){
-        String[] projection = new String[1];
-        projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor c = ac.getContentResolver().query(
-            Contract.Entry.CONTENT_URI,
-            projection,
-            Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
-        int count = c.getCount();
-        c.close();
-        return count;
     }
 }

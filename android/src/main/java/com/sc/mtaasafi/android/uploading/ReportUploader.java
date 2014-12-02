@@ -89,6 +89,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         HttpPost httpPost = new HttpPost(URLs.BASE_WRITE);
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
+        Log.e("Write Text:", pendingReport.getJsonStringRep());
         // send along user's upvote data, if any, with the report text
 //        JSONObject withUpvoteData = VoteInterface.recordUpvoteLog(
 //                mFragment.getActivity(), new JSONObject(pendingReport.getJsonStringRep())).toString();
@@ -193,5 +194,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             mFragment.beamUpFirstReport();
         else if(result == NETWORK_ERROR)
             mFragment.changeHeader("Connection Error: Retry?", R.color.DarkRed, ReportUploadingFragment.SHOW_RETRY);
+        else
+            mFragment.changeHeader("Error", R.color.DarkRed, ReportUploadingFragment.SHOW_RETRY);
     }
 }
