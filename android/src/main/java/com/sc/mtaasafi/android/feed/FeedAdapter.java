@@ -72,7 +72,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ViewHolderClicks mListener;
-        public TextView mTitleView, mLocation, mDist;
+        public TextView mTitleView, mLocation;
         public VoteButton mVoteButton;
 
         public static interface ViewHolderClicks {
@@ -85,7 +85,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             mTitleView = (TextView) v.findViewById(R.id.itemTitle);
             mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
             mLocation = (TextView) v.findViewById(R.id.itemLocation);
-            mDist = (TextView) v.findViewById(R.id.itemDistance);
             v.setOnClickListener(this);
             mVoteButton.setOnClickListener(this);
         }

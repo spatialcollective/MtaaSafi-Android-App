@@ -56,7 +56,6 @@ public class NewCommentLayout extends LinearLayout {
     public void onFinishInflate() {
         mSendButton = (Button) findViewById(R.id.sendComment);
         mEditText = (SafiEditText) findViewById(R.id.commentEditText);
-
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override public void afterTextChanged(Editable s) {}
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -69,7 +68,6 @@ public class NewCommentLayout extends LinearLayout {
                     mSendButton.setEnabled(true);
             }
         });
-
         mSendButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
