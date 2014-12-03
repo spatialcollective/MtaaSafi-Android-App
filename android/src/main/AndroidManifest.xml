@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sc.mtaasafi.android" >
+    package="com.sc.mtaa_safi" >
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
@@ -39,7 +39,7 @@
             android:value="6f93595b646ee4fdb2be81b10b3f4019e5d5fcd5" />
 
         <activity
-            android:name=".feed.MainActivity"
+            android:name="com.sc.mtaa_safi.feed.MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden|adjustPan" >
             <intent-filter>
@@ -49,30 +49,30 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".newReport.NewReportActivity"
+            android:name="com.sc.mtaa_safi.newReport.NewReportActivity"
             android:label="@string/new_report"
-            android:parentActivityName=".feed.MainActivity"
+            android:parentActivityName="com.sc.mtaa_safi.feed.MainActivity"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/NewReportTheme">
 
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.sc.mtaasafi.android.feed.MainActivity" />
+                android:value="com.sc.mtaa_safi.feed.MainActivity" />
         </activity>
 
         <activity
-            android:name=".uploading.UploadingActivity"
+            android:name="com.sc.mtaa_safi.uploading.UploadingActivity"
             android:label="@string/title_activity_uploading"
-            android:parentActivityName=".feed.MainActivity" >
+            android:parentActivityName="com.sc.mtaa_safi.feed.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.sc.mtaasafi.android.feed.MainActivity" />
+                android:value="com.sc.mtaa_safi.feed.MainActivity" />
         </activity>
 
         <provider
-            android:name=".database.ReportProvider"
-            android:authorities="com.sc.mtaasafi.android"
+            android:name="com.sc.mtaa_safi.database.ReportProvider"
+            android:authorities="com.sc.mtaa_safi"
             android:exported="false"
             android:syncable="true" >
         </provider>
@@ -88,7 +88,7 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <service android:name=".database.AuthenticatorService" >
+        <service android:name="com.sc.mtaa_safi.database.AuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>

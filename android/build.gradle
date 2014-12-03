@@ -24,6 +24,7 @@ android {
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
+        applicationId "com.sc.mtaa_safi"
         versionCode 14
         versionName ".9.2"
     }

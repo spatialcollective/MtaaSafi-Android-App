@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <com.sc.mtaasafi.android.feed.comments.NewCommentLayout
+    <com.sc.mtaa_safi.feed.comments.NewCommentLayout
         android:id="@+id/new_comment_bar"
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
-        <com.sc.mtaasafi.android.newReport.SafiEditText
+        <com.sc.mtaa_safi.newReport.SafiEditText
             android:id="@+id/commentEditText"
             android:hint="Comment..."
             android:textColorHighlight="@color/Coral"
@@ -40,7 +40,7 @@
             android:textColor="@color/disableable_button"
             android:enabled="false" />
 
-    </com.sc.mtaasafi.android.feed.comments.NewCommentLayout>
+    </com.sc.mtaa_safi.feed.comments.NewCommentLayout>
 
     <android.support.v7.widget.RecyclerView android:id="@+id/comments"
         android:layout_width="match_parent"
