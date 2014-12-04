@@ -52,8 +52,7 @@
             android:name="com.sc.mtaa_safi.newReport.NewReportActivity"
             android:label="@string/new_report"
             android:parentActivityName="com.sc.mtaa_safi.feed.MainActivity"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            android:theme="@style/NewReportTheme">
+            android:windowSoftInputMode="stateHidden|adjustPan">
 
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data

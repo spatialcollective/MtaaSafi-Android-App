@@ -30,7 +30,6 @@ public class NewsFeedFragment extends Fragment
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    ImageButton newReport;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
     int index, top;
@@ -69,15 +68,8 @@ public class NewsFeedFragment extends Fragment
         mAdapter = new FeedAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
-        setUpNewReportButton();
     }
 
-    private void setUpNewReportButton(){
-        newReport = (ImageButton) getView().findViewById(R.id.newReportButton);
-        newReport.getLayoutParams().width = ((MainActivity) getActivity()).getScreenWidth()/4;
-        newReport.getLayoutParams().height = ((MainActivity) getActivity()).getScreenWidth()/4;
-        newReport.requestLayout();
-    }
     @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);

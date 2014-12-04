@@ -8,13 +8,10 @@
             android:layout_height="wrap_content"
             android:text="Near Ngong Hills Hotel and The Agenda"
             android:id="@+id/itemLocation"
-            android:paddingLeft="10dp"
-            android:paddingRight="5dp"
+            android:paddingLeft="8dp"
             android:textSize="14dp"
-            android:paddingTop="5dp"
-            android:layout_alignParentRight="true"
-            android:layout_gravity="right"
-            android:paddingBottom="7dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="8dp"
             android:textColor="@color/DarkGray" />
 
 </RelativeLayout>

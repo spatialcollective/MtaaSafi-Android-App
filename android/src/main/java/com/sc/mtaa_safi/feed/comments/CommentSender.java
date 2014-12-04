@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.AsyncTask;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.URLs;
@@ -40,6 +41,7 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
     protected Integer doInBackground(JSONObject... jsons) {
         try {
             mComment.setTime(System.currentTimeMillis(), mContext);
+            Log.e("Send to Server:", mComment.getJson().toString());
             JSONObject response = sendToServer(mComment.getJson());
             addNewCommentsToDb(response);
             return 1;
@@ -63,6 +65,7 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
                 throws JSONException, RemoteException, OperationApplicationException {
         JSONArray commentsArray = commentsData.getJSONArray(Contract.Comments.TABLE_NAME);
         if (commentsArray != null) {
+            Log.e("addNewCommentsToDb", "CommentsArray was NOT//NOT null");
             ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
             for (int i = 0; i < commentsArray.length(); i++)
                 mComment.getContentProviderOp(commentsArray.getJSONObject(i), batch);

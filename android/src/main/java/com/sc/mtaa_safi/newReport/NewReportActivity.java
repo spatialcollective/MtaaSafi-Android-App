@@ -51,39 +51,11 @@ public class NewReportActivity extends ActionBarActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.new_report, menu);
         this.menu = menu;
-        if(sendSaveEnabled) {
-            menu.findItem(R.id.send).setIcon(R.drawable.actionbar_button_send_enabled);
-            menu.findItem(R.id.save).setIcon(R.drawable.actionbar_button_save_enabled);
-        }
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(sendSaveEnabled && item.getItemId() == R.id.send)
-            attemptBeamOut();
-        else if(sendSaveEnabled && item.getItemId() == R.id.save)
-            attemptSave();
-        else
-            return super.onOptionsItemSelected(item);
-        return true;
-    }
-
-    public void sendSaveEnabled(){
-        if(menu != null){
-            menu.findItem(R.id.send).setIcon(R.drawable.actionbar_button_send_enabled);
-            menu.findItem(R.id.save).setIcon(R.drawable.actionbar_button_save_enabled);
-        }
-        sendSaveEnabled = true;
-    }
-    public void sendSaveDisabled(){
-        if(menu != null){
-            menu.findItem(R.id.send).setIcon(R.drawable.actionbar_button_send_disabled);
-            menu.findItem(R.id.save).setIcon(R.drawable.actionbar_button_save_disabled);
-        }
-        sendSaveEnabled = false;
-    }
-
+    public boolean onOptionsItemSelected(MenuItem item) { return super.onOptionsItemSelected(item); }
     @Override
     public void onResume(){
         super.onResume();

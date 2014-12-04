@@ -71,6 +71,7 @@ public class NewCommentLayout extends LinearLayout {
         inputManager.hideSoftInputFromWindow(
                 ((MainActivity) getContext()).getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
+        mSendButton.setText("Sending");
         if (NetworkUtils.isOnline(getContext()) && !mComment.mText.isEmpty())
             new CommentSender(getContext(), mComment, this).execute();
         else // tell user she must be online to send
@@ -78,12 +79,13 @@ public class NewCommentLayout extends LinearLayout {
     }
 
     public void onSuccessfulSend() {
-//        mFrag.insertComment();
+        mSendButton.setText("Send");
         mEditText.setText("");
         mSendButton.setEnabled(true);
     }
 
     public void onSendFailure() {
+        mSendButton.setText("Send");
         mSendButton.setEnabled(true);
     }
 }

@@ -302,9 +302,15 @@ public class NewReportFragment extends Fragment {
     }
 
     public void attemptEnableSendSave() {
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || picPaths.get(0) == null)
-            ((NewReportActivity) getActivity()).sendSaveDisabled();
-        else
-            ((NewReportActivity) getActivity()).sendSaveEnabled();
+        View view = getView();
+        if (view == null)
+            return;
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty()) {
+            view.findViewById(R.id.sendButton).setEnabled(false);
+            view.findViewById(R.id.saveButton).setEnabled(false);
+        } else {
+            view.findViewById(R.id.sendButton).setEnabled(true);
+            view.findViewById(R.id.saveButton).setEnabled(true);
+        }
     }
 }

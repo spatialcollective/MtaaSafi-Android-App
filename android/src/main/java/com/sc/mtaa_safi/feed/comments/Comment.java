@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.database.Contract;
@@ -34,7 +35,7 @@ public class Comment {
 		Contract.Comments.COLUMN_USERNAME,
 		Contract.Comments.COLUMN_TIMESTAMP };
 
-	public static final String DEFAULT_SORT = Contract.Comments.COLUMN_TIMESTAMP + " DESC";
+	public static final String DEFAULT_SORT = Contract.Comments.COLUMN_TIMESTAMP + " ASC";
     
 	public static String getSelection(int reportId) {
 		return Contract.Comments.COLUMN_REPORT_ID + " = " + reportId + " AND "
@@ -82,6 +83,7 @@ public class Comment {
     public static long getLastCommentTimeStamp(int reportId, Context context) {
         Cursor c = context.getContentResolver().query(Contract.Comments.COMMENTS_URI, Comment.PROJECTION,
                 Contract.Comments.COLUMN_REPORT_ID + " = " + reportId, null, Comment.DEFAULT_SORT);
+        Log.e("GetLastCommentTS", "Cursor size: " + c.getCount());
         if (c.moveToLast()) {
             long mostRecentTimeStamp = c.getLong(c.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP));
             c.close();

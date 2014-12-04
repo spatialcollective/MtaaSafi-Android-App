@@ -2,23 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <com.sc.mtaa_safi.feed.comments.NewCommentLayout
         android:id="@+id/new_comment_bar"
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
 
         <com.sc.mtaa_safi.newReport.SafiEditText
             android:id="@+id/commentEditText"
             android:hint="Comment..."
             android:textColorHighlight="@color/Coral"
             android:layout_width="wrap_content"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:layout_weight="1"
@@ -29,9 +29,9 @@
             android:text="Send"
             android:layout_width="wrap_content"
             android:minWidth="88dp"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:paddingTop="6dp"
-            android:paddingBottom="6dp"
+            android:paddingBottom="4dp"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:layout_gravity="end"
@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         tools:layout="@layout/comment_view"/>
 </LinearLayout>
