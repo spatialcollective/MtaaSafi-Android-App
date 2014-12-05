@@ -3,6 +3,7 @@ package com.sc.mtaa_safi.SystemUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,35 +39,16 @@ public class PrefUtils {
         return userName;
     }
 
-    public static String getSimpleTimeStamp(String timestamp) {
-        SimpleDateFormat fromFormat = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-        SimpleDateFormat displayFormat = new SimpleDateFormat("K:mm a  d MMM yy");
-        try {
-            return displayFormat.format(fromFormat.parse(timestamp));
-        } catch (Exception e) {
-            return timestamp;
-        }
-    }
     public static String getSimpleTimeStamp(long timestamp) {
+        Log.e("GetSimpleTimeStamp", "Time stamp: " + timestamp);
         return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
                 .format(new java.util.Date(timestamp));
     }
-    public static String getElapsedTime(long timestamp) {
-        return getElapsedTime(getSimpleTimeStamp(timestamp));
-    }
 
-    public static String getElapsedTime(String timestamp) {
-        if (timestamp != null) {
-            SimpleDateFormat df = new SimpleDateFormat("H:mm:ss dd-MM-yyyy");
-            try {
-                long postEpochTime = df.parse(timestamp).getTime();
-                long currentEpochTime = System.currentTimeMillis();
-                return getHumanReadableTimeElapsed(currentEpochTime - postEpochTime, df.parse(timestamp));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        return timestamp;
+    public static String getElapsedTime(Long timestamp) {
+        Log.e("getElapsedTime", "Timestamp: " + timestamp);
+        return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp,
+                                           new Date(timestamp));
     }
 
     public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {

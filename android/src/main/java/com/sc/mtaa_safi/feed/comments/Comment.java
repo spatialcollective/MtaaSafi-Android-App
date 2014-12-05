@@ -44,7 +44,7 @@ public class Comment {
 			+ Contract.Comments.COLUMN_CONTENT + " NOT NULL";
 	}
 
-    public Comment setTime(double timeStamp, Context context) {
+    public Comment setTime(long timeStamp, Context context) {
         mTimeStamp = timeStamp;
         mTimeSince = getLastCommentTimeStamp(mReportId, context);
         return this;
@@ -54,7 +54,7 @@ public class Comment {
         JSONObject commentData = new JSONObject();
         commentData.put(Contract.Comments.COLUMN_CONTENT, mText)
                     .put(Contract.Comments.COLUMN_USERNAME, mUsername)
-                    .put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp/1000)
+                    .put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp)
                     .put("last_comment_timestamp", mTimeSince)
                     .put(Contract.Comments.COLUMN_REPORT_ID, mReportId);
         return commentData;
