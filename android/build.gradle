@@ -24,7 +24,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 21
         versionCode 13
-        versionName "newNewReport"
+        versionName "v0.9"
     }
     buildTypes {
         release {
