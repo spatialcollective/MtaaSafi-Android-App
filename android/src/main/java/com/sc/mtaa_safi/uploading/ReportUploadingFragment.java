@@ -31,7 +31,7 @@ public class ReportUploadingFragment extends ListFragment
     private int pendingReportCount = -1, 
                 mColor = R.color.mtaa_safi_blue, 
                 mBtnState = SHOW_CANCEL,
-                inProgressIndex = 0;
+                inProgressIndex = 0; // human readable index (starts @ 1)
     private String mText = "Uploading...";
 
     public String[] LIST_FROM_COLUMNS = new String[] {
@@ -200,13 +200,10 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
-        if (pendingReportCount == -1)
-            pendingReportCount = mAdapter.getCount();
+        pendingReportCount = mAdapter.getCount() + inProgressIndex;
         boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
-        if (pendingReportCount > 0 && shouldAutoStart){
-            inProgressIndex = 1; // TODO: deleting report sets inprogress index to 1 every time. Need to keep a separate successful count
+        if (pendingReportCount > inProgressIndex && shouldAutoStart){
             beamUpFirstReport();
-        }
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }

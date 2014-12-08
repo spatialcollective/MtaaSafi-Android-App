@@ -39,7 +39,7 @@ public class Report {
     public Location location;
             
     public static final String[] PROJECTION = new String[] {
-            Contract.Entry._ID,
+            Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_SERVER_ID,
             Contract.Entry.COLUMN_CONTENT,
             Contract.Entry.COLUMN_LOCATION,
