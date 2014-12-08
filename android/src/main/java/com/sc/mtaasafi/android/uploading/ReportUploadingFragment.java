@@ -203,7 +203,7 @@ public class ReportUploadingFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         pendingReportCount = mAdapter.getCount() + inProgressIndex;
         boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
-        if (pendingReportCount > inProgressIndex && shouldAutoStart){
+        if (pendingReportCount > inProgressIndex && shouldAutoStart)
             beamUpFirstReport();
     }
     @Override
