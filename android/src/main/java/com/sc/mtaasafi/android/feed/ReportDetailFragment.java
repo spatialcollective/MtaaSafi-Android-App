@@ -41,11 +41,13 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaasafi.android.Report;
 import com.sc.mtaasafi.android.R;
+import com.sc.mtaasafi.android.SystemUtils.NetworkUtils;
 import com.sc.mtaasafi.android.SystemUtils.PrefUtils;
 import com.sc.mtaasafi.android.SystemUtils.URLs;
 import com.sc.mtaasafi.android.database.Contract;
 import com.sc.mtaasafi.android.feed.comments.Comment;
 import com.sc.mtaasafi.android.feed.comments.CommentAdapter;
+import com.sc.mtaasafi.android.feed.comments.CommentSender;
 import com.sc.mtaasafi.android.feed.comments.NewCommentLayout;
 
 import java.text.SimpleDateFormat;
@@ -73,7 +75,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
-        if (NetworkUtils.isOnline(getContext()))
+        if (NetworkUtils.isOnline(getActivity()))
             new CommentSender(getActivity()).execute();
     }
     public void setData(Report r) { mReport = r; }
