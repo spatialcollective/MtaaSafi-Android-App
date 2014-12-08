@@ -33,6 +33,7 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
     Context mContext;
     Comment mComment;
     NewCommentLayout mLayout;
+    int mReportId = 0;
     boolean isSending = true;
 
     public CommentSender(Context context, Comment comment, NewCommentLayout layout) {
@@ -41,9 +42,10 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
         mLayout = layout;
     }
 
-    public CommentSender(Context context) {
+    public CommentSender(Context context, int reportId) {
         mContext = context;
         isSending = false;
+        mReportId = reportId;
     }
 
     @Override
@@ -53,8 +55,11 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
             if (isSending) {
                 mComment.setTime(System.currentTimeMillis(), mContext);
                 response = sendToServer(mComment.getJson());
-            } else
-                response = sendToServer(new JSONObject());
+            } else {
+                JSONObject id = new JSONObject();
+                id.put(Contract.Comments.COLUMN_REPORT_ID, mReportId);
+                response = sendToServer(id);
+            }
             addNewCommentsToDb(response);
             return 1;
         } catch (Exception e) {

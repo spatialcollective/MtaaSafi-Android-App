@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -75,9 +76,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
-        if (NetworkUtils.isOnline(getActivity()))
-            new CommentSender(getActivity()).execute();
     }
+
     public void setData(Report r) { mReport = r; }
 
     @Override
@@ -85,6 +85,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         if (savedState != null)
             mReport = new Report(savedState);
+        if (NetworkUtils.isOnline(getActivity()))
+            new CommentSender(getActivity(), mReport.serverId).execute();
         currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
     }
