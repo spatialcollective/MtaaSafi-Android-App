@@ -55,7 +55,6 @@ import java.util.ArrayList;
 public class ReportDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     Report mReport;
-    NewCommentLayout mNewComment;
     private String distance = "None";
     Location currentLocation;
 
@@ -74,6 +73,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
+        if (NetworkUtils.isOnline(getContext()))
+            new CommentSender(getActivity()).execute();
     }
     public void setData(Report r) { mReport = r; }
 
@@ -156,8 +157,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void addComments(View view) {
-        mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
-        mNewComment.addData(mReport);
+        NewCommentLayout commentLayout = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
+        commentLayout.addData(mReport);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
         mLayoutManager = new LinearLayoutManager(getActivity());

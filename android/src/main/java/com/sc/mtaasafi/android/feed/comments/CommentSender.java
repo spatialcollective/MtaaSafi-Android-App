@@ -33,6 +33,7 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
     Context mContext;
     Comment mComment;
     NewCommentLayout mLayout;
+    boolean isSending = true;
 
     public CommentSender(Context context, Comment comment, NewCommentLayout layout) {
         mContext = context;
@@ -40,11 +41,20 @@ public class CommentSender extends AsyncTask<JSONObject, Integer, Integer> {
         mLayout = layout;
     }
 
+    public CommentSender(Context context) {
+        mContext = context;
+        isSending = false;
+    }
+
     @Override
     protected Integer doInBackground(JSONObject... jsons) {
+        JSONObject response;
         try {
-            mComment.setTime(System.currentTimeMillis(), mContext);
-            JSONObject response = sendToServer(mComment.getJson());
+            if (isSending) {
+                mComment.setTime(System.currentTimeMillis(), mContext);
+                response = sendToServer(mComment.getJson());
+            } else
+                response = sendToServer(new JSONObject());
             addNewCommentsToDb(response);
             return 1;
         } catch (Exception e) {
