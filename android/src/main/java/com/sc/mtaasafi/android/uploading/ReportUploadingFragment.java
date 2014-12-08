@@ -36,9 +36,8 @@ public class ReportUploadingFragment extends ListFragment
     private int pendingReportCount = -1, 
                 mColor = R.color.mtaa_safi_blue, 
                 mBtnState = SHOW_CANCEL,
-                inProgressIndex = 0;
+                inProgressIndex = 0; // human readable index (starts @ 1)
     private String mText = "Uploading...";
-    private AQuery aq;
 
     public String[] LIST_FROM_COLUMNS = new String[] {
         Contract.Entry.COLUMN_MEDIAURL1,
@@ -64,7 +63,6 @@ public class ReportUploadingFragment extends ListFragment
     public void onCreate(Bundle instate){
         super.onCreate(instate);
         setRetainInstance(true);
-        aq = new AQuery(getActivity());
     }
 
     @Override
@@ -102,17 +100,20 @@ public class ReportUploadingFragment extends ListFragment
     public class ViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
-            if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))
+            // Bug identified: index of COLUMN_ID == 0. i is never 0.
+            Log.e("Binder", "Index:" + i + ". Index of ID: " + cursor.getColumnIndex(Contract.Entry.COLUMN_ID));
+            if (view.getId() == R.id.uploadingTime)
                 ((TextView) view).setText(Report.getElapsedTime(cursor.getString(i)));
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG))
+            else if (view.getId() == R.id.upload_row)
                 mAdapter.updateProgressView(cursor.getInt(i), view);
-            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)
-                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)
-                    || i == cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3))
+            else if(view.getId() == R.id.uploadingPic1
+                    || view.getId() == R.id.uploadingPic2
+                    || view.getId() == R.id.uploadingPic3)
                 view.setTag(cursor.getString(i));
-            else if(i == cursor.getColumnIndex(Contract.Entry.COLUMN_ID))
+            else if(view.getId() == R.id.deleteReportButton){
                 view.setTag(cursor.getInt(i));
-            else
+                Log.e("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^Delete report tag", "Tag: " + view.getTag());
+            } else
                 return false;
             return true;
         }
@@ -131,6 +132,7 @@ public class ReportUploadingFragment extends ListFragment
             changeHeader("You must be online to upload.", R.color.DarkRed, HIDE_CANCEL);
             return;
         }
+        inProgressIndex++;
         if (getView() != null)
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
                     R.color.mtaa_safi_blue, SHOW_CANCEL);
@@ -157,7 +159,6 @@ public class ReportUploadingFragment extends ListFragment
     public void reportUploadSuccess() {
         changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, HIDE_CANCEL);
         uploader = null;
-        inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null)
@@ -165,9 +166,12 @@ public class ReportUploadingFragment extends ListFragment
                     R.color.mtaa_safi_blue, HIDE_CANCEL);
     }
 
-    public void onReportDeleted(boolean isUploading){
-        if(isUploading && uploader != null)
+    public void deleteReport(boolean isUploading){
+        if(isUploading && uploader != null){
             uploader.deleteReport();
+            changeHeader("Deleting...", R.color.DarkGray, HIDE_CANCEL);
+        } else
+            Log.e("DeleteReport", "Sorry but it wasn't uploading!");
     }
     public void onPendingReportDeleted(){
         beamUpFirstReport();
@@ -234,10 +238,9 @@ public class ReportUploadingFragment extends ListFragment
         if (pendingReportCount == -1)
             pendingReportCount = mAdapter.getCount();
         boolean shouldAutoStart = uploader == null || uploader.canceller.equals(uploader.DELETE_BUTTON);
-        if (pendingReportCount > 0 && shouldAutoStart){
-            inProgressIndex = 1; // TODO: fix that deleting report sets inprogress index to 1 every time.
+        boolean reportsLeft = pendingReportCount > 0 && pendingReportCount > inProgressIndex;
+        if (reportsLeft && shouldAutoStart)
             beamUpFirstReport();
-        }
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
