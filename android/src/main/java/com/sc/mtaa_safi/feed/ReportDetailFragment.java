@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -37,10 +38,12 @@ import android.widget.TextView;
 import com.androidquery.AQuery;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.comments.CommentAdapter;
+import com.sc.mtaa_safi.feed.comments.CommentSender;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 
 import java.text.SimpleDateFormat;
@@ -49,7 +52,6 @@ import java.text.SimpleDateFormat;
 public class ReportDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     Report mReport;
-    NewCommentLayout mNewComment;
     private String distance = "None";
     Location currentLocation;
 
@@ -69,6 +71,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         super.onCreate(savedInstanceState);
         aq = new AQuery(getActivity());
     }
+
     public void setData(Report r) { mReport = r; }
 
     @Override
@@ -76,6 +79,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         if (savedState != null)
             mReport = new Report(savedState);
+        if (NetworkUtils.isOnline(getActivity()))
+            new CommentSender(getActivity(), mReport.serverId).execute();
         currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
     }
@@ -146,8 +151,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void addComments(View view) {
-        mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
-        mNewComment.addData(mReport);
+        NewCommentLayout commentLayout = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
+        commentLayout.addData(mReport);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
         mLayoutManager = new LinearLayoutManager(getActivity());

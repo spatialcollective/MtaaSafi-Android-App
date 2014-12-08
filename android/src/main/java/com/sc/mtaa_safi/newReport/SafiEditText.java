@@ -18,7 +18,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
-import com.sc.mtaasafi.android.R;
+import com.sc.mtaa_safi.R;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 public class SafiEditText extends EditText{
