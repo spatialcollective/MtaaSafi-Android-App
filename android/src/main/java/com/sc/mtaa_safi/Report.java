@@ -202,13 +202,16 @@ public class Report {
         return -1;
     }
 
-    public String getJsonStringRep() throws JSONException {
+    public String getJsonStringRep() throws JSONException, IOException, NoSuchAlgorithmException {
         JSONObject json = new JSONObject();
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_LAT, this.latitude);
         json.put(Contract.Entry.COLUMN_LNG, this.longitude);
+        json.put("picHashes", new JSONArray());
+        for (int i = 0; i < mediaPaths.size(); i++)
+            json.accumulate("picHashes", getSHA1forPic(i));
 //        json.put("accuracy", "High Accuracy On");
         return json.toString();
     }

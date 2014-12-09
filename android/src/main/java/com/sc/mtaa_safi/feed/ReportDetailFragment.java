@@ -6,7 +6,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -43,7 +42,7 @@ import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.comments.CommentAdapter;
-import com.sc.mtaa_safi.feed.comments.CommentSender;
+import com.sc.mtaa_safi.feed.comments.SyncComments;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 
 import java.text.SimpleDateFormat;
@@ -80,7 +79,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         if (savedState != null)
             mReport = new Report(savedState);
         if (NetworkUtils.isOnline(getActivity()))
-            new CommentSender(getActivity(), mReport.serverId).execute();
+            new SyncComments(getActivity(), mReport.serverId).execute();
         currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
     }
