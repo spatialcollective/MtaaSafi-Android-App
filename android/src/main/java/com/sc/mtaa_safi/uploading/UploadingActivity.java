@@ -1,9 +1,16 @@
 package com.sc.mtaa_safi.uploading;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 
 public class UploadingActivity extends ActionBarActivity {
@@ -33,12 +40,41 @@ public class UploadingActivity extends ActionBarActivity {
             .commit();
     }
 
+    private MtaaLocationService mBoundService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
+//            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
+        }
+        // This should never happen
+        public void onServiceDisconnected(ComponentName className) {
+            mBoundService = null;
+//            Toast.makeText(this, "Location Service Disconnected", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    void bindLocationService() {
+        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bindLocationService();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
         ReportUploadingFragment frag = (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
         if (frag != null)
             getSupportFragmentManager().putFragment(bundle, UPLOAD_TAG, frag);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(mConnection);
     }
 
     @Override

@@ -1,8 +1,12 @@
 package com.sc.mtaa_safi.newReport;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.location.Location;
 import android.net.Uri;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,6 +20,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
@@ -24,11 +29,7 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.database.Contract;
 
-public class NewReportActivity extends ActionBarActivity
-//        implements GooglePlayServicesClient.ConnectionCallbacks,
-//        GooglePlayServicesClient.OnConnectionFailedListener,
-//        LocationListener
-{
+public class NewReportActivity extends ActionBarActivity {
     private Location mCurrentLocation;
     private LocationClient mLocationClient;
     private ComplexPreferences cp;
@@ -43,9 +44,9 @@ public class NewReportActivity extends ActionBarActivity
         sendSaveEnabled = false;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
-//        mLocationClient = new LocationClient(this, this, this);
         cp = PrefUtils.getPrefs(this);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -75,19 +76,31 @@ public class NewReportActivity extends ActionBarActivity
                 .commit();
     }
 
+    private MtaaLocationService mBoundService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
+//            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
+        }
+        // This should never happen
+        public void onServiceDisconnected(ComponentName className) {
+            mBoundService = null;
+//            Toast.makeText(this, "Location Service Disconnected", Toast.LENGTH_SHORT).show();
+        }
+    };
+    void bindLocationService() {
+        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-//        if (locationProviders == null || locationProviders.equals(""))
-//             showLocationOffWarning();
-//        else
-//            mLocationClient.connect();
+        bindLocationService();
     }
     @Override
     protected void onStop() {
         super.onStop();
-//        mLocationClient.disconnect();
+        unbindService(mConnection);
     }
 
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
@@ -98,48 +111,9 @@ public class NewReportActivity extends ActionBarActivity
     public void setLocation(Location location){ mCurrentLocation = location; }
 
     public Location getLocation() {
-        // use cached location if it's fre$h & accurate enough
-//        if(mLocationClient != null && mLocationClient.isConnected() && mCurrentLocation == null){
-//           Location lastLocation = mLocationClient.getLastLocation();
-//           long timeElapsedMillis = System.currentTimeMillis() - lastLocation.getTime();
-//           float timeElapsedSeconds =(float)(timeElapsedMillis / 1000);
-//           float timeElapsedMinutes = timeElapsedSeconds / 60;
-//           // getAccuracy returns a radius in m of 68% (1 deviation) accuracy
-//           if(lastLocation.getAccuracy() != 0.0
-//              && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5){
-//               mCurrentLocation = lastLocation;
-//           }
-//        }
-        return mCurrentLocation;
+        return mBoundService.getLocation();
     }
-//    @Override
-//    public void onLocationChanged(Location location) { setLocation(location); }
-//
-//    @Override
-//    public void onConnected(Bundle bundle) {
-//        LocationRequest mLocationRequest = LocationRequest.create();
-//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        mLocationRequest.setInterval(2500);
-//        mLocationRequest.setFastestInterval(1000);
-//        mLocationClient.requestLocationUpdates(mLocationRequest, this);
-//    }
-//
-//    @Override
-//    public void onDisconnected() {
-//        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
-//    }
-//
-//    @Override
-//    public void onConnectionFailed(ConnectionResult connectionResult) {
-//        if (connectionResult.hasResolution()) try { // Start an Activity that tries to resolve the error
-//                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-//            } catch (IntentSender.SendIntentException e) { // Thrown if Google Play services canceled the original PendingIntent
-//                e.printStackTrace();
-//            }
-//        else // If no resolution is available, display a dialog to the user with the error.
-//            Toast.makeText(this, "Google play connection failed, no resolution", Toast.LENGTH_SHORT).show();
-//    }
-//
+
     private void showLocationOffWarning() {
         AlertDialogFragment adf = new AlertDialogFragment();
         Bundle bundle = new Bundle();
@@ -159,12 +133,15 @@ public class NewReportActivity extends ActionBarActivity
     public void attemptSave() {
         Log.e("New Report Activity", "attempting save");
         if (transporterHasLocation()) {
-            Log.e("New Report Activity", "have location");
             Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
-            Log.e("New Report Activity", "Report inserted. Uri is: " + newReportUri.toString());
             finish();
         } else
             Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
+    }
+    public Uri saveNewReport(NewReportFragment frag) {
+        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
+        Log.e("New Report Activity", "inserting");
+        return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
     public void attemptBeamOut() {
         if (transporterHasLocation()) {
@@ -198,11 +175,5 @@ public class NewReportActivity extends ActionBarActivity
             return true;
         showLocationOffWarning();
         return false;
-    }
-
-    public Uri saveNewReport(NewReportFragment frag) {
-        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
-        Log.e("New Report Activity", "inserting");
-        return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 }

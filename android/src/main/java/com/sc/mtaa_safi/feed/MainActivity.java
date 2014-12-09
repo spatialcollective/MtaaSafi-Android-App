@@ -3,12 +3,16 @@ package com.sc.mtaa_safi.feed;
 import android.accounts.AccountManager;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.IntentSender;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,6 +31,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
@@ -50,19 +55,34 @@ public class MainActivity extends ActionBarActivity implements
         SwipeRefreshLayout.OnRefreshListener {
 
     ReportDetailFragment detailFragment;
-    private LocationClient mLocationClient;
     ComplexPreferences cp;
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", ONBOARD_TAG= "onboard";
     int sortOrderIndex = 0;
 
+    private MtaaLocationService mBoundService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
+//            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
+        }
+        // This should never happen
+        public void onServiceDisconnected(ComponentName className) {
+            mBoundService = null;
+//            Toast.makeText(this, "Location Service Disconnected", Toast.LENGTH_SHORT).show();
+        }
+    };
+
+    void bindLocationService() {
+        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
-        mLocationClient = new LocationClient(this, this, this);
         setContentView(R.layout.activity_main);
 
         restoreFragment(savedInstanceState);
@@ -82,6 +102,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        bindLocationService();
         determineUsername();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
@@ -104,8 +125,6 @@ public class MainActivity extends ActionBarActivity implements
                 String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
                 if (locationProviders == null || locationProviders.equals(""))
                     onLocationDisabled();
-                else
-                    mLocationClient.connect();
                 break;
         }
     }
@@ -116,6 +135,12 @@ public class MainActivity extends ActionBarActivity implements
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
         bundle.putInt("selectedNavItem", getSupportActionBar().getSelectedNavigationIndex());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(mConnection);
     }
     
     @Override
@@ -290,30 +315,16 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void uploadSavedReports() {
-        if(getLocation() != null){
-            Intent intent = new Intent().setClass(this, UploadingActivity.class)
-                    .setAction(String.valueOf(0));
-            startActivity(intent);
-        } else
-            Toast.makeText(this, "Location services not yet connected", Toast.LENGTH_SHORT);
+        Intent intent = new Intent().setClass(this, UploadingActivity.class)
+                .setAction(String.valueOf(0));
+        startActivity(intent);
     }
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
     // ======================Google Play Services:======================
     public Location getLocation() {
-        if(mLocationClient != null && mLocationClient.isConnected()){
-            Location mCurrentLocation = mLocationClient.getLastLocation();
-            if(mCurrentLocation == null){
-                AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
-            } else{
-                cp.putObject(PrefUtils.LOCATION, mCurrentLocation);
-                cp.putObject(PrefUtils.LOCATION_TIMESTAMP, System.currentTimeMillis());
-                cp.commit();
-            }
-            return mCurrentLocation;
-        }
-        return null;
+        return mBoundService.getLocation();
     }
 
     @Override
