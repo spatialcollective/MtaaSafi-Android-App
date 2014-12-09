@@ -161,7 +161,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
                 cursor.moveToNext();
             }
         } else
-            getView().findViewById(R.id.seeMoreComments).setVisibility(View.INVISIBLE);
+            getView().findViewById(R.id.seeMoreComments).setVisibility(View.GONE);
         while(cursor.moveToNext()){
             LinearLayout comment = latestComments[cursor.getPosition() - (cursor.getCount() - 5)];
             String timeElapsed = PrefUtils.getElapsedTime(cursor.getLong(cursor.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP)));
