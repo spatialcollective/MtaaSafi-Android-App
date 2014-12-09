@@ -39,7 +39,7 @@ public class Report {
     public Location location;
             
     public static final String[] PROJECTION = new String[] {
-            Contract.Entry._ID,
+            Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_SERVER_ID,
             Contract.Entry.COLUMN_CONTENT,
             Contract.Entry.COLUMN_LOCATION,
@@ -151,11 +151,14 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_LAT, latitude);
         reportValues.put(Contract.Entry.COLUMN_LNG, longitude);
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
-        reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
-        if(mediaPaths.size() > 1 && mediaPaths.get(1) != null)
-            reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
-        if(mediaPaths.size() > 2 && mediaPaths.get(2) != null)
-            reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
+        for (int i = 0; i < mediaPaths.size(); i++) {
+            if (i == 0)
+                reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(i));
+            if (i == 1)
+                reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(i));
+            if (i == 2)
+                reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(i));
+        }
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
@@ -199,13 +202,16 @@ public class Report {
         return -1;
     }
 
-    public String getJsonStringRep() throws JSONException {
+    public String getJsonStringRep() throws JSONException, IOException, NoSuchAlgorithmException {
         JSONObject json = new JSONObject();
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_LAT, this.latitude);
         json.put(Contract.Entry.COLUMN_LNG, this.longitude);
+        json.put("picHashes", new JSONArray());
+        for (int i = 0; i < mediaPaths.size(); i++)
+            json.accumulate("picHashes", getSHA1forPic(i));
 //        json.put("accuracy", "High Accuracy On");
         return json.toString();
     }

@@ -34,14 +34,14 @@ public class VoteButton extends CompoundButton implements Animation.AnimationLis
     }
     @Override
     public void onFinishInflate(){
-        int screenW = ((MainActivity)getContext()).getWindowManager().getDefaultDisplay().getWidth();
-        Drawable upvoteButton = getResources().getDrawable(R.drawable.up_vote_button);
-        upvoteButton.setBounds(0, 0, screenW / 10, screenW / 10);
-        upvoteButton.draw(new Canvas());
-        setCompoundDrawables(null, upvoteButton, null, null);
-        getLayoutParams().height = screenW/5;
-        getLayoutParams().width = screenW/5;
-        requestLayout();
+        // int screenW = ((MainActivity)getContext()).getWindowManager().getDefaultDisplay().getWidth();
+        // Drawable upvoteButton = getResources().getDrawable(R.drawable.up_vote_button);
+        // upvoteButton.setBounds(0, 0, getIntrinsicHeight(), getIntrinsicWidth());
+        // upvoteButton.draw(new Canvas());
+        // setCompoundDrawables(null, upvoteButton, null, null);
+        // getLayoutParams().height = screenW/5;
+        // getLayoutParams().width = screenW/5;
+        // requestLayout();
         if(isChecked()){
             setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
             setTypeface(Typeface.DEFAULT_BOLD);

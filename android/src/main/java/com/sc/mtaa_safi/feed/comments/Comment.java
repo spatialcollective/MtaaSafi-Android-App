@@ -69,15 +69,18 @@ public class Comment {
         return commentValues;
     }
 
-    public void getContentProviderOp(JSONObject commentJSON, ArrayList<ContentProviderOperation> batch)
+    public static void getContentProviderOp(JSONObject commentJSON, ArrayList<ContentProviderOperation> batch, Context context)
                 throws JSONException {
-        batch.add(ContentProviderOperation.newInsert(Contract.Comments.COMMENTS_URI)
-           .withValue(Contract.Comments.COLUMN_SERVER_ID, commentJSON.getInt(Contract.Comments.COLUMN_SERVER_ID))
-           .withValue(Contract.Comments.COLUMN_REPORT_ID, commentJSON.getInt(Contract.Comments.COLUMN_REPORT_ID))
-           .withValue(Contract.Comments.COLUMN_TIMESTAMP, commentJSON.getLong(Contract.Comments.COLUMN_TIMESTAMP))
-           .withValue(Contract.Comments.COLUMN_USERNAME, commentJSON.getString(Contract.Comments.COLUMN_USERNAME))
-           .withValue(Contract.Comments.COLUMN_CONTENT, commentJSON.getString(Contract.Comments.COLUMN_CONTENT))
-           .build());
+        if (!(context.getContentResolver().query(Contract.Comments.COMMENTS_URI, Comment.PROJECTION,
+                Contract.Comments.COLUMN_SERVER_ID + " = " + commentJSON.getInt(Contract.Comments.COLUMN_SERVER_ID),
+                null, Comment.DEFAULT_SORT).getCount() > 0))
+            batch.add(ContentProviderOperation.newInsert(Contract.Comments.COMMENTS_URI)
+               .withValue(Contract.Comments.COLUMN_SERVER_ID, commentJSON.getInt(Contract.Comments.COLUMN_SERVER_ID))
+               .withValue(Contract.Comments.COLUMN_REPORT_ID, commentJSON.getInt(Contract.Comments.COLUMN_REPORT_ID))
+               .withValue(Contract.Comments.COLUMN_TIMESTAMP, commentJSON.getLong(Contract.Comments.COLUMN_TIMESTAMP))
+               .withValue(Contract.Comments.COLUMN_USERNAME, commentJSON.getString(Contract.Comments.COLUMN_USERNAME))
+               .withValue(Contract.Comments.COLUMN_CONTENT, commentJSON.getString(Contract.Comments.COLUMN_CONTENT))
+               .build());
     }
 
     public static long getLastCommentTimeStamp(int reportId, Context context) {

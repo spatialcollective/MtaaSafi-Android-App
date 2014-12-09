@@ -73,7 +73,7 @@ public class NewCommentLayout extends LinearLayout {
 //                InputMethodManager.HIDE_NOT_ALWAYS);
         mSendButton.setText("Sending");
         if (NetworkUtils.isOnline(getContext()) && !mComment.mText.isEmpty())
-            new CommentSender(getContext(), mComment, this).execute();
+            new SyncComments(getContext(), mComment, this).execute();
         else // tell user she must be online to send
             mSendButton.setEnabled(true);
     }

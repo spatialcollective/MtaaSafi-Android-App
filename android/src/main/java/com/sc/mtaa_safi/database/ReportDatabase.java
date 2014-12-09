@@ -38,7 +38,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
     private static final String COMMENTS_TABLE_CREATE = "create table "
             + Contract.Comments.TABLE_NAME + "("
             + Contract.Comments._ID + " integer primary key autoincrement, "
-            + Contract.Comments.COLUMN_SERVER_ID + " integer not null, "
+            + Contract.Comments.COLUMN_SERVER_ID + " integer not null and unique, "
             + Contract.Comments.COLUMN_REPORT_ID + " integer not null, "
             + Contract.Comments.COLUMN_CONTENT + " text, "
             + Contract.Comments.COLUMN_TIMESTAMP + " long, "

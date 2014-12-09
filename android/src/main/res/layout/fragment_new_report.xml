@@ -17,14 +17,15 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
             <com.sc.mtaa_safi.newReport.SafiEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/newReportDetails"
                 android:hint="@string/report_detail_hint"
                 android:background="@drawable/safi_text_background"
-                android:layout_margin="8dp"
                 android:inputType="textMultiLine"
                 android:maxLength ="2000"
                 android:imeOptions="actionDone"
@@ -36,17 +37,19 @@
             <AutoCompleteTextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="28dp"
+                android:paddingBottom="16dp"
                 android:id="@+id/enterWard"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
                 android:background="@drawable/safi_text_background"
-                android:hint="Which village?"
+                android:hint="Village"
                 android:singleLine="true"
                 android:imeOptions="actionDone" />
 
             <Spinner
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:paddingBottom="28dp"
                 android:id="@+id/landMarkSpinner"
                 android:visibility="invisible"/>
 

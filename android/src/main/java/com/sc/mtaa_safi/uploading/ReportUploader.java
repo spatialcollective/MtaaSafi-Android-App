@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
@@ -68,22 +69,18 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     updateDB(serverResponse);
             }
             return 1;
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (OperationApplicationException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
             canceller = NETWORK_ERROR;
             cancel(true);
             return NETWORK_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return -1;
     }
 
-    private JSONObject writeTextToServer() throws IOException, JSONException {
+    private JSONObject writeTextToServer() throws IOException, JSONException, NoSuchAlgorithmException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(URLs.BASE_WRITE + "/");
         httpPost.setHeader("Accept", "application/json");
