@@ -26,7 +26,7 @@ android {
         targetSdkVersion 21
         applicationId "com.sc.mtaa_safi"
         versionCode 15
-        versionName ".9.2.1"
+        versionName "newReportDetail"
     }
     buildTypes {
         release {
@@ -47,5 +47,4 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.0.0@aar') {
         transitive = true;
     }
-
 }

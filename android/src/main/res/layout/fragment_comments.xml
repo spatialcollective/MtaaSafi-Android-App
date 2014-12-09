@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Comments"
+            android:textSize="16dp"
+            android:paddingTop="8dp"
+            android:textColor="@color/mtaa_safi_blue"
+            android:layout_centerHorizontal="true"/>
+        <Button android:id="@+id/leave_comments"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X"
+            android:textSize="16dp"
+            android:background="@color/transparent"
+            android:layout_alignParentLeft="true"/>
+        </RelativeLayout>
+    <android.support.v7.widget.RecyclerView android:id="@+id/comments"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        tools:layout="@layout/comment_view"/>
+    <com.sc.mtaa_safi.feed.comments.NewCommentLayout android:id="@+id/new_comment_bar"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:layout_alignParentBottom="true"
+        android:visibility="visible"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+        <com.sc.mtaa_safi.newReport.SafiEditText
+            android:id="@+id/commentEditText"
+            android:hint="Comment..."
+            android:textColorHighlight="@color/Coral"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_weight="1"
+            android:imeOptions="actionDone"
+            android:background="@drawable/safi_text_background"/>
+
+        <Button android:id="@+id/sendComment"
+            android:text="Send"
+            android:layout_width="wrap_content"
+            android:minWidth="88dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_gravity="end"
+            android:layout_weight="0"
+            android:background="@color/transparent"
+            android:textColor="@color/disableable_button"
+            android:enabled="false" />
+    </com.sc.mtaa_safi.feed.comments.NewCommentLayout>
+
+    <!--<include android:id="@+id/newCommentLayout"-->
+        <!--layout="@layout/new_comment_layout"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_gravity="center_horizontal"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:visibility="visible"/>-->
+</LinearLayout>

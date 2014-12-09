@@ -31,12 +31,6 @@ public class ImageFragment extends Fragment {
         ImageView reportDetailImage = (ImageView) view.findViewById(R.id.report_detail_image);
         if(mediaPath != null)
             mParent.aq.id(reportDetailImage).image(mediaPath);
-        reportDetailImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((ReportDetailFragment) getParentFragment()).exitImageViewer();
-            }
-        });
         return view;
     }
 }
