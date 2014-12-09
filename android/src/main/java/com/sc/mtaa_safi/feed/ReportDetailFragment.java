@@ -56,7 +56,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     private LinearLayout[] latestComments;
 
     public AQuery aq;
-    ImageView[] media;
     public ViewPager viewPager;
 
     public static final String USERNAME = "username", REFRESH_KEY= "refresh", COMMENT = "comment";
@@ -161,7 +160,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             for (int i = 0; i < cursor.getCount() - 5; i++) {
                 cursor.moveToNext();
             }
-        }
+        } else
+            getView().findViewById(R.id.seeMoreComments).setVisibility(View.INVISIBLE);
         while(cursor.moveToNext()){
             LinearLayout comment = latestComments[cursor.getPosition() - (cursor.getCount() - 5)];
             String timeElapsed = PrefUtils.getElapsedTime(cursor.getLong(cursor.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP)));
@@ -176,20 +176,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     @Override public void onLoaderReset(Loader<Cursor> loader) {}
 
 // ==========================   Images   ===============================
-    public void addImages(View view) {
-        updateDetails(view.findViewById(R.id.report_BottomView));
-        int mediaHeight = ((MainActivity) getActivity()).getScreenHeight()/4;
-        media = new ImageView[3];
-        media[0] = (ImageView) view.findViewById(R.id.media1);
-        media[1] = (ImageView) view.findViewById(R.id.media2);
-        media[2] = (ImageView) view.findViewById(R.id.media3);
-        for (int i = 0; i < mReport.mediaPaths.size(); i++) {
-            media[i].getLayoutParams().height = mediaHeight;
-            media[i].requestLayout();
-            aq.id(media[i]).image(mReport.mediaPaths.get(i));
-        }
-    }
-
     private void setUpViewPager(View view) {
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
         viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
