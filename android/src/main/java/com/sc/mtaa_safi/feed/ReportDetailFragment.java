@@ -166,7 +166,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             LinearLayout comment = latestComments[cursor.getPosition() - (cursor.getCount() - 5)];
             String timeElapsed = PrefUtils.getElapsedTime(cursor.getLong(cursor.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP)));
             String commentText = cursor.getString(cursor.getColumnIndex(Contract.Comments.COLUMN_CONTENT));
-            String commentUserName = cursor.getString(cursor.getColumnIndex(Contract.Comments.COLUMN_CONTENT));
+            String commentUserName = cursor.getString(cursor.getColumnIndex(Contract.Comments.COLUMN_USERNAME));
             ((TextView) comment.findViewById(R.id.commentText)).setText(commentText);
             ((TextView) comment.findViewById(R.id.commentUserName)).setText(commentUserName);
             ((TextView) comment.findViewById(R.id.commentTime)).setText(timeElapsed);
