@@ -152,9 +152,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
 
     private void deleteLocalPic(int picPos) {
-        File picFile = new File(pendingReport.mediaPaths.get(picPos));
-        if (picFile != null)
-            picFile.delete();
+        if (pendingReport.mediaPaths.size() > picPos) {
+            File picFile = new File(pendingReport.mediaPaths.get(picPos));
+            if (picFile != null)
+                picFile.delete();
+        }
     }
 
     private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {

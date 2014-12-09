@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 19;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -38,7 +38,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
     private static final String COMMENTS_TABLE_CREATE = "create table "
             + Contract.Comments.TABLE_NAME + "("
             + Contract.Comments._ID + " integer primary key autoincrement, "
-            + Contract.Comments.COLUMN_SERVER_ID + " integer not null and unique, "
+            + Contract.Comments.COLUMN_SERVER_ID + " integer not null, "
             + Contract.Comments.COLUMN_REPORT_ID + " integer not null, "
             + Contract.Comments.COLUMN_CONTENT + " text, "
             + Contract.Comments.COLUMN_TIMESTAMP + " long, "
