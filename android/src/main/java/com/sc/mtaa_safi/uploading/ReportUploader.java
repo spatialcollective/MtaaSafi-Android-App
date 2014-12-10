@@ -123,16 +123,15 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-        } else if (pendingReport.pendingState == 2) {
-            deleteLocalPic(0);
+        } else if (pendingReport.pendingState == 2)
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == 3) {
-            deleteLocalPic(1);
+        else if (pendingReport.pendingState == 3)
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == 4) {
-            deleteLocalPic(2);
+        else if (pendingReport.pendingState == 4) {
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+            deleteLocalPics();
         }
+
         if(pendingReport.pendingState > pendingReport.mediaPaths.size())
             pendingReport.pendingState = -1;
         if (pendingReport.pendingState > 0)
@@ -151,8 +150,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         }
     }
 
-    private void deleteLocalPic(int picPos) {
-        if (pendingReport.mediaPaths.size() > picPos) {
+    private void deleteLocalPics() {
+        for (int picPos = 0; picPos < pendingReport.mediaPaths.size(); picPos++) {
             File picFile = new File(pendingReport.mediaPaths.get(picPos));
             if (picFile != null)
                 picFile.delete();
