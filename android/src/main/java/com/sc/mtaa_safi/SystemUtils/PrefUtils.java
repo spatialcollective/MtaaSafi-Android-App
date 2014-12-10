@@ -64,7 +64,7 @@ public class PrefUtils {
                 year = 365 * day;
 
         if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL yy").format(date);
+            return new SimpleDateFormat("dd LLL 'yy").format(date);
         else if (timeElapsed > week)
             return new SimpleDateFormat("dd LLL").format(date);
         else if (timeElapsed > 1.5 * day)
