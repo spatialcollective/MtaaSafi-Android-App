@@ -137,7 +137,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((MainActivity) getActivity()).getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
     private String createHumanReadableTimestamp() {
-        return new SimpleDateFormat("MMM dd 'yy at H:mm")
+        return new SimpleDateFormat("MMM dd' '''yy' at 'HH:mm")
                 .format(new java.util.Date(mReport.timeStamp));
     }
 
