@@ -12,6 +12,8 @@ public class Contract {
     private static final String PATH_ENTRIES = "entries";
     private static final String PATH_UPVOTES = "upvotes";
     private static final String PATH_COMMENTS = "comments";
+    private static final String PATH_ADMIN_AREAS = "adminareas";
+    private static final String PATH_LANDMARKS = "adminareas";
 
     public static class Entry implements BaseColumns {
         public static final String CONTENT_TYPE =
@@ -64,5 +66,29 @@ public class Contract {
             COLUMN_TIMESTAMP = "timestamp",
             COLUMN_USERNAME = "username",
             COLUMN_REPORT_ID = "reportId"; // server id of the report associated with the comment
+    }
+    public static class AdminAreas implements  BaseColumns{
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri ADMIN_AREAS_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_ADMIN_AREAS).build();
+        public static final String TABLE_NAME = "adminareas",
+            COLUMN_NAME = "name",
+            COLUMN_SERVER_ID = "serverid";
+    }
+    public static class Landmarks implements  BaseColumns{
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri LANDMARKS_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_LANDMARKS).build();
+        public static final String TABLE_NAME = "landmarks",
+                COLUMN_NAME = "name",
+                COLUMN_SERVER_ID = "serverid",
+                COLUMN_LAT = "latitude",
+                COLUMN_LON = "longitude";
     }
 }

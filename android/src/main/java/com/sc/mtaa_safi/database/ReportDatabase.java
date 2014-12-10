@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 19;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -44,6 +44,23 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Comments.COLUMN_TIMESTAMP + " long, "
             + Contract.Comments.COLUMN_USERNAME + " text"
             + ")";
+
+    private static final String ADMINAREAS_TABLE_CREATE = "create table "
+            + Contract.AdminAreas.TABLE_NAME + "("
+            + Contract.AdminAreas._ID + " integer primary key autoincrement, "
+            + Contract.AdminAreas.COLUMN_NAME + " text not null, "
+            + Contract.AdminAreas.COLUMN_SERVER_ID + " integer not null"
+            + ")";
+
+    private static final String LANDMARKS_TABLE_CREATE = "create table "
+            + Contract.Landmarks.TABLE_NAME + "("
+            + Contract.Landmarks._ID + " integer primary key autoincrement, "
+            + Contract.Landmarks.COLUMN_NAME + " text not null, "
+            + Contract.Landmarks.COLUMN_SERVER_ID + " integer not null, "
+            + Contract.Landmarks.COLUMN_LAT + " double, "
+            + Contract.Landmarks.COLUMN_LON + " double"
+            + ")";
+
     public ReportDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -53,6 +70,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
         database.execSQL(REPORT_TABLE_CREATE);
         database.execSQL(UPVOTE_TABLE_CREATE);
         database.execSQL(COMMENTS_TABLE_CREATE);
+        database.execSQL(ADMINAREAS_TABLE_CREATE);
+        database.execSQL(LANDMARKS_TABLE_CREATE);
     }
 
     @Override
@@ -64,6 +83,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Entry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.UpvoteLog.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Comments.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.AdminAreas.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.Landmarks.TABLE_NAME);
         onCreate(db);
     }
 }

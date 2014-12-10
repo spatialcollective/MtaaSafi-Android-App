@@ -16,7 +16,11 @@ public class ReportProvider extends ContentProvider {
                             ROUTE_UPVOTES = 3,
                             ROUTE_UPVOTES_ID = 4,
                             ROUTE_COMMENTS =5,
-                            ROUTE_COMMENTS_ID = 6;
+                            ROUTE_COMMENTS_ID = 6,
+                            ROUTE_ADMINAREAS = 7,
+                            ROUTE_ADMINAREAS_ID = 8,
+                            ROUTE_LANDMARKS = 9,
+                            ROUTE_LANDMARKS_ID = 10;
 
     @Override
     public boolean onCreate() {
@@ -32,6 +36,11 @@ public class ReportProvider extends ContentProvider {
             sUriMatcher.addURI(AUTHORITY, "upvotes/*", ROUTE_UPVOTES_ID);
             sUriMatcher.addURI(AUTHORITY, "comments", ROUTE_COMMENTS);
             sUriMatcher.addURI(AUTHORITY, "comments/*", ROUTE_COMMENTS_ID);
+            sUriMatcher.addURI(AUTHORITY, "adminareas", ROUTE_ADMINAREAS);
+            sUriMatcher.addURI(AUTHORITY, "adminareas/*", ROUTE_ADMINAREAS_ID);
+            sUriMatcher.addURI(AUTHORITY, "landmarks", ROUTE_LANDMARKS);
+            sUriMatcher.addURI(AUTHORITY, "landmarks/*", ROUTE_LANDMARKS_ID);
+
         }
 
     @Override
@@ -50,6 +59,15 @@ public class ReportProvider extends ContentProvider {
                 return Contract.Comments.CONTENT_TYPE;
             case ROUTE_COMMENTS_ID:
                 return Contract.Comments.CONTENT_ITEM_TYPE;
+            case ROUTE_ADMINAREAS:
+                return Contract.AdminAreas.CONTENT_TYPE;
+            case ROUTE_ADMINAREAS_ID:
+                return Contract.AdminAreas.CONTENT_ITEM_TYPE;
+            case ROUTE_LANDMARKS:
+                return Contract.Landmarks.CONTENT_TYPE;
+            case ROUTE_LANDMARKS_ID:
+                return Contract.Landmarks.CONTENT_ITEM_TYPE;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -69,24 +87,44 @@ public class ReportProvider extends ContentProvider {
             case ROUTE_ENTRIES:
                 builder.table(Contract.Entry.TABLE_NAME)
                         .where(selection, selectionArgs);
-                return buildQuery(uri, builder, db, projection, sortOrder);
+                break;
+
             case ROUTE_UPVOTES_ID:
                 String upvoteId = uri.getLastPathSegment();
                 builder.where(Contract.UpvoteLog._ID + "=?", upvoteId);
             case ROUTE_UPVOTES:
                 builder.table(Contract.UpvoteLog.TABLE_NAME)
                         .where(selection, selectionArgs);
-                return buildQuery(uri, builder, db, projection, sortOrder);
+                break;
+
             case ROUTE_COMMENTS_ID:
                 String commentId = uri.getLastPathSegment();
                 builder.where(Contract.Comments._ID + "=?", commentId);
             case ROUTE_COMMENTS:
                 builder.table(Contract.Comments.TABLE_NAME)
                         .where(selection, selectionArgs);
-                return buildQuery(uri, builder, db, projection, sortOrder);
+                break;
+
+            case ROUTE_ADMINAREAS_ID:
+                String adminAreaId = uri.getLastPathSegment();
+                builder.where(Contract.AdminAreas._ID + "=?", adminAreaId);
+            case ROUTE_ADMINAREAS:
+                builder.table(Contract.AdminAreas.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                break;
+
+            case ROUTE_LANDMARKS_ID:
+                String landmarkId = uri.getLastPathSegment();
+                builder.where(Contract.Landmarks._ID + "=?", landmarkId);
+            case ROUTE_LANDMARKS:
+                builder.table(Contract.Landmarks.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                break;
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+        return buildQuery(uri, builder, db, projection, sortOrder);
     }
     private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db,
                                 String[] projection, String sortOrder){
@@ -101,26 +139,44 @@ public class ReportProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         assert db != null;
         final int match = sUriMatcher.match(uri);
+        long id;
         Uri result;
         switch (match) {
             case ROUTE_ENTRIES:
-                long reportId = db.insertOrThrow(Contract.Entry.TABLE_NAME, null, values);
-                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + reportId);
+                id = db.insertOrThrow(Contract.Entry.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + id);
                 break;
             case ROUTE_ENTRIES_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+
             case ROUTE_UPVOTES:
-                long upvoteId = db.insertOrThrow(Contract.UpvoteLog.TABLE_NAME, null, values);
-                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + upvoteId);
+                id = db.insertOrThrow(Contract.UpvoteLog.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.UpvoteLog.UPVOTE_URI + "/" + id);
                 break;
             case ROUTE_UPVOTES_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+
             case ROUTE_COMMENTS:
-                long commentId = db.insertOrThrow(Contract.Comments.TABLE_NAME, null, values);
-                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + commentId);
+                id = db.insertOrThrow(Contract.Comments.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Comments.COMMENTS_URI + "/" + id);
                 break;
             case ROUTE_COMMENTS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+
+            case ROUTE_ADMINAREAS:
+                id = db.insertOrThrow(Contract.AdminAreas.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.AdminAreas.ADMIN_AREAS_URI + "/" + id);
+                break;
+            case ROUTE_ADMINAREAS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+
+            case ROUTE_LANDMARKS:
+                id = db.insertOrThrow(Contract.Landmarks.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Landmarks.LANDMARKS_URI + "/" + id);
+                break;
+            case ROUTE_LANDMARKS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -166,6 +222,7 @@ public class ReportProvider extends ContentProvider {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int count;
+        String id;
         switch (match) {
             case ROUTE_ENTRIES:
                 count = builder.table(Contract.Entry.TABLE_NAME)
@@ -173,25 +230,66 @@ public class ReportProvider extends ContentProvider {
                         .delete(db);
                 break;
             case ROUTE_ENTRIES_ID:
-                String id = uri.getLastPathSegment();
+                id = uri.getLastPathSegment();
                 count = builder.table(Contract.Entry.TABLE_NAME)
                        .where(Contract.Entry._ID + "=?", id)
                        .where(selection, selectionArgs)
                        .delete(db);
                 break;
+
             case ROUTE_UPVOTES:
                 count = builder.table(Contract.UpvoteLog.TABLE_NAME)
                         .where(selection, selectionArgs)
                         .delete(db);
                 break;
             case ROUTE_UPVOTES_ID:
-                String upvoteId = uri.getLastPathSegment();
+                id = uri.getLastPathSegment();
                 count = builder.table(Contract.UpvoteLog.TABLE_NAME)
-                        .where(Contract.Entry._ID + "=?", upvoteId)
+                        .where(Contract.Entry._ID + "=?", id)
                         .where(selection, selectionArgs)
                         .delete(db);
                 break;
-            default: // TODO: implement deleting comments .... eventually
+
+            case ROUTE_COMMENTS:
+                count = builder.table(Contract.Comments.TABLE_NAME)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+            case ROUTE_COMMENTS_ID:
+                id = uri.getLastPathSegment();
+                count = builder.table(Contract.Comments.TABLE_NAME)
+                        .where(Contract.Entry._ID + "=?", id)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+
+            case ROUTE_ADMINAREAS:
+                count = builder.table(Contract.AdminAreas.TABLE_NAME)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+            case ROUTE_ADMINAREAS_ID:
+                id = uri.getLastPathSegment();
+                count = builder.table(Contract.AdminAreas.TABLE_NAME)
+                        .where(Contract.Entry._ID + "=?", id)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+
+            case ROUTE_LANDMARKS:
+                count = builder.table(Contract.Landmarks.TABLE_NAME)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+            case ROUTE_LANDMARKS_ID:
+                id = uri.getLastPathSegment();
+                count = builder.table(Contract.Landmarks.TABLE_NAME)
+                        .where(Contract.Entry._ID + "=?", id)
+                        .where(selection, selectionArgs)
+                        .delete(db);
+                break;
+
+            default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         // Send broadcast to registered ContentObservers, to refresh UI.
