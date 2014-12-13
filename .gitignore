@@ -31,3 +31,4 @@ proguard/
 
 android/android.iml
 facebook/facebook.iml
+android/src/main/res/values/com_crashlytics_export_strings.xml

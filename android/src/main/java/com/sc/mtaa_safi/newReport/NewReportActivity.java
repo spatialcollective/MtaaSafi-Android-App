@@ -95,21 +95,20 @@ public class NewReportActivity extends ActionBarActivity
 
     // ======================Google Play Services Setup:======================
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-    public void setLocation(Location location){ mCurrentLocation = location; }
 
     public Location getLocation() {
         // use cached location if it's fre$h & accurate enough
-//        if(mLocationClient != null && mLocationClient.isConnected() && mCurrentLocation == null){
-//           Location lastLocation = mLocationClient.getLastLocation();
-//           long timeElapsedMillis = System.currentTimeMillis() - lastLocation.getTime();
-//           float timeElapsedSeconds =(float)(timeElapsedMillis / 1000);
-//           float timeElapsedMinutes = timeElapsedSeconds / 60;
-//           // getAccuracy returns a radius in m of 68% (1 deviation) accuracy
-//           if(lastLocation.getAccuracy() != 0.0
-//              && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5){
-//               mCurrentLocation = lastLocation;
-//           }
-//        }
+       if (mLocationClient != null && mLocationClient.isConnected() && mCurrentLocation == null) {
+          Location lastLocation = mLocationClient.getLastLocation();
+          long timeElapsedMillis = System.currentTimeMillis() - lastLocation.getTime();
+          float timeElapsedSeconds =(float)(timeElapsedMillis / 1000);
+          float timeElapsedMinutes = timeElapsedSeconds / 60;
+          // getAccuracy returns a radius in m of 68% (1 deviation) accuracy
+          if(lastLocation.getAccuracy() != 0.0
+             && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5){
+              mCurrentLocation = lastLocation;
+          }
+       }
         return mCurrentLocation;
     }
 //    @Override
@@ -180,17 +179,8 @@ public class NewReportActivity extends ActionBarActivity
             Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
     }
 
-    public void takePic1(View view) {
-        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        frag.takePicture(0);
-    }
-    public void takePic2(View view) {
-        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        frag.takePicture(1);
-    }
-    public void takePic3(View view) {
-        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        frag.takePicture(2);
+    public void takePic(View view) {
+        ((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG)).takePicture();
     }
 
     private boolean transporterHasLocation() {
