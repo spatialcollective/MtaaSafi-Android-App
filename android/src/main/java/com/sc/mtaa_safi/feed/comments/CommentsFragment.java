@@ -26,10 +26,9 @@ public class CommentsFragment extends android.support.v4.app.DialogFragment
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private Report mReport;
-    public CommentsFragment(Report report){
-        mReport = report;
-    }
+    public Report mReport;
+    public CommentsFragment(){ }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -41,7 +40,7 @@ public class CommentsFragment extends android.support.v4.app.DialogFragment
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
-        mNewComment.addData(mReport);
+//        mNewComment.addData(mReport);
 
         mAdapter = new CommentAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);

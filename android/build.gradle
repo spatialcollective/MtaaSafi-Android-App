@@ -25,12 +25,11 @@ android {
         minSdkVersion 11
         targetSdkVersion 21
         applicationId "com.sc.mtaa_safi"
-        versionCode 15
-        versionName "newReportDetail"
+        versionCode 16
+        versionName "0.9.1.uxtest"
     }
     buildTypes {
         release {
-            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }

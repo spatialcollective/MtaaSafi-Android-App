@@ -103,7 +103,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         getView().findViewById(R.id.seeMoreComments).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommentsFragment commentsFragment = new CommentsFragment(mReport);
+                CommentsFragment commentsFragment = new CommentsFragment();
                 commentsFragment.show(getActivity().getSupportFragmentManager(), "COMMENTS");
             }
         });
