@@ -24,9 +24,6 @@ import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.database.Contract;
 
-/**
- * Created by david on 11/2/14.
- */
 public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
 
     Context mContext;

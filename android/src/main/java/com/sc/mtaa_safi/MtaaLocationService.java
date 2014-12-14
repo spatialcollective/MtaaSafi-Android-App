@@ -1,5 +1,6 @@
 package com.sc.mtaa_safi;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,9 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 
 public class MtaaLocationService extends Service {
     public Location mLocation;
@@ -19,9 +23,7 @@ public class MtaaLocationService extends Service {
     private final IBinder mBinder = new LocalBinder();
     public MtaaLocationService() { }
     public class LocalBinder extends Binder {
-        public MtaaLocationService getService() {
-            return MtaaLocationService.this;
-        }
+        public MtaaLocationService getService() { return MtaaLocationService.this; }
     }
 
     @Override
@@ -43,9 +45,25 @@ public class MtaaLocationService extends Service {
             return mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
+    public boolean hasLocation() {
+        if (mLocation != null)
+            return true;
+        Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
+//        showLocationOffWarning();
+        return false;
+    }
+
+    private void showLocationOffWarning() {
+        AlertDialogFragment adf = new AlertDialogFragment();
+        Bundle bundle = new Bundle();
+        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
+        adf.setArguments(bundle);
+//        adf.show(((Activity)getApplicationContext()).getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
+    }
+
     private void startLocationMgmt() {
         mLocation = null;
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
@@ -56,8 +74,8 @@ public class MtaaLocationService extends Service {
             public void onProviderEnabled(String provider) {}
             public void onProviderDisabled(String provider) {}
         };
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, TWO_MINUTES, 10, locationListener);
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TWO_MINUTES, 10, locationListener);
     }
 
     private boolean newLocationIsBetter(Location location) {
@@ -130,7 +148,7 @@ public class MtaaLocationService extends Service {
 //    public void onDisconnected() {
 //        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
 //    }
-//
+//    private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
 //    @Override
 //    public void onConnectionFailed(ConnectionResult connectionResult) {
 //        if (connectionResult.hasResolution()) try { // Start an Activity that tries to resolve the error

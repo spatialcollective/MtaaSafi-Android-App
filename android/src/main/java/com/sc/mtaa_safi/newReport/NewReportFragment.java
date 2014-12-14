@@ -253,7 +253,7 @@ public class NewReportFragment extends Fragment {
         View view = getView();
         if (view == null)
             return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || villageSelected.isEmpty()) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || villageSelected == null || villageSelected.isEmpty()) {
             view.findViewById(R.id.sendButton).setEnabled(false);
             view.findViewById(R.id.saveButton).setEnabled(false);
         } else {
