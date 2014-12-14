@@ -62,7 +62,7 @@ public class NewReportFragment extends Fragment {
         updateDetailsView();
         updatePicPreviews();
         setUpVillages();
-        setUpLandmarks();
+        addLandmarks();
     }
 
     private void setUpVillages(){
@@ -72,19 +72,18 @@ public class NewReportFragment extends Fragment {
         autoComplete.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                attemptVillageSelect(s.toString());
+                String trimText = s.toString().trim();
+                if (!trimText.isEmpty()) {
+                    villageSelected = trimText;
+                    revealSpinner();
+                    attemptEnableSendSave();
+                }
             }
             @Override public void afterTextChanged(Editable s) {}
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         });
     }
-    public void attemptVillageSelect(String textEnterred) {
-        String trimmedText = textEnterred.trim();
-        if (villages.indexOf(trimmedText) != -1) {
-            villageSelected = trimmedText;
-            revealSpinner();
-        }
-    }
+
     private void revealSpinner() {
         if (landmarkMap.containsKey(villageSelected)) {
             ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(getActivity(),
@@ -93,18 +92,6 @@ public class NewReportFragment extends Fragment {
             ((Spinner) getView().findViewById(R.id.landmarkSpinner)).setAdapter(dataAdapter);
             getView().findViewById(R.id.landmarkLayout).setVisibility(View.VISIBLE);
         }
-    }
-
-    private void setUpLandmarks() {
-        addLandmarks();
-        ((Spinner) getView().findViewById(R.id.landmarkSpinner))
-                .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        attemptEnableSendSave();
-                    }
-                    @Override public void onNothingSelected(AdapterView<?> parent) { }
-                });
     }
 
     private void addLandmark(String landmarkName, double lon, double lat, String villageName) {
@@ -266,7 +253,7 @@ public class NewReportFragment extends Fragment {
         View view = getView();
         if (view == null)
             return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty()) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || villageSelected.isEmpty()) {
             view.findViewById(R.id.sendButton).setEnabled(false);
             view.findViewById(R.id.saveButton).setEnabled(false);
         } else {

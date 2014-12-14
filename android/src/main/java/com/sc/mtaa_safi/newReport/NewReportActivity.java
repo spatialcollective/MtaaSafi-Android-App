@@ -103,12 +103,11 @@ public class NewReportActivity extends ActionBarActivity
           long timeElapsedMillis = System.currentTimeMillis() - lastLocation.getTime();
           float timeElapsedSeconds =(float)(timeElapsedMillis / 1000);
           float timeElapsedMinutes = timeElapsedSeconds / 60;
-          // getAccuracy returns a radius in m of 68% (1 deviation) accuracy
-          if(lastLocation.getAccuracy() != 0.0
-             && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5){
+          if (lastLocation.getAccuracy() != 0.0 && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5)
               mCurrentLocation = lastLocation;
-          }
        }
+       if (mCurrentLocation == null)
+            return mLocationClient.getLastLocation();
         return mCurrentLocation;
     }
 //    @Override
