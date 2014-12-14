@@ -11,24 +11,20 @@
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:background="@color/mtaa_safi_blue">
+        android:layout_alignParentEnd="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/mtaa_safi_blue">
+            android:layout_height="wrap_content">
 
             <android.support.v4.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/swipeRefresh"
-            android:background="@color/transparent">
+            android:id="@+id/swipeRefresh">
                 <android.support.v7.widget.RecyclerView android:id="@+id/recycle"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scrollbars="vertical"
-                    android:background="#FFFFFF" />
+                    android:scrollbars="vertical" />
 
             </android.support.v4.widget.SwipeRefreshLayout>
 

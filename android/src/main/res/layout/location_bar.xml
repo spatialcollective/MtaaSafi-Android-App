@@ -12,6 +12,6 @@
             android:textSize="14dp"
             android:paddingTop="4dp"
             android:paddingBottom="8dp"
-            android:textColor="@color/DarkGray" />
+            android:textColor="#666666" />
 
 </RelativeLayout>

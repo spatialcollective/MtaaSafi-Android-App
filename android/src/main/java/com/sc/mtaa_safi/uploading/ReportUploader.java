@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
@@ -68,22 +69,18 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     updateDB(serverResponse);
             }
             return 1;
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        } catch (OperationApplicationException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
             canceller = NETWORK_ERROR;
             cancel(true);
             return NETWORK_ERROR;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return -1;
     }
 
-    private JSONObject writeTextToServer() throws IOException, JSONException {
+    private JSONObject writeTextToServer() throws IOException, JSONException, NoSuchAlgorithmException {
         HttpClient httpclient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(URLs.BASE_WRITE + "/");
         httpPost.setHeader("Accept", "application/json");
@@ -126,16 +123,15 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-        } else if (pendingReport.pendingState == 2) {
-            deleteLocalPic(0);
+        } else if (pendingReport.pendingState == 2)
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == 3) {
-            deleteLocalPic(1);
+        else if (pendingReport.pendingState == 3)
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        } else if (pendingReport.pendingState == 4) {
-            deleteLocalPic(2);
+        else if (pendingReport.pendingState == 4) {
             updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
+            deleteLocalPics();
         }
+
         if(pendingReport.pendingState > pendingReport.mediaPaths.size())
             pendingReport.pendingState = -1;
         if (pendingReport.pendingState > 0)
@@ -154,10 +150,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         }
     }
 
-    private void deleteLocalPic(int picPos) {
-        File picFile = new File(pendingReport.mediaPaths.get(picPos));
-        if (picFile != null)
-            picFile.delete();
+    private void deleteLocalPics() {
+        for (int picPos = 0; picPos < pendingReport.mediaPaths.size(); picPos++) {
+            File picFile = new File(pendingReport.mediaPaths.get(picPos));
+            if (picFile != null)
+                picFile.delete();
+        }
     }
 
     private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {

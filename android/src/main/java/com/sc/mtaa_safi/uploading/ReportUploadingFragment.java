@@ -31,7 +31,7 @@ public class ReportUploadingFragment extends ListFragment
     private int pendingReportCount = -1, 
                 mColor = R.color.mtaa_safi_blue, 
                 mBtnState = SHOW_CANCEL,
-                inProgressIndex = 0; // human readable index (starts @ 1)
+                inProgressIndex = 1; // human readable index (starts @ 1)
     private String mText = "Uploading...";
 
     public String[] LIST_FROM_COLUMNS = new String[] {
@@ -200,9 +200,9 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.changeCursor(cursor);
-        pendingReportCount = mAdapter.getCount() + inProgressIndex;
+        pendingReportCount = mAdapter.getCount() + inProgressIndex - 1;
         boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
-        if (pendingReportCount > inProgressIndex && shouldAutoStart)
+        if (pendingReportCount > (inProgressIndex - 1) && shouldAutoStart)
             beamUpFirstReport();
     }
     @Override

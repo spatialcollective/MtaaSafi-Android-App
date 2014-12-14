@@ -17,14 +17,15 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
             <com.sc.mtaa_safi.newReport.SafiEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/newReportDetails"
                 android:hint="@string/report_detail_hint"
                 android:background="@drawable/safi_text_background"
-                android:layout_margin="8dp"
                 android:inputType="textMultiLine"
                 android:maxLength ="2000"
                 android:imeOptions="actionDone"
@@ -33,22 +34,38 @@
                 android:paddingTop="28dp"
                 android:paddingBottom="16dp"/>
 
-            <AutoCompleteTextView
+            <AutoCompleteTextView android:id="@+id/enterWard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/enterWard"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
+                android:paddingTop="28dp"
+                android:paddingBottom="16dp"
+                android:textSize="20sp"
+                android:completionThreshold="1"
                 android:background="@drawable/safi_text_background"
-                android:hint="Which village?"
+                android:hint="@string/get_area"
                 android:singleLine="true"
                 android:imeOptions="actionDone" />
 
-            <Spinner
+            <LinearLayout android:id="@+id/landmarkLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/landMarkSpinner"
-                android:visibility="invisible"/>
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:visibility="invisible">
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:textSize="16sp"
+                    android:text="@string/get_landmark" />
+
+                <Spinner android:id="@+id/landmarkSpinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="28dp"
+                    android:text="@string/get_landmark" />
+            </LinearLayout>
 
             <include layout="@layout/attach_pic_row"
                 android:layout_width="match_parent"
@@ -60,17 +77,6 @@
 
         </LinearLayout>
     </ScrollView>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="right"
-        android:id="@+id/button_layout"
-        android:elevation="0dp" >
-
-    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"

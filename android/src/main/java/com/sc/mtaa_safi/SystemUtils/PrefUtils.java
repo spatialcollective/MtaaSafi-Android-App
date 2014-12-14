@@ -26,6 +26,10 @@ public class PrefUtils {
     public static ComplexPreferences getPrefs(Context context){
         return ComplexPreferences.getComplexPreferences(context, PREF_KEY, Activity.MODE_PRIVATE);
     }
+    public static int getScreenWidth(Context context){
+        return ComplexPreferences.getComplexPreferences(context, PREF_KEY, Activity.MODE_PRIVATE)
+                .getObject(SCREEN_WIDTH, Integer.TYPE);
+    }
     public static int getTimeSinceInMinutes(float since){
         float diffMillis = System.currentTimeMillis() - since;
         float diffSeconds = diffMillis/1000;
@@ -60,7 +64,7 @@ public class PrefUtils {
                 year = 365 * day;
 
         if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL yy").format(date);
+            return new SimpleDateFormat("dd LLL' '''yy").format(date);
         else if (timeElapsed > week)
             return new SimpleDateFormat("dd LLL").format(date);
         else if (timeElapsed > 1.5 * day)

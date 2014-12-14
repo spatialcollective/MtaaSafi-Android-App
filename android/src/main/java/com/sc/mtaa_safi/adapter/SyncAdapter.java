@@ -154,7 +154,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 fetchRequest.accumulate("ids", serverIds.get(i));
             fetchRequest = addNewUpvotes(fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            return new JSONObject(makeRequest(fetchReportsURL, fetchRequest));
+            String responseString = makeRequest(fetchReportsURL, fetchRequest);
+            Log.e("Server response:", responseString);
+            return new JSONObject(responseString);
         }
         return null;
     }

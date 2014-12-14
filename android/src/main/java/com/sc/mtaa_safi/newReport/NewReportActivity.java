@@ -108,7 +108,6 @@ public class NewReportActivity extends ActionBarActivity {
 
     // ======================Google Play Services Setup:======================
     private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
-    public void setLocation(Location location){ mCurrentLocation = location; }
 
     public Location getLocation() {
         return mBoundService.getLocation();
@@ -130,20 +129,22 @@ public class NewReportActivity extends ActionBarActivity {
             getSupportFragmentManager().putFragment(bundle, NEW_REPORT_TAG, frag);
     }
 
-    public void attemptSave() {
+    public void attemptSave(View view) {
         Log.e("New Report Activity", "attempting save");
         if (transporterHasLocation()) {
-            Uri newReportUri = saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
+            saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
             finish();
         } else
             Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
     }
+
     public Uri saveNewReport(NewReportFragment frag) {
         Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
         Log.e("New Report Activity", "inserting");
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
-    public void attemptBeamOut() {
+
+    public void attemptBeamOut(View view) {
         if (transporterHasLocation()) {
             NewReportFragment nrf =
                     (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
@@ -157,17 +158,8 @@ public class NewReportActivity extends ActionBarActivity {
             Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
     }
 
-    public void takePic1(View view) {
-        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        frag.takePicture(0);
-    }
-    public void takePic2(View view) {
-        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        frag.takePicture(1);
-    }
-    public void takePic3(View view) {
-        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-        frag.takePicture(2);
+    public void takePic(View view) {
+        ((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG)).takePicture();
     }
 
     private boolean transporterHasLocation() {

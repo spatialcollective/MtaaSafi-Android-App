@@ -4,43 +4,13 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-
-    <com.sc.mtaa_safi.feed.comments.NewCommentLayout
-        android:id="@+id/new_comment_bar"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <include android:id="@+id/newCommentLayout"
+        layout="@layout/new_comment_layout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp">
-
-        <com.sc.mtaa_safi.newReport.SafiEditText
-            android:id="@+id/commentEditText"
-            android:hint="Comment..."
-            android:textColorHighlight="@color/Coral"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_weight="1"
-            android:imeOptions="actionDone"
-            android:background="@drawable/safi_text_background"/>
-
-        <Button android:id="@+id/sendComment"
-            android:text="Send"
-            android:layout_width="wrap_content"
-            android:minWidth="88dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:layout_gravity="end"
-            android:layout_weight="0"
-            android:background="@color/transparent"
-            android:textColor="@color/disableable_button"
-            android:enabled="false" />
-
-    </com.sc.mtaa_safi.feed.comments.NewCommentLayout>
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"/>
 
     <android.support.v7.widget.RecyclerView android:id="@+id/comments"
         android:layout_width="match_parent"

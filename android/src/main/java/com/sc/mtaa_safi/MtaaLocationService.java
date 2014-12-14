@@ -100,4 +100,46 @@ public class MtaaLocationService extends Service {
             return provider2 == null;
         return provider1.equals(provider2);
     }
+
+    // use cached location if it's fre$h & accurate enough
+//       if (mLocationClient != null && mLocationClient.isConnected() && mCurrentLocation == null) {
+//          Location lastLocation = mLocationClient.getLastLocation();
+//          long timeElapsedMillis = System.currentTimeMillis() - lastLocation.getTime();
+//          float timeElapsedSeconds =(float)(timeElapsedMillis / 1000);
+//          float timeElapsedMinutes = timeElapsedSeconds / 60;
+//          if (lastLocation.getAccuracy() != 0.0 && lastLocation.getAccuracy() < 30.0 && timeElapsedMinutes < 1.5)
+//              mCurrentLocation = lastLocation;
+//       }
+//       if (mCurrentLocation == null)
+//            return mLocationClient.getLastLocation();
+//        return mCurrentLocation;
+//    }
+//    @Override
+//    public void onLocationChanged(Location location) { setLocation(location); }
+//
+//    @Override
+//    public void onConnected(Bundle bundle) {
+//        LocationRequest mLocationRequest = LocationRequest.create();
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        mLocationRequest.setInterval(2500);
+//        mLocationRequest.setFastestInterval(1000);
+//        mLocationClient.requestLocationUpdates(mLocationRequest, this);
+//    }
+//
+//    @Override
+//    public void onDisconnected() {
+//        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(ConnectionResult connectionResult) {
+//        if (connectionResult.hasResolution()) try { // Start an Activity that tries to resolve the error
+//                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+//            } catch (IntentSender.SendIntentException e) { // Thrown if Google Play services canceled the original PendingIntent
+//                e.printStackTrace();
+//            }
+//        else // If no resolution is available, display a dialog to the user with the error.
+//            Toast.makeText(this, "Google play connection failed, no resolution", Toast.LENGTH_SHORT).show();
+//    }
+//
 }
