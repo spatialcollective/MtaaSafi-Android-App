@@ -68,10 +68,7 @@ public class MainActivity extends ActionBarActivity implements
 //            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
         }
         // This should never happen
-        public void onServiceDisconnected(ComponentName className) {
-            mBoundService = null;
-//            Toast.makeText(this, "Location Service Disconnected", Toast.LENGTH_SHORT).show();
-        }
+        public void onServiceDisconnected(ComponentName className) { mBoundService = null; }
     };
 
     void bindLocationService() {
@@ -102,6 +99,7 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        supportInvalidateOptionsMenu();
         bindLocationService();
         determineUsername();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
