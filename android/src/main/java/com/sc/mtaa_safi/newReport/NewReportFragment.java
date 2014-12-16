@@ -3,7 +3,6 @@ package com.sc.mtaa_safi.newReport;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,18 +14,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.sc.mtaa_safi.Landmark;
-import com.sc.mtaa_safi.SystemUtils.LogTags;
+import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +38,7 @@ import java.util.List;
 public class NewReportFragment extends Fragment {
     public static final int REQUEST_IMAGE_CAPTURE = 1, MAX_PIC_COUNT = 3;
     public String detailsText = "";
+    private ComplexPreferences cp;
     public ArrayList<String> picPaths = new ArrayList<String>();
 
     public List<String> villages = Arrays.asList("Mabatini", "Mashimoni", "Mathare 3A",
@@ -59,6 +58,7 @@ public class NewReportFragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedState) {
+        cp = PrefUtils.getPrefs(getActivity());
         updateDetailsView();
         updatePicPreviews();
         setUpVillages();
@@ -156,44 +156,29 @@ public class NewReportFragment extends Fragment {
     }
 
     private void updatePicPreviews() {
-//        int emptyPics = 0;
-//        for (int i = 0; i < picPaths.size(); i++) {
-//            if (picPaths.get(i) != null)
-//               picPreviews[i].setImageBitmap(getThumbnail(picPaths.get(i)));
-//            else
-//                emptyPics++;
-//        }
-//        Log.e("PicPreviews", "Pic paths was size " + picPaths.size());
+        Log.i("new report frag", "Pic paths was size " + picPaths.size());
+        for (int i = 0; i < picPaths.size(); i++)
+            if (picPaths.get(i) != null) {
+                ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
+                thumb.setVisibility(View.VISIBLE);
+                thumb.setImageBitmap(getThumbnail(picPaths.get(i)));
+            }
+        if (picPaths.size() >= 3)
+            getView().findViewById(R.id.take_pic).setVisibility(View.GONE);
+        else
+            getView().findViewById(R.id.take_pic).setVisibility(View.VISIBLE);
     }
 
-    // Returns dynamically sized thumbnail to populate picPreviews.
     private Bitmap getThumbnail(String picPath) {
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inJustDecodeBounds = true;
-//        BitmapFactory.decodeFile(picPath, options);
-//        int picWidth = options.outWidth;
-//        int picHeight = options.outHeight;
-//        NewReportActivity activity = (NewReportActivity) getActivity();
-//        int screenWidth = activity.getScreenWidth();
-//        DisplayMetrics metrics = getResources().getDisplayMetrics();
-//        int pixels_per_dp = (int)(metrics.density + 0.5f);
-//        int padding_dp = 15;
-//        int reqWidth = (screenWidth)/4 - padding_dp * pixels_per_dp;
-//        int reqHeight = activity.getScreenHeight()/4;
-//
-//        int inSampleSize = 1;
-//
-//        if(picWidth > reqWidth || picHeight > reqHeight){
-//            final int halfWidth = picWidth / 2;
-//            final int halfHeight = picHeight / 2;
-//            while ((halfWidth / inSampleSize) > reqWidth && (halfHeight / inSampleSize) > reqHeight) {
-//                inSampleSize *= 2;
-//            }
-//        }
-//        options.inSampleSize = inSampleSize;
-//        options.inJustDecodeBounds = false;
+        int thumbWidth = cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class)/3;
         Bitmap bmp = BitmapFactory.decodeFile(picPath);
-        return Bitmap.createScaledBitmap(bmp, 120, 120, false);
+
+        int origWidth = bmp.getWidth();
+        int origHeight = bmp.getHeight();
+        if (origWidth > origHeight)
+            return Bitmap.createScaledBitmap(bmp, thumbWidth, (origHeight * thumbWidth) / origWidth, false);
+        else
+            return Bitmap.createScaledBitmap(bmp, (origWidth * thumbWidth) / origHeight, thumbWidth, false);
     }
 
     private void updateDetailsView() {
@@ -231,7 +216,7 @@ public class NewReportFragment extends Fragment {
         if (requestCode != REQUEST_IMAGE_CAPTURE)
             return;
         File file = new File(picPaths.get(picPaths.size() - 1));
-        if (file.length() == 0){
+        if (file.length() == 0) {
             picPaths.remove(picPaths.size() - 1);
             file.delete();
         }
@@ -244,7 +229,7 @@ public class NewReportFragment extends Fragment {
         String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
         File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        Log.e("FILE PATH", image.getAbsolutePath());
+        Log.i("FILE PATH", image.getAbsolutePath());
         picPaths.add(image.getAbsolutePath());
         return image;
     }
