@@ -35,17 +35,19 @@ public class Report {
     public String locationDescript, content, timeElapsed, userName;
     public long timeStamp;
     public ArrayList<String> mediaPaths;
-    public Uri uri;
     public Location location;
             
     public static final String[] PROJECTION = new String[] {
             Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_SERVER_ID,
             Contract.Entry.COLUMN_CONTENT,
-            Contract.Entry.COLUMN_LOCATION,
+            Contract.Entry.COLUMN_HUMAN_LOC,
             Contract.Entry.COLUMN_TIMESTAMP,
             Contract.Entry.COLUMN_LAT,
             Contract.Entry.COLUMN_LNG,
+            Contract.Entry.COLUMN_LOC_ACC,
+            Contract.Entry.COLUMN_LOC_TIME,
+            Contract.Entry.COLUMN_LOC_PROV,
             Contract.Entry.COLUMN_USERNAME,
             Contract.Entry.COLUMN_MEDIAURL1,
             Contract.Entry.COLUMN_MEDIAURL2,
@@ -56,15 +58,15 @@ public class Report {
             Contract.Entry.COLUMN_USER_UPVOTED
     };
     // for Report objects created by the user to send to the server
-    public Report(String details, String userName, Location location,
-                  ArrayList<String> picPaths) {
+    public Report(String details, String userName, Location newLocation, ArrayList<String> picPaths) {
         this.content = details;
         this.locationDescript = "";
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
-        this.latitude = location.getLatitude();
-        this.longitude =  location.getLongitude();
+        this.latitude = newLocation.getLatitude();
+        this.longitude =  newLocation.getLongitude();
+        this.location = newLocation;
         this.mediaPaths = picPaths;
         this.serverId = this.dbId = 0;
     }
@@ -72,7 +74,7 @@ public class Report {
     public Report(Bundle bundle) {
         mediaPaths = new ArrayList<String>();
         content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
-        locationDescript = bundle.getString(Contract.Entry.COLUMN_LOCATION);
+        locationDescript = bundle.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
         mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL1));
@@ -80,19 +82,25 @@ public class Report {
         mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL3));
         serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
         dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
-        double lat = bundle.getDouble(Contract.Entry.COLUMN_LAT);
-        double lon = bundle.getDouble(Contract.Entry.COLUMN_LNG);
+
         location = new Location("report_location");
-        location.setLatitude(lat);
-        location.setLongitude(lon);
+        location.setLatitude(bundle.getDouble(Contract.Entry.COLUMN_LAT));
+        location.setLongitude(bundle.getDouble(Contract.Entry.COLUMN_LNG));
+        location.setAccuracy(bundle.getFloat(Contract.Entry.COLUMN_LOC_ACC));
+        location.setTime(bundle.getLong(Contract.Entry.COLUMN_LOC_TIME));
+        location.setProvider(bundle.getString(Contract.Entry.COLUMN_LOC_PROV));
+
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         // make sure this method's only called after inflation
     }
 
     public Report(Cursor c) {
+        serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
+        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
+        pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
-        locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOCATION));
+        locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC));
         timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         timeElapsed = getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
@@ -108,24 +116,22 @@ public class Report {
         if(mediaPath3 != null)
             mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
 
-        serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
-        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
-        uri = Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
-        pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
-
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
 
+        location = new Location("ReportLocation");
+        location.setLatitude(c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT)));
+        location.setLongitude(c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG)));
+        location.setAccuracy(c.getFloat(c.getColumnIndex(Contract.Entry.COLUMN_LOC_ACC)));
+        location.setTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_LOC_TIME)));
+        location.setProvider(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOC_PROV)));
         latitude = c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT));
         longitude = c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG));
-        location = new Location("ReportLocation");
-        location.setLatitude(latitude);
-        location.setLongitude(longitude);
     }
 
     public Report(JSONObject jsonData, int pending) throws JSONException {
         serverId = jsonData.getInt("unique_id");
-        locationDescript = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
+        locationDescript = jsonData.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = getElapsedTime(this.timeStamp);
@@ -145,11 +151,14 @@ public class Report {
     public ContentValues getContentValues() {
         ContentValues reportValues = new ContentValues();
         reportValues.put(Contract.Entry.COLUMN_SERVER_ID, serverId);
-        reportValues.put(Contract.Entry.COLUMN_LOCATION, locationDescript);
+        reportValues.put(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         reportValues.put(Contract.Entry.COLUMN_CONTENT, content);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         reportValues.put(Contract.Entry.COLUMN_LAT, latitude);
         reportValues.put(Contract.Entry.COLUMN_LNG, longitude);
+        reportValues.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
+        reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
+        reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
         for (int i = 0; i < mediaPaths.size(); i++) {
             if (i == 0)
@@ -170,7 +179,7 @@ public class Report {
 
     public Bundle saveState(Bundle output) {
         output.putString(Contract.Entry.COLUMN_CONTENT, content);
-        output.putString(Contract.Entry.COLUMN_LOCATION, locationDescript);
+        output.putString(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);
         output.putString(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
@@ -180,6 +189,9 @@ public class Report {
         output.putInt(Contract.Entry.COLUMN_ID, dbId);
         output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
         output.putDouble(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        output.putFloat(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
+        output.putLong(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
+        output.putString(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
         output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         return output;
@@ -207,12 +219,18 @@ public class Report {
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
-        json.put(Contract.Entry.COLUMN_LAT, this.latitude);
-        json.put(Contract.Entry.COLUMN_LNG, this.longitude);
+
+        JSONObject loc = new JSONObject();
+        loc.put(Contract.Entry.COLUMN_LAT, this.latitude);
+        loc.put(Contract.Entry.COLUMN_LNG, this.longitude);
+        loc.put(Contract.Entry.COLUMN_LOC_ACC, this.location.getAccuracy());
+        loc.put("timestamp", this.location.getTime());
+        loc.put(Contract.Entry.COLUMN_LOC_PROV, this.location.getProvider());
+        json.put("location", loc);
+
         json.put("picHashes", new JSONArray());
         for (int i = 0; i < mediaPaths.size(); i++)
             json.accumulate("picHashes", getSHA1forPic(i));
-//        json.put("accuracy", "High Accuracy On");
         return json.toString();
     }
 

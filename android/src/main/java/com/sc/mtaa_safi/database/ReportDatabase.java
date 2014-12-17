@@ -6,17 +6,20 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 20;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
             + Contract.Entry.COLUMN_ID + " integer primary key autoincrement, "
             + Contract.Entry.COLUMN_SERVER_ID + " integer, "
-            + Contract.Entry.COLUMN_LOCATION + " text not null, "
+            + Contract.Entry.COLUMN_HUMAN_LOC + " text not null, "
             + Contract.Entry.COLUMN_CONTENT + " text not null, "
             + Contract.Entry.COLUMN_TIMESTAMP + " long, "
             + Contract.Entry.COLUMN_LAT + " double not null, "
             + Contract.Entry.COLUMN_LNG + " double not null, "
+            + Contract.Entry.COLUMN_LOC_ACC + " float, "
+            + Contract.Entry.COLUMN_LOC_TIME + " long, "
+            + Contract.Entry.COLUMN_LOC_PROV + " text, "
             + Contract.Entry.COLUMN_USERNAME + " text not null, "
             + Contract.Entry.COLUMN_MEDIAURL1 + " text not null, "
             + Contract.Entry.COLUMN_MEDIAURL2 + " text, "
@@ -44,6 +47,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Comments.COLUMN_TIMESTAMP + " long, "
             + Contract.Comments.COLUMN_USERNAME + " text"
             + ")";
+            
     public ReportDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

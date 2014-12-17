@@ -120,7 +120,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
         ContentValues updateValues = new ContentValues();
         if (pendingReport.pendingState == 1) {
-            updateValues.put(Contract.Entry.COLUMN_LOCATION, response.getString(OUTPUT_KEY));
+            updateValues.put(Contract.Entry.COLUMN_HUMAN_LOC, response.getString(OUTPUT_KEY));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
             pendingReport.serverId = response.getInt(REPORT_ID_KEY);
         } else if (pendingReport.pendingState == 2)

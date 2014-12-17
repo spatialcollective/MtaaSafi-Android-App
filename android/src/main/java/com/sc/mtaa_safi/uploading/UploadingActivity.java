@@ -82,7 +82,7 @@ public class UploadingActivity extends ActionBarActivity {
         super.finish();
         ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager()
                                         .findFragmentByTag(UPLOAD_TAG);
-        if(ruf != null && ruf.uploader != null)
+        if (ruf != null && ruf.uploader != null)
             ruf.uploader.cancel(true);
     }
 }
