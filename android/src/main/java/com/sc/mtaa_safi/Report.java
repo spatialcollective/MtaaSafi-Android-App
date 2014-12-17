@@ -288,7 +288,7 @@ public class Report {
         File file = new File(mediaPaths.get(i));
         byte[] b = new byte[(int) file.length()];
         Log.e("File path", file.getAbsolutePath());
-        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        FileInputStream inputStream = new FileInputStream(file); /* Remove BufferedInputStream */
         inputStream.read(b);
         inputStream.close();
         return b;
@@ -296,9 +296,9 @@ public class Report {
     // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android
     // I believe the non-accepted answer on that page may be better. -DK
     public String getSHA1forPic(int i) throws IOException, NoSuchAlgorithmException {
-        String toHash = getEncodedBytesForPic(i);
+        byte[] b = getBytesForPic(i);
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        md.update(toHash.getBytes("UTF-8"), 0, toHash.length()); // shoud be utf-8 not iso-8859-1
+        md.update(b, 0, b.length); // shoud be utf-8 not iso-8859-1
         byte[] sha1hash = md.digest();
         return convertToHex(sha1hash);
     }
