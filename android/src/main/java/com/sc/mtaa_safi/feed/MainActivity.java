@@ -72,6 +72,7 @@ public class MainActivity extends ActionBarActivity implements
     };
 
     void bindLocationService() {
+        Log.e("MainActivity", "binding to location");
         bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -354,14 +355,14 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onRefresh() {
-        if(NetworkUtils.isOnline(this) && getLocation() != null)
-                SyncUtils.TriggerRefresh();
-        else
+        Location loc = getLocation();
+        if (NetworkUtils.isOnline(this) && loc != null) {
+            cp.putObject(PrefUtils.LOCATION, loc);
+            SyncUtils.TriggerRefresh();
+        } else
             ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
                     .refreshFailed();
-        if(getLocation() == null)
-            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED,
-                    this,
-                    getSupportFragmentManager());
+//        if (loc == null)
+//            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
 }

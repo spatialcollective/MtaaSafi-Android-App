@@ -39,10 +39,16 @@ public class MtaaLocationService extends Service {
     public IBinder onBind(Intent intent) { return mBinder; }
 
     public Location getLocation() {
+        Log.e("MtaaLocationService", "getting location");
         if (mLocation != null)
             return mLocation;
-        else
+
+        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
             return mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        else if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+            return mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Log.e("MtaaLocationService", "got nothing");
+        return null;
     }
 
     public boolean hasLocation() {
@@ -62,11 +68,13 @@ public class MtaaLocationService extends Service {
     }
 
     private void startLocationMgmt() {
+        Log.e("MtaaLocationService", "managing location");
         mLocation = null;
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
+                Log.e("MtaaLocationService", "location changed");
                 if (newLocationIsBetter(location))
                     mLocation = location;
             }
@@ -82,7 +90,7 @@ public class MtaaLocationService extends Service {
         Log.e("MtaaLocationService", "got a new location");
         if (mLocation == null)
             return true;
-
+        Log.e("MtaaLocationService", "old location was not null");
         long timeDelta = location.getTime() - mLocation.getTime();
         boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
         boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;

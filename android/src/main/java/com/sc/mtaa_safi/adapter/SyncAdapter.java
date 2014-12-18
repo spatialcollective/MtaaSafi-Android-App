@@ -179,7 +179,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private ArrayList getServerIds() throws IOException, JSONException{
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
-        if(cachedLocation != null){
+        if (cachedLocation != null) {
             JSONObject locationJSON = new JSONObject()
                     .put("latitude", cachedLocation.getLatitude())
                     .put("longitude", cachedLocation.getLongitude());

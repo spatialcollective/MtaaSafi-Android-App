@@ -31,7 +31,6 @@ import java.util.Date;
 public class Report {
     public boolean upVoted = false;
     public int serverId, dbId, pendingState = -1, upVoteCount, inProgress = 0;
-    public double latitude, longitude;
     public String locationDescript, content, timeElapsed, userName;
     public long timeStamp;
     public ArrayList<String> mediaPaths;
@@ -64,8 +63,6 @@ public class Report {
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
-        this.latitude = newLocation.getLatitude();
-        this.longitude =  newLocation.getLongitude();
         this.location = newLocation;
         this.mediaPaths = picPaths;
         this.serverId = this.dbId = 0;
@@ -125,8 +122,6 @@ public class Report {
         location.setAccuracy(c.getFloat(c.getColumnIndex(Contract.Entry.COLUMN_LOC_ACC)));
         location.setTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_LOC_TIME)));
         location.setProvider(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOC_PROV)));
-        latitude = c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT));
-        longitude = c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG));
     }
 
     public Report(JSONObject jsonData, int pending) throws JSONException {
@@ -136,8 +131,6 @@ public class Report {
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
-        latitude = jsonData.getDouble(Contract.Entry.COLUMN_LAT);
-        longitude = jsonData.getDouble(Contract.Entry.COLUMN_LNG);
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         pendingState = pending;
@@ -146,6 +139,10 @@ public class Report {
         mediaPaths = new ArrayList<String>();
         for (int i = 0; i < mediaPathsInJSON.length(); i++)
             mediaPaths.add(mediaPathsInJSON.get(i).toString());
+
+        location = new Location("ReportLocation");
+        location.setLatitude(jsonData.getDouble(Contract.Entry.COLUMN_LAT));
+        location.setLongitude(jsonData.getDouble(Contract.Entry.COLUMN_LNG));
     }
 
     public ContentValues getContentValues() {
@@ -154,11 +151,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         reportValues.put(Contract.Entry.COLUMN_CONTENT, content);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
-        reportValues.put(Contract.Entry.COLUMN_LAT, latitude);
-        reportValues.put(Contract.Entry.COLUMN_LNG, longitude);
-        reportValues.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
-        reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
-        reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
+
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
         for (int i = 0; i < mediaPaths.size(); i++) {
             if (i == 0)
@@ -174,6 +167,12 @@ public class Report {
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 0);
+
+        reportValues.put(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        reportValues.put(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        reportValues.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
+        reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
+        reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
         return reportValues;
     }
 
@@ -187,31 +186,18 @@ public class Report {
         output.putString(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
         output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
         output.putInt(Contract.Entry.COLUMN_ID, dbId);
+        output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
+        output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
         output.putDouble(Contract.Entry.COLUMN_LNG, location.getLongitude());
         output.putFloat(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
         output.putLong(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
         output.putString(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
-        output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
-        output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         return output;
     }
     
     public static Uri getUri(int dbId) {
         return Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
-    }
-    public static int serverIdToDBId(Context c, int serverId){
-        String[] projection = new String[1];
-        projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor cursor = c.getContentResolver().query(Contract.Entry.CONTENT_URI, projection,
-                                                    Contract.Entry.COLUMN_SERVER_ID + " = " + serverId,
-                                                    null, null);
-        if(cursor.moveToNext()){
-            int dbId = cursor.getInt(cursor.getColumnIndex(Contract.Entry.COLUMN_ID));
-            cursor.close();
-            return dbId;
-        }
-        return -1;
     }
 
     public String getJsonStringRep() throws JSONException, IOException, NoSuchAlgorithmException {
@@ -221,11 +207,11 @@ public class Report {
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
 
         JSONObject loc = new JSONObject();
-        loc.put(Contract.Entry.COLUMN_LAT, this.latitude);
-        loc.put(Contract.Entry.COLUMN_LNG, this.longitude);
-        loc.put(Contract.Entry.COLUMN_LOC_ACC, this.location.getAccuracy());
-        loc.put("timestamp", this.location.getTime());
-        loc.put(Contract.Entry.COLUMN_LOC_PROV, this.location.getProvider());
+        loc.put(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        loc.put(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        loc.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
+        loc.put("timestamp", location.getTime());
+        loc.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
         json.put("location", loc);
 
         json.put("picHashes", new JSONArray());

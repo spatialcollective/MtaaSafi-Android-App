@@ -38,13 +38,10 @@ public class ComplexPreferences {
         editor.putString(key, value);
     }
 	public void putObject(String key, Object object) {
-		if(object == null){
-			throw new IllegalArgumentException("object is null");
-		}
-		
-		if(key.equals("") || key == null){
+		if (object == null)
+            throw new IllegalArgumentException("object is null");
+		if (key.equals("") || key == null)
 			throw new IllegalArgumentException("key is empty or null");
-		}
 		
 		editor.putString(key, GSON.toJson(object));
 	}
