@@ -41,9 +41,6 @@ import java.util.ArrayList;
 class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final String TAG = "SyncAdapter";
-    private static final int NET_CONNECT_TIMEOUT_MILLIS = 15000;  // 15 seconds
-    private static final int NET_READ_TIMEOUT_MILLIS = 10000;  // 10 seconds
-
     private final ContentResolver mContentResolver;
     private ComplexPreferences cp;
 
@@ -52,12 +49,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Constructing");
         mContentResolver = context.getContentResolver();
         cp = PrefUtils.getPrefs(context);
-    }
-
-    public SyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
-        Log.i(TAG, "Constructing");
-        mContentResolver = context.getContentResolver();
     }
 
     // The syncResult argument allows you to pass information back to the method that triggered the sync.
@@ -102,20 +93,24 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.i(TAG, "Network synchronization complete");
     }
 
-    public void updateLocalFeedData(final ArrayList serverIds, final SyncResult syncResult)
+    public void updateLocalFeedData(ArrayList serverIds, final SyncResult syncResult)
             throws IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException, JSONException {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-        String[] projection = new String[1];
-        projection[0] = Contract.Entry.COLUMN_ID;
+        String[] projection = {Contract.Entry.COLUMN_ID, Contract.Entry.COLUMN_SERVER_ID};
         Cursor c = mContentResolver.query(Contract.Entry.CONTENT_URI, projection,
                             Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         assert c != null;
         while (c.moveToNext()) {
-            batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());
-            syncResult.stats.numEntries++;
-            syncResult.stats.numDeletes++;
+            int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
+            if (!serverIds.contains(serverId)) {
+                batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());
+                syncResult.stats.numEntries++;
+                syncResult.stats.numDeletes++;
+            } else {
+                serverIds.remove(serverIds.indexOf(serverId));
+            }
         }
         writeNewReports(getNewReportsFromServer(serverIds), batch, syncResult);
         c.close();

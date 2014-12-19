@@ -50,8 +50,6 @@ import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends ActionBarActivity implements
         AlertDialogFragment.AlertDialogListener,
-        GooglePlayServicesClient.ConnectionCallbacks,
-        GooglePlayServicesClient.OnConnectionFailedListener,
         SwipeRefreshLayout.OnRefreshListener {
 
     ReportDetailFragment detailFragment;
@@ -229,12 +227,12 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         CharSequence titleChar = item.getTitle();
-        if(titleChar == null){
+        if (titleChar == null) {
             onBackPressed();
             return true;
         }
         String title = titleChar.toString();
-        if(title.equals("Upload Saved Reports"))
+        if (title.equals("Upload Saved Reports"))
             uploadSavedReports();
         else
             return super.onOptionsItemSelected(item);
@@ -242,7 +240,6 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void addSortSpinner() {
-    // first launch --> NPE exception b/c getNewsFeedFragment is null
         ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
         getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
@@ -321,35 +318,11 @@ public class MainActivity extends ActionBarActivity implements
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
-    // ======================Google Play Services:======================
     public Location getLocation() {
         return mBoundService.getLocation();
     }
 
-    @Override
-    public void onConnected(Bundle bundle) {
-        getLocation();
-    }
-    @Override
-    public void onDisconnected() {
-        Toast.makeText(this, "Disconnected from Google Play. Please re-connect.", Toast.LENGTH_SHORT).show();
-    }
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if (connectionResult.hasResolution()) {
-            try { // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
-            } catch (IntentSender.SendIntentException e) { // Thrown if Google Play services canceled the original PendingIntent
-                e.printStackTrace();
-            }
-        } else { // If no resolution is available, display a dialog to the user with the error.
-            CharSequence text = "Google play connection failed, no resolution";
-            Toast toast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }
-
-    private void onLocationDisabled(){
+    private void onLocationDisabled() {
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
 

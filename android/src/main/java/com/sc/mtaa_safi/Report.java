@@ -27,13 +27,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-// Created by Agree on 9/4/2014.
 public class Report {
     public boolean upVoted = false;
     public int serverId, dbId, pendingState = -1, upVoteCount, inProgress = 0;
     public String locationDescript, content, timeElapsed, userName;
     public long timeStamp;
-    public ArrayList<String> mediaPaths;
+    public ArrayList<String> mediaPaths = new ArrayList<String>();
+    public String[] mediaUrls = {Contract.Entry.COLUMN_MEDIAURL1, Contract.Entry.COLUMN_MEDIAURL2, Contract.Entry.COLUMN_MEDIAURL3};
     public Location location;
             
     public static final String[] PROJECTION = new String[] {
@@ -69,17 +69,17 @@ public class Report {
     }
 
     public Report(Bundle bundle) {
-        mediaPaths = new ArrayList<String>();
+        serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
+        dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
         content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
         locationDescript = bundle.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
-        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL1));
-        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL2));
-        mediaPaths.add(bundle.getString(Contract.Entry.COLUMN_MEDIAURL3));
-        serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
-        dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
-
+        for (int i = 0; i < mediaUrls.length; i++) {
+            if (bundle.getString(mediaUrls[i]) != null && !bundle.getString(mediaUrls[i]).isEmpty())
+                mediaPaths.add(bundle.getString(mediaUrls[i]));
+        }
+        
         location = new Location("report_location");
         location.setLatitude(bundle.getDouble(Contract.Entry.COLUMN_LAT));
         location.setLongitude(bundle.getDouble(Contract.Entry.COLUMN_LNG));
@@ -89,7 +89,6 @@ public class Report {
 
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
-        // make sure this method's only called after inflation
     }
 
     public Report(Cursor c) {
@@ -104,14 +103,10 @@ public class Report {
         if(userName.equals(""))
             userName = "Unknown user";
 
-        mediaPaths = new ArrayList<String>();
-        mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
-        String mediaPath2 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2));
-        if(mediaPath2 != null)
-            mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
-        String mediaPath3 = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3));
-        if(mediaPath3 != null)
-            mediaPaths.add(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
+        for (int i = 0; i < mediaUrls.length; i++) {
+            if (c.getString(c.getColumnIndex(mediaUrls[i])) != null && !c.getString(c.getColumnIndex(mediaUrls[i])).isEmpty())
+                mediaPaths.add(c.getString(c.getColumnIndex(mediaUrls[i])));
+        }
 
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
@@ -136,7 +131,6 @@ public class Report {
         pendingState = pending;
         
         JSONArray mediaPathsInJSON = jsonData.getJSONArray("mediaURLs");
-        mediaPaths = new ArrayList<String>();
         for (int i = 0; i < mediaPathsInJSON.length(); i++)
             mediaPaths.add(mediaPathsInJSON.get(i).toString());
 
@@ -153,14 +147,8 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
 
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
-        for (int i = 0; i < mediaPaths.size(); i++) {
-            if (i == 0)
-                reportValues.put(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(i));
-            if (i == 1)
-                reportValues.put(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(i));
-            if (i == 2)
-                reportValues.put(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(i));
-        }
+        for (int i = 0; i < mediaPaths.size(); i++)
+            reportValues.put(mediaUrls[i], mediaPaths.get(i));
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
@@ -181,9 +169,8 @@ public class Report {
         output.putString(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);
-        output.putString(Contract.Entry.COLUMN_MEDIAURL1, mediaPaths.get(0));
-        output.putString(Contract.Entry.COLUMN_MEDIAURL2, mediaPaths.get(1));
-        output.putString(Contract.Entry.COLUMN_MEDIAURL3, mediaPaths.get(2));
+        for (int i = 0; i < mediaPaths.size(); i++)
+            output.putString(mediaUrls[i], mediaPaths.get(i));
         output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
         output.putInt(Contract.Entry.COLUMN_ID, dbId);
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
@@ -283,11 +270,6 @@ public class Report {
         return "";
     }
 
-    private String getEncodedBytesForPic(int i) throws IOException {
-        String encoded = Base64.encodeToString(getBytesForPic(i), Base64.DEFAULT);
-        Log.e(LogTags.NEWREPORT, "Encoded string size: " + encoded.getBytes().length);
-        return encoded;
-    }
     public byte[] getBytesForPic(int i) throws IOException {
         File file = new File(mediaPaths.get(i));
         byte[] b = new byte[(int) file.length()];
