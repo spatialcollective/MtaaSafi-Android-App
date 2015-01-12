@@ -318,10 +318,7 @@ public class MainActivity extends ActionBarActivity implements
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
-    public Location getLocation() {
-        return mBoundService.getLocation();
-    }
-
+    public Location getLocation() { return mBoundService.getLocation(); }
     private void onLocationDisabled() {
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
