@@ -33,6 +33,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    productFlavors{
+        production {
+            applicationId "com.sc.mtaa_safi"
+        }
+
+        staging {
+            applicationId "com.sc.mtaa_safi"
+        }
+    }
 }
 
 dependencies {

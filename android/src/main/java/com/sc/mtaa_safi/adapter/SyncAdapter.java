@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
@@ -57,7 +58,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                               ContentProviderClient provider, SyncResult syncResult) {
         Log.i(TAG, "Beginning network synchronization");
         try {
-            Log.i(TAG, "Streaming data from network: " + URLs.FEED);
+            Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.feed));
             ArrayList serverIds = getServerIds();
             if (serverIds != null)
                 updateLocalFeedData(serverIds, syncResult);
@@ -139,7 +140,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONObject getNewReportsFromServer(ArrayList serverIds) throws
             IOException, JSONException, OperationApplicationException, RemoteException {
-        String fetchReportsURL = URLs.FEED + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
+        String fetchReportsURL = this.getContext().getString(R.string.feed) + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         String username = cp.getString(PrefUtils.USERNAME, "");
         if (!username.isEmpty()) {
@@ -178,7 +179,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             JSONObject locationJSON = new JSONObject()
                     .put("latitude", cachedLocation.getLatitude())
                     .put("longitude", cachedLocation.getLongitude());
-            String responseString = makeRequest(URLs.FEED, locationJSON).toString();
+            String responseString = makeRequest(this.getContext().getString(R.string.feed), locationJSON).toString();
             String[] responseStringArray =  responseString
                                             .replaceAll("\\[", "").replaceAll("\\]", "")
                                             .split(", ");
