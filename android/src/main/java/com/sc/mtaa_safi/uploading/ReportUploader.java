@@ -82,7 +82,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
     private JSONObject writeTextToServer() throws IOException, JSONException, NoSuchAlgorithmException {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(URLs.BASE_WRITE + "/");
+        HttpPost httpPost = new HttpPost(mContext.getString(R.string.base_write) + "/");
         httpPost.setHeader("Accept", "application/json");
         httpPost.setHeader("Content-type", "application/json");
         Log.e("Write Text:", pendingReport.getJsonStringRep());
@@ -94,7 +94,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
 
     private JSONObject writePicToServer() throws IOException, JSONException {
-        String urlString = URLs.BASE_WRITE + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
+        String urlString = mContext.getString(R.string.base_write) + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
         Log.e("Pic URL", urlString);
         URL url = new URL(urlString);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
