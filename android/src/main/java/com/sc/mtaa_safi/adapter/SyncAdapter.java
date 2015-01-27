@@ -18,11 +18,11 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
-import com.sc.mtaa_safi.SystemUtils.URLs;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -62,8 +62,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             ArrayList serverIds = getServerIds();
             if (serverIds != null)
                 updateLocalFeedData(serverIds, syncResult);
-            else // TODO : handle null location errors, which will occur first time user opens app
+            else { // TODO : handle null location errors, which will occur first time user opens app
+                Log.e(TAG, "server response: " + serverIds);
                 return;
+            }
         } catch (MalformedURLException e) {
             Log.wtf(TAG, "Feed URL is malformed", e);
             syncResult.stats.numParseExceptions++;
@@ -175,18 +177,29 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private ArrayList getServerIds() throws IOException, JSONException{
         ComplexPreferences cp = PrefUtils.getPrefs(getContext());
         Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
+        Log.e(TAG, "cachedLocation: " + cachedLocation);
         if (cachedLocation != null) {
-            JSONObject locationJSON = new JSONObject()
-                    .put("latitude", cachedLocation.getLatitude())
-                    .put("longitude", cachedLocation.getLongitude());
-            String responseString = makeRequest(this.getContext().getString(R.string.feed), locationJSON).toString();
-            String[] responseStringArray =  responseString
+            String responseString = makeGETRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/");
+
+            try{
+                JSONObject responseJSON = new JSONObject(responseString);
+                ArrayList serverIds = new ArrayList();
+                JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
+                for(int i = 0; i < serverIdsJSON.length(); i++){
+                    serverIds.add(serverIdsJSON.getInt(i));
+                }
+                return serverIds;
+            } catch (JSONException e){
+                return null;
+            }
+
+           /* String[] responseStringArray =  responseString
                                             .replaceAll("\\[", "").replaceAll("\\]", "")
                                             .split(", ");
             ArrayList serverIds = new ArrayList();
             for(String id : responseStringArray)
                 serverIds.add(Integer.parseInt(id));
-            return serverIds;
+            return serverIds;*/
         } else
             return null;
     }
@@ -198,6 +211,16 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         httpPost.setHeader("Content-type", "application/json");
         httpPost.setEntity(new StringEntity(entity.toString()));
         HttpResponse response = httpClient.execute(httpPost);
+        if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
+        return EntityUtils.toString(response.getEntity(), "UTF-8");
+    }
+
+    private String makeGETRequest(String url) throws IOException {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("Accept", "application/json");
+        httpGet.setHeader("Content-type", "application/json");
+        HttpResponse response = httpClient.execute(httpGet);
         if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
         return EntityUtils.toString(response.getEntity(), "UTF-8");
     }

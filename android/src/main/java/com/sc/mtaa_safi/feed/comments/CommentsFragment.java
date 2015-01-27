@@ -1,6 +1,5 @@
 package com.sc.mtaa_safi.feed.comments;
 
-import android.app.LoaderManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
@@ -11,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;

@@ -6,28 +6,21 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-import com.google.android.gms.location.LocationClient;
 import com.sc.mtaa_safi.MtaaLocationService;
+import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
-import com.sc.mtaa_safi.uploading.UploadingActivity;
-import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 public class NewReportActivity extends ActionBarActivity {
     private ComplexPreferences cp;

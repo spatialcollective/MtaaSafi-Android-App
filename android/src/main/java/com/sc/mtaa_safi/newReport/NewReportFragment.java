@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.newReport;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -25,6 +26,8 @@ import com.sc.mtaa_safi.Landmark;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.location.LocationData;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,9 +44,9 @@ public class NewReportFragment extends Fragment {
     private ComplexPreferences cp;
     public ArrayList<String> picPaths = new ArrayList<String>();
 
-    public List<String> villages = Arrays.asList("Mabatini", "Mashimoni", "Mathare 3A",
+    public List<String> villages; /*= Arrays.asList("Mabatini", "Mashimoni", "Mathare 3A",
                                                 "Mathare 3B", "Mathare 3C", "Mathare No10",
-                                                "Mathare Village 1", "Mathare Village 2", "Thayu");
+                                                "Mathare Village 1", "Mathare Village 2", "Thayu");*/
     public HashMap<String, ArrayList<String>> landmarkMap;
     private String villageSelected;
 
@@ -61,8 +64,9 @@ public class NewReportFragment extends Fragment {
         cp = PrefUtils.getPrefs(getActivity());
         updateDetailsView();
         updatePicPreviews();
+        addVillages();
         setUpVillages();
-        addLandmarks();
+        //addLandmarks();
     }
 
     private void setUpVillages(){
@@ -94,18 +98,37 @@ public class NewReportFragment extends Fragment {
         }
     }
 
-    private void addLandmark(String landmarkName, double lon, double lat, String villageName) {
+    private void addVillages(){
+        villages = new ArrayList<>();
+        landmarkMap = new HashMap<>();
+        Cursor villageCursor = getActivity().getContentResolver().query(Contract.Admin.ADMIN_URI, LocationData.ADMIN_PROJECTION,
+                null, null, null);
+        while(villageCursor.moveToNext()){
+            villages.add(villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)));
+            Cursor landmarksCursor = getActivity().getContentResolver().query(Contract.Landmark.LANDMARK_URI, LocationData.LANDMARK_PROJECTION,
+                    Contract.Landmark.COLUMN_FK_ADMIN + " = " + villageCursor.getInt(villageCursor.getColumnIndexOrThrow(Contract.Admin._ID)),
+                    null, null);
+            while(landmarksCursor.moveToNext()){
+                addLandmark(landmarksCursor.getString(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark.COLUMN_NAME)),
+                        villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)));
+            }
+
+        }
+    }
+
+    private void addLandmark(String landmarkName, String villageName) {
         ArrayList<String> list;
-//        Landmark landmark = new Landmark(landmarkName, lon, lat, villageName);
         if (landmarkMap.containsKey(villageName))
             list = landmarkMap.get(villageName);
         else
-            list = new ArrayList<String>();
+            list = new ArrayList<>();
         list.add(landmarkName);
         landmarkMap.put(villageName, list);
     }
     private void addLandmarks() {
-        landmarkMap = new HashMap<String, ArrayList<String>>();
+        landmarkMap = new HashMap<>();
+
+/*
         addLandmark("Good Samaritan", 36.85194318395180346, -1.26457937342121363, "Mathare 3B");
         addLandmark("Redeemed Gospel Church", 36.85005637859914174, -1.26454956166788746, "Mathare Village 2");
         addLandmark("Youth Foundation", 36.84638180025920917, -1.26348753307809458, "Mathare Village 1");
@@ -147,6 +170,7 @@ public class NewReportFragment extends Fragment {
         addLandmark("Mabatini Kwa KANU", 36.8655824539915784, -1.26219459157149849, "Mabatini");
         addLandmark("Total Petrol Station", 36.84528920656834572, -1.26670492680081814, "Mathare Village 1");
         addLandmark("Al Badir Petrol Station", 36.84891561271554394, -1.26587956196086493, "Mathare Village 2");
+*/
     }
 
     @Override

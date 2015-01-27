@@ -16,11 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
-import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 

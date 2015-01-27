@@ -2,9 +2,7 @@ package com.sc.mtaa_safi.feed;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;

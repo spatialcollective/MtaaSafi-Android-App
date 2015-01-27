@@ -20,8 +20,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
-import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
 
 public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
