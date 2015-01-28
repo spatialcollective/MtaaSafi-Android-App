@@ -9,7 +9,6 @@ import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.URLs;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;

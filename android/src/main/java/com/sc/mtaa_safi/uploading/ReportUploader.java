@@ -12,7 +12,6 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
-import com.sc.mtaa_safi.SystemUtils.URLs;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
@@ -40,10 +39,6 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int canceller = -1;
 
     public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1, NETWORK_ERROR = 2;
-    private static final String BASE_WRITE_URL = "http://app.spatialcollective.com/add_post",
-            NEXT_REPORT_PIECE_KEY = "nextfield",
-            REPORT_ID_KEY = "id",
-            OUTPUT_KEY = "output";
 
     public ReportUploader(Context context, Report report, ReportUploadingFragment frag) {
         mContext = context;
@@ -56,7 +51,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     protected Integer doInBackground(Integer... p) {
         JSONObject serverResponse = null;
         try {
-            for (int i = 0; i < pendingReport.mediaPaths.size() + 1; i++) {
+            for (int i = 0; i < pendingReport.media.size() + 1; i++) {
                 if (isCancelled()) {
                     updateProgressStopped();
                     return canceller;
@@ -117,22 +112,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
     
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
-        pendingReport.pendingState = response.getInt(NEXT_REPORT_PIECE_KEY);
-        ContentValues updateValues = new ContentValues();
-        if (pendingReport.pendingState == 1) {
-            updateValues.put(Contract.Entry.COLUMN_HUMAN_LOC, response.getString(OUTPUT_KEY));
-            updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt(REPORT_ID_KEY));
-            pendingReport.serverId = response.getInt(REPORT_ID_KEY);
-        } else if (pendingReport.pendingState == 2)
-            updateValues.put(Contract.Entry.COLUMN_MEDIAURL1, response.getString(OUTPUT_KEY));
-        else if (pendingReport.pendingState == 3)
-            updateValues.put(Contract.Entry.COLUMN_MEDIAURL2, response.getString(OUTPUT_KEY));
-        else if (pendingReport.pendingState == 4) {
-            updateValues.put(Contract.Entry.COLUMN_MEDIAURL3, response.getString(OUTPUT_KEY));
-            deleteLocalPics();
-        }
+        ContentValues updateValues = pendingReport.updateValues(response);
 
-        if(pendingReport.pendingState > pendingReport.mediaPaths.size())
+        if (pendingReport.pendingState == 4)
+            deleteLocalPics();
+
+        if (pendingReport.pendingState > pendingReport.media.size())
             pendingReport.pendingState = -1;
         if (pendingReport.pendingState > 0)
             updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
@@ -144,15 +129,15 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)
             mContext.getContentResolver().update(reportUri, updateValues, null, null);
-        else{
+        else {
             cancel(true);
             Log.e("Cancelled!", "From UpdateDB");
         }
     }
 
     private void deleteLocalPics() {
-        for (int picPos = 0; picPos < pendingReport.mediaPaths.size(); picPos++) {
-            File picFile = new File(pendingReport.mediaPaths.get(picPos));
+        for (int picPos = 0; picPos < pendingReport.media.size(); picPos++) {
+            File picFile = new File(pendingReport.media.get(picPos));
             if (picFile != null)
                 picFile.delete();
         }

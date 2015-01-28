@@ -10,6 +10,8 @@ import android.util.Log;
 
 import android.location.Location;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.SystemUtils.LogTags;
 import com.sc.mtaa_safi.database.Contract;
 
@@ -21,6 +23,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
@@ -28,12 +31,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Report {
+    private Gson gson = new Gson();
     public boolean upVoted = false;
     public int serverId, dbId, pendingState = -1, upVoteCount, inProgress = 0;
     public String locationDescript, content, timeElapsed, userName;
     public long timeStamp;
-    public ArrayList<String> mediaPaths = new ArrayList<String>();
-    public String[] mediaUrls = {Contract.Entry.COLUMN_MEDIAURL1, Contract.Entry.COLUMN_MEDIAURL2, Contract.Entry.COLUMN_MEDIAURL3};
+    public ArrayList<String> media = new ArrayList<String>();
     public Location location;
             
     public static final String[] PROJECTION = new String[] {
@@ -48,9 +51,7 @@ public class Report {
             Contract.Entry.COLUMN_LOC_TIME,
             Contract.Entry.COLUMN_LOC_PROV,
             Contract.Entry.COLUMN_USERNAME,
-            Contract.Entry.COLUMN_MEDIAURL1,
-            Contract.Entry.COLUMN_MEDIAURL2,
-            Contract.Entry.COLUMN_MEDIAURL3,
+            Contract.Entry.COLUMN_MEDIA,
             Contract.Entry.COLUMN_PENDINGFLAG,
             Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS,
             Contract.Entry.COLUMN_UPVOTE_COUNT,
@@ -58,14 +59,14 @@ public class Report {
     };
     // for Report objects created by the user to send to the server
     public Report(String details, String userName, Location newLocation, ArrayList<String> picPaths) {
+        this.serverId = this.dbId = 0;
         this.content = details;
         this.locationDescript = "";
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
         this.location = newLocation;
-        this.mediaPaths = picPaths;
-        this.serverId = this.dbId = 0;
+        this.media = picPaths;
     }
 
     public Report(Bundle bundle) {
@@ -75,10 +76,8 @@ public class Report {
         locationDescript = bundle.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
-        for (int i = 0; i < mediaUrls.length; i++) {
-            if (bundle.getString(mediaUrls[i]) != null && !bundle.getString(mediaUrls[i]).isEmpty())
-                mediaPaths.add(bundle.getString(mediaUrls[i]));
-        }
+        upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
+        upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         
         location = new Location("report_location");
         location.setLatitude(bundle.getDouble(Contract.Entry.COLUMN_LAT));
@@ -87,8 +86,8 @@ public class Report {
         location.setTime(bundle.getLong(Contract.Entry.COLUMN_LOC_TIME));
         location.setProvider(bundle.getString(Contract.Entry.COLUMN_LOC_PROV));
 
-        upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
-        upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
+        media = gson.fromJson(bundle.getString(Contract.Entry.COLUMN_MEDIA), new TypeToken<ArrayList<String>>() {
+        }.getType());
     }
 
     public Report(Cursor c) {
@@ -103,11 +102,6 @@ public class Report {
         if(userName.equals(""))
             userName = "Unknown user";
 
-        for (int i = 0; i < mediaUrls.length; i++) {
-            if (c.getString(c.getColumnIndex(mediaUrls[i])) != null && !c.getString(c.getColumnIndex(mediaUrls[i])).isEmpty())
-                mediaPaths.add(c.getString(c.getColumnIndex(mediaUrls[i])));
-        }
-
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
 
@@ -117,6 +111,12 @@ public class Report {
         location.setAccuracy(c.getFloat(c.getColumnIndex(Contract.Entry.COLUMN_LOC_ACC)));
         location.setTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_LOC_TIME)));
         location.setProvider(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOC_PROV)));
+
+        for (int i = 0; i < media.size(); i++) {
+            Type type = new TypeToken<ArrayList<String>>() {}.getType();
+            if (c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)) != null && !c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)).isEmpty())
+                media = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), type);
+        }
     }
 
     public Report(JSONObject jsonData, int pending) throws JSONException {
@@ -130,13 +130,13 @@ public class Report {
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         pendingState = pending;
         
-        JSONArray mediaPathsInJSON = jsonData.getJSONArray("mediaURLs");
-        for (int i = 0; i < mediaPathsInJSON.length(); i++)
-            mediaPaths.add(mediaPathsInJSON.get(i).toString());
-
         location = new Location("ReportLocation");
         location.setLatitude(jsonData.getDouble(Contract.Entry.COLUMN_LAT));
         location.setLongitude(jsonData.getDouble(Contract.Entry.COLUMN_LNG));
+
+        JSONArray mediaIdsJSON = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
+        for (int i = 0; i < mediaIdsJSON.length(); i++)
+            media.add(mediaIdsJSON.get(i) + "");
     }
 
     public ContentValues getContentValues() {
@@ -145,10 +145,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         reportValues.put(Contract.Entry.COLUMN_CONTENT, content);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
-
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
-        for (int i = 0; i < mediaPaths.size(); i++)
-            reportValues.put(mediaUrls[i], mediaPaths.get(i));
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
@@ -161,18 +158,18 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
         reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
         reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
+
+        reportValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return reportValues;
     }
 
     public Bundle saveState(Bundle output) {
+        output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
+        output.putInt(Contract.Entry.COLUMN_ID, dbId);
         output.putString(Contract.Entry.COLUMN_CONTENT, content);
         output.putString(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);
-        for (int i = 0; i < mediaPaths.size(); i++)
-            output.putString(mediaUrls[i], mediaPaths.get(i));
-        output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
-        output.putInt(Contract.Entry.COLUMN_ID, dbId);
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
         output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
@@ -180,6 +177,8 @@ public class Report {
         output.putFloat(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
         output.putLong(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
         output.putString(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
+
+        output.putString(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return output;
     }
     
@@ -202,9 +201,28 @@ public class Report {
         json.put("location", loc);
 
         json.put("picHashes", new JSONArray());
-        for (int i = 0; i < mediaPaths.size(); i++)
-            json.accumulate("picHashes", getSHA1forPic(i));
+        for (int i = 0; i < media.size(); i++) {
+            try { 
+                Integer.parseInt(media.get(i)); 
+            } catch(NumberFormatException e) { 
+                json.accumulate("picHashes", getSHA1forPic(i));
+            }
+        }
         return json.toString();
+    }
+
+    public ContentValues updateValues(JSONObject response) throws JSONException {
+        pendingState = response.getInt("nextfield");
+        ContentValues updateValues = new ContentValues();
+        if (pendingState == 1) {
+            updateValues.put(Contract.Entry.COLUMN_HUMAN_LOC, response.getString("output"));
+            updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt("id"));
+            serverId = response.getInt("id");
+        } else if (pendingState >= 2) {
+            media.set(pendingState - 2, response.getString("output"));
+            updateValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
+        }
+        return updateValues;
     }
 
     public static String getDistanceText(Location currentLocation, Double reportLat, Double reportLng) {
@@ -223,7 +241,7 @@ public class Report {
     public static String getDistanceText(Location current, Location reportLoc) {
         float distInMeters = reportLoc.distanceTo(current);
         String distText;
-        if(distInMeters > 1000){
+        if (distInMeters > 1000) {
             distText = Float.toString(distInMeters/1000);
             if(distText.indexOf('.') !=-1) // show km within 1 decimal pt
                 distText = distText.substring(0, distText.indexOf('.')+2);
@@ -271,12 +289,17 @@ public class Report {
     }
 
     public byte[] getBytesForPic(int i) throws IOException {
-        File file = new File(mediaPaths.get(i));
-        byte[] b = new byte[(int) file.length()];
-        Log.e("File path", file.getAbsolutePath());
-        FileInputStream inputStream = new FileInputStream(file); /* Remove BufferedInputStream */
-        inputStream.read(b);
-        inputStream.close();
+        byte[] b = new byte[8];
+        try { 
+            Integer.parseInt(media.get(i));
+        } catch (NumberFormatException e) { 
+            File file = new File(media.get(i));
+            b = new byte[(int) file.length()];
+            Log.e("File path", file.getAbsolutePath());
+            FileInputStream inputStream = new FileInputStream(file); /* Remove BufferedInputStream */
+            inputStream.read(b);
+            inputStream.close();
+        }
         return b;
     }
     // from: http://stackoverflow.com/questions/5980658/how-to-sha1-hash-a-string-in-android

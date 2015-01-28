@@ -30,12 +30,7 @@ public class PrefUtils {
         return ComplexPreferences.getComplexPreferences(context, PREF_KEY, Activity.MODE_PRIVATE)
                 .getObject(SCREEN_WIDTH, Integer.TYPE);
     }
-    public static int getTimeSinceInMinutes(float since){
-        float diffMillis = System.currentTimeMillis() - since;
-        float diffSeconds = diffMillis/1000;
-        float diffMinutes = diffSeconds/60;
-        return (int) diffMinutes;
-    }
+
     public static String trimUsername(String userName){
         if(userName.indexOf('"') != -1){ // trim quotation marks
             userName = userName.substring(1, userName.length()-1);

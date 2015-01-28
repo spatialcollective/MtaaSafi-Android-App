@@ -18,7 +18,6 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
-import com.sc.mtaa_safi.SystemUtils.URLs;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;

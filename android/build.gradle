@@ -13,7 +13,6 @@ apply plugin: 'android'
 apply plugin: 'io.fabric'
 
 repositories {
-
     maven { url 'https://maven.fabric.io/repo' }
 }
 

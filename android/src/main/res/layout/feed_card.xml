@@ -1,9 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sc.mtaa_safi.feed.MainActivity"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:id="@+id/feed_item"
+    android:orientation="horizontal"
+    android:background="@drawable/border" >
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
-    android:layout_marginBottom="8dp">
-    <include layout="@layout/feed_item_view"/>
-</android.support.v7.widget.CardView>
+    <ImageView android:id="@+id/leadImage"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_height="76dp"
+        android:layout_width="76dp"
+        android:scaleType="centerCrop" />
+
+    <include android:id="@+id/voteInterface"
+        layout="@layout/vote_interface"
+        android:layout_width="66dp"
+        android:layout_height="66dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp" />
+
+    <LinearLayout android:id="@+id/detailText"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:layout_toEndOf="@id/leadImage"
+        android:layout_toStartOf="@id/voteInterface"
+        android:layout_toRightOf="@id/leadImage"
+        android:layout_toLeftOf="@id/voteInterface"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp" >
+
+        <TextView android:id="@+id/itemTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Report description"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/light_black"
+            android:textSize="16sp" />
+
+        <TextView android:id="@+id/itemLocation"
+              android:text="Near Nowhereville"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingBottom="8dp"
+              android:textSize="14sp"
+              android:textColor="@color/DarkGray" />
+    </LinearLayout>
+
+
+
+</RelativeLayout>
+<!--<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="8dp"-->
+    <!--android:layout_marginRight="8dp"-->
+    <!--android:layout_marginBottom="8dp">-->
+    <!--<include layout="@layout/feed_item_view"/>-->
+<!--</android.support.v7.widget.CardView>-->

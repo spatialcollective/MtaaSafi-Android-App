@@ -193,7 +193,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 // ==========================   Images   ===============================
     private void setUpViewPager(View view) {
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.mediaPaths.toArray(new String[mReport.mediaPaths.size()])));
+        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.media.toArray(new String[mReport.media.size()])));
         viewPager.setOffscreenPageLimit(3);
         viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
     }

@@ -3,6 +3,7 @@ package com.sc.mtaa_safi.feed;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +11,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.jar.JarException;
 
 public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolder> {
     ArrayList<Integer> upvoteList;
     AQuery aq;
+    private Gson gson = new Gson();
+
     public FeedAdapter(Context context, Cursor cursor) {
         super(context, cursor);
         aq = new AQuery(context);
@@ -41,7 +51,18 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
                 c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
-        aq.id(holder.mLead).image(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1))).animate(R.anim.abc_fade_in);
+
+        ArrayList<String> imagesJson = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), new TypeToken<ArrayList<String>>() {
+        }.getType());
+        String imageUrl = "";
+        try {
+            if (imagesJson != null && !imagesJson.get(0).isEmpty())
+                imageUrl = R.string.base_url + "get_thumbnail/" + Integer.parseInt(imagesJson.get(0)) + "/76x76";
+        } catch (NumberFormatException e) {
+            imageUrl = imagesJson.get(0);
+        }
+        
+        aq.id(holder.mLeadImage).image(imageUrl);
         setDistanceView(holder, c);
         addClick(holder, c);
     }
@@ -76,7 +97,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ViewHolderClicks mListener;
         public TextView mTitleView, mLocation;
-        public ImageView mLead;
+        public ImageView mLeadImage;
         public VoteButton mVoteButton;
 
         public static interface ViewHolderClicks {
@@ -89,11 +110,9 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             mTitleView = (TextView) v.findViewById(R.id.itemTitle);
             mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
             mLocation = (TextView) v.findViewById(R.id.itemLocation);
-            mLead = (ImageView) v.findViewById(R.id.leadImage);
+            mLeadImage = (ImageView) v.findViewById(R.id.leadImage);
             v.setOnClickListener(this);
             mVoteButton.setOnClickListener(this);
-            mLead.getLayoutParams().height = PrefUtils.getScreenWidth(mLead.getContext()) / 2;
-            mLead.requestLayout();
         }
 
         @Override

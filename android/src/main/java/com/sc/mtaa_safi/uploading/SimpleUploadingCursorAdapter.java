@@ -60,9 +60,9 @@ public class SimpleUploadingCursorAdapter extends SimpleCursorAdapter {
     }
 
     private void addImages(View row, Cursor cursor) {
-        addThumb(row.findViewById(R.id.upload_pic_1), cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
-        addThumb(row.findViewById(R.id.upload_pic_2), cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
-        addThumb(row.findViewById(R.id.upload_pic_3), cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
+//        addThumb(row.findViewById(R.id.upload_pic_1), cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL1)));
+//        addThumb(row.findViewById(R.id.upload_pic_2), cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL2)));
+//        addThumb(row.findViewById(R.id.upload_pic_3), cursor.getString(cursor.getColumnIndex(Contract.Entry.COLUMN_MEDIAURL3)));
     }
 
     private void addThumb(View thumbView, String picPath) {
