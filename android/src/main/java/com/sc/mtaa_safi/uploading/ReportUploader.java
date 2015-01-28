@@ -114,17 +114,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
         ContentValues updateValues = pendingReport.updateValues(response);
 
-        if (pendingReport.pendingState == 4)
+        if (pendingReport.pendingState == -1)
             deleteLocalPics();
 
-        if (pendingReport.pendingState > pendingReport.media.size())
-            pendingReport.pendingState = -1;
-        if (pendingReport.pendingState > 0)
-            updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
-        else
-            updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
-
-        updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingReport.pendingState);
         Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
                     .appendPath(Integer.toString(pendingReport.dbId)).build();
         if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)

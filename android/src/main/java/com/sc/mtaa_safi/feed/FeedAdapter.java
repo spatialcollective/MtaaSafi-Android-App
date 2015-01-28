@@ -57,11 +57,11 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         String imageUrl = "";
         try {
             if (imagesJson != null && !imagesJson.get(0).isEmpty())
-                imageUrl = R.string.base_url + "get_thumbnail/" + Integer.parseInt(imagesJson.get(0)) + "/76x76";
+                imageUrl = getContext().getString(R.string.base_url) + "get_thumbnail/" + imagesJson.get(0) + "/76x76";
         } catch (NumberFormatException e) {
             imageUrl = imagesJson.get(0);
         }
-        
+        Log.d("Feed Adapter", "imageUrl: " + imageUrl);
         aq.id(holder.mLeadImage).image(imageUrl);
         setDistanceView(holder, c);
         addClick(holder, c);

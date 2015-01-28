@@ -211,6 +211,7 @@ public class Report {
     public ContentValues updateValues(JSONObject response) throws JSONException {
         pendingState = response.getInt("nextfield");
         ContentValues updateValues = new ContentValues();
+        
         if (pendingState == 1) {
             updateValues.put(Contract.Entry.COLUMN_HUMAN_LOC, response.getString("output"));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt("id"));
@@ -219,6 +220,15 @@ public class Report {
             media.set(pendingState - 2, response.getString("output"));
             updateValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         }
+
+        if (pendingState > media.size())
+            pendingState = -1;
+        if (pendingState > 0)
+            updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 1);
+        else
+            updateValues.put(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS, 0);
+        updateValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
+
         return updateValues;
     }
 
