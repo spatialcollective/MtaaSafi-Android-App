@@ -5,16 +5,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
-import com.sc.mtaa_safi.feed.MainActivity;
-import com.sc.mtaa_safi.newReport.SafiEditText;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.newReport.SafiEditText;
 
 import org.json.JSONException;
 

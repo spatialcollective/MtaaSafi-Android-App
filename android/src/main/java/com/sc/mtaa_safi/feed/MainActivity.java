@@ -5,7 +5,6 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.IntentSender;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
@@ -28,15 +27,13 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
 import com.sc.mtaa_safi.MtaaLocationService;
+import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.LogTags;
-import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
@@ -63,7 +60,7 @@ public class MainActivity extends ActionBarActivity implements
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
-//            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
         }
         // This should never happen
         public void onServiceDisconnected(ComponentName className) { mBoundService = null; }

@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.sc.mtaa_safi.feed.MainActivity;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.feed.MainActivity;
 
 /**
  * Created by Agree on 11/28/2014.

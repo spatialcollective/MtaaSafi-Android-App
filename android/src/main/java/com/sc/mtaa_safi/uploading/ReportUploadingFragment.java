@@ -16,8 +16,8 @@ import android.widget.ImageButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.database.Contract;
 

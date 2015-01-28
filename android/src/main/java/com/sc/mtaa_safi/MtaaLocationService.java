@@ -1,6 +1,5 @@
 package com.sc.mtaa_safi;
 
-import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;

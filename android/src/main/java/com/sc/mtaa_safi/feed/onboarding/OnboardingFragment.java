@@ -15,8 +15,8 @@ import android.view.animation.ScaleAnimation;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import com.sc.mtaa_safi.feed.ZoomOutPageTransformer;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.feed.ZoomOutPageTransformer;
 
 /**
  * Created by Agree on 11/28/2014.

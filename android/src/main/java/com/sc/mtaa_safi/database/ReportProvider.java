@@ -4,8 +4,8 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 public class ReportProvider extends ContentProvider {
@@ -16,7 +16,11 @@ public class ReportProvider extends ContentProvider {
                             ROUTE_UPVOTES = 3,
                             ROUTE_UPVOTES_ID = 4,
                             ROUTE_COMMENTS =5,
-                            ROUTE_COMMENTS_ID = 6;
+                            ROUTE_COMMENTS_ID = 6,
+                            ROUTE_ADMINS = 7,
+                            ROUTE_ADMINS_ID = 9,
+                            ROUTE_LANDMARKS = 10,
+                            ROUTE_LANDMARKS_ID = 11;
 
     @Override
     public boolean onCreate() {
@@ -32,6 +36,10 @@ public class ReportProvider extends ContentProvider {
             sUriMatcher.addURI(AUTHORITY, "upvotes/*", ROUTE_UPVOTES_ID);
             sUriMatcher.addURI(AUTHORITY, "comments", ROUTE_COMMENTS);
             sUriMatcher.addURI(AUTHORITY, "comments/*", ROUTE_COMMENTS_ID);
+            sUriMatcher.addURI(AUTHORITY, "admins", ROUTE_ADMINS);
+            sUriMatcher.addURI(AUTHORITY, "admins/*", ROUTE_ADMINS_ID);
+            sUriMatcher.addURI(AUTHORITY, "landmarks", ROUTE_LANDMARKS);
+            sUriMatcher.addURI(AUTHORITY, "landmarks/*", ROUTE_LANDMARKS_ID);
         }
 
     @Override
@@ -50,6 +58,14 @@ public class ReportProvider extends ContentProvider {
                 return Contract.Comments.CONTENT_TYPE;
             case ROUTE_COMMENTS_ID:
                 return Contract.Comments.CONTENT_ITEM_TYPE;
+            case ROUTE_ADMINS:
+                return Contract.Admin.CONTENT_TYPE;
+            case ROUTE_ADMINS_ID:
+                return Contract.Admin.CONTENT_ITEM_TYPE;
+            case ROUTE_LANDMARKS:
+                return Contract.Landmark.CONTENT_TYPE;
+            case ROUTE_LANDMARKS_ID:
+                return Contract.Landmark.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -82,6 +98,20 @@ public class ReportProvider extends ContentProvider {
                 builder.where(Contract.Comments._ID + "=?", commentId);
             case ROUTE_COMMENTS:
                 builder.table(Contract.Comments.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_ADMINS_ID:
+                String adminId = uri.getLastPathSegment();
+                builder.where(Contract.Admin._ID + "=?", adminId);
+            case ROUTE_ADMINS:
+                builder.table(Contract.Admin.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_LANDMARKS_ID:
+                String landmarkId = uri.getLastPathSegment();
+                builder.where(Contract.Landmark._ID + "=?", landmarkId);
+            case ROUTE_LANDMARKS:
+                builder.table(Contract.Landmark.TABLE_NAME)
                         .where(selection, selectionArgs);
                 return buildQuery(uri, builder, db, projection, sortOrder);
             default:
@@ -121,6 +151,18 @@ public class ReportProvider extends ContentProvider {
                 break;
             case ROUTE_COMMENTS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
+            case ROUTE_ADMINS:
+                long adminId = db.insertOrThrow(Contract.Admin.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + adminId);
+                break;
+            case ROUTE_ADMINS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+ uri);
+            case ROUTE_LANDMARKS:
+                long landmarkId = db.insertOrThrow(Contract.Landmark.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + landmarkId);
+                break;
+            case ROUTE_LANDMARKS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: " +uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
