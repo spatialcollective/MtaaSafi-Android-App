@@ -104,7 +104,7 @@ public class NewReportActivity extends ActionBarActivity {
     }
 
     public Uri saveNewReport(NewReportFragment frag) {
-        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths);
+        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths, frag.locationJSON.toString());
         Log.e("New Report Activity", "inserting");
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }

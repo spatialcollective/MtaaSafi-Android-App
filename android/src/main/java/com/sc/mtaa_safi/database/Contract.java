@@ -34,6 +34,7 @@ public class Contract {
             COLUMN_LOC_ACC = "accuracy",
             COLUMN_LOC_TIME = "loc_time",
             COLUMN_LOC_PROV = "provider",
+            COLUMN_LOC_DATA = "loc_data",
             COLUMN_USERNAME = "user",
             COLUMN_MEDIA = "media",
             COLUMN_PENDINGFLAG = "pending",

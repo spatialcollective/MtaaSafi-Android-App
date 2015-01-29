@@ -6,11 +6,9 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.location.Location;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sc.mtaa_safi.SystemUtils.LogTags;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.json.JSONArray;
@@ -31,7 +29,7 @@ public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
     public int serverId, dbId, pendingState = -1, upVoteCount, inProgress = 0;
-    public String locationDescript, content, timeElapsed, userName;
+    public String locationDescript, content, timeElapsed, userName, locationJSON;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
     public Location location;
@@ -47,6 +45,7 @@ public class Report {
             Contract.Entry.COLUMN_LOC_ACC,
             Contract.Entry.COLUMN_LOC_TIME,
             Contract.Entry.COLUMN_LOC_PROV,
+            Contract.Entry.COLUMN_LOC_DATA,
             Contract.Entry.COLUMN_USERNAME,
             Contract.Entry.COLUMN_MEDIA,
             Contract.Entry.COLUMN_PENDINGFLAG,
@@ -55,7 +54,7 @@ public class Report {
             Contract.Entry.COLUMN_USER_UPVOTED
     };
     // for Report objects created by the user to send to the server
-    public Report(String details, String userName, Location newLocation, ArrayList<String> picPaths) {
+    public Report(String details, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
         this.serverId = this.dbId = 0;
         this.content = details;
         this.locationDescript = "";
@@ -63,6 +62,7 @@ public class Report {
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
         this.location = newLocation;
+        this.locationJSON = locationJSON;
         this.media = picPaths;
     }
 
@@ -75,6 +75,7 @@ public class Report {
         userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
+        locationJSON = bundle.getString(Contract.Entry.COLUMN_LOC_DATA);
         
         location = new Location("report_location");
         location.setLatitude(bundle.getDouble(Contract.Entry.COLUMN_LAT));
@@ -87,7 +88,7 @@ public class Report {
         }.getType());
     }
 
-    public Report(Cursor c) {
+    public Report(Cursor c)  {
         serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
         dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
         pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
@@ -101,6 +102,7 @@ public class Report {
 
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
+        locationJSON = c.getString(c.getColumnIndexOrThrow(Contract.Entry.COLUMN_LOC_DATA));
 
         location = new Location("ReportLocation");
         location.setLatitude(c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT)));
@@ -126,6 +128,12 @@ public class Report {
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         pendingState = pending;
+        try {
+            locationJSON = jsonData.getString(Contract.Entry.COLUMN_LOC_DATA);
+        }catch (JSONException e) {
+            locationJSON = "";
+        }
+
         
         location = new Location("ReportLocation");
         location.setLatitude(jsonData.getDouble(Contract.Entry.COLUMN_LAT));
@@ -156,6 +164,10 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
         reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
 
+        if ( locationJSON != null)
+            reportValues.put(Contract.Entry.COLUMN_LOC_DATA, locationJSON);
+        else
+            reportValues.put(Contract.Entry.COLUMN_LOC_DATA, "");
         reportValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return reportValues;
     }
@@ -188,6 +200,11 @@ public class Report {
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
+
+        if (this.locationJSON != null)
+            json.put(Contract.Entry.COLUMN_LOC_DATA, this.locationJSON);
+        else
+            json.put(Contract.Entry.COLUMN_LOC_DATA, "");
 
         JSONObject loc = new JSONObject();
         loc.put(Contract.Entry.COLUMN_LAT, location.getLatitude());
@@ -314,7 +331,7 @@ public class Report {
     public String getSHA1forPic(int i) throws IOException, NoSuchAlgorithmException {
         byte[] b = getBytesForPic(i);
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        md.update(b, 0, b.length); // shoud be utf-8 not iso-8859-1
+        md.update(b, 0, b.length); // should be utf-8 not iso-8859-1
         byte[] sha1hash = md.digest();
         return convertToHex(sha1hash);
     }
