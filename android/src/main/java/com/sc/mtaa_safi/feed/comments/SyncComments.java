@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.AsyncTask;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
@@ -73,6 +74,7 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
 
     private JSONObject getFromServer() throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
+        Log.d("SyncComments", "Report id:" + mReportId);
         HttpResponse response = httpClient.execute(new HttpGet(mContext.getString(R.string.refresh_comment) + "/" + mReportId));
         return NetworkUtils.convertHttpResponseToJSON(response);
     }

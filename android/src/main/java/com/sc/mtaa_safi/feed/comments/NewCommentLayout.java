@@ -30,9 +30,9 @@ public class NewCommentLayout extends LinearLayout {
         mComment = new Comment();
     }
 
-    public void addData(Report report) {
+    public void addData(int reportId) {
         mComment.mUsername = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
-        mComment.mReportId = report.serverId;
+        mComment.mReportId = reportId;
     }
 
     @Override

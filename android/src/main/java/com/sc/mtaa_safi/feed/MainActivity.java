@@ -75,7 +75,6 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
         setContentView(R.layout.activity_main);
 
         restoreFragment(savedInstanceState);
@@ -128,7 +127,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
-        bundle.putInt("selectedNavItem", getSupportActionBar().getSelectedNavigationIndex());
+//        bundle.putInt("selectedNavItem", getSupportActionBar().getSelectedNavigationIndex());
     }
 
     @Override
@@ -171,20 +170,20 @@ public class MainActivity extends ActionBarActivity implements
                 .commit();
     }
     private void goToOnboarding(){
-        OnboardingFragment onboardingFragment = (OnboardingFragment)
-                                                    getSupportFragmentManager().findFragmentByTag(ONBOARD_TAG);
-        if(onboardingFragment != null)
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, onboardingFragment, ONBOARD_TAG)
-                    .commit();
-        else
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, new OnboardingFragment(), ONBOARD_TAG)
-                    .commit();
-
-        getSupportActionBar().hide();
+//        OnboardingFragment onboardingFragment = (OnboardingFragment)
+//                                                    getSupportFragmentManager().findFragmentByTag(ONBOARD_TAG);
+//        if(onboardingFragment != null)
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .replace(R.id.fragment_container, onboardingFragment, ONBOARD_TAG)
+//                    .commit();
+//        else
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .replace(R.id.fragment_container, new OnboardingFragment(), ONBOARD_TAG)
+//                    .commit();
+//
+//        getSupportActionBar().hide();
     }
     public NewsFeedFragment getNewsFeedFragment(){
         return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
@@ -216,8 +215,8 @@ public class MainActivity extends ActionBarActivity implements
         inflater.inflate(R.menu.main_activity, menu);
         addUploadAction(menu);
         addSortSpinner();
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+//        getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -239,19 +238,19 @@ public class MainActivity extends ActionBarActivity implements
     private void addSortSpinner() {
         ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
                 R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
-        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
-                android.support.v7.app.ActionBar.OnNavigationListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(int i, long l) {
-                        if (i == 0 && getNewsFeedFragment() != null) // sort items by recent
-                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
-                        else if(getNewsFeedFragment() != null) // sort items by most upvoted
-                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
-                        return false;
-                    }
-                });
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-        getSupportActionBar().setSelectedNavigationItem(sortOrderIndex);
+//        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
+//                android.support.v7.app.ActionBar.OnNavigationListener() {
+//                    @Override
+//                    public boolean onNavigationItemSelected(int i, long l) {
+//                        if (i == 0 && getNewsFeedFragment() != null) // sort items by recent
+//                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
+//                        else if(getNewsFeedFragment() != null) // sort items by most upvoted
+//                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
+//                        return false;
+//                    }
+//                });
+//        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+//        getSupportActionBar().setSelectedNavigationItem(sortOrderIndex);
     }
 
     private void addUploadAction(Menu menu){

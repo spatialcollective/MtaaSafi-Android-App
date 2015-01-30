@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
-    <include android:id="@+id/newCommentLayout"
-        layout="@layout/new_comment_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone"/>
+    android:id="@+id/comment_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="72dp"
+    android:paddingRight="20dp"
+    android:paddingStart="72dp"
+    android:paddingEnd="20dp">
 
     <android.support.v7.widget.RecyclerView android:id="@+id/comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        tools:layout="@layout/comment_view"
         android:scrollbars="vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        tools:layout="@layout/comment_view"/>
-</LinearLayout>
+        android:paddingBottom="16dp" />
+
+</RelativeLayout>

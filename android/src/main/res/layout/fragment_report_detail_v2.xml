@@ -1,126 +1,109 @@
-<ScrollView android:id="@+id/scrollView"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/top_layout"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:clipChildren="false"
-    android:clipToPadding="false">
+    android:layout_height="fill_parent">
 
-    <RelativeLayout android:id="@+id/reportDetailViewText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <LinearLayout android:id="@+id/top_layout"
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:clipChildren="false"
-        android:clipToPadding="false">
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:padding="8dp">
-            <include android:id="@+id/topVote"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                layout="@layout/vote_interface"
-                android:layout_marginRight="8dp"/>
-            <TextView android:id="@+id/r_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Report Title"
-                android:textSize="24dp"
-                android:layout_toRightOf="@+id/topVote"
-                android:layout_alignParentTop="true"/>
-        </RelativeLayout>
-
-        <android.support.v4.view.ViewPager android:id="@+id/viewpager"
+        <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:visibility="visible"
-            android:background="@color/DarkSlateGray"/>
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/actionBarSize"
+            android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+            android:background="?android:attr/colorPrimary" >
 
-        <include layout="@layout/location_bar"
+            <LinearLayout android:id="@+id/toolbar_layout"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView android:id="@+id/r_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:text="Report Title that is super long becasue we have no idea wtf people may write, it could be really long run-ons"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/white"
+                    android:textSize="28sp"
+                    android:paddingRight="20dp"
+                    android:paddingTop="4dp"/>
+
+                <TextView android:id="@+id/itemLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="In a galaxy far far away..."
+                    android:textSize="20sp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textColor="@color/white" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="8dp"
+                    android:paddingRight="96dp">
+
+                    <TextView android:id="@+id/r_username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="User Name"
+                        android:textColor="@color/LightGrey"
+                        android:textSize="18sp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true" />
+                    <TextView android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="·"
+                        android:textColor="@color/LightGrey"
+                        android:textSize="18sp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"/>
+
+                    <TextView android:id="@+id/r_timestamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="A long time ago"
+                        android:textSize="18sp"
+                        android:textColor="@color/LightGrey" />
+                </LinearLayout>
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+
+        <ImageView android:id="@+id/leadImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:layout_below="@id/toolbar"
+            android:src="@drawable/sample_image"/>
+
+        <include android:id="@+id/topVote"
+            layout="@layout/vote_interface_floating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingRight="8dp"
-            android:paddingLeft="8dp"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignBottom="@id/toolbar"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="-32dp"
+            android:layout_marginRight="20dp" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView android:id="@+id/r_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="User Name"
-                android:textColor="#666666"
-                android:paddingLeft="8dp"
-                android:textSize="12dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
-            <TextView android:id="@+id/r_timestamp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5h"
-                android:paddingRight="8dp"
-                android:textSize="12dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:layout_gravity="right"
-                android:textColor="#666666"
-                android:paddingTop="4dp" />
-        </RelativeLayout>
+        <include layout="@layout/comments_interface"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_below="@id/leadImage" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="See more comments"
-            android:id="@+id/seeMoreComments"
-            android:background="@color/mtaa_safi_blue_light"
-            android:textColor="@color/White"
-            android:gravity="center_horizontal"
-            android:padding="3dp"
-            android:visibility="invisible"/>
-        <include layout="@layout/comment_view"
-            android:id="@+id/comment1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <include layout="@layout/comment_view"
-            android:id="@+id/comment2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <include layout="@layout/comment_view"
-            android:id="@+id/comment3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <include layout="@layout/comment_view"
-            android:id="@+id/comment4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <include layout="@layout/comment_view"
-            android:id="@+id/comment5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"/>
-        <include layout="@layout/new_comment_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:visibility="visible"/>
-    </LinearLayout>
-
-</RelativeLayout>
-</ScrollView>
+        <include android:id="@+id/new_comment_standalone"
+                 layout="@layout/new_comment_standalone"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_below="@id/leadImage"
+                 android:layout_marginLeft="72dp"
+                 android:layout_marginStart="72dp"
+                 android:layout_marginRight="20dp"
+                 android:layout_marginEnd="20dp" />
+    </RelativeLayout>
+</LinearLayout>

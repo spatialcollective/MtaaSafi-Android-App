@@ -12,10 +12,13 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.androidquery.AQuery;
@@ -25,10 +28,9 @@ import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
-import com.sc.mtaa_safi.feed.comments.CommentsFragment;
+import com.sc.mtaa_safi.feed.comments.CommentAdapter;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 import com.sc.mtaa_safi.feed.comments.SyncComments;
-import com.sc.mtaa_safi.location.SyncLocationData;
 
 import java.text.SimpleDateFormat;
 
@@ -36,20 +38,12 @@ import java.text.SimpleDateFormat;
 public class ReportDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     Report mReport;
-    NewCommentLayout mNewComment;
-    private String distance = "None";
-    Location currentLocation;
-    private LinearLayout[] latestComments;
-
-    public AQuery aq;
-    public ViewPager viewPager;
-
-    public static final String USERNAME = "username", REFRESH_KEY= "refresh", COMMENT = "comment";
+    CommentAdapter mAdapter;
+//    Location currentLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        aq = new AQuery(getActivity());
     }
 
     public void setData(Report r) { mReport = r; }
@@ -57,17 +51,23 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail_v2, container, false);
+        setUpHeader(view);
         if (savedState != null)
             mReport = new Report(savedState);
         if (NetworkUtils.isOnline(getActivity()))
             new SyncComments(getActivity(), mReport.serverId).execute();
-        currentLocation = ((MainActivity) getActivity()).getLocation();
+//        currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
+    }
+
+    private void setUpHeader(View view) {
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        MainActivity activity = (MainActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setUpViewPager(view);
         setDataInViews(view);
     }
 
@@ -82,14 +82,13 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
         ((TextView) view.findViewById(R.id.r_timestamp)).setText(createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
-        getView().findViewById(R.id.seeMoreComments).setVisibility(View.VISIBLE);
-        getView().findViewById(R.id.seeMoreComments).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CommentsFragment commentsFragment = new CommentsFragment();
-                commentsFragment.show(getActivity().getSupportFragmentManager(), "COMMENTS");
-            }
-        });
+
+        int width = ((MainActivity) getActivity()).getScreenWidth();
+        int height = ((MainActivity) getActivity()).getScreenHeight()/2;
+        AQuery aq = new AQuery(getActivity());
+        String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width + "x" + height;
+        ImageView iv = (ImageView) view.findViewById(R.id.leadImage);
+        aq.id(iv).image(imageUrl).animate(R.anim.abc_fade_in);
     }
 
     private void updateVote(VoteButton voter) {
@@ -125,24 +124,14 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void addComments(View view) {
-        mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
-        mNewComment.addData(mReport);
-        latestComments = new LinearLayout[5];
-        latestComments[0] = (LinearLayout) view.findViewById(R.id.comment1);
-        latestComments[1] = (LinearLayout) view.findViewById(R.id.comment2);
-        latestComments[2] = (LinearLayout) view.findViewById(R.id.comment3);
-        latestComments[3] = (LinearLayout) view.findViewById(R.id.comment4);
-        latestComments[4] = (LinearLayout) view.findViewById(R.id.comment5);
-    //    NewCommentLayout commentLayout = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
-    //    commentLayout.addData(mReport);
-//
-  //      mRecyclerView = (RecyclerView) view.findViewById(R.id.comments);
-    //    mLayoutManager = new LinearLayoutManager(getActivity());
-      // mRecyclerView.setLayoutManager(mLayoutManager);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.comments);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-       // mAdapter = new CommentAdapter(getActivity(), null);
-        //mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new CommentAdapter(getActivity(), null, mReport.serverId);
+        recyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
+
+        ((NewCommentLayout) view.findViewById(R.id.new_comment_standalone)).addData(mReport.serverId);
     }
 
     @Override
@@ -152,50 +141,37 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if(cursor.getCount() > 5) {
-            if (getView() != null)
-                getView().findViewById(R.id.seeMoreComments).setVisibility(View.VISIBLE);
-            for (int i = 0; i < cursor.getCount() - 5; i++) {
-                cursor.moveToNext();
-            }
-        } else
-            getView().findViewById(R.id.seeMoreComments).setVisibility(View.GONE);
-        while(cursor.moveToNext()){
-            LinearLayout comment = latestComments[cursor.getPosition() - (cursor.getCount() - 5)];
-            String timeElapsed = PrefUtils.getElapsedTime(cursor.getLong(cursor.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP)));
-            String commentText = cursor.getString(cursor.getColumnIndex(Contract.Comments.COLUMN_CONTENT));
-            String commentUserName = cursor.getString(cursor.getColumnIndex(Contract.Comments.COLUMN_USERNAME));
-            ((TextView) comment.findViewById(R.id.commentText)).setText(commentText);
-            ((TextView) comment.findViewById(R.id.commentUserName)).setText(commentUserName);
-            ((TextView) comment.findViewById(R.id.commentTime)).setText(timeElapsed);
-            comment.setVisibility(View.VISIBLE);
-        }
+        mAdapter.swapCursor(cursor);
+        if (cursor.getCount() > 0)
+            getView().findViewById(R.id.new_comment_standalone).setVisibility(View.GONE);
+        else
+            getView().findViewById(R.id.new_comment_standalone).setVisibility(View.VISIBLE);
     }
     @Override public void onLoaderReset(Loader<Cursor> loader) {}
 
 // ==========================   Images   ===============================
     private void setUpViewPager(View view) {
-        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.media.toArray(new String[mReport.media.size()])));
-        viewPager.setOffscreenPageLimit(3);
-        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+//        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+//        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.media.toArray(new String[mReport.media.size()])));
+//        viewPager.setOffscreenPageLimit(3);
+//        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
     }
 
-    private class ImageSlideAdapter extends FragmentPagerAdapter {
-        String[] mediaPaths;
-        public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
-            super(fm);
-            this.mediaPaths = mediaPaths;
-        }
-        @Override
-        public int getCount() { return mediaPaths.length; }
-        @Override
-        public Fragment getItem(int i) {
-            ImageFragment iF = new ImageFragment();
-            Bundle args = new Bundle();
-            args.putString("mediaPath", mediaPaths[i]);
-            iF.setArguments(args);
-            return iF;
-        }
-    }
+//    private class ImageSlideAdapter extends FragmentPagerAdapter {
+//        String[] mediaPaths;
+//        public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
+//            super(fm);
+//            this.mediaPaths = mediaPaths;
+//        }
+//        @Override
+//        public int getCount() { return mediaPaths.length; }
+//        @Override
+//        public Fragment getItem(int i) {
+//            ImageFragment iF = new ImageFragment();
+//            Bundle args = new Bundle();
+//            args.putString("mediaPath", mediaPaths[i]);
+//            iF.setArguments(args);
+//            return iF;
+//        }
+//    }
 }

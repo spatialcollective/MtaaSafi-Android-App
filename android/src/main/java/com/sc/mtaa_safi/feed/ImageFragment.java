@@ -29,8 +29,8 @@ public class ImageFragment extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_report_image, container, false);
         ImageView reportDetailImage = (ImageView) view.findViewById(R.id.report_detail_image);
-        if(mediaPath != null)
-            mParent.aq.id(reportDetailImage).image(mediaPath);
+//        if(mediaPath != null)
+//            mParent.aq.id(reportDetailImage).image(mediaPath);
         return view;
     }
 }

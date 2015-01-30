@@ -109,11 +109,9 @@ public class Report {
         location.setTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_LOC_TIME)));
         location.setProvider(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOC_PROV)));
 
-        for (int i = 0; i < media.size(); i++) {
-            Type type = new TypeToken<ArrayList<String>>() {}.getType();
-            if (c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)) != null && !c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)).isEmpty())
-                media = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), type);
-        }
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        if (c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)) != null && !c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)).isEmpty())
+            media = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), type);
     }
 
     public Report(JSONObject jsonData, int pending) throws JSONException {

@@ -40,7 +40,7 @@ public class CommentsFragment extends android.support.v4.app.DialogFragment
         mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
 //        mNewComment.addData(mReport);
 
-        mAdapter = new CommentAdapter(getActivity(), null);
+        mAdapter = new CommentAdapter(getActivity(), null, mReport.serverId);
         mRecyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
         view.findViewById(R.id.leave_comments).setOnClickListener(new View.OnClickListener() {
