@@ -57,7 +57,7 @@ public class SyncLocationData extends AsyncTask<Integer, Integer, Integer> {
         ComplexPreferences cp = PrefUtils.getPrefs(mContext);
         Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
         HttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response = httpClient.execute(new HttpGet(mContext.getString(R.string.location_data) + "/36.8619/-1.2600/" /*+ cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() +"/"*/));
+        HttpResponse response = httpClient.execute(new HttpGet(mContext.getString(R.string.location_data) + "36.8619/-1.2600/" /*+ cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() +"/"*/));
         if (response.getStatusLine().getStatusCode() > 400)
             return null;
         return NetworkUtils.convertHttpResponseToJSON(response);
