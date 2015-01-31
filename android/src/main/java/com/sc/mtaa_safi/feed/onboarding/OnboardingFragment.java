@@ -76,35 +76,35 @@ public class OnboardingFragment extends Fragment implements Animation.AnimationL
 
     public void setBookmarkActive(int i){
         Log.e("BookMark", "Active Int val: " + i);
-        switch(i){
-            case 0:
-                ((ImageButton)bookmarkBar.findViewById(R.id.feedBookmark))
-                .setImageResource(R.drawable.bookmark_feed_hl);
-                setBookMarkPassive(R.id.newReportBookmark);
-                setBookMarkPassive(R.id.doneBookmark);
-                break;
-            case 1:
-                ((ImageButton)bookmarkBar.findViewById(R.id.newReportBookmark))
-                .setImageResource(R.drawable.bookmark_newreport_hl);
-                setBookMarkPassive(R.id.feedBookmark);
-                setBookMarkPassive(R.id.doneBookmark);
-                break;
-            case 2:
-                ((ImageButton)bookmarkBar.findViewById(R.id.doneBookmark))
-                .setImageResource(R.drawable.bookmark_done_hl);
-                setBookMarkPassive(R.id.newReportBookmark);
-                setBookMarkPassive(R.id.feedBookmark);
-                break;
-        }
+//        switch(i){
+//            case 0:
+//                ((ImageButton)bookmarkBar.findViewById(R.id.feedBookmark))
+//                .setImageResource(R.drawable.bookmark_feed_hl);
+//                setBookMarkPassive(R.id.newReportBookmark);
+//                setBookMarkPassive(R.id.doneBookmark);
+//                break;
+//            case 1:
+//                ((ImageButton)bookmarkBar.findViewById(R.id.newReportBookmark))
+//                .setImageResource(R.drawable.bookmark_newreport_hl);
+//                setBookMarkPassive(R.id.feedBookmark);
+//                setBookMarkPassive(R.id.doneBookmark);
+//                break;
+//            case 2:
+//                ((ImageButton)bookmarkBar.findViewById(R.id.doneBookmark))
+//                .setImageResource(R.drawable.bookmark_done_hl);
+//                setBookMarkPassive(R.id.newReportBookmark);
+//                setBookMarkPassive(R.id.feedBookmark);
+//                break;
+//        }
     }
     private void setBookMarkPassive(int passiveBookMarkId){
-        int passiveDrawableId = 0;
-        switch(passiveBookMarkId){
-            case R.id.feedBookmark: passiveDrawableId = R.drawable.bookmark_feed_gray; break;
-            case R.id.newReportBookmark: passiveDrawableId = R.drawable.bookmark_newreport_gray; break;
-            case R.id.doneBookmark: passiveDrawableId = R.drawable.bookmark_done_gray; break;
-        }
-        ((ImageButton)bookmarkBar.findViewById(passiveBookMarkId)).setImageResource(passiveDrawableId);
+//        int passiveDrawableId = 0;
+//        switch(passiveBookMarkId){
+//            case R.id.feedBookmark: passiveDrawableId = R.drawable.bookmark_feed_gray; break;
+//            case R.id.newReportBookmark: passiveDrawableId = R.drawable.bookmark_newreport_gray; break;
+//            case R.id.doneBookmark: passiveDrawableId = R.drawable.bookmark_done_gray; break;
+//        }
+//        ((ImageButton)bookmarkBar.findViewById(passiveBookMarkId)).setImageResource(passiveDrawableId);
     }
     public void revealBookMarkBar(){
         Animation slideUp = AnimationUtils.loadAnimation(getActivity(), R.anim.abc_slide_in_bottom);

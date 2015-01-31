@@ -34,7 +34,7 @@
     <string name="title_activity_uploading">UploadingActivity</string>
     <string-array name="feed_sort_choices">
         <item>Recent</item>
-        <item>Up-Voted</item>
+        <item>Up Voted</item>
     </string-array>
 
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>

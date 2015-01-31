@@ -5,9 +5,9 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="72dp"
-    android:paddingRight="20dp"
     android:paddingStart="72dp"
-    android:paddingEnd="20dp">
+    android:paddingRight="16dp"
+    android:paddingEnd="16dp">
 
     <android.support.v7.widget.RecyclerView android:id="@+id/comments"
         android:layout_width="match_parent"

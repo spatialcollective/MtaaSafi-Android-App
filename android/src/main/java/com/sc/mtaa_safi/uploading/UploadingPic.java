@@ -46,17 +46,17 @@ public class UploadingPic extends ImageView implements Animation.AnimationListen
 //    }
 
     public void startUpload(){
-        uploadStarted = true;
-        setImageResource(R.drawable.coralspinny);
-        startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate));
+//        uploadStarted = true;
+//        setImageResource(R.drawable.coralspinny);
+//        startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.rotate));
     }
 
     public void finishUpload(){
-        uploadSuccessful = true;
-        AQuery aq = new AQuery(getContext());
-        setImageResource(R.drawable.loading_uploadthumbnail);
-        aq.id(this).image((String) getTag(), true, true, 0, 0, null, AQuery.FADE_IN);
-        clearAnimation();
+//        uploadSuccessful = true;
+//        AQuery aq = new AQuery(getContext());
+//        setImageResource(R.drawable.loading_uploadthumbnail);
+//        aq.id(this).image((String) getTag(), true, true, 0, 0, null, AQuery.FADE_IN);
+//        clearAnimation();
     }
 
     @Override
