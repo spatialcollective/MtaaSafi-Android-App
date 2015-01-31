@@ -3,45 +3,53 @@
          xmlns:tools="http://schemas.android.com/tools"
          android:orientation="vertical"
          android:layout_width="match_parent" 
-         android:layout_height="match_parent"
-         android:paddingLeft="8dp"
-         android:paddingRight="8dp">
+         android:layout_height="match_parent">
 
-    <RelativeLayout
+    <android.support.v7.widget.Toolbar android:id="@+id/upload_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:id="@+id/uploadingView">
+        android:minHeight="?android:attr/actionBarSize"
+        android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+        android:background="?android:attr/colorPrimary" >
 
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Uploading..."
-            android:id="@+id/uploadingText"
-            android:textColor="@color/mtaa_safi_blue"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
+            android:padding="5dp"
+            android:id="@+id/uploadingView">
 
-        <ImageButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:id="@+id/cancel_button"
-            android:src="@drawable/cancel_upload_button"
-            android:background="@color/transparent"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:scaleType="fitCenter" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Uploading..."
+                android:id="@+id/uploadingText"
+                android:textColor="@color/White"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
 
-    </RelativeLayout>
+            <ImageButton
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:id="@+id/cancel_button"
+                android:src="@drawable/ic_cancel"
+                android:background="@color/transparent"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"/>
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
  
     <ListView android:id="@android:id/list"
-               android:layout_width="match_parent" 
-               android:layout_height="match_parent"
-               android:layout_weight="1"
-               android:drawSelectorOnTop="false"
-               tools:layout="@layout/upload_item_v2"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:drawSelectorOnTop="false"
+        tools:layout="@layout/upload_item_v2"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"/>
 
  </LinearLayout>

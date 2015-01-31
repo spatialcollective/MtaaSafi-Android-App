@@ -41,7 +41,6 @@ import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
 
-
 public class MainActivity extends ActionBarActivity implements
         AlertDialogFragment.AlertDialogListener,
         SwipeRefreshLayout.OnRefreshListener {

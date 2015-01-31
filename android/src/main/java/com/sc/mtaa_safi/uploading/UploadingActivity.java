@@ -19,8 +19,6 @@ public class UploadingActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
 
         ReportUploadingFragment frag = null;
         if (savedInstanceState != null)

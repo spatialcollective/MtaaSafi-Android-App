@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -28,6 +29,7 @@ import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.MainActivity;
 import com.sc.mtaa_safi.location.LocationData;
 import com.sc.mtaa_safi.location.SyncLocationData;
 
@@ -68,6 +70,12 @@ public class NewReportFragment extends Fragment {
     }
     @Override
     public void onViewCreated(View view, Bundle savedState) {
+        NewReportActivity act = (NewReportActivity) getActivity();
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.new_toolbar);
+        act.setSupportActionBar(toolbar);
+        act.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
+
         cp = PrefUtils.getPrefs(getActivity());
         locationJSON = new JSONObject();
         updateDetailsView();

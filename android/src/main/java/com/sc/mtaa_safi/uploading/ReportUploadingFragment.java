@@ -6,6 +6,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,7 @@ public class ReportUploadingFragment extends ListFragment
 
     public static final int SHOW_CANCEL = 0, SHOW_RETRY = 1, HIDE_CANCEL = -1;
     private int pendingReportCount = -1, 
-                mColor = R.color.mtaa_safi_blue, 
+                mColor = R.color.white,
                 mBtnState = SHOW_CANCEL,
                 inProgressIndex = 1; // human readable index (starts at 1)
     private String mText = "Uploading...";
@@ -61,6 +62,11 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public void onViewCreated(View view, Bundle savedState) {
         super.onViewCreated(view, savedState);
+        UploadingActivity act = (UploadingActivity) getActivity();
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.upload_toolbar);
+        act.setSupportActionBar(toolbar);
+        act.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
         changeHeader(mText, mColor, mBtnState);
 
         mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item_v2,
@@ -118,7 +124,7 @@ public class ReportUploadingFragment extends ListFragment
         Log.e("RUF", "Beam up report has been called!");
         if (NetworkUtils.isOnline(getActivity()) && getView() != null) {
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
-                    R.color.mtaa_safi_blue, SHOW_CANCEL);
+                    R.color.white, SHOW_CANCEL);
             uploader = new ReportUploader(getActivity(), pendingReport, this);
             uploader.execute();
         } else if (getView() != null)
@@ -140,14 +146,14 @@ public class ReportUploadingFragment extends ListFragment
     }
 
     public void reportUploadSuccess() {
-        changeHeader("Report uploaded successfully!", R.color.mtaa_safi_blue, HIDE_CANCEL);
+        changeHeader("Report uploaded successfully!", R.color.white, HIDE_CANCEL);
         uploader = null;
         inProgressIndex++;
         if (mAdapter.getCount() > 0)
             beamUpFirstReport();
         else if (getView() != null) {
             changeHeader("Successfully uploaded " + pendingReportCount + " reports.",
-                    R.color.mtaa_safi_blue, HIDE_CANCEL);
+                    R.color.white, HIDE_CANCEL);
             exitSmoothly();
         }
     }
@@ -169,18 +175,18 @@ public class ReportUploadingFragment extends ListFragment
         } else if (btnState == SHOW_CANCEL) {
             cancelBtn.setClickable(true);
             cancelBtn.setAlpha(1.0f);
-            cancelBtn.setImageResource(R.drawable.cancel_upload_button);
+            cancelBtn.setImageResource(R.drawable.ic_cancel);
             cancelBtn.setTag("cancel");
         } else if (btnState == SHOW_RETRY) {
             cancelBtn.setClickable(true);
             cancelBtn.setAlpha(1.0f);
-            cancelBtn.setImageResource(R.drawable.restart_upload_button);
+            cancelBtn.setImageResource(R.drawable.ic_upload);
             cancelBtn.setTag("restart");
         }
     }
 
     public void cancelSession(int reason) {
-        changeHeader("Cancelling...", R.color.DarkGray, HIDE_CANCEL);
+        changeHeader("Cancelling...", R.color.LightGrey, HIDE_CANCEL);
         if (uploader != null)
             uploader.cancelSession(reason);
     }
@@ -202,7 +208,7 @@ public class ReportUploadingFragment extends ListFragment
         mAdapter.changeCursor(cursor);
         pendingReportCount = mAdapter.getCount() + inProgressIndex - 1;
         if (mAdapter.getCount() > 0)
-            changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount, R.color.mtaa_safi_blue, SHOW_CANCEL);
+            changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount, R.color.white, SHOW_CANCEL);
         boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
         if (pendingReportCount > (inProgressIndex - 1) && shouldAutoStart)
             beamUpFirstReport();

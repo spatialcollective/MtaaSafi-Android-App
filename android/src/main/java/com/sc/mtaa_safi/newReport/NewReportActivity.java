@@ -30,8 +30,6 @@ public class NewReportActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFragment(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
         cp = PrefUtils.getPrefs(this);
     }
 
