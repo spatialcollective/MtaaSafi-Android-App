@@ -2,15 +2,11 @@ package com.sc.mtaa_safi.feed;
 
 import android.app.ActionBar;
 import android.database.Cursor;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,7 +21,6 @@ import com.androidquery.AQuery;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.comments.CommentAdapter;
@@ -39,7 +34,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     Report mReport;
     CommentAdapter mAdapter;
-//    Location currentLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -50,20 +44,19 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
-        View view = inflater.inflate(R.layout.fragment_report_detail_v2, container, false);
+        View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         setUpHeader(view);
         if (savedState != null)
             mReport = new Report(savedState);
         if (NetworkUtils.isOnline(getActivity()))
             new SyncComments(getActivity(), mReport.serverId).execute();
-//        currentLocation = ((MainActivity) getActivity()).getLocation();
         return view;
     }
 
     private void setUpHeader(View view) {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        MainActivity activity = (MainActivity) getActivity();
-        activity.setSupportActionBar(toolbar);
+        ((MainActivity) getActivity()).setSupportActionBar(toolbar);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {

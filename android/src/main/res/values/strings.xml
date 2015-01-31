@@ -32,9 +32,9 @@
     <string name="title_activity_report_detail">ReportDetailActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_uploading">UploadingActivity</string>
-    <string-array name="feed_sort_list">
+    <string-array name="feed_sort_choices">
         <item>Recent</item>
-        <item>Most Upvoted</item>
+        <item>Up-Voted</item>
     </string-array>
 
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>

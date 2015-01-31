@@ -1,7 +1,6 @@
 package com.sc.mtaa_safi.feed;
 
 import android.accounts.AccountManager;
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -21,7 +20,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -38,7 +36,6 @@ import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
-import com.sc.mtaa_safi.feed.onboarding.OnboardingFragment;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
@@ -50,11 +47,10 @@ public class MainActivity extends ActionBarActivity implements
         SwipeRefreshLayout.OnRefreshListener {
 
     ReportDetailFragment detailFragment;
+    NewsFeedFragment newsFeedFrag;
     ComplexPreferences cp;
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
-    private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 15000;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", ONBOARD_TAG= "onboard";
-    int sortOrderIndex = 0;
 
     private MtaaLocationService mBoundService;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -62,8 +58,7 @@ public class MainActivity extends ActionBarActivity implements
             mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
             //Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
         }
-        // This should never happen
-        public void onServiceDisconnected(ComponentName className) { mBoundService = null; }
+        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
     };
 
     void bindLocationService() {
@@ -82,13 +77,41 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
-            sortOrderIndex = savedInstanceState.getInt("selectedNavItem");
-        }
         if (detailFragment == null)
-            goToFeed();
-        cp = PrefUtils.getPrefs(this);
+            goToFeed(savedInstanceState);
+    }
+
+    public void goToFeed(Bundle savedInstanceState) {
+        if (savedInstanceState != null)
+            newsFeedFrag = (NewsFeedFragment) getSupportFragmentManager().getFragment(savedInstanceState, NEWSFEED_TAG);
+        if (newsFeedFrag == null) {
+            newsFeedFrag = new NewsFeedFragment();
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, newsFeedFrag, NEWSFEED_TAG)
+                .commit();
+        }
+    }
+
+    public void goToDetailView(Report r, int position) {
+        detailFragment = new ReportDetailFragment();
+        detailFragment.setData(r);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, detailFragment, DETAIL_TAG)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    public void goToNewReport(View view) {
+        goToNewReport();
+    }
+    public void goToNewReport() {
+        Intent intent = new Intent();
+        intent.setClass(this, NewReportActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -100,26 +123,12 @@ public class MainActivity extends ActionBarActivity implements
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
         cp.commit();
-        int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        switch(gPlayCode) {
-            case ConnectionResult.SERVICE_MISSING:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_UPDATE, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SERVICE_DISABLED:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_DISABLED, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SERVICE_INVALID:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_INVALID, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SUCCESS:
-                String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-                if (locationProviders == null || locationProviders.equals(""))
-                    onLocationDisabled();
-                break;
-        }
+        setUpWeirdGPlayStuff();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(mConnection);
     }
 
     @Override
@@ -127,75 +136,8 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
-//        bundle.putInt("selectedNavItem", getSupportActionBar().getSelectedNavigationIndex());
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(mConnection);
-    }
-    
-    @Override
-    public void onAlertButtonPressed(int eventKey) {
-        switch(eventKey){
-            case AlertDialogFragment.RE_FETCH_FEED:
-                break;
-            case AlertDialogFragment.SEND_SAVED_REPORTS:
-                uploadSavedReports();
-                break;
-            case AlertDialogFragment.INSTALL_GPLAY:
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
-                break;
-            case AlertDialogFragment.UPDATE_GPLAY:
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
-                break;
-        }
-    }
-
-    public void goToDetailView(Report r, int position) {
-        detailFragment = new ReportDetailFragment();
-        detailFragment.setData(r);
-        getSupportFragmentManager().beginTransaction()
-            .replace(R.id.fragment_container, detailFragment, DETAIL_TAG)
-            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-            .addToBackStack(null)
-            .commit();
-    }
-
-    public void goToFeed(){
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, new NewsFeedFragment(), NEWSFEED_TAG)
-                .commit();
-    }
-    private void goToOnboarding(){
-//        OnboardingFragment onboardingFragment = (OnboardingFragment)
-//                                                    getSupportFragmentManager().findFragmentByTag(ONBOARD_TAG);
-//        if(onboardingFragment != null)
-//            getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .replace(R.id.fragment_container, onboardingFragment, ONBOARD_TAG)
-//                    .commit();
-//        else
-//            getSupportFragmentManager()
-//                    .beginTransaction()
-//                    .replace(R.id.fragment_container, new OnboardingFragment(), ONBOARD_TAG)
-//                    .commit();
-//
-//        getSupportActionBar().hide();
-    }
-    public NewsFeedFragment getNewsFeedFragment(){
-        return (NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG);
-    }
-    public void goToNewReport(View view) {
-        goToNewReport();
-    }
-
-    public void goToNewReport(){
-        Intent intent = new Intent();
-        intent.setClass(this, NewReportActivity.class);
-        startActivity(intent);
+        if (newsFeedFrag != null)
+            getSupportFragmentManager().putFragment(bundle, NEWSFEED_TAG, newsFeedFrag);
     }
 
     @Override
@@ -214,9 +156,7 @@ public class MainActivity extends ActionBarActivity implements
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity, menu);
         addUploadAction(menu);
-        addSortSpinner();
-//        getSupportActionBar().setDisplayShowTitleEnabled(false);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -227,30 +167,11 @@ public class MainActivity extends ActionBarActivity implements
             onBackPressed();
             return true;
         }
-        String title = titleChar.toString();
-        if (title.equals("Upload Saved Reports"))
+        if (titleChar.toString().equals("Upload Saved Reports"))
             uploadSavedReports();
         else
             return super.onOptionsItemSelected(item);
         return true;
-    }
-
-    private void addSortSpinner() {
-        ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.feed_sort_list, android.R.layout.simple_spinner_dropdown_item);
-//        getSupportActionBar().setListNavigationCallbacks(mSpinnerAdapter, new
-//                android.support.v7.app.ActionBar.OnNavigationListener() {
-//                    @Override
-//                    public boolean onNavigationItemSelected(int i, long l) {
-//                        if (i == 0 && getNewsFeedFragment() != null) // sort items by recent
-//                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_RECENT);
-//                        else if(getNewsFeedFragment() != null) // sort items by most upvoted
-//                            getNewsFeedFragment().sortFeed(NewsFeedFragment.SORT_UPVOTES);
-//                        return false;
-//                    }
-//                });
-//        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-//        getSupportActionBar().setSelectedNavigationItem(sortOrderIndex);
     }
 
     private void addUploadAction(Menu menu){
@@ -291,8 +212,6 @@ public class MainActivity extends ActionBarActivity implements
         String savedUserName = cp.getString(PrefUtils.USERNAME, "");
         if (savedUserName == null || savedUserName.equals(""))
             pickUserAccount();
-        else
-            addSortSpinner();
     }
 
     private void pickUserAccount() {
@@ -330,5 +249,62 @@ public class MainActivity extends ActionBarActivity implements
                     .refreshFailed();
 //        if (loc == null)
 //            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
+    }
+
+    @Override
+    public void onAlertButtonPressed(int eventKey) {
+        switch(eventKey){
+            case AlertDialogFragment.RE_FETCH_FEED:
+                break;
+            case AlertDialogFragment.SEND_SAVED_REPORTS:
+                uploadSavedReports();
+                break;
+            case AlertDialogFragment.INSTALL_GPLAY:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                break;
+            case AlertDialogFragment.UPDATE_GPLAY:
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.gms")));
+                break;
+        }
+    }
+
+    private void setUpWeirdGPlayStuff() {
+        int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        switch (gPlayCode) {
+            case ConnectionResult.SERVICE_MISSING:
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
+                break;
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_UPDATE, this, getSupportFragmentManager());
+                break;
+            case ConnectionResult.SERVICE_DISABLED:
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_DISABLED, this, getSupportFragmentManager());
+                break;
+            case ConnectionResult.SERVICE_INVALID:
+                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_INVALID, this, getSupportFragmentManager());
+                break;
+            case ConnectionResult.SUCCESS:
+                String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+                if (locationProviders == null || locationProviders.equals(""))
+                    onLocationDisabled();
+                break;
+        }
+    }
+
+    private void goToOnboarding(){
+//        OnboardingFragment onboardingFragment = (OnboardingFragment)
+//                                                    getSupportFragmentManager().findFragmentByTag(ONBOARD_TAG);
+//        if(onboardingFragment != null)
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .replace(R.id.fragment_container, onboardingFragment, ONBOARD_TAG)
+//                    .commit();
+//        else
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .replace(R.id.fragment_container, new OnboardingFragment(), ONBOARD_TAG)
+//                    .commit();
+//
+//        getSupportActionBar().hide();
     }
 }

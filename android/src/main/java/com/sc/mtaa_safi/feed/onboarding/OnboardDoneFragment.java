@@ -22,18 +22,18 @@ public class OnboardDoneFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState){
         super.onCreateView(inflater, container, savedState);
         View view = inflater.inflate(R.layout.fragment_onboarding_done, container, false);
-        fadeIn = new AlphaAnimation(0f, 1f);
-        fadeIn.setDuration(500);
-        fadeIn.setStartOffset(500);
-        doneButton = (ImageView) view.findViewById(R.id.doneButton);
-        doneButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity) getActivity()).goToFeed();
-                ((MainActivity) getActivity()).getSupportActionBar().show();
-                getParentFragment().setRetainInstance(false);
-            }
-        });
+//        fadeIn = new AlphaAnimation(0f, 1f);
+//        fadeIn.setDuration(500);
+//        fadeIn.setStartOffset(500);
+//        doneButton = (ImageView) view.findViewById(R.id.doneButton);
+//        doneButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ((MainActivity) getActivity()).goToFeed();
+//                ((MainActivity) getActivity()).getSupportActionBar().show();
+//                getParentFragment().setRetainInstance(false);
+//            }
+//        });
         return view;
     }
 }
