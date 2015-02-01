@@ -41,6 +41,7 @@ public class VoteButton extends CompoundButton implements Animation.AnimationLis
         // getLayoutParams().height = screenW/5;
         // getLayoutParams().width = screenW/5;
         // requestLayout();
+
         
         if(isChecked()){
             setTextColor(getResources().getColor(R.color.mtaa_safi_blue));

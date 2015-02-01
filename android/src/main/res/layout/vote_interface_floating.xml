@@ -13,6 +13,4 @@
     android:checkable="true"
     android:checked="false"
     android:clickable="true"
-    android:clipChildren="false"
-    android:clipToPadding="false"
-    android:elevation="2dp"/>
+    android:elevation="4dp"/>
