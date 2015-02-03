@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ripple xmlns:android="http://schemas.android.com/apk/res/android"
-        android:color="?android:colorControlHighlight">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:color="@color/White">
     <item>
         <shape android:shape="oval">
             <size
@@ -9,4 +9,4 @@
             <solid android:color="@color/white"/>
         </shape>
     </item>
-</ripple>
+</selector>

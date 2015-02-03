@@ -10,8 +10,8 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:minHeight="?android:attr/actionBarSize"
-        android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
-        android:background="?android:attr/colorPrimary" >
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        android:background="@color/mtaa_safi_blue" >
 
         <Spinner android:id="@+id/feed_sorter"
             android:layout_width="wrap_content"

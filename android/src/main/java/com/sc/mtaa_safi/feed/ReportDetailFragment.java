@@ -24,6 +24,7 @@ import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.comments.CommentAdapter;
+import com.sc.mtaa_safi.feed.comments.CommentLayoutManager;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 import com.sc.mtaa_safi.feed.comments.SyncComments;
 
@@ -71,15 +72,14 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void updateDetails(View view) {
-        ((TextView) view.findViewById(R.id.r_username)).setText(mReport.userName);
+        ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
-        ((TextView) view.findViewById(R.id.r_timestamp)).setText(createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
 
         int width = ((MainActivity) getActivity()).getScreenWidth();
         int height = ((MainActivity) getActivity()).getScreenHeight()/2;
         AQuery aq = new AQuery(getActivity());
-        String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width + "x" + height;
+        String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width;
         ImageView iv = (ImageView) view.findViewById(R.id.leadImage);
         aq.id(iv).image(imageUrl).animate(R.anim.abc_fade_in);
     }
@@ -118,9 +118,9 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     private void addComments(View view) {
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.comments);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setLayoutManager(new CommentLayoutManager(getActivity()));
 
-        mAdapter = new CommentAdapter(getActivity(), null, mReport.serverId);
+        mAdapter = new CommentAdapter(getActivity(), null);
         recyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
 
@@ -135,10 +135,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
-        if (cursor.getCount() > 0)
-            getView().findViewById(R.id.new_comment_standalone).setVisibility(View.GONE);
-        else
-            getView().findViewById(R.id.new_comment_standalone).setVisibility(View.VISIBLE);
+        ((NewCommentLayout) getView().findViewById(R.id.new_comment_standalone)).requestLayout();
     }
     @Override public void onLoaderReset(Loader<Cursor> loader) {}
 

@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?android:attr/actionBarSize"
-        android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
-        android:background="?android:attr/colorPrimary" />
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        android:background="@color/mtaa_safi_blue" />
 
     <ScrollView
         android:layout_width="match_parent"

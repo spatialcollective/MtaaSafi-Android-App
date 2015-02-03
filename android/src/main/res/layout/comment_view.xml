@@ -9,7 +9,6 @@
     <TextView android:id="@+id/commentText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Here is the content of a single comment. I wish I could upvote it."
         android:paddingBottom="4dp"
         android:textSize="16sp" />
 
@@ -20,7 +19,6 @@
         <TextView android:id="@+id/commentUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="User Name"
             android:textColor="@color/DarkGray"
             android:textSize="14sp"/>
 
@@ -35,7 +33,6 @@
         <TextView android:id="@+id/commentTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="A long time ago"
             android:textColor="@color/DarkGray"
             android:textSize="14sp" />
     </LinearLayout>

@@ -7,13 +7,18 @@
     android:paddingLeft="72dp"
     android:paddingStart="72dp"
     android:paddingRight="16dp"
-    android:paddingEnd="16dp">
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp">
 
     <android.support.v7.widget.RecyclerView android:id="@+id/comments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:layout="@layout/comment_view"
-        android:scrollbars="vertical"
-        android:paddingBottom="16dp" />
+        tools:layout="@layout/comment_view"/>
+
+    <include android:id="@+id/new_comment_standalone"
+        layout="@layout/new_comment_standalone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/comments" />
 
 </RelativeLayout>

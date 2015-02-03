@@ -84,7 +84,7 @@ public class NewsFeedFragment extends Fragment
         outstate.putInt("top", top);
         outstate.putInt("index", index);
         outstate.putString("sortOrder", sortOrder);
-        outstate.putInt("navIndex", ((Spinner) getView().findViewById(R.id.feed_sorter)).getSelectedItemPosition());
+        outstate.putInt("navIndex", navIndex);
     }
 
     @Override
@@ -159,6 +159,7 @@ public class NewsFeedFragment extends Fragment
 
     private class SortListener implements AdapterView.OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            navIndex = pos;
             if (pos == 0)
                 sortFeed(SORT_RECENT);
             else

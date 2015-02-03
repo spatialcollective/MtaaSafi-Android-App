@@ -15,9 +15,6 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
 
-/**
- * Created by lenovo on 12/8/2014.
- */
 public class CommentsFragment extends android.support.v4.app.DialogFragment
         implements android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor> {
     NewCommentLayout mNewComment;
@@ -40,7 +37,7 @@ public class CommentsFragment extends android.support.v4.app.DialogFragment
         mNewComment = (NewCommentLayout) view.findViewById(R.id.new_comment_bar);
 //        mNewComment.addData(mReport);
 
-        mAdapter = new CommentAdapter(getActivity(), null, mReport.serverId);
+        mAdapter = new CommentAdapter(getActivity(), null);
         mRecyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(0, null, this);
         view.findViewById(R.id.leave_comments).setOnClickListener(new View.OnClickListener() {
