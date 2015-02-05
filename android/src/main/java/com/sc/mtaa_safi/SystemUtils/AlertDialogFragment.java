@@ -5,8 +5,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.DialogPreference;
 import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 
 /**
  * Created by Agree on 9/26/2014.
@@ -15,6 +17,7 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
 
     String alertMessage, positiveText, negativeText;
     int alertType;
+    boolean disableCancelOnTouchOutside = true;
     public static final int UPDATE_FAILED = 0,
                             LOCATION_FAILED = 1,
                             CONNECTION_FAILED = 2,
@@ -52,6 +55,7 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
         AlertDialogFragment alertDialogFragment = new AlertDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ALERT_KEY, alertCode);
+        alertDialogFragment.setArguments(bundle);
         alertDialogFragment.setAlertDialogListener(adl);
         alertDialogFragment.show(fm, ALERT_KEY);
     }
@@ -59,9 +63,9 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        Bundle arguments = getArguments();
         if(getArguments() != null)
-            alertType = arguments.getInt(ALERT_KEY);
+            alertType = getArguments().getInt(ALERT_KEY);
+            Log.e("AlertDialogFragment", String.valueOf(alertType));
         switch (alertType) {
             case UPDATE_FAILED:
                 builder.setMessage("Sorry! The feed failed to update")
@@ -77,17 +81,13 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                         });
                 break;
             case LOCATION_FAILED:
-                builder.setMessage("Enter the report's village and a nearby landmark to continue!")
-                        .setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+                builder.setMessage("You need GPS enabled to use this app.")
+                        .setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                // accept failure, and therefore defeat.
+                                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                             }
-                        })
-                        .setNegativeButton("Okay", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-//                                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                           }
-                       });
+                        });
+                disableCancelOnTouchOutside = false;
                 break;
             case CONNECTION_FAILED:
                 builder.setMessage("Uh-oh! Looks like there's a problem with your network connection")
@@ -195,6 +195,8 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                 break;
         }
         // Create the AlertDialog object and return it
-        return builder.create();
+        AlertDialog dialog = builder.create();
+        dialog.setCanceledOnTouchOutside(disableCancelOnTouchOutside);
+        return dialog;
     }
 }
