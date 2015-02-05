@@ -161,11 +161,11 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
         reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
         reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
-
         if ( locationJSON != null)
             reportValues.put(Contract.Entry.COLUMN_LOC_DATA, locationJSON);
         else
             reportValues.put(Contract.Entry.COLUMN_LOC_DATA, "");
+
         reportValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return reportValues;
     }
@@ -317,7 +317,7 @@ public class Report {
         } catch (NumberFormatException e) { 
             File file = new File(media.get(i));
             b = new byte[(int) file.length()];
-            Log.e("File path", file.getAbsolutePath());
+            Log.e("Report", ", File path" + file.getAbsolutePath());
             FileInputStream inputStream = new FileInputStream(file); /* Remove BufferedInputStream */
             inputStream.read(b);
             inputStream.close();

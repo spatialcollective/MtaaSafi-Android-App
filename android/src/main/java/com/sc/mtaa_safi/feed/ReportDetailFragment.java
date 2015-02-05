@@ -135,7 +135,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
-        ((NewCommentLayout) getView().findViewById(R.id.new_comment_standalone)).requestLayout();
     }
     @Override public void onLoaderReset(Loader<Cursor> loader) {}
 

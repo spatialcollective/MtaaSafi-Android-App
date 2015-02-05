@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
@@ -36,6 +37,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
+    public ArrayList<String> localMedia = new ArrayList<String>();
+
     int canceller = -1;
 
     public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1, NETWORK_ERROR = 2;
@@ -44,6 +47,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mContext = context;
         mFragment = frag;
         pendingReport = report;
+        localMedia = pendingReport.media;
         screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
     }
 
@@ -128,8 +132,8 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     }
 
     private void deleteLocalPics() {
-        for (int picPos = 0; picPos < pendingReport.media.size(); picPos++) {
-            File picFile = new File(pendingReport.media.get(picPos));
+        for (int picPos = 0; picPos < localMedia.size(); picPos++) {
+            File picFile = new File(localMedia.get(picPos));
             if (picFile != null)
                 picFile.delete();
         }

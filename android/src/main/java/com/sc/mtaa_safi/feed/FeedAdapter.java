@@ -2,6 +2,8 @@ package com.sc.mtaa_safi.feed;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.jar.JarException;
 
@@ -56,15 +59,33 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         }.getType());
         String imageUrl = "";
         try {
-            if (imagesJson != null && !imagesJson.get(0).isEmpty())
+            if (imagesJson != null && !imagesJson.get(0).isEmpty()) {
+                Integer.parseInt(imagesJson.get(0));
                 imageUrl = getContext().getString(R.string.base_url) + "get_thumbnail/" + imagesJson.get(0) + "/76x76";
+                aq.id(holder.mLeadImage).image(imageUrl);
+            }
         } catch (NumberFormatException e) {
-            imageUrl = imagesJson.get(0);
+            try {
+                imageUrl = imagesJson.get(0);
+                aq.id(holder.mLeadImage).image(getThumbnail(imagesJson.get(0)));
+            } catch (Exception ex) { }
         }
         Log.d("Feed Adapter", "imageUrl: " + imageUrl);
-        aq.id(holder.mLeadImage).image(imageUrl);
         setDistanceView(holder, c);
         addClick(holder, c);
+    }
+
+    private Bitmap getThumbnail(String picPath) throws FileNotFoundException {
+        Bitmap bmp = BitmapFactory.decodeFile(picPath);
+        if (bmp != null) {
+            int origWidth = bmp.getWidth();
+            int origHeight = bmp.getHeight();
+            if (origWidth > origHeight)
+                return Bitmap.createScaledBitmap(bmp, 76, (origHeight * 76) / origWidth, false);
+            else
+                return Bitmap.createScaledBitmap(bmp, (origWidth * 76) / origHeight, 76, false);
+        }
+        return null;
     }
 
     private void addClick(ViewHolder holder, Cursor c) {

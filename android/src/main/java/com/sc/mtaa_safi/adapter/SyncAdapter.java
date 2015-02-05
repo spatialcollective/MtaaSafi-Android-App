@@ -21,9 +21,11 @@ import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -33,6 +35,7 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -47,7 +50,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        Log.i(TAG, "Constructing");
         mContentResolver = context.getContentResolver();
         cp = PrefUtils.getPrefs(context);
     }
@@ -56,44 +58,22 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
-        Log.i(TAG, "Beginning network synchronization");
-        try {
-            Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.feed));
-            ArrayList serverIds = getServerIds();
-            if (serverIds != null)
-                updateLocalFeedData(serverIds, syncResult);
-            else { // TODO : handle null location errors, which will occur first time user opens app
-                Log.e(TAG, "server response: " + serverIds);
-                return;
-            }
-        } catch (MalformedURLException e) {
-            Log.wtf(TAG, "Feed URL is malformed", e);
-            syncResult.stats.numParseExceptions++;
-            return;
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading from network: " + e.toString());
-            syncResult.stats.numIoExceptions++;
-            return;
-        } catch (XmlPullParserException e) {
-            Log.e(TAG, "Error parsing feed: " + e.toString());
-            syncResult.stats.numParseExceptions++;
-            return;
-        } catch (ParseException e) {
-            Log.e(TAG, "Error parsing feed: " + e.toString());
-            syncResult.stats.numParseExceptions++;
-            return;
-        } catch (RemoteException e) {
-            Log.e(TAG, "Error updating database: " + e.toString());
-            syncResult.databaseError = true;
-            return;
-        } catch (OperationApplicationException e) {
-            Log.e(TAG, "Error updating database: " + e.toString());
-            syncResult.databaseError = true;
-            return;
-        } catch (JSONException e) {
-            e.printStackTrace();
+        syncFromServer(syncResult);
+    }
+
+    private ArrayList getServerIds() throws IOException, JSONException {
+        Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
+        Log.e(TAG, "cachedLocation: " + cachedLocation);
+        if (cachedLocation != null) {
+            String responseString = makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+            JSONObject responseJSON = new JSONObject(responseString);
+            ArrayList serverIds = new ArrayList();
+            JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
+            for (int i = 0; i < serverIdsJSON.length(); i++)
+                serverIds.add(serverIdsJSON.getInt(i));
+            return serverIds;
         }
-        Log.i(TAG, "Network synchronization complete");
+        return null;
     }
 
     public void updateLocalFeedData(ArrayList serverIds, final SyncResult syncResult)
@@ -152,7 +132,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 fetchRequest.accumulate("ids", serverIds.get(i));
             fetchRequest = addNewUpvotes(fetchRequest);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            String responseString = makeRequest(fetchReportsURL, fetchRequest);
+            String responseString = makeRequest(fetchReportsURL, "post", fetchRequest);
             Log.e("Server response:", responseString);
             return new JSONObject(responseString);
         }
@@ -173,55 +153,56 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return fetchRequest;
     }
 
-    // retrieves from the server a list of ids that are within some radius of the user's current location
-    private ArrayList getServerIds() throws IOException, JSONException{
-        ComplexPreferences cp = PrefUtils.getPrefs(getContext());
-        Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
-        Log.e(TAG, "cachedLocation: " + cachedLocation);
-        if (cachedLocation != null) {
-            String responseString = makeGETRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/");
-
-            try{
-                JSONObject responseJSON = new JSONObject(responseString);
-                ArrayList serverIds = new ArrayList();
-                JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
-                for(int i = 0; i < serverIdsJSON.length(); i++){
-                    serverIds.add(serverIdsJSON.getInt(i));
-                }
-                return serverIds;
-            } catch (JSONException e){
-                return null;
-            }
-
-           /* String[] responseStringArray =  responseString
-                                            .replaceAll("\\[", "").replaceAll("\\]", "")
-                                            .split(", ");
-            ArrayList serverIds = new ArrayList();
-            for(String id : responseStringArray)
-                serverIds.add(Integer.parseInt(id));
-            return serverIds;*/
+    private String makeRequest(String url, String type, JSONObject entity) throws IOException {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpRequestBase httpRequest;
+        if (type == "post") {
+            httpRequest = new HttpPost(url);
+            ((HttpPost) httpRequest).setEntity(new StringEntity(entity.toString()));
         } else
-            return null;
-    }
-
-    private String makeRequest(String url, JSONObject entity) throws IOException {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(entity.toString()));
-        HttpResponse response = httpClient.execute(httpPost);
+            httpRequest = new HttpGet(url);
+        httpRequest.setHeader("Accept", "application/json");
+        httpRequest.setHeader("Content-type", "application/json");
+        HttpResponse response = httpClient.execute(httpRequest);
         if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
         return EntityUtils.toString(response.getEntity(), "UTF-8");
     }
 
-    private String makeGETRequest(String url) throws IOException {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.setHeader("Accept", "application/json");
-        httpGet.setHeader("Content-type", "application/json");
-        HttpResponse response = httpClient.execute(httpGet);
-        if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
-        return EntityUtils.toString(response.getEntity(), "UTF-8");
+    private void syncFromServer(SyncResult syncResult) {
+        try {
+            Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.feed));
+            ArrayList serverIds = getServerIds();
+            if (serverIds != null)
+                updateLocalFeedData(serverIds, syncResult);
+            else // TODO : handle null location errors, which will occur first time user opens app
+                return;
+        } catch (MalformedURLException e) {
+            Log.wtf(TAG, "Feed URL is malformed", e);
+            syncResult.stats.numParseExceptions++;
+            return;
+        } catch (IOException e) {
+            Log.e(TAG, "Error reading from network: " + e.toString());
+            syncResult.stats.numIoExceptions++;
+            return;
+        } catch (XmlPullParserException e) {
+            Log.e(TAG, "Error parsing feed: " + e.toString());
+            syncResult.stats.numParseExceptions++;
+            return;
+        } catch (ParseException e) {
+            Log.e(TAG, "Error parsing feed: " + e.toString());
+            syncResult.stats.numParseExceptions++;
+            return;
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error updating database: " + e.toString());
+            syncResult.databaseError = true;
+            return;
+        } catch (OperationApplicationException e) {
+            Log.e(TAG, "Error updating database: " + e.toString());
+            syncResult.databaseError = true;
+            return;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.i(TAG, "Network synchronization complete");
     }
 }

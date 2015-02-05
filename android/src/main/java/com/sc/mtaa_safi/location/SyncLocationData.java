@@ -26,9 +26,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by ishuah on 1/21/15.
- */
 public class SyncLocationData extends AsyncTask<Integer, Integer, Integer> {
     Context mContext;
 
@@ -66,7 +63,7 @@ public class SyncLocationData extends AsyncTask<Integer, Integer, Integer> {
     public void addLocationDataToDb(JSONObject locationJSON)
         throws JSONException, RemoteException, OperationApplicationException{
         JSONArray locationArray = locationJSON.getJSONArray(Contract.Admin.TABLE_NAME);
-        if (locationArray !=null){
+        if (locationArray != null) {
             ArrayList<ContentProviderOperation> batch = new ArrayList<>();
 
             for (int i = 0; i < locationArray.length(); i++)

@@ -27,8 +27,7 @@ import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 
-public class NewsFeedFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -114,7 +113,6 @@ public class NewsFeedFragment extends Fragment
             refreshFailed.setVisibility(View.VISIBLE);
         }
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

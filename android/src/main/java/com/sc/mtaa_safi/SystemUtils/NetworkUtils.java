@@ -33,6 +33,7 @@ public class NetworkUtils {
         while((line = bufferedReader.readLine()) != null)
             result.append(line);
         inputStream.close();
+        Log.e("Network Utils: Server Response: ", result.toString());
         return result.toString();
     }
     public static JSONObject convertHttpResponseToJSON(HttpResponse response){

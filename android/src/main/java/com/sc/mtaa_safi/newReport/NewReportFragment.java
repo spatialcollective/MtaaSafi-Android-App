@@ -29,7 +29,6 @@ import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
-import com.sc.mtaa_safi.feed.MainActivity;
 import com.sc.mtaa_safi.location.LocationData;
 import com.sc.mtaa_safi.location.SyncLocationData;
 
@@ -61,6 +60,7 @@ public class NewReportFragment extends Fragment {
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setRetainInstance(true);
+        addVillages();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
@@ -80,9 +80,56 @@ public class NewReportFragment extends Fragment {
         locationJSON = new JSONObject();
         updateDetailsView();
         updatePicPreviews();
-        addVillages();
+        
         setUpVillages();
+//      mAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.select_dialog_item, 
+//             new String[] {Contract.Admin.COLUMN_NAME}, new int[] {android.R.id.text1}, 0);
+//      getView().findViewById(R.id.enterWard).setAdapter(mAdapter);
+//      getLoaderManager().initLoader(0, null, this);
     }
+
+    // @Override
+    // public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    //     return new CursorLoader(getActivity(), Contract.Admin.ADMIN_URI,
+    //             LocationData.ADMIN_PROJECTION, null, null, null);
+    // }
+
+    // @Override
+    // public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    //     mAdapter.swapCursor(cursor);
+    // }
+    // @Override
+    // public void onLoaderReset(Loader<Cursor> loader) { mAdapter.swapCursor(null); }
+
+    private void addVillages(){
+        villages = new ArrayList<>();
+        landmarkMap = new HashMap<>();
+        villageIdMap = new HashMap<>();
+        landmarkIdMap = new HashMap<>();
+        Cursor villageCursor = getActivity().getContentResolver().query(Contract.Admin.ADMIN_URI, LocationData.ADMIN_PROJECTION, null, null, null);
+        while (villageCursor.moveToNext()) {
+            villages.add(villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)));
+            villageIdMap.put(villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)), villageCursor.getInt(villageCursor.getColumnIndexOrThrow(Contract.Admin._ID)));
+            Cursor landmarksCursor = getActivity().getContentResolver().query(Contract.Landmark.LANDMARK_URI, LocationData.LANDMARK_PROJECTION, Contract.Landmark.COLUMN_FK_ADMIN + " = " + villageCursor.getInt(villageCursor.getColumnIndexOrThrow(Contract.Admin._ID)), null, null);
+            while (landmarksCursor.moveToNext()) {
+                addLandmark(landmarksCursor.getString(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark.COLUMN_NAME)), villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)));
+                landmarkIdMap.put(landmarksCursor.getString(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark.COLUMN_NAME)), landmarksCursor.getInt(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark._ID)));
+            }
+            landmarksCursor.close();
+        }
+        villageCursor.close();
+    }
+
+    private void addLandmark(String landmarkName, String villageName) {
+        ArrayList<String> list;
+        if (landmarkMap.containsKey(villageName))
+            list = landmarkMap.get(villageName);
+        else
+            list = new ArrayList<>();
+        list.add(landmarkName);
+        landmarkMap.put(villageName, list);
+    }
+
 
     private void setUpVillages(){
         AutoCompleteTextView autoComplete = (AutoCompleteTextView) getView().findViewById(R.id.enterWard);
@@ -95,7 +142,6 @@ public class NewReportFragment extends Fragment {
                 if (!trimText.isEmpty()) {
                     villageSelected = trimText;
                     try {
-
                         locationJSON.put("admin", villageSelected);
                         if (villageIdMap.containsKey(villageSelected)){
                             locationJSON.put("adminId", villageIdMap.get(villageSelected));
@@ -142,42 +188,6 @@ public class NewReportFragment extends Fragment {
             getView().findViewById(R.id.landmarkLayout).setVisibility(View.VISIBLE);
         }
     }
-
-    private void addVillages(){
-        villages = new ArrayList<>();
-        landmarkMap = new HashMap<>();
-        villageIdMap = new HashMap<>();
-        landmarkIdMap = new HashMap<>();
-
-                Cursor villageCursor = getActivity().getContentResolver().query(Contract.Admin.ADMIN_URI, LocationData.ADMIN_PROJECTION,
-                null, null, null);
-        while(villageCursor.moveToNext()){
-            villages.add(villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)));
-            villageIdMap.put(villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)),
-                    villageCursor.getInt(villageCursor.getColumnIndexOrThrow(Contract.Admin._ID)));
-            Cursor landmarksCursor = getActivity().getContentResolver().query(Contract.Landmark.LANDMARK_URI, LocationData.LANDMARK_PROJECTION,
-                    Contract.Landmark.COLUMN_FK_ADMIN + " = " + villageCursor.getInt(villageCursor.getColumnIndexOrThrow(Contract.Admin._ID)),
-                    null, null);
-            while(landmarksCursor.moveToNext()){
-                addLandmark(landmarksCursor.getString(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark.COLUMN_NAME)),
-                        villageCursor.getString(villageCursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME)));
-                landmarkIdMap.put(landmarksCursor.getString(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark.COLUMN_NAME)),
-                        landmarksCursor.getInt(landmarksCursor.getColumnIndexOrThrow(Contract.Landmark._ID)));
-            }
-
-        }
-    }
-
-    private void addLandmark(String landmarkName, String villageName) {
-        ArrayList<String> list;
-        if (landmarkMap.containsKey(villageName))
-            list = landmarkMap.get(villageName);
-        else
-            list = new ArrayList<>();
-        list.add(landmarkName);
-        landmarkMap.put(villageName, list);
-    }
-
 
     @Override
     public void onResume(){
