@@ -242,6 +242,7 @@ public class MainActivity extends ActionBarActivity implements
         Location loc = getLocation();
         if (NetworkUtils.isOnline(this) && loc != null) {
             cp.putObject(PrefUtils.LOCATION, loc);
+            cp.commit();
             SyncUtils.TriggerRefresh();
         } else
             ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
