@@ -57,6 +57,7 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
         bundle.putInt(ALERT_KEY, alertCode);
         alertDialogFragment.setArguments(bundle);
         alertDialogFragment.setAlertDialogListener(adl);
+        alertDialogFragment.setCancelable(false);
         alertDialogFragment.show(fm, ALERT_KEY);
     }
     @Override
