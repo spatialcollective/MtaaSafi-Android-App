@@ -7,12 +7,15 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
+import com.sc.mtaa_safi.SystemUtils.LogTags;
+
 
 public class MtaaLocationService extends Service {
     public Location mLocation;
@@ -44,9 +47,8 @@ public class MtaaLocationService extends Service {
 
         if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
             return mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        else if (mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-            return mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//        Log.e("MtaaLocationService", "got nothing");
+        //Log.e("MtaaLocationService", "got nothing");
+
         return null;
     }
 
@@ -54,17 +56,9 @@ public class MtaaLocationService extends Service {
         if (mLocation != null)
             return true;
         Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
-//        showLocationOffWarning();
         return false;
     }
 
-    private void showLocationOffWarning() {
-        AlertDialogFragment adf = new AlertDialogFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt(AlertDialogFragment.ALERT_KEY, AlertDialogFragment.LOCATION_FAILED);
-        adf.setArguments(bundle);
-//        adf.show(((Activity)getApplicationContext()).getSupportFragmentManager(), AlertDialogFragment.ALERT_KEY);
-    }
 
     private void startLocationMgmt() {
 //        Log.e("MtaaLocationService", "managing location");
@@ -81,7 +75,7 @@ public class MtaaLocationService extends Service {
             public void onProviderEnabled(String provider) {}
             public void onProviderDisabled(String provider) {}
         };
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, TWO_MINUTES, 10, locationListener);
+        //mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, TWO_MINUTES, 10, locationListener);
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TWO_MINUTES, 10, locationListener);
     }
 

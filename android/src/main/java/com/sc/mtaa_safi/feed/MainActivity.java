@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -70,7 +72,6 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
-
         restoreFragment(savedInstanceState);
         cp = PrefUtils.getPrefs(this);
     }
@@ -118,6 +119,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
         supportInvalidateOptionsMenu();
         bindLocationService();
+        GPSstatus();
         determineUsername();
         Log.e(LogTags.MAIN_ACTIVITY, "onStart");
         cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
@@ -150,14 +152,14 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity, menu);
         updateUploadAction(menu);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         return super.onCreateOptionsMenu(menu);
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -166,6 +168,36 @@ public class MainActivity extends ActionBarActivity implements
             case R.id.choose_location: return true;
             case android.R.id.home: onBackPressed(); return true;
             default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void GPSstatus(){
+        if(!isGPSEnabled())
+            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
+    }
+    public boolean isGPSEnabled(){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
+            String providers = Settings.Secure.getString(getContentResolver(),
+                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return providers.contains(LocationManager.GPS_PROVIDER);
+        } else {
+            final int locationMode;
+            try{
+                locationMode = Settings.Secure.getInt(getContentResolver(),
+                        Settings.Secure.LOCATION_MODE);
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+            switch (locationMode){
+                case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
+                case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
+                    return true;
+                case Settings.Secure.LOCATION_MODE_BATTERY_SAVING:
+                case Settings.Secure.LOCATION_MODE_OFF:
+                default:
+                    return false;
+            }
         }
     }
 
@@ -242,8 +274,8 @@ public class MainActivity extends ActionBarActivity implements
         } else
             ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
                     .refreshFailed();
-//        if (loc == null)
-//            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
+        /*if (loc == null)
+            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());*/
     }
 
     @Override
