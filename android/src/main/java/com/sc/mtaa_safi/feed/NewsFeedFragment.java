@@ -1,10 +1,9 @@
 package com.sc.mtaa_safi.feed;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -33,7 +32,6 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
-import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -47,9 +45,6 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
 
     String[] mPlaceTitles;
     private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private CharSequence mDrawerTitle = "Choose a Location to View";
-    private CharSequence mTitle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,6 +56,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
+        getActivity().setTitle("");
 
         if (savedInstanceState != null) {
             index = savedInstanceState.getInt("index");
@@ -79,51 +75,32 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     private void createToolbar(View view) {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
-        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         addSortSpinner(view);
 
+        mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         mPlaceTitles = getResources().getStringArray(R.array.dummy_places);
-        ListView mDrawerList = (ListView) view.findViewById(R.id.right_drawer);
+        ListView drawerList = (ListView) view.findViewById(R.id.right_drawer);
+        drawerList.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.drawer_list_item, mPlaceTitles));
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        mDrawerList.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.drawer_list_item, mPlaceTitles));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                getActionBar().setTitle(mTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getActionBar().setTitle(mDrawerTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerLayout.setDrawerTitle(GravityCompat.END, "WHAt what");
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
-            selectItem(view, position);
+            ListView drawerList = (ListView) view.findViewById(R.id.right_drawer);
+//            drawerList.setItemChecked(position, true);
+            getActivity().setTitle(mPlaceTitles[position]);
+            mDrawerLayout.closeDrawer(GravityCompat.END);
         }
     }
 
-    private void selectItem(View view, int position) {
-        // Highlight the selected item, update the title, and close the drawer
-        ListView drawerList = (ListView) view.findViewById(R.id.right_drawer);
-        drawerList.setItemChecked(position, true);
-        getActivity().setTitle(mPlaceTitles[position]);
-        ((DrawerLayout) view.findViewById(R.id.drawer_layout)).closeDrawer(view.findViewById(R.id.right_drawer));
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(getView().findViewById(R.id.right_drawer));
+        menu.findItem(R.id.choose_location).setVisible(!drawerOpen);
     }
-
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -151,13 +128,6 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         SyncUtils.CreateSyncAccount(activity);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(
-            Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.main_activity, menu);
-        addUploadAction(menu);
     }
 
     public void refreshFailed(){
@@ -214,14 +184,12 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         spin.setSelection(navIndex);
         spin.setOnItemSelectedListener(new SortListener());
     }
-
     public void sortFeed(String sorting) {
         if (sorting != sortOrder) {
             sortOrder = sorting;
             getLoaderManager().restartLoader(0, null, this);
         }
     }
-
     private class SortListener implements AdapterView.OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             navIndex = pos;
@@ -231,10 +199,26 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         public void onNothingSelected(AdapterView<?> parent) { }
     }
 
-    private void addUploadAction(Menu menu){
-        int savedReportCt = getSavedReportCount(getActivity());
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_activity, menu);
+        updateUploadAction(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        MainActivity act = (MainActivity) getActivity();
+        switch (item.getItemId()) {
+            case R.id.choose_location: mDrawerLayout.openDrawer(GravityCompat.END); return true;
+            case R.id.upload: act.uploadSavedReports(); return true;
+            default: return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateUploadAction(Menu menu) {
         int drawable = 0;
-        switch (savedReportCt) {
+        switch (getSavedReportCount(getActivity())) {
+            case 0: menu.findItem(R.id.upload).setVisible(false); break;
             case 1: drawable = R.drawable.button_uploadsaved1; break;
             case 2: drawable = R.drawable.button_uploadsaved2; break;
             case 3: drawable = R.drawable.button_uploadsaved3; break;
@@ -244,25 +228,21 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
             case 7: drawable = R.drawable.button_uploadsaved7; break;
             case 8: drawable = R.drawable.button_uploadsaved8; break;
             case 9: drawable = R.drawable.button_uploadsaved9; break;
-            default:
-                if (savedReportCt > 9)
-                    drawable = R.drawable.button_uploadsaved9plus;
+            default: drawable = R.drawable.button_uploadsaved9plus;
         }
-        if (drawable != 0)
-            menu.add(0, 0, 0, "Upload Saved Reports").setIcon(drawable)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        if (drawable != 0) {
+            menu.findItem(R.id.upload).setIcon(drawable);
+            menu.findItem(R.id.upload).setVisible(true);
+        }
     }
 
     public static int getSavedReportCount(Activity ac){
         String[] projection = new String[1];
         projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor c = ac.getContentResolver().query(
-                Contract.Entry.CONTENT_URI,
-                projection,
-                Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+        Cursor c = ac.getContentResolver().query(Contract.Entry.CONTENT_URI,
+                projection, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
         int count = c.getCount();
         c.close();
         return count;
     }
-
 }

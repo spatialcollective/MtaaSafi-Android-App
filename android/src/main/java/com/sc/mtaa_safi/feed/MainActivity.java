@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -18,8 +17,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -36,7 +33,6 @@ import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.LogTags;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
-import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
@@ -152,27 +148,16 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_activity, menu);
-        updateUploadAction(menu);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        return super.onCreateOptionsMenu(menu);
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.upload: uploadSavedReports(); return true;
-            case R.id.choose_location: return true;
             case android.R.id.home: onBackPressed(); return true;
             default: return super.onOptionsItemSelected(item);
         }
     }
 
     public void GPSstatus(){
-        if(!isGPSEnabled())
+        if (!isGPSEnabled())
             AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
     public boolean isGPSEnabled(){
@@ -182,7 +167,7 @@ public class MainActivity extends ActionBarActivity implements
             return providers.contains(LocationManager.GPS_PROVIDER);
         } else {
             final int locationMode;
-            try{
+            try {
                 locationMode = Settings.Secure.getInt(getContentResolver(),
                         Settings.Secure.LOCATION_MODE);
             } catch (Settings.SettingNotFoundException e) {
@@ -199,39 +184,6 @@ public class MainActivity extends ActionBarActivity implements
                     return false;
             }
         }
-    }
-
-    private void updateUploadAction(Menu menu) {
-        int drawable = 0;
-        switch (getSavedReportCount(this)) {
-            case 0: menu.findItem(R.id.upload).setVisible(false); break;
-            case 1: drawable = R.drawable.button_uploadsaved1; break;
-            case 2: drawable = R.drawable.button_uploadsaved2; break;
-            case 3: drawable = R.drawable.button_uploadsaved3; break;
-            case 4: drawable = R.drawable.button_uploadsaved4; break;
-            case 5: drawable = R.drawable.button_uploadsaved5; break;
-            case 6: drawable = R.drawable.button_uploadsaved6; break;
-            case 7: drawable = R.drawable.button_uploadsaved7; break;
-            case 8: drawable = R.drawable.button_uploadsaved8; break;
-            case 9: drawable = R.drawable.button_uploadsaved9; break;
-            default: drawable = R.drawable.button_uploadsaved9plus;
-        }
-        if (drawable != 0) {
-            menu.findItem(R.id.upload).setIcon(drawable);
-            menu.findItem(R.id.upload).setVisible(true);
-        }
-    }
-
-    public static int getSavedReportCount(Activity ac){
-        String[] projection = new String[1];
-        projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor c = ac.getContentResolver().query(
-                Contract.Entry.CONTENT_URI,
-                projection,
-                Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
-        int count = c.getCount();
-        c.close();
-        return count;
     }
 
     private void determineUsername() {

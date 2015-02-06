@@ -10,6 +10,8 @@
     <string name="send">Send</string>
     <string name="cancel">Cancel</string>
     <string name="refresh">Refresh</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
     <string name="title_report_detail">Report Details</string>
     <string name="title_new_report">New Report</string>
     <string name="new_photo">New Photo</string>
