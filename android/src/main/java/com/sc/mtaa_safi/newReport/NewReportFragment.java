@@ -60,12 +60,12 @@ public class NewReportFragment extends Fragment {
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
         setRetainInstance(true);
+        if (NetworkUtils.isOnline(getActivity()))
+            new SyncLocationData(getActivity()).execute();
         addVillages();
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
-        if (NetworkUtils.isOnline(getActivity()))
-            new SyncLocationData(getActivity()).execute();
         return inflater.inflate(R.layout.fragment_new_report, container, false);
     }
     @Override

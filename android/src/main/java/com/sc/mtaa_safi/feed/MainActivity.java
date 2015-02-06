@@ -154,29 +154,25 @@ public class MainActivity extends ActionBarActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity, menu);
-        addUploadAction(menu);
+        updateUploadAction(menu);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        CharSequence titleChar = item.getTitle();
-        if (titleChar == null) {
-            onBackPressed();
-            return true;
+        switch (item.getItemId()) {
+            case R.id.upload: uploadSavedReports(); return true;
+            case R.id.choose_location: return true;
+            case android.R.id.home: onBackPressed(); return true;
+            default: return super.onOptionsItemSelected(item);
         }
-        if (titleChar.toString().equals("Upload Saved Reports"))
-            uploadSavedReports();
-        else
-            return super.onOptionsItemSelected(item);
-        return true;
     }
 
-    private void addUploadAction(Menu menu){
-        int savedReportCt = getSavedReportCount(this);
+    private void updateUploadAction(Menu menu) {
         int drawable = 0;
-        switch (savedReportCt) {
+        switch (getSavedReportCount(this)) {
+            case 0: menu.findItem(R.id.upload).setVisible(false); break;
             case 1: drawable = R.drawable.button_uploadsaved1; break;
             case 2: drawable = R.drawable.button_uploadsaved2; break;
             case 3: drawable = R.drawable.button_uploadsaved3; break;
@@ -186,13 +182,12 @@ public class MainActivity extends ActionBarActivity implements
             case 7: drawable = R.drawable.button_uploadsaved7; break;
             case 8: drawable = R.drawable.button_uploadsaved8; break;
             case 9: drawable = R.drawable.button_uploadsaved9; break;
-            default:
-                if (savedReportCt > 9)
-                    drawable = R.drawable.button_uploadsaved9plus;
+            default: drawable = R.drawable.button_uploadsaved9plus;
         }
-        if (drawable != 0)
-            menu.add(0, 0, 0, "Upload Saved Reports").setIcon(drawable)
-                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        if (drawable != 0) {
+            menu.findItem(R.id.upload).setIcon(drawable);
+            menu.findItem(R.id.upload).setVisible(true);
+        }
     }
 
     public static int getSavedReportCount(Activity ac){

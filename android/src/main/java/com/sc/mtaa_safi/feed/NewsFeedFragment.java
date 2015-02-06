@@ -3,10 +3,12 @@ package com.sc.mtaa_safi.feed;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.sc.mtaa_safi.R;
@@ -36,8 +39,13 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
     int index, top, navIndex = 0;
     String sortOrder = SORT_RECENT;
-    public NewsFeedFragment() {}
-    
+
+    String[] mPlaceTitles;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private CharSequence mDrawerTitle = "Choose a Location to View";
+    private CharSequence mTitle;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         index = top = 0;
@@ -54,15 +62,61 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
             sortOrder = savedInstanceState.getString("sortOrder");
             navIndex = savedInstanceState.getInt("navIndex");
         }
+        createToolbar(view);
+
+        SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+        refreshLayout.setOnRefreshListener((MainActivity) getActivity());
+        refreshLayout.setColorSchemeResources(R.color.Coral, R.color.White, R.color.mtaa_safi_blue);
+        return view;
+    }
+
+    private void createToolbar(View view) {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
         addSortSpinner(view);
 
-        SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        refreshLayout.setOnRefreshListener((MainActivity) getActivity());
-        refreshLayout.setColorSchemeResources(R.color.Coral, R.color.White, R.color.Coral, R.color.White);
-        return view;
+        mPlaceTitles = getResources().getStringArray(R.array.dummy_places);
+        ListView mDrawerList = (ListView) view.findViewById(R.id.right_drawer);
+
+        mDrawerList.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.drawer_list_item, mPlaceTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                getActionBar().setTitle(mTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getActionBar().setTitle(mDrawerTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        // Set the drawer toggle as the DrawerListener
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            selectItem(view, position);
+        }
+    }
+
+    private void selectItem(View view, int position) {
+        // Highlight the selected item, update the title, and close the drawer
+        ListView drawerList = (ListView) view.findViewById(R.id.right_drawer);
+        drawerList.setItemChecked(position, true);
+        getActivity().setTitle(mPlaceTitles[position]);
+        ((DrawerLayout) view.findViewById(R.id.drawer_layout)).closeDrawer(view.findViewById(R.id.right_drawer));
+    }
+
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -125,12 +179,11 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         ((FeedAdapter) mAdapter).swapCursor(cursor);
         View view = getView();
         if (view != null) {
-            SwipeRefreshLayout refreshLayout =
-                    (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
+            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
 //            if (refreshLayout.isRefreshing()) // refresh --> content displayed chronologically
 //                ((Spinner) v.findViewById(R.id.feed_sorter)).setSelection(0);
             refreshLayout.setRefreshing(false);
-            if (cursor.getCount()==0)
+            if (cursor.getCount() == 0)
                 view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
             else
                 view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
@@ -158,10 +211,8 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     private class SortListener implements AdapterView.OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
             navIndex = pos;
-            if (pos == 0)
-                sortFeed(SORT_RECENT);
-            else
-                sortFeed(SORT_UPVOTES);
+            if (pos == 0) sortFeed(SORT_RECENT);
+            else sortFeed(SORT_UPVOTES);
         }
         public void onNothingSelected(AdapterView<?> parent) { }
     }

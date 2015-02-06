@@ -2,4 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.sc.mtaa_safi.feed.MainActivity">
+    <item android:id="@+id/upload"
+        android:title="@string/upload_saved"
+        app:showAsAction="always"
+        android:visible="false"/>
+    <item android:id="@+id/choose_location"
+        android:title="@string/choose_location"
+        android:icon="@drawable/marker_small_white"
+        app:showAsAction="always" />
 </menu>
