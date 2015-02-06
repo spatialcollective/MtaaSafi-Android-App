@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.feed;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -26,6 +30,7 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
+import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -41,6 +46,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onCreate(Bundle savedInstanceState) {
         index = top = 0;
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
 
@@ -56,6 +62,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         }
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
+        ((MainActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         addSortSpinner(view);
 
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
@@ -90,6 +97,13 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         SyncUtils.CreateSyncAccount(activity);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(
+            Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.main_activity, menu);
+        addUploadAction(menu);
     }
 
     public void refreshFailed(){
@@ -165,4 +179,39 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         }
         public void onNothingSelected(AdapterView<?> parent) { }
     }
+
+    private void addUploadAction(Menu menu){
+        int savedReportCt = getSavedReportCount(getActivity());
+        int drawable = 0;
+        switch (savedReportCt) {
+            case 1: drawable = R.drawable.button_uploadsaved1; break;
+            case 2: drawable = R.drawable.button_uploadsaved2; break;
+            case 3: drawable = R.drawable.button_uploadsaved3; break;
+            case 4: drawable = R.drawable.button_uploadsaved4; break;
+            case 5: drawable = R.drawable.button_uploadsaved5; break;
+            case 6: drawable = R.drawable.button_uploadsaved6; break;
+            case 7: drawable = R.drawable.button_uploadsaved7; break;
+            case 8: drawable = R.drawable.button_uploadsaved8; break;
+            case 9: drawable = R.drawable.button_uploadsaved9; break;
+            default:
+                if (savedReportCt > 9)
+                    drawable = R.drawable.button_uploadsaved9plus;
+        }
+        if (drawable != 0)
+            menu.add(0, 0, 0, "Upload Saved Reports").setIcon(drawable)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+    }
+
+    public static int getSavedReportCount(Activity ac){
+        String[] projection = new String[1];
+        projection[0] = Contract.Entry.COLUMN_ID;
+        Cursor c = ac.getContentResolver().query(
+                Contract.Entry.CONTENT_URI,
+                projection,
+                Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
+        int count = c.getCount();
+        c.close();
+        return count;
+    }
+
 }
