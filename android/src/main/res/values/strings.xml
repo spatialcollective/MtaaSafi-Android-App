@@ -35,11 +35,11 @@
     </string-array>
 
     <string-array name="dummy_places">
-        <item>Mathare</item>
-        <item>Kibera</item>
-        <item>Killimani</item>
-        <item>Westlands</item>
-        <item>Dandora</item>
+        <item>Evergreen</item>
+        <item>Conifer</item>
+        <item>Boulder</item>
+        <item>Frisco</item>
+        <item>Idaho Springs</item>
     </string-array>
 
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>

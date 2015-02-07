@@ -9,6 +9,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,15 +36,15 @@ import com.sc.mtaa_safi.database.SyncUtils;
 
 public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
+    private final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
     String sortOrder = SORT_RECENT;
 
-    String[] mPlaceTitles;
+    SimpleCursorAdapter placeAdapter;
     private DrawerLayout mDrawerLayout;
 
     @Override
@@ -68,7 +69,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
 
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener((MainActivity) getActivity());
-        refreshLayout.setColorSchemeResources(R.color.Coral, R.color.White, R.color.mtaa_safi_blue);
+        refreshLayout.setColorSchemeResources(R.color.Coral, R.color.mtaa_safi_blue);
         return view;
     }
 
@@ -78,20 +79,22 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         addSortSpinner(view);
 
         mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
-        mPlaceTitles = getResources().getStringArray(R.array.dummy_places);
-        ListView drawerList = (ListView) view.findViewById(R.id.right_drawer);
-        drawerList.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.drawer_list_item, mPlaceTitles));
+        ListView drawerList = (ListView) view.findViewById(R.id.location_list);
+        placeAdapter = new SimpleCursorAdapter(getActivity(), R.layout.drawer_list_item, 
+            null, new String[]{ Contract.Admin.COLUMN_NAME }, new int[]{ R.id.place_name }, 0);
+        drawerList.setAdapter(placeAdapter);
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
-        mDrawerLayout.setDrawerTitle(GravityCompat.END, "WHAt what");
+        getLoaderManager().initLoader(PLACES_LOADER, null, this);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            ListView drawerList = (ListView) view.findViewById(R.id.right_drawer);
+        public void onItemClick(AdapterView parent, View view, int pos, long id) {
+//            LinearLayout drawerList = (LinearLayout) view.findViewById(R.id.right_drawer);
 //            drawerList.setItemChecked(position, true);
-            getActivity().setTitle(mPlaceTitles[position]);
+            Cursor cursor = (Cursor) placeAdapter.getItem(pos);
+            getActivity().setTitle(cursor.getString(cursor.getColumnIndex(Contract.Admin.COLUMN_NAME)));
             mDrawerLayout.closeDrawer(GravityCompat.END);
         }
     }
@@ -105,14 +108,14 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycle);
-        mRecyclerView.setHasFixedSize(true);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
+        recyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new FeedAdapter(getActivity(), null);
-        mRecyclerView.setAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this);
+        recyclerView.setAdapter(mAdapter);
+        getLoaderManager().initLoader(FEED_LOADER, null, this);
     }
 
     @Override
@@ -154,12 +157,21 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == PLACES_LOADER)
+            return new CursorLoader(getActivity(), Contract.Admin.ADMIN_URI,
+                    new String[] { Contract.Admin.COLUMN_SERVER_ID, Contract.Admin.COLUMN_NAME },
+                    null, null, Contract.Admin.COLUMN_NAME + " DESC");
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-            Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0, null, sortOrder);
+                Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0, null, sortOrder);
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.i("Feed Cursor", "My count is " + cursor.getCount());
+        if (loader.getId() == FEED_LOADER)
+            feedLoaded(cursor);
+        else
+            placeAdapter.swapCursor(cursor);
+    }
+    private void feedLoaded(Cursor cursor) {
         ((FeedAdapter) mAdapter).swapCursor(cursor);
         View view = getView();
         if (view != null) {
@@ -174,7 +186,12 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         }
     }
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) { ((FeedAdapter) mAdapter).swapCursor(null); }
+    public void onLoaderReset(Loader<Cursor> loader) { 
+        if (loader.getId() == FEED_LOADER)
+            ((FeedAdapter) mAdapter).swapCursor(null);
+        else
+            placeAdapter.swapCursor(null);
+    }
 
     private void addSortSpinner(View v) {
         Spinner spin = ((Spinner) v.findViewById(R.id.feed_sorter));

@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <com.sc.mtaa_safi.feed.VoteButton xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="56dp"
+    android:padding="8dp"
     android:gravity="center"
     android:drawableTop="@drawable/up_vote_button"
-    android:background="@color/transparent"
-    android:text="100"
+    android:background="@drawable/floating_button"
+    android:text="9"
     android:textColor="@color/textDarkGray"
-    android:textSize="30dp"
+    android:textSize="24dp"
     android:checkable="true"
     android:checked="false"
-    android:clickable="true"
-    android:clipChildren="false"
-    android:clipToPadding="false" />
+    android:clickable="true" />

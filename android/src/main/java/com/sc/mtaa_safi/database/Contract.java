@@ -43,7 +43,7 @@ public class Contract {
             COLUMN_USER_UPVOTED = "upvoted";
     }
 
-    public static class UpvoteLog implements BaseColumns{
+    public static class UpvoteLog implements BaseColumns {
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
         public static final String CONTENT_ITEM_TYPE =
@@ -56,7 +56,8 @@ public class Contract {
             COLUMN_LAT = "latitude",
             COLUMN_LON= "longitude";
     }
-    public static class Comments implements BaseColumns{
+
+    public static class Comments implements BaseColumns {
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
         public static final String CONTENT_ITEM_TYPE =
@@ -71,7 +72,7 @@ public class Contract {
             COLUMN_REPORT_ID = "reportId"; // server id of the report associated with the comment
     }
 
-    public static class Admin implements BaseColumns{
+    public static class Admin implements BaseColumns {
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
         public static final String CONTENT_ITEM_TYPE =
@@ -79,7 +80,7 @@ public class Contract {
         public static final Uri ADMIN_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ADMINS).build();
         public static final String TABLE_NAME = "admins",
-            COLUMN_SERVER_ID = "adminId",
+            COLUMN_SERVER_ID = "_id",
             COLUMN_NAME = "admin";
     }
 
