@@ -100,10 +100,10 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
                     selectedAdmin = trimText;
                     try {
                         locationJSON.put("admin", selectedAdmin);
-                        if (villageIdMap.containsKey(selectedAdmin))
+                        /*if (villageIdMap.containsKey(selectedAdmin))
                             locationJSON.put("adminId", villageIdMap.get(selectedAdmin));
                         else if (locationJSON.has("adminId"))
-                            locationJSON.remove("adminId");
+                            locationJSON.remove("adminId");*/
                     } catch (JSONException e) { e.printStackTrace(); }
 //                    revealSpinner();
                     attemptEnableSendSave();
