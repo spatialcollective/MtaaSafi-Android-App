@@ -84,7 +84,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         aq.id(iv).image(imageUrl).animate(R.anim.abc_fade_in);
     }
 
-    private void updateVote(VoteButton voter) {
+    private void updateVote(VoteButton voter) { // (VoteButton) v.findViewById(R.id.voteInterface)
         voter.mServerId = mReport.serverId;
         voter.mReportUri = Report.getUri(mReport.dbId);
         voter.setCheckedState(mReport.upVoted, mReport.upVoteCount, null);

@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
@@ -21,81 +22,31 @@ import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class VoteButton extends CompoundButton implements Animation.AnimationListener{
+public class VoteButton extends CompoundButton {
     public Uri mReportUri;
     public int mServerId;
-    public boolean enabled;
+    public boolean enabled = true;
 
     public VoteButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.setOnCheckedChangeListener(new MyListener());
         this.setOnTouchListener(new MyTouchListener());
     }
-    @Override
-    public void onFinishInflate(){
-        // int screenW = ((MainActivity)getContext()).getWindowManager().getDefaultDisplay().getWidth();
-        // Drawable upvoteButton = getResources().getDrawable(R.drawable.up_vote_button);
-        // upvoteButton.setBounds(0, 0, getIntrinsicHeight(), getIntrinsicWidth());
-        // upvoteButton.draw(new Canvas());
-        // setCompoundDrawables(null, upvoteButton, null, null);
-        // getLayoutParams().height = screenW/5;
-        // getLayoutParams().width = screenW/5;
-        // requestLayout();
 
-        
-        if(isChecked()){
-            setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
-            setTypeface(Typeface.DEFAULT_BOLD);
-        } else{
-            setTextColor(getResources().getColor(R.color.textDarkGray));
-            setTypeface(Typeface.DEFAULT);
-        }
-    }
-
-    @Override
-    public void onAnimationStart(Animation animation) {}
-
-    @Override
-    public void onAnimationEnd(Animation animation) {
-        if(animation.getDuration() == 201){
-            int voteCount = Integer.parseInt(getText().toString());
-            setText(voteCount + 1 + "");
-            setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
-            setTypeface(Typeface.DEFAULT_BOLD);
-        }
-    }
-
-    @Override
-    public void onAnimationRepeat(Animation animation) {}
-
-    private class MyListener implements CompoundButton.OnCheckedChangeListener {
-        @Override
-        public void onCheckedChanged(CompoundButton view, boolean isChecked) {
-            if (enabled && isChecked) {
-                enabled = false;
-                int voteCount = Integer.parseInt(getText().toString());
-                Location location = ((MainActivity) getContext()).getLocation();
-                FireAndForgetExecutor.exec(new SaveUpvote(getContext(), mReportUri,
-                        location.getLatitude(), location.getLongitude(), mServerId, voteCount));
-            } else if (!enabled && !isChecked) {
-                setChecked(true);
-            }
-        }
-    }
     private class MyTouchListener implements OnTouchListener {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_DOWN){
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Animation scaleUp = new ScaleAnimation(1.0f, 1.2f, 1.0f, 1.2f,
-                                                       Animation.RELATIVE_TO_SELF, .5f,
-                                                       Animation.RELATIVE_TO_SELF, .5f);
+                        Animation.RELATIVE_TO_SELF, .5f,
+                        Animation.RELATIVE_TO_SELF, .5f);
                 scaleUp.setDuration(200);
                 scaleUp.setInterpolator(new AccelerateInterpolator());
                 v.startAnimation(scaleUp);
             } else {
                 Animation scaleDown = new ScaleAnimation(1.2f, 1.0f, 1.2f, 1.0f,
-                                                        Animation.RELATIVE_TO_SELF,.5f,
-                                                        Animation.RELATIVE_TO_SELF, .5f);
+                        Animation.RELATIVE_TO_SELF,.5f,
+                        Animation.RELATIVE_TO_SELF, .5f);
                 scaleDown.setDuration(201);
                 scaleDown.setInterpolator(new AccelerateInterpolator());
                 v.startAnimation(scaleDown);
@@ -103,15 +54,55 @@ public class VoteButton extends CompoundButton implements Animation.AnimationLis
             return false;
         }
     }
+
+    private class MyListener implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton view, boolean isChecked) {
+            Log.e("Vote btn", "checked state is: " + isChecked);
+            if (enabled && isChecked) {
+                enabled = false;
+                int voteCount = Integer.parseInt(getText().toString()) + 1;
+                Location location = ((MainActivity) getContext()).getLocation();
+                if (location != null)
+                    FireAndForgetExecutor.exec(new SaveUpvote(getContext(), mReportUri,
+                            location.getLatitude(), location.getLongitude(), mServerId, voteCount));
+                else FireAndForgetExecutor.exec(new SaveUpvote(getContext(), mReportUri,
+                            0, 0, mServerId, voteCount));
+                setToUp(voteCount);
+            } else if (!enabled && !isChecked) {
+                setChecked(true);
+            }
+        }
+    }
+
     public void setCheckedState(boolean upvoted, int upvoteCount, ArrayList<Integer> upvoteList) {
         this.enabled = !upvoted;
-        if (upvoteList != null && !upvoteList.isEmpty()
-                && upvoteList.contains(this.mServerId) && this.enabled) {
-            this.setText(Integer.toString(upvoteCount + 1));
+        Log.e("Vote btn", "setting to on: " + enabled);
+        if (upvoteList != null && !upvoteList.isEmpty() && upvoteList.contains(this.mServerId) && this.enabled) {
+            setToUp(upvoteCount + 1);
             this.enabled = false;
         } else
             this.setText(Integer.toString(upvoteCount));
         this.setChecked(!this.enabled);
+    }
+
+    public void setToUp(int count) {
+        setText(count + "");
+        setTextColor(getResources().getColor(R.color.mtaa_safi_blue));
+        setTypeface(Typeface.DEFAULT_BOLD);
+    }
+
+    public void setToDown() {
+        int voteCount = Integer.parseInt(getText().toString()) - 1;
+        setText(voteCount + "");
+        setTextColor(getResources().getColor(R.color.mediumGrey));
+        setTypeface(Typeface.DEFAULT);
+    }
+
+    @Override
+    public void onFinishInflate() {
+        if (isChecked()) setToUp(Integer.parseInt(getText().toString()));
+        else setToDown();
     }
 
     public static class SaveUpvote implements Runnable {
@@ -142,7 +133,7 @@ public class VoteButton extends CompoundButton implements Animation.AnimationLis
         private ContentProviderOperation updateReportDb(Uri reportUri, int voteCount) {
             return ContentProviderOperation.newUpdate(reportUri)
                     .withValue(Contract.Entry.COLUMN_USER_UPVOTED, 1)
-                    .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, voteCount + 1)
+                    .withValue(Contract.Entry.COLUMN_UPVOTE_COUNT, voteCount)
                     .build();
         }
 

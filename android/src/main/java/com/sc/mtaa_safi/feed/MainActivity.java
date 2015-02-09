@@ -53,6 +53,7 @@ public class MainActivity extends ActionBarActivity implements
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
+            getLocation();
             //Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
         }
         public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen

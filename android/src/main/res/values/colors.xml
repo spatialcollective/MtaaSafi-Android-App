@@ -24,9 +24,10 @@
     <color name="button_clickable">#0099FF</color>
     <color name="report_button_unclickable">#A4C8FF</color>
     <color name="report_button_clickable">#0099FF</color>
+    <color name="textDark">#212121</color>
     <color name="textDarkGray">#666666</color>
-    <color name="listHeaderGrey">#757575</color>
-    <color name="listHeaderGrey2">#212121</color>
+    <color name="mediumGrey">#757575</color>
+    <color name="textLightGrey">#BDBDBD</color>
     <color name="white">#FFFFFF</color>
     <color name="yellow">#FFFF00</color>
     <color name="fuchsia">#FF00FF</color>

@@ -93,7 +93,7 @@
             android:gravity="center_vertical"
             android:textSize="14sp"
             android:text="@string/choose_location"
-            android:textColor="@color/listHeaderGrey"
+            android:textColor="@color/mediumGrey"
             android:paddingLeft="16dp"
             android:paddingEnd="16dp"
             android:paddingRight="16dp" />

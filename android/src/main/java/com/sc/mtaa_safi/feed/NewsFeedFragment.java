@@ -95,6 +95,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
 //            drawerList.setItemChecked(position, true);
             Cursor cursor = (Cursor) placeAdapter.getItem(pos);
             getActivity().setTitle(cursor.getString(cursor.getColumnIndex(Contract.Admin.COLUMN_NAME)));
+            cursor.close();
             mDrawerLayout.closeDrawer(GravityCompat.END);
         }
     }

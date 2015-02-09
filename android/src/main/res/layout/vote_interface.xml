@@ -6,9 +6,9 @@
     android:gravity="center"
     android:drawableTop="@drawable/up_vote_button"
     android:background="@drawable/floating_button"
-    android:text="9"
+    android:text="999"
     android:textColor="@color/textDarkGray"
-    android:textSize="24dp"
+    android:textSize="24sp"
     android:checkable="true"
     android:checked="false"
     android:clickable="true" />

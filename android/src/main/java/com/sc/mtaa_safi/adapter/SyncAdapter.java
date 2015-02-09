@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
@@ -21,7 +22,6 @@ import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -35,7 +35,6 @@ import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -59,6 +58,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
         syncFromServer(syncResult);
+    }
+
+    private void updatePlaces() throws IOException, JSONException, RemoteException, OperationApplicationException {
+        Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
+        String responseString = makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+        Community.addCommunities(new JSONObject(responseString), mContentResolver);
     }
 
     private ArrayList getServerIds() throws IOException, JSONException {
@@ -171,6 +176,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void syncFromServer(SyncResult syncResult) {
         try {
             Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.feed));
+            updatePlaces();
             ArrayList serverIds = getServerIds();
             if (serverIds != null)
                 updateLocalFeedData(serverIds, syncResult);
