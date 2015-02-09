@@ -26,6 +26,16 @@ public class Community {
             Contract.Admin.COLUMN_NAME
     };
 
+    public static final String[] ADMIN_FROM = new String[] {
+            Contract.Admin._ID,
+            Contract.Admin.COLUMN_NAME
+    };
+
+    public static final int[] ADMIN_TO = new int[] {
+            0,
+            android.R.id.text1
+    };
+
     public static final String[] LANDMARK_PROJECTION = new String[]{
             Contract.Landmark._ID,
             Contract.Landmark.COLUMN_NAME,

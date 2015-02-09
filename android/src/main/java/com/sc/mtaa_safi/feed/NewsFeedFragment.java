@@ -91,11 +91,9 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView parent, View view, int pos, long id) {
-//            LinearLayout drawerList = (LinearLayout) view.findViewById(R.id.right_drawer);
-//            drawerList.setItemChecked(position, true);
-            Cursor cursor = (Cursor) placeAdapter.getItem(pos);
-            getActivity().setTitle(cursor.getString(cursor.getColumnIndex(Contract.Admin.COLUMN_NAME)));
-            cursor.close();
+            Cursor c = (Cursor) placeAdapter.getItem(pos);
+            getActivity().setTitle(c.getString(c.getColumnIndex(Contract.Admin.COLUMN_NAME)));
+            c.close();
             mDrawerLayout.closeDrawer(GravityCompat.END);
         }
     }

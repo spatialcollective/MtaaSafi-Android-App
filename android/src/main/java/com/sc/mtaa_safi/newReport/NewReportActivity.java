@@ -22,6 +22,9 @@ import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class NewReportActivity extends ActionBarActivity {
     private ComplexPreferences cp;
     public final static String NEW_REPORT_TAG = "newreport";
@@ -83,26 +86,37 @@ public class NewReportActivity extends ActionBarActivity {
 
     public void attemptSave(View view) {
         Log.e("New Report Activity", "attempting save");
-        if (mBoundService.hasLocation()) {
-            saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
-            finish();
-        }
+        try {
+            if (mBoundService.hasLocation()) {
+                saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
+                finish();
+            }
+        } catch (Exception e) {}
     }
 
     public void attemptBeamOut(View view) {
-        if (mBoundService.hasLocation()) {
-            NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
-            Uri newReportUri = saveNewReport(nrf);
-            Intent intent = new Intent();
-            intent.setClass(this, UploadingActivity.class);
-            intent.setData(newReportUri);
-            startActivity(intent);
-            finish();
-        }
+        try {
+            if (mBoundService.hasLocation()) {
+                NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+                Uri newReportUri = saveNewReport(nrf);
+                Intent intent = new Intent();
+                intent.setClass(this, UploadingActivity.class);
+                intent.setData(newReportUri);
+                startActivity(intent);
+                finish();
+            }
+        } catch (Exception e) {}
     }
 
-    public Uri saveNewReport(NewReportFragment frag) {
-        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths, frag.locationJSON.toString());
+    public Uri saveNewReport(NewReportFragment frag) throws JSONException {
+        JSONObject locationJSON = new JSONObject();
+        if (frag.adminText == frag.selectedAdmin.trim()) {
+            locationJSON.put("admin", frag.selectedAdmin.trim());
+            locationJSON.put("adminId", frag.selectedAdminId);
+        } else
+            locationJSON.put("admin", frag.adminText);
+
+        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths, locationJSON.toString());
         Log.e("New Report Activity", "inserting");
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }

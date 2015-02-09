@@ -1,5 +1,6 @@
 package com.sc.mtaa_safi.newReport;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -20,10 +21,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.sc.mtaa_safi.Community;
@@ -31,9 +32,6 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
 import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +42,8 @@ import java.util.Date;
 public class NewReportFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     SimpleCursorAdapter mAdapter;
     public static final int REQUEST_IMAGE_CAPTURE = 1, MAX_PIC_COUNT = 3;
-    public String detailsText = "", selectedAdmin = "";
-    public JSONObject locationJSON;
+    public String detailsText = "", selectedAdmin = "", adminText = "";
+    public long selectedAdminId;
     private ComplexPreferences cp;
     public ArrayList<String> picPaths = new ArrayList<String>();
 
@@ -67,7 +65,6 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
 
         cp = PrefUtils.getPrefs(getActivity());
-        locationJSON = new JSONObject();
         updateDetailsView();
         updatePicPreviews();
         
@@ -86,28 +83,33 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
 
     private void setUpVillages() {
         mAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.select_dialog_item, null,
-                new String[] {Contract.Admin.COLUMN_NAME}, new int[] {android.R.id.text1}, 0);
+                Community.ADMIN_FROM, Community.ADMIN_TO, 0);
+        mAdapter.setCursorToStringConverter(new SimpleCursorAdapter.CursorToStringConverter() {
+            @Override public CharSequence convertToString(Cursor cursor) {
+                return cursor.getString(cursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME));
+            }
+        });
 
         AutoCompleteTextView autoComplete = (AutoCompleteTextView) getView().findViewById(R.id.enterWard);
         autoComplete.setAdapter(mAdapter);
+        autoComplete.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Cursor c = (Cursor) mAdapter.getItem(position);
+                selectedAdminId = id;
+                selectedAdmin = c.getString(c.getColumnIndex(Contract.Admin.COLUMN_NAME));
+                c.close();
+            }
+        });
         autoComplete.addTextChangedListener(new TextWatcher() {
             @Override public void afterTextChanged(Editable s) { }
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String trimText = s.toString().trim();
-                if (!trimText.isEmpty()) {
-                    selectedAdmin = trimText;
-                    try {
-                        locationJSON.put("admin", selectedAdmin);
-                        if (villageIdMap.containsKey(selectedAdmin))
-                            locationJSON.put("adminId", villageIdMap.get(selectedAdmin));
-                        else if (locationJSON.has("adminId"))
-                            locationJSON.remove("adminId");
-                    } catch (JSONException e) { e.printStackTrace(); }
-//                    revealSpinner();
+                adminText = s.toString().trim();
+                if (!adminText.isEmpty())
                     attemptEnableSendSave();
-                }
             }
         });
         getLoaderManager().initLoader(0, null, this);
@@ -202,7 +204,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         View view = getView();
         if (view == null)
             return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || selectedAdmin == null || selectedAdmin.isEmpty()) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || adminText == null || adminText.isEmpty()) {
             view.findViewById(R.id.sendButton).setEnabled(false);
             view.findViewById(R.id.saveButton).setEnabled(false);
         } else {
