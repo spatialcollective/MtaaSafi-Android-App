@@ -1,5 +1,6 @@
 package com.sc.mtaa_safi;
 
+import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.OperationApplicationException;
@@ -36,7 +37,7 @@ public class Community {
             Contract.Landmark.COLUMN_LATITUDE
     };
 
-    public static void addCommunities(JSONObject serverJSON, ContentResolver cr)
+    public static void addCommunities(JSONObject serverJSON, ContentProviderClient cr)
             throws JSONException, RemoteException, OperationApplicationException {
         JSONArray placesArray = serverJSON.getJSONArray(Contract.Admin.TABLE_NAME);
 
@@ -56,20 +57,18 @@ public class Community {
 //        c.close();
     }
 
-    public static void updateDB(JSONArray placesArray, ContentResolver cr)
+    public static void updateDB(JSONArray placesArray, ContentProviderClient cr)
             throws RemoteException, OperationApplicationException, JSONException {
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-        for (int i = 0; i < placesArray.length(); i++) {
-            JSONObject adminJSON = placesArray.getJSONObject(i);
-            addContentProviderOp(adminJSON, batch, cr, i);
-        }
-        cr.applyBatch(Contract.CONTENT_AUTHORITY, batch);
-        cr.notifyChange(Contract.Admin.ADMIN_URI, null, false);
+        for (int i = 0; i < placesArray.length(); i++)
+            addContentProviderOp(placesArray.getJSONObject(i), batch, cr, i);
+        cr.applyBatch( batch);
+    //    cr.notifyChange(Contract.Admin.ADMIN_URI, null, false);
     }
 
 
-    public static void addContentProviderOp(JSONObject adminJSON, ArrayList<ContentProviderOperation> batch, ContentResolver cr, int index)
-            throws JSONException {
+    public static void addContentProviderOp(JSONObject adminJSON, ArrayList<ContentProviderOperation> batch, ContentProviderClient cr, int index)
+            throws JSONException, RemoteException {
         if (!(cr.query(Contract.Admin.ADMIN_URI, ADMIN_PROJECTION,
                 Contract.Admin._ID + " = " + adminJSON.getInt("adminId"), null, null).getCount() > 0)) {
             batch.add(ContentProviderOperation.newInsert(Contract.Admin.ADMIN_URI)

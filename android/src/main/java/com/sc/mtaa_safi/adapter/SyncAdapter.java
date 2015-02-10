@@ -43,7 +43,6 @@ import java.util.ArrayList;
 class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final String TAG = "SyncAdapter";
-    private final ContentResolver mContentResolver;
     private Context mContext;
 
     public SyncAdapter(Context context, boolean autoInitialize) {
@@ -56,10 +55,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority,
                               ContentProviderClient provider, SyncResult syncResult) {
-        syncFromServer(syncResult);
+        syncFromServer(provider, syncResult);
     }
 
-    private void updatePlaces() throws IOException, JSONException, RemoteException, OperationApplicationException {
+
+    private void updatePlaces(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
         Location cachedLocation = Utils.getLocation(mContext);
         if (cachedLocation != null) {
             String responseString = makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
@@ -82,14 +82,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return null;
     }
 
-    public void updateLocalFeedData(ArrayList serverIds, final SyncResult syncResult)
+    public void updateLocalFeedData(ArrayList serverIds, ContentProviderClient provider, final SyncResult syncResult)
             throws IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException, JSONException {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
         String[] projection = {Contract.Entry.COLUMN_ID, Contract.Entry.COLUMN_SERVER_ID};
-        Cursor c = mContentResolver.query(Contract.Entry.CONTENT_URI, projection,
-                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
+        Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection,
+                           Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
+
         assert c != null;
         while (c.moveToNext()) {
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
@@ -101,15 +102,14 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 serverIds.remove(serverIds.indexOf(serverId));
             }
         }
-        writeNewReports(getNewReportsFromServer(serverIds), batch, syncResult);
+        writeNewReports(getNewReportsFromServer(serverIds, provider), batch, provider, syncResult);
         c.close();
 
         Log.i(TAG, "Merge solution ready. Applying batch update");
-        mContentResolver.applyBatch(Contract.CONTENT_AUTHORITY, batch);
-        mContentResolver.notifyChange(Contract.Entry.CONTENT_URI, null, false);
+        provider.applyBatch(batch);
     }
 
-    private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, SyncResult syncResult)
+    private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, ContentProviderClient provider, SyncResult syncResult)
             throws RemoteException, OperationApplicationException, JSONException {
         if (serverResponse == null)
             return; // TODO: add error statement
@@ -122,11 +122,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                  .build());
             syncResult.stats.numEntries++;
             syncResult.stats.numInserts++;
-            mContentResolver.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
+            provider.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
         }
     }
 
-    private JSONObject getNewReportsFromServer(ArrayList serverIds) throws
+    private JSONObject getNewReportsFromServer(ArrayList serverIds, ContentProviderClient provider) throws
             IOException, JSONException, OperationApplicationException, RemoteException {
         String fetchReportsURL = this.getContext().getString(R.string.feed) + Utils.getScreenWidth(mContext) + "/";
         if (!Utils.getUserName(mContext).isEmpty()) {
@@ -134,7 +134,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                                                       .put("ids", new JSONArray());
             for (int i=0; i < serverIds.size(); i++)
                 fetchRequest.accumulate("ids", serverIds.get(i));
-            fetchRequest = addNewUpvotes(fetchRequest);
+            fetchRequest = addNewUpvotes(fetchRequest, provider);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
             String responseString = makeRequest(fetchReportsURL, "post", fetchRequest);
             Log.e("Server response:", responseString);
@@ -143,11 +143,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return null;
     }
 
-    private JSONObject addNewUpvotes(JSONObject fetchRequest) throws RemoteException, OperationApplicationException, JSONException {
+    private JSONObject addNewUpvotes(JSONObject fetchRequest, ContentProviderClient provider) throws RemoteException, OperationApplicationException, JSONException {
+        String userName = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
         JSONObject upvoteData = new JSONObject().put("username", Utils.getUserName(mContext));
         upvoteData.put("ids", new JSONArray());
 
-        Cursor upvoteLog = mContentResolver.query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);
+        Cursor upvoteLog = provider.query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);
         while (upvoteLog.moveToNext())
             upvoteData.accumulate("ids", upvoteLog.getInt(upvoteLog.getColumnIndex(Contract.UpvoteLog.COLUMN_SERVER_ID)));
         fetchRequest.put("upvote_data", upvoteData);
@@ -170,13 +171,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return EntityUtils.toString(response.getEntity(), "UTF-8");
     }
 
-    private void syncFromServer(SyncResult syncResult) {
+    private void syncFromServer(ContentProviderClient provider, SyncResult syncResult) {
         try {
             Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.feed));
-            updatePlaces();
+            updatePlaces(provider);
             ArrayList serverIds = getServerIds();
             if (serverIds != null)
-                updateLocalFeedData(serverIds, syncResult);
+                updateLocalFeedData(serverIds,  provider, syncResult);
             else // TODO : handle null location errors, which will occur first time user opens app
                 return;
         } catch (MalformedURLException e) {
