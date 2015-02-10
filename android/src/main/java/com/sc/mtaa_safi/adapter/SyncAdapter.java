@@ -17,8 +17,7 @@ import android.util.Log;
 import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
-import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
@@ -45,12 +44,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static final String TAG = "SyncAdapter";
     private final ContentResolver mContentResolver;
-    private ComplexPreferences cp;
+    private Context mContext;
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         mContentResolver = context.getContentResolver();
-        cp = PrefUtils.getPrefs(context);
+        mContext = context;
     }
 
     // The syncResult argument allows you to pass information back to the method that triggered the sync.
@@ -61,13 +60,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void updatePlaces() throws IOException, JSONException, RemoteException, OperationApplicationException {
-        Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
-        String responseString = makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
-        Community.addCommunities(new JSONObject(responseString), mContentResolver);
+        Location cachedLocation = Utils.getLocation(mContext);
+        if (cachedLocation != null) {
+            String responseString = makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+            Community.addCommunities(new JSONObject(responseString), mContentResolver);
+        }
     }
 
     private ArrayList getServerIds() throws IOException, JSONException {
-        Location cachedLocation = cp.getObject(PrefUtils.LOCATION, Location.class);
+        Location cachedLocation = Utils.getLocation(mContext);
         Log.e(TAG, "cachedLocation: " + cachedLocation);
         if (cachedLocation != null) {
             String responseString = makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
@@ -127,11 +128,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONObject getNewReportsFromServer(ArrayList serverIds) throws
             IOException, JSONException, OperationApplicationException, RemoteException {
-        String fetchReportsURL = this.getContext().getString(R.string.feed) + cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class) + "/";
-        ComplexPreferences cp = PrefUtils.getPrefs(getContext());
-        String username = cp.getString(PrefUtils.USERNAME, "");
-        if (!username.isEmpty()) {
-            JSONObject fetchRequest = new JSONObject().put("username", PrefUtils.trimUsername(username))
+        String fetchReportsURL = this.getContext().getString(R.string.feed) + Utils.getScreenWidth(mContext) + "/";
+        if (!Utils.getUserName(mContext).isEmpty()) {
+            JSONObject fetchRequest = new JSONObject().put("username", Utils.getUserName(mContext))
                                                       .put("ids", new JSONArray());
             for (int i=0; i < serverIds.size(); i++)
                 fetchRequest.accumulate("ids", serverIds.get(i));
@@ -145,9 +144,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private JSONObject addNewUpvotes(JSONObject fetchRequest) throws RemoteException, OperationApplicationException, JSONException {
-        String userName = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
-        userName = PrefUtils.trimUsername(userName);
-        JSONObject upvoteData = new JSONObject().put("username", userName);
+        JSONObject upvoteData = new JSONObject().put("username", Utils.getUserName(mContext));
         upvoteData.put("ids", new JSONArray());
 
         Cursor upvoteLog = mContentResolver.query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);

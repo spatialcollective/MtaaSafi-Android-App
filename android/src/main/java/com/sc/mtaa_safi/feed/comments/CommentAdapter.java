@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 public class CommentAdapter extends RecyclerViewCursorAdapter<CommentAdapter.ViewHolder> {
@@ -25,7 +25,7 @@ public class CommentAdapter extends RecyclerViewCursorAdapter<CommentAdapter.Vie
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
         holder.mTextView.setText(c.getString(c.getColumnIndex(Contract.Comments.COLUMN_CONTENT)));
         holder.mUserNameView.setText(c.getString(c.getColumnIndex(Contract.Comments.COLUMN_USERNAME)));
-        holder.mTimeView.setText(PrefUtils.getElapsedTime(c.getLong(c.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP))));
+        holder.mTimeView.setText(Utils.getElapsedTime(c.getLong(c.getColumnIndex(Contract.Comments.COLUMN_TIMESTAMP))));
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

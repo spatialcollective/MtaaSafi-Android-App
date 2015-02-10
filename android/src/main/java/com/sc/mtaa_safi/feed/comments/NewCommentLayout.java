@@ -9,17 +9,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.newReport.SafiEditText;
 
 import org.json.JSONException;
 
-/**
- * Created by Agree on 11/17/2014.
- */
 public class NewCommentLayout extends LinearLayout {
+    private Context mContext;
     public Comment mComment;
 
     Button mSendButton;
@@ -28,10 +25,11 @@ public class NewCommentLayout extends LinearLayout {
     public NewCommentLayout(Context context, AttributeSet attrs) { 
         super(context, attrs);
         mComment = new Comment();
+        mContext = context;
     }
 
     public void addData(int reportId) {
-        mComment.mUsername = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
+        mComment.mUsername = Utils.getUserName(mContext);
         mComment.mReportId = reportId;
     }
 

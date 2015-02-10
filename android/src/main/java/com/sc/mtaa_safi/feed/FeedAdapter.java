@@ -18,16 +18,10 @@ import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
 import com.sc.mtaa_safi.database.Contract;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.jar.JarException;
 
 public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolder> {
     ArrayList<Integer> upvoteList;
@@ -66,11 +60,9 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             }
         } catch (NumberFormatException e) {
             try {
-                imageUrl = imagesJson.get(0);
                 aq.id(holder.mLeadImage).image(getThumbnail(imagesJson.get(0)));
             } catch (Exception ex) { }
         }
-        Log.d("Feed Adapter", "imageUrl: " + imageUrl);
         setDistanceView(holder, c);
         addClick(holder, c);
     }
@@ -98,7 +90,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
     }
 
     private void setDistanceView(ViewHolder holder, Cursor c) {
-//        Location currentLocation = ((MainActivity) getContext()).getLocation();
+//        Location currentLocation = ((MainActivity) getContext()).findLocation();
 //        if (currentLocation != null) {
 //            String distText = Report.getDistanceText(currentLocation,
 //                    c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT)),

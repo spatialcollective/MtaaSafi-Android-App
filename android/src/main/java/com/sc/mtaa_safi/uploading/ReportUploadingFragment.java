@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 public class ReportUploadingFragment extends ListFragment
@@ -95,7 +96,7 @@ public class ReportUploadingFragment extends ListFragment
         @Override
         public boolean setViewValue(View view, Cursor cursor, int i) {
             if (view.getId() == R.id.uploadingTime)
-                ((TextView) view).setText(Report.getElapsedTime(cursor.getLong(i)));
+                ((TextView) view).setText(Utils.getElapsedTime(cursor.getLong(i)));
             else if (view.getId() == R.id.upload_row)
                 mAdapter.updateProgressView(cursor.getInt(i), view);
             else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))

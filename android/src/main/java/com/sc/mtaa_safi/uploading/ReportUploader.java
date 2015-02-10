@@ -11,7 +11,7 @@ import android.util.Log;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
@@ -33,12 +33,12 @@ import java.util.ArrayList;
 
 public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
 
-    Report pendingReport;
-    int screenW;
     Context mContext;
     ReportUploadingFragment mFragment;
-    public ArrayList<String> localMedia = new ArrayList<String>();
+    Report pendingReport;
+    int screenW;
 
+    public ArrayList<String> localMedia = new ArrayList<String>();
     int canceller = -1;
 
     public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1, NETWORK_ERROR = 2;
@@ -48,7 +48,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         mFragment = frag;
         pendingReport = report;
         localMedia = pendingReport.media;
-        screenW = PrefUtils.getPrefs(context).getObject(PrefUtils.SCREEN_WIDTH, Integer.class);
+        screenW = Utils.getScreenWidth(context);
     }
 
     @Override

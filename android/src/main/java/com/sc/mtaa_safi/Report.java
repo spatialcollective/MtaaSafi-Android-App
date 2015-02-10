@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.json.JSONArray;
@@ -95,7 +96,7 @@ public class Report {
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
         locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC));
         timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
-        timeElapsed = getElapsedTime(timeStamp);
+        timeElapsed = Utils.getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         if(userName.equals(""))
             userName = "Unknown user";
@@ -121,7 +122,7 @@ public class Report {
         locationDescript = jsonData.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
-        timeElapsed = getElapsedTime(this.timeStamp);
+        timeElapsed = Utils.getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
@@ -279,35 +280,6 @@ public class Report {
         } else
             distText = "here";
         return distText;
-    }
-
-    public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
-        long second = 1000,
-                minute = 60 * second,
-                hour = 60* minute,
-                day = 24 * hour,
-                week = 7 * day,
-                year = 365 * day;
-
-        if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL yy").format(date);
-        else if (timeElapsed > week)
-            return new SimpleDateFormat("dd LLL").format(date);
-        else if (timeElapsed > 1.5 * day)
-            return (long) Math.floor(timeElapsed/day) + " days";
-        else if (timeElapsed > day)
-            return "1 day";
-        else if (timeElapsed > hour)
-            return (long) Math.floor(timeElapsed/hour) + " hours";
-        else if (timeElapsed > minute)
-            return (long) Math.floor(timeElapsed/minute) + " min";
-        return "just now";
-    }
-
-    public static String getElapsedTime(long timestamp) {
-        if (timestamp != 0)
-            return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp, new Date(timestamp));
-        return "";
     }
 
     public byte[] getBytesForPic(int i) throws IOException {

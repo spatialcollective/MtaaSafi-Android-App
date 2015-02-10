@@ -26,6 +26,7 @@ public class NetworkUtils {
             return true;
         return false;
     }
+
     public static String convertInputStreamToString(InputStream inputStream) throws IOException {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         StringBuilder result = new StringBuilder(inputStream.available());
@@ -36,14 +37,13 @@ public class NetworkUtils {
         Log.e("Network Utils: Server Response: ", result.toString());
         return result.toString();
     }
-    public static JSONObject convertHttpResponseToJSON(HttpResponse response){
+
+    public static JSONObject convertHttpResponseToJSON(HttpResponse response) {
         try {
             String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
             Log.e("Network Utils: Server Response: ", responseString);
             return new JSONObject(responseString);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

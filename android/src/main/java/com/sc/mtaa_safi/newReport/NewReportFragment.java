@@ -1,6 +1,5 @@
 package com.sc.mtaa_safi.newReport;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -29,8 +28,7 @@ import android.widget.Toast;
 
 import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import java.io.File;
@@ -44,7 +42,6 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     public static final int REQUEST_IMAGE_CAPTURE = 1, MAX_PIC_COUNT = 3;
     public String detailsText = "", selectedAdmin = "", adminText = "";
     public long selectedAdminId;
-    private ComplexPreferences cp;
     public ArrayList<String> picPaths = new ArrayList<String>();
 
     @Override
@@ -64,7 +61,6 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         act.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
 
-        cp = PrefUtils.getPrefs(getActivity());
         updateDetailsView();
         updatePicPreviews();
         
@@ -136,7 +132,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     private Bitmap getThumbnail(String picPath) {
-        int thumbWidth = cp.getObject(PrefUtils.SCREEN_WIDTH, Integer.class)/3;
+        int thumbWidth = Utils.getScreenWidth(getActivity())/3;
         Bitmap bmp = BitmapFactory.decodeFile(picPath);
 
         int origWidth = bmp.getWidth();

@@ -14,7 +14,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +30,7 @@ import android.widget.Spinner;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 
@@ -57,7 +57,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
-        getActivity().setTitle("");
+        getActivity().setTitle(Utils.getSelectedAdminName(getActivity()));
 
         if (savedInstanceState != null) {
             index = savedInstanceState.getInt("index");
@@ -84,18 +84,26 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
             null, new String[]{ Contract.Admin.COLUMN_NAME }, new int[]{ R.id.place_name }, 0);
         drawerList.setAdapter(placeAdapter);
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
-
+        view.findViewById(R.id.nearby).setOnClickListener(new StaticItemClickListener());
         getLoaderManager().initLoader(PLACES_LOADER, null, this);
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView parent, View view, int pos, long id) {
+        @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
             Cursor c = (Cursor) placeAdapter.getItem(pos);
-            getActivity().setTitle(c.getString(c.getColumnIndex(Contract.Admin.COLUMN_NAME)));
+            setFeedLocation(c.getString(c.getColumnIndex(Contract.Admin.COLUMN_NAME)), id);
             c.close();
-            mDrawerLayout.closeDrawer(GravityCompat.END);
         }
+    }
+    private class StaticItemClickListener implements View.OnClickListener {
+        @Override public void onClick(View v) {
+            setFeedLocation(getResources().getString(R.string.nearby), -1);
+        }
+    }
+    public void setFeedLocation(String name, long id) {
+        Utils.saveSelectedAdmin(getActivity(), name, id);
+        getActivity().setTitle(name);
+        mDrawerLayout.closeDrawer(GravityCompat.END);
     }
 
     @Override

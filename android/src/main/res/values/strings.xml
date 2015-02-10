@@ -12,6 +12,7 @@
     <string name="refresh">Refresh</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="nearby">Nearby</string>
     <string name="title_report_detail">Report Details</string>
     <string name="title_new_report">New Report</string>
     <string name="new_photo">New Photo</string>
@@ -30,16 +31,8 @@
     <string name="app_id">903751569639797</string>
 
     <string-array name="feed_sort_choices">
-        <item>Recent</item>
-        <item>Up Voted</item>
-    </string-array>
-
-    <string-array name="dummy_places">
-        <item>Evergreen</item>
-        <item>Conifer</item>
-        <item>Boulder</item>
-        <item>Frisco</item>
-        <item>Idaho Springs</item>
+        <item>recently</item>
+        <item>most up-voted</item>
     </string-array>
 
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>
@@ -47,4 +40,5 @@
     <string name="base_write">http://app.spatialcollective.com/mtaasafi/add_post</string>
     <string name="send_comment">http://app.spatialcollective.com/mtaasafi/post_comment/</string>
     <string name="refresh_comment">http://app.spatialcollective.com/mtaasafi/get_comments/</string>
+    <string name="location_data">http://app.spatialcollective.com/mtaasafi/get_location_data/</string>
 </resources>

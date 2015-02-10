@@ -7,18 +7,16 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.sc.mtaa_safi.SystemUtils.LogTags;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 
 
 public class MtaaLocationService extends Service {
-    public Location mLocation;
+    public Location mLocation = null;
     LocationManager mLocationManager;
     private static final int TWO_MINUTES = 1000 * 60 * 2;
 
@@ -33,57 +31,56 @@ public class MtaaLocationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        Log.i("LocalService", "Received start id " + startId + ": " + intent);
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) { return mBinder; }
 
-    public Location getLocation() {
-//        Log.e("MtaaLocationService", "getting location");
+    public Location findLocation(Context context) {
+        Location l = null;
         if (mLocation != null)
-            return mLocation;
+            l = mLocation;
 
-        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-            return mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        //Log.e("MtaaLocationService", "got nothing");
-
-        return null;
+        if (l == null && mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+            l = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        return l;
     }
 
-    public boolean hasLocation() {
+    public boolean hasLocation(Context context) {
         if (mLocation != null)
             return true;
-        Toast.makeText(this, "No location detected", Toast.LENGTH_SHORT);
+
+        if (Utils.getLocation(context).getTime() != 0) {
+            mLocation = Utils.getLocation(context);
+            return true;
+        } else if (mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null)
+            return true;
         return false;
     }
 
 
     private void startLocationMgmt() {
-//        Log.e("MtaaLocationService", "managing location");
-        mLocation = null;
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
+        mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        final Context me = this;
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
-//                Log.e("MtaaLocationService", "location changed");
-                if (newLocationIsBetter(location))
+                if (newLocationIsBetter(location)) {
                     mLocation = location;
+                    Utils.saveLocation(me, location);
+                }
             }
             public void onStatusChanged(String provider, int status, Bundle extras) {}
             public void onProviderEnabled(String provider) {}
             public void onProviderDisabled(String provider) {}
         };
-        //mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, TWO_MINUTES, 10, locationListener);
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TWO_MINUTES, 10, locationListener);
     }
 
     private boolean newLocationIsBetter(Location location) {
-//        Log.e("MtaaLocationService", "got a new location");
         if (mLocation == null)
             return true;
-//        Log.e("MtaaLocationService", "old location was not null");
         long timeDelta = location.getTime() - mLocation.getTime();
         boolean isSignificantlyNewer = timeDelta > TWO_MINUTES;
         boolean isSignificantlyOlder = timeDelta < -TWO_MINUTES;
@@ -93,9 +90,7 @@ public class MtaaLocationService extends Service {
             return true;
         else if (isSignificantlyOlder)
             return false;
-//        Log.e("MtaaLocationService", "insignificant time difference");
 
-//        Log.e("MtaaLocationService", "Accuracy is: " + location.getAccuracy());
         int accuracyDelta = (int) (location.getAccuracy() - mLocation.getAccuracy());
         boolean isLessAccurate = accuracyDelta > 0;
         boolean isMoreAccurate = accuracyDelta < 0;
@@ -103,7 +98,6 @@ public class MtaaLocationService extends Service {
 
         boolean isFromSameProvider = isSameProvider(location.getProvider(),
                 mLocation.getProvider());
-//        Log.e("MtaaLocationService", "Provider is: " + location.getProvider());
 
         if (isMoreAccurate)
             return true;

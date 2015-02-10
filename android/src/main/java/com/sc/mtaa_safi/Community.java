@@ -2,13 +2,8 @@ package com.sc.mtaa_safi;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.OperationApplicationException;
-import android.database.Cursor;
 import android.os.RemoteException;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 
 import com.sc.mtaa_safi.database.Contract;
 
@@ -19,8 +14,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class Community {
-    public static String selectedAdmin;
-
     public static final String[] ADMIN_PROJECTION = new String[]{
             Contract.Admin._ID,
             Contract.Admin.COLUMN_NAME
@@ -66,8 +59,10 @@ public class Community {
     public static void updateDB(JSONArray placesArray, ContentResolver cr)
             throws RemoteException, OperationApplicationException, JSONException {
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
-        for (int i = 0; i < placesArray.length(); i++)
-            addContentProviderOp(placesArray.getJSONObject(i), batch, cr, i);
+        for (int i = 0; i < placesArray.length(); i++) {
+            JSONObject adminJSON = placesArray.getJSONObject(i);
+            addContentProviderOp(adminJSON, batch, cr, i);
+        }
         cr.applyBatch(Contract.CONTENT_AUTHORITY, batch);
         cr.notifyChange(Contract.Admin.ADMIN_URI, null, false);
     }

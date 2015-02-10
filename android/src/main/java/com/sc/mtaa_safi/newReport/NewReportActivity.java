@@ -11,14 +11,12 @@ import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.sc.mtaa_safi.MtaaLocationService;
-import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
-import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
@@ -26,14 +24,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class NewReportActivity extends ActionBarActivity {
-    private ComplexPreferences cp;
     public final static String NEW_REPORT_TAG = "newreport";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreFragment(savedInstanceState);
-        cp = PrefUtils.getPrefs(this);
     }
 
     private void restoreFragment(Bundle savedInstanceState){
@@ -53,7 +49,6 @@ public class NewReportActivity extends ActionBarActivity {
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
-//            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
         }
         public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
     };
@@ -73,7 +68,7 @@ public class NewReportActivity extends ActionBarActivity {
     }
 
     public Location getLocation() {
-        return mBoundService.getLocation();
+        return mBoundService.findLocation(this);
     }
 
     @Override
@@ -85,18 +80,19 @@ public class NewReportActivity extends ActionBarActivity {
     }
 
     public void attemptSave(View view) {
-        Log.e("New Report Activity", "attempting save");
         try {
-            if (mBoundService.hasLocation()) {
+            if (mBoundService.hasLocation(this)) {
                 saveNewReport((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG));
                 finish();
+            } else {
+                Toast.makeText(this, "Still retrieving location...", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {}
     }
 
     public void attemptBeamOut(View view) {
         try {
-            if (mBoundService.hasLocation()) {
+            if (mBoundService.hasLocation(this)) {
                 NewReportFragment nrf = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
                 Uri newReportUri = saveNewReport(nrf);
                 Intent intent = new Intent();
@@ -104,6 +100,8 @@ public class NewReportActivity extends ActionBarActivity {
                 intent.setData(newReportUri);
                 startActivity(intent);
                 finish();
+            } else {
+                Toast.makeText(this, "Still retrieving location...", Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {}
     }
@@ -116,8 +114,7 @@ public class NewReportActivity extends ActionBarActivity {
         } else
             locationJSON.put("admin", frag.adminText);
 
-        Report newReport = new Report(frag.detailsText, cp.getString(PrefUtils.USERNAME, ""), getLocation(), frag.picPaths, locationJSON.toString());
-        Log.e("New Report Activity", "inserting");
+        Report newReport = new Report(frag.detailsText, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 

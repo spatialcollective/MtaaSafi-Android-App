@@ -58,7 +58,6 @@ public class VoteButton extends CompoundButton {
     private class MyListener implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton view, boolean isChecked) {
-            Log.e("Vote btn", "checked state is: " + isChecked);
             if (enabled && isChecked) {
                 enabled = false;
                 int voteCount = Integer.parseInt(getText().toString()) + 1;
@@ -77,7 +76,6 @@ public class VoteButton extends CompoundButton {
 
     public void setCheckedState(boolean upvoted, int upvoteCount, ArrayList<Integer> upvoteList) {
         this.enabled = !upvoted;
-        Log.e("Vote btn", "setting to on: " + enabled);
         if (upvoteList != null && !upvoteList.isEmpty() && upvoteList.contains(this.mServerId) && this.enabled) {
             setToUp(upvoteCount + 1);
             this.enabled = false;

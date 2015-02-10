@@ -17,8 +17,7 @@ public class SyncUtils {
     public static void CreateSyncAccount(Context context) {
         Log.i("SyncUtils", "creating account");
         boolean newAccount = false;
-        boolean setupComplete = PreferenceManager
-                .getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
+        boolean setupComplete = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
 
         // Create account, if it's missing. (Either first run, or user has deleted account.)
         Account account = AuthenticatorService.GetAccount();
@@ -31,8 +30,7 @@ public class SyncUtils {
            ContentResolver.setSyncAutomatically(account, CONTENT_AUTHORITY, true);
            // Recommend a schedule for automatic synchronization. The system may modify this based
            // on other scheduled syncs and network utilization.
-           ContentResolver.addPeriodicSync(
-                   account, CONTENT_AUTHORITY, new Bundle(),SYNC_FREQUENCY);
+           ContentResolver.addPeriodicSync(account, CONTENT_AUTHORITY, new Bundle(), SYNC_FREQUENCY);
            newAccount = true;
        }
 

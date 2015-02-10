@@ -98,6 +98,17 @@
             android:paddingEnd="16dp"
             android:paddingRight="16dp" />
 
+        <TextView android:id="@+id/nearby"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/nearby"
+            android:textSize="14sp"
+            android:textColor="@color/textDark"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingEnd="16dp"
+            android:paddingRight="16dp" />
+
         <ListView android:id="@+id/location_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

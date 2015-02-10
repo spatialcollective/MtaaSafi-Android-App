@@ -1,6 +1,5 @@
 package com.sc.mtaa_safi.feed;
 
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,10 +28,8 @@ import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
-import com.sc.mtaa_safi.SystemUtils.ComplexPreferences;
-import com.sc.mtaa_safi.SystemUtils.LogTags;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.PrefUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
@@ -45,22 +42,18 @@ public class MainActivity extends ActionBarActivity implements
 
     ReportDetailFragment detailFragment;
     NewsFeedFragment newsFeedFrag;
-    ComplexPreferences cp;
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", ONBOARD_TAG= "onboard";
 
     private MtaaLocationService mBoundService;
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
-            mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
-            getLocation();
-            //Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
+            mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
         }
         public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
     };
 
     void bindLocationService() {
-        Log.e("MainActivity", "binding to location");
         bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
 
@@ -70,7 +63,6 @@ public class MainActivity extends ActionBarActivity implements
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         restoreFragment(savedInstanceState);
-        cp = PrefUtils.getPrefs(this);
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
@@ -117,10 +109,8 @@ public class MainActivity extends ActionBarActivity implements
         supportInvalidateOptionsMenu();
         bindLocationService();
         GPSstatus();
-        determineUsername();
-        Log.e(LogTags.MAIN_ACTIVITY, "onStart");
-        cp.putObject(PrefUtils.SCREEN_WIDTH, getScreenWidth());
-        cp.commit();
+        pickUserAccount();
+        Utils.saveScreenWidth(this, getScreenWidth());
         setUpWeirdGPlayStuff();
     }
     @Override
@@ -143,10 +133,8 @@ public class MainActivity extends ActionBarActivity implements
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
-        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT){
-            saveUserName(data);
-            goToOnboarding();
-        }
+        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
+            Utils.saveUserName(this, data);
     }
 
     @Override
@@ -186,22 +174,12 @@ public class MainActivity extends ActionBarActivity implements
             }
         }
     }
-
-    private void determineUsername() {
-        String savedUserName = cp.getString(PrefUtils.USERNAME, "");
-        if (savedUserName == null || savedUserName.equals(""))
-            pickUserAccount();
-    }
-
     private void pickUserAccount() {
-        String[] accountTypes = new String[]{"com.google"};
-        Intent intent = AccountPicker.newChooseAccountIntent(null, null, accountTypes, false, null, null, null, null);
-        startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
-    }
-
-    private void saveUserName(Intent data) {
-        cp.putString(PrefUtils.USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
-        cp.commit();
+        if (Utils.getUserName(this).isEmpty()) {
+            String[] accountTypes = new String[] {"com.google"};
+            Intent intent = AccountPicker.newChooseAccountIntent(null, null, accountTypes, false, null, null, null, null);
+            startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
+        }
     }
 
     public void uploadSavedReports() {
@@ -212,7 +190,7 @@ public class MainActivity extends ActionBarActivity implements
     public int getScreenWidth() { return getWindowManager().getDefaultDisplay().getWidth(); }
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
-    public Location getLocation() { return mBoundService.getLocation(); }
+    public Location getLocation() { return mBoundService.findLocation(this); }
     private void onLocationDisabled() {
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
@@ -220,15 +198,13 @@ public class MainActivity extends ActionBarActivity implements
     @Override
     public void onRefresh() {
         Location loc = getLocation();
-        if (NetworkUtils.isOnline(this) && loc != null) {
-            cp.putObject(PrefUtils.LOCATION, loc);
-            cp.commit();
-            SyncUtils.TriggerRefresh();
+        if (loc != null) {
+            Utils.saveLocation(this, loc);
+            if (NetworkUtils.isOnline(this))
+                SyncUtils.TriggerRefresh();
         } else
             ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
                     .refreshFailed();
-        /*if (loc == null)
-            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());*/
     }
 
     @Override
