@@ -17,17 +17,10 @@ import android.util.Log;
 import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
+import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +40,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        mContentResolver = context.getContentResolver();
         mContext = context;
     }
 
@@ -61,9 +53,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void updatePlaces(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
         Location cachedLocation = Utils.getLocation(mContext);
+        Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.location_data));
         if (cachedLocation != null) {
-            String responseString = makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
-            Community.addCommunities(new JSONObject(responseString), mContentResolver);
+            JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+            Community.addCommunities(responseJson, provider);
         }
     }
 
@@ -71,8 +64,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Location cachedLocation = Utils.getLocation(mContext);
         Log.e(TAG, "cachedLocation: " + cachedLocation);
         if (cachedLocation != null) {
-            String responseString = makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
-            JSONObject responseJSON = new JSONObject(responseString);
+            JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
             ArrayList serverIds = new ArrayList();
             JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
             for (int i = 0; i < serverIdsJSON.length(); i++)
@@ -136,15 +128,12 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                 fetchRequest.accumulate("ids", serverIds.get(i));
             fetchRequest = addNewUpvotes(fetchRequest, provider);
             Log.i("FETCH_REQUEST", fetchRequest.toString());
-            String responseString = makeRequest(fetchReportsURL, "post", fetchRequest);
-            Log.e("Server response:", responseString);
-            return new JSONObject(responseString);
+            return NetworkUtils.makeRequest(fetchReportsURL, "post", fetchRequest);
         }
         return null;
     }
 
     private JSONObject addNewUpvotes(JSONObject fetchRequest, ContentProviderClient provider) throws RemoteException, OperationApplicationException, JSONException {
-        String userName = PrefUtils.getPrefs(getContext()).getString(PrefUtils.USERNAME, "");
         JSONObject upvoteData = new JSONObject().put("username", Utils.getUserName(mContext));
         upvoteData.put("ids", new JSONArray());
 
@@ -156,24 +145,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return fetchRequest;
     }
 
-    private String makeRequest(String url, String type, JSONObject entity) throws IOException {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpRequestBase httpRequest;
-        if (type == "post") {
-            httpRequest = new HttpPost(url);
-            ((HttpPost) httpRequest).setEntity(new StringEntity(entity.toString()));
-        } else
-            httpRequest = new HttpGet(url);
-        httpRequest.setHeader("Accept", "application/json");
-        httpRequest.setHeader("Content-type", "application/json");
-        HttpResponse response = httpClient.execute(httpRequest);
-        if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
-        return EntityUtils.toString(response.getEntity(), "UTF-8");
-    }
-
     private void syncFromServer(ContentProviderClient provider, SyncResult syncResult) {
         try {
-            Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.feed));
             updatePlaces(provider);
             ArrayList serverIds = getServerIds();
             if (serverIds != null)
@@ -205,6 +178,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             syncResult.databaseError = true;
             return;
         } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         Log.i(TAG, "Network synchronization complete");

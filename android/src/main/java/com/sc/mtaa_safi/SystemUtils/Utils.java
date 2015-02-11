@@ -68,23 +68,13 @@ public class Utils {
         editor.commit();
     }
 
-    public static String getSimpleTimeStamp(long timestamp) {
-        Log.e("GetSimpleTimeStamp", "Time stamp: " + timestamp);
-        return new SimpleDateFormat("H:mm:ss dd-MM-yyyy")
-                .format(new java.util.Date(timestamp));
-    }
-
     public static String getElapsedTime(Long timestamp) {
         return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp, new Date(timestamp));
     }
 
     public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
-        long second = 1000,
-                minute = 60 * second,
-                hour = 60* minute,
-                day = 24 * hour,
-                week = 7 * day,
-                year = 365 * day;
+        long second = 1000, minute = 60 * second, hour = 60 * minute,
+                day = 24 * hour, week = 7 * day, year = 365 * day;
 
         if (timeElapsed > year)
             return new SimpleDateFormat("dd LLL' '''yy").format(date);

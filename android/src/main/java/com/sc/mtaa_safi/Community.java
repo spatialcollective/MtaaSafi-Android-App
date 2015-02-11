@@ -39,22 +39,11 @@ public class Community {
 
     public static void addCommunities(JSONObject serverJSON, ContentProviderClient cr)
             throws JSONException, RemoteException, OperationApplicationException {
-        JSONArray placesArray = serverJSON.getJSONArray(Contract.Admin.TABLE_NAME);
-
-        if (placesArray != null)
-            updateDB(placesArray, cr);
-
-//        Cursor c = cr.query(Contract.Admin.ADMIN_URI, Community.ADMIN_PROJECTION,
-//                null, null, null);
-//        while (c.moveToNext()) {
-//            Log.i("Admin area",c.getString(c.getColumnIndexOrThrow("admin")));
-//            Cursor cc = cr.query(Contract.Landmark.LANDMARK_URI, Community.LANDMARK_PROJECTION, Contract.Landmark.COLUMN_FK_ADMIN + " = " + c.getInt(c.getColumnIndexOrThrow(Contract.Landmark._ID)), null, null);
-//            while (cc.moveToNext()){
-//                Log.i("Landmark: ", cc.getString(cc.getColumnIndexOrThrow("landmark")));
-//            }
-//            cc.close();
-//        }
-//        c.close();
+        if (serverJSON != null) {
+            JSONArray placesArray = serverJSON.getJSONArray(Contract.Admin.TABLE_NAME);
+            if (placesArray != null)
+                updateDB(placesArray, cr);
+        }
     }
 
     public static void updateDB(JSONArray placesArray, ContentProviderClient cr)
