@@ -51,7 +51,7 @@ public class Community {
         ArrayList<ContentProviderOperation> batch = new ArrayList<>();
         for (int i = 0; i < placesArray.length(); i++)
             addContentProviderOp(placesArray.getJSONObject(i), batch, cr, i);
-        cr.applyBatch( batch);
+        cr.applyBatch(batch);
     //    cr.notifyChange(Contract.Admin.ADMIN_URI, null, false);
     }
 

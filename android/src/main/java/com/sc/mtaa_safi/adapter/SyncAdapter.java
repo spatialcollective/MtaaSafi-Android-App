@@ -119,7 +119,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, ContentProviderClient provider, SyncResult syncResult)
             throws RemoteException, OperationApplicationException, JSONException {
         if (serverResponse == null)
-            return; // TODO: add error statement
+            return;
         JSONArray reportsArray = serverResponse.getJSONArray("reports");
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
@@ -135,8 +135,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONObject getNewReportsFromServer(ArrayList serverIds, ContentProviderClient provider) throws
             IOException, JSONException, OperationApplicationException, RemoteException {
-        String fetchReportsURL = this.getContext().getString(R.string.feed_details) + Utils.getScreenWidth(mContext) + "/";
-        if (!Utils.getUserName(mContext).isEmpty()) {
+        if (!Utils.getUserName(mContext).isEmpty() && !serverIds.isEmpty()) {
+            String fetchReportsURL = this.getContext().getString(R.string.feed_details) + Utils.getScreenWidth(mContext) + "/";
             JSONObject fetchRequest = new JSONObject().put("username", Utils.getUserName(mContext))
                                                       .put("ids", new JSONArray());
             for (int i=0; i < serverIds.size(); i++)

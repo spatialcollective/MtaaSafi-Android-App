@@ -103,6 +103,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     }
     public void setFeedLocation(String name, long id) {
         Utils.saveSelectedAdmin(getActivity(), name, id);
+        ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
         getActivity().setTitle(name);
         mDrawerLayout.closeDrawer(GravityCompat.END);
         if (NetworkUtils.isOnline(getActivity()))
@@ -145,7 +146,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
 
     public void refreshFailed(){
         View view = getView();
-        if(view != null){
+        if (view != null) {
             ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(false);
             final LinearLayout refreshFailed = (LinearLayout) view.findViewById(R.id.refresh_failed_bar);
             Animation out = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_top);

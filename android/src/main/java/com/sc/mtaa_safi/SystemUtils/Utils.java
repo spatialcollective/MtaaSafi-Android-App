@@ -31,8 +31,8 @@ public class Utils {
     }
     public static Location getLocation(Context context) {
         Location loc = new Location(LocationManager.GPS_PROVIDER);
-        loc.setLatitude(getSharedPrefs(context).getLong(LAT, 0));
-        loc.setLongitude(getSharedPrefs(context).getLong(LNG, 0));
+        loc.setLatitude(getSharedPrefs(context).getFloat(LAT, 0));
+        loc.setLongitude(getSharedPrefs(context).getFloat(LNG, 0));
         loc.setTime(getSharedPrefs(context).getLong(LOCATION_TIMESTAMP, 0));
         return loc;
     }
@@ -54,10 +54,9 @@ public class Utils {
         editor.commit();
     }
     public static void saveLocation(Context context, Location loc) {
-        Log.e("Utils", "saving location");
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
-        editor.putLong(LNG, (long) loc.getLongitude());
-        editor.putLong(LAT, (long) loc.getLatitude());
+        editor.putFloat(LNG, (float) loc.getLongitude());
+        editor.putFloat(LAT, (float) loc.getLatitude());
         editor.putLong(LOCATION_TIMESTAMP, loc.getTime());
         editor.commit();
     }

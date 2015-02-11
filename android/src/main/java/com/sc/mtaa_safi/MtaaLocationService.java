@@ -10,7 +10,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.sc.mtaa_safi.SystemUtils.Utils;
 
@@ -51,6 +50,7 @@ public class MtaaLocationService extends Service {
         if (mLocation != null)
             return true;
 
+        Log.e("Mtaa Location Service", "Saved Location time: " + Utils.getLocation(context).getTime());
         if (Utils.getLocation(context).getTime() != 0) {
             mLocation = Utils.getLocation(context);
             return true;
@@ -58,7 +58,6 @@ public class MtaaLocationService extends Service {
             return true;
         return false;
     }
-
 
     private void startLocationMgmt() {
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
