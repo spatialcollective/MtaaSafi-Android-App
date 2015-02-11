@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.feed;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
@@ -96,21 +97,20 @@ public class NewsFeedFragment extends Fragment implements
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
-            setFeedLocation( (String) ((TextView)view).getText(), id);
+            setFeedToLocation((String) ((TextView) view).getText(), id);
         }
     }
     private class StaticItemClickListener implements View.OnClickListener {
         @Override public void onClick(View v) {
-            setFeedLocation(getResources().getString(R.string.nearby), -1);
+            setFeedToLocation(getResources().getString(R.string.nearby), -1);
         }
     }
-    public void setFeedLocation(String name, long id) {
+    public void setFeedToLocation(String name, long id) {
         Utils.saveSelectedAdmin(getActivity(), name, id);
         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
         getActivity().setTitle(name);
         mDrawerLayout.closeDrawer(GravityCompat.END);
-        if (NetworkUtils.isOnline(getActivity()))
-            SyncUtils.TriggerRefresh();
+        attemptRefresh(getActivity());
     }
 
     @Override
@@ -153,16 +153,23 @@ public class NewsFeedFragment extends Fragment implements
         Location loc = ((MainActivity) act).getLocation();
         if (loc != null) {
             Utils.saveLocation(act, loc);
-            if (NetworkUtils.isOnline(act))
-                SyncUtils.TriggerRefresh();
-                if (getView() != null) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override public void run() {
-                            ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
-                        }
-                    }, 2000); }
+            attemptRefresh(act);
         } else
             refreshFailed();
+    }
+
+    private void attemptRefresh(Context c) {
+        if (NetworkUtils.isOnline(c)) {
+            SyncUtils.TriggerRefresh();
+            if (getView() != null) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
+                    }
+                }, 2000);
+            }
+        }
     }
 
     public void refreshFailed(){
