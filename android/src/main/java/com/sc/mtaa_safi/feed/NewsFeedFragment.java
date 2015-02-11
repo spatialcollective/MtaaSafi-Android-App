@@ -30,6 +30,7 @@ import android.widget.Spinner;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
+import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
@@ -104,6 +105,8 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         Utils.saveSelectedAdmin(getActivity(), name, id);
         getActivity().setTitle(name);
         mDrawerLayout.closeDrawer(GravityCompat.END);
+        if (NetworkUtils.isOnline(getActivity()))
+            SyncUtils.TriggerRefresh();
     }
 
     @Override
@@ -211,7 +214,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
     public void sortFeed(String sorting) {
         if (sorting != sortOrder) {
             sortOrder = sorting;
-            getLoaderManager().restartLoader(0, null, this);
+            getLoaderManager().restartLoader(FEED_LOADER, null, this);
         }
     }
     private class SortListener implements AdapterView.OnItemSelectedListener {

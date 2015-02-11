@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -21,7 +22,7 @@ import android.widget.EditText;
 import com.sc.mtaa_safi.R;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
-public class SafiEditText extends EditText{
+public class SafiEditText extends EditText {
     public static final int FLOATING_LABEL_NONE = 0;
     public static final int FLOATING_LABEL_NORMAL = 1;
     public static final int FLOATING_LABEL_HIGHLIGHT = 2;
@@ -29,6 +30,7 @@ public class SafiEditText extends EditText{
     private float floatingLabelFraction;
     private boolean floatingLabelShown;
     private float focusFraction;
+    private int mHasFloatingLabel = 1;
 
     private ArgbEvaluator focusEvaluator = new ArgbEvaluator();
     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -38,26 +40,26 @@ public class SafiEditText extends EditText{
     OnFocusChangeListener outerFocusChangeListener;
 
     public SafiEditText(Context context) { super(context); }
-    public SafiEditText(Context context, AttributeSet attrs) { super(context, attrs); }
-
+    public SafiEditText(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        initialize(context, attrs);
+    }
     public SafiEditText(Context context, AttributeSet attrs, int style) {
         super(context, attrs, style);
+        initialize(context, attrs);
+    }
 
+    private void initialize(Context context, AttributeSet attrs) {
         setFocusable(true);
         setFocusableInTouchMode(true);
         setClickable(true);
 
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.DescriptionEditText);
-        setTextColor(getResources().getColor(R.color.Blue));
-        typedArray.recycle();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            setBackground(null);
-        } else {
-            setBackgroundDrawable(null);
+        try {
+            mHasFloatingLabel = typedArray.getInteger(R.styleable.DescriptionEditText_floatingLabel, 0);
+        } finally {
+            typedArray.recycle();
         }
-
-        setPadding(getPaddingLeft(), getPaddingTop() + 20, getPaddingRight(), getPaddingBottom() + 28);
         initText();
         initFloatingLabel();
     }
@@ -65,13 +67,12 @@ public class SafiEditText extends EditText{
     private void initText() {
         if (!TextUtils.isEmpty(getText())) {
             CharSequence text = getText();
-            setText(null);
-            setHintTextColor(getResources().getColor(R.color.Blue));
+//            setText(null);
             setText(text);
             floatingLabelFraction = 1;
             floatingLabelShown = true;
         } else {
-            setHintTextColor(getResources().getColor(R.color.Violet));
+//            setHintTextColor(getResources().getColor(R.color.Violet));
             floatingLabelFraction = 0;
             floatingLabelShown = false;
         }
@@ -85,14 +86,9 @@ public class SafiEditText extends EditText{
     }
 
     private void initFloatingLabel() {
-            // observe the text changing
         addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() == 0) {
@@ -136,23 +132,20 @@ public class SafiEditText extends EditText{
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         paint.setTextSize(20);
-        paint.setColor(getResources().getColor(R.color.Gray));
+        paint.setColor(getResources().getColor(R.color.mediumGrey));
 
         int spacing = 8, textHeight = 20;
-        // draw the floating label
-        if (!TextUtils.isEmpty(getHint()) && !TextUtils.isEmpty(getText())) {
+        if (mHasFloatingLabel != 0 && !TextUtils.isEmpty(getHint()) && !TextUtils.isEmpty(getText())) {
             // calculate the vertical position
             int start = textHeight;
             int position = (int) (start - spacing * floatingLabelFraction);
 
-            // calculate the alpha
             int alpha = (int) (floatingLabelFraction * 0xff * (0.74f * focusFraction + 0.26f));
 //            paint.setAlpha(alpha);
 
             // draw the floating label
-            canvas.drawText(getHint().toString(), getPaddingLeft() + getScrollX(), position, paint); //getHint().toString()
+            canvas.drawText(getHint().toString(), getPaddingLeft() + getScrollX(), position, paint);
         }
-        // draw the original things
         super.onDraw(canvas);
     }
 

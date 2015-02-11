@@ -61,17 +61,32 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private ArrayList getServerIds() throws IOException, JSONException {
+        if (Utils.getSelectedAdminId(mContext) == -1)
+            return getIdsForCoords();
+        else
+            return getIdsForAdmin();
+    }
+
+    private ArrayList getIdsForCoords() throws IOException, JSONException {
         Location cachedLocation = Utils.getLocation(mContext);
         Log.e(TAG, "cachedLocation: " + cachedLocation);
+        ArrayList serverIds = new ArrayList();
         if (cachedLocation != null) {
             JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
-            ArrayList serverIds = new ArrayList();
             JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
             for (int i = 0; i < serverIdsJSON.length(); i++)
                 serverIds.add(serverIdsJSON.getInt(i));
-            return serverIds;
         }
-        return null;
+        return serverIds;
+    }
+
+    private ArrayList getIdsForAdmin() throws IOException, JSONException {
+        JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + Utils.getSelectedAdminId(mContext) + "/", "get", null);
+        ArrayList serverIds = new ArrayList();
+        JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
+        for (int i = 0; i < serverIdsJSON.length(); i++)
+            serverIds.add(serverIdsJSON.getInt(i));
+        return serverIds;
     }
 
     public void updateLocalFeedData(ArrayList serverIds, ContentProviderClient provider, final SyncResult syncResult)
@@ -120,7 +135,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONObject getNewReportsFromServer(ArrayList serverIds, ContentProviderClient provider) throws
             IOException, JSONException, OperationApplicationException, RemoteException {
-        String fetchReportsURL = this.getContext().getString(R.string.feed) + Utils.getScreenWidth(mContext) + "/";
+        String fetchReportsURL = this.getContext().getString(R.string.feed_details) + Utils.getScreenWidth(mContext) + "/";
         if (!Utils.getUserName(mContext).isEmpty()) {
             JSONObject fetchRequest = new JSONObject().put("username", Utils.getUserName(mContext))
                                                       .put("ids", new JSONArray());

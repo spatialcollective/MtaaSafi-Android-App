@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.sc.mtaa_safi.feed.comments.NewCommentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:id="@+id/new_comment_bar"
     android:orientation="horizontal"
     android:layout_width="match_parent"
@@ -7,6 +8,7 @@
 
     <com.sc.mtaa_safi.newReport.SafiEditText
         android:id="@+id/commentEditText"
+        custom:floatingLabel="none"
         android:hint="Add Comment"
         android:textColorHighlight="@color/Coral"
         android:layout_width="wrap_content"
@@ -15,7 +17,7 @@
         android:imeOptions="actionDone"
         android:background="@drawable/safi_text_background"
         android:paddingBottom="8dp"
-        android:paddingTop="8dp" />
+        android:paddingTop="16dp" />
 
     <Button android:id="@+id/sendComment"
             android:text="Send"

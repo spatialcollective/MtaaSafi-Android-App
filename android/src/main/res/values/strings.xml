@@ -37,6 +37,7 @@
 
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>
     <string name="feed">http://app.spatialcollective.com/mtaasafi/fetch_reports/</string>
+    <string name="feed_details">http://app.spatialcollective.com/mtaasafi/fetch_report_details/</string>
     <string name="base_write">http://app.spatialcollective.com/mtaasafi/add_post</string>
     <string name="send_comment">http://app.spatialcollective.com/mtaasafi/post_comment/</string>
     <string name="refresh_comment">http://app.spatialcollective.com/mtaasafi/get_comments/</string>
