@@ -64,7 +64,7 @@ public class Community {
                     .withValue(Contract.Admin._ID, adminJSON.getInt("adminId"))
                     .withValue(Contract.Admin.COLUMN_NAME, adminJSON.getString(Contract.Admin.COLUMN_NAME))
                     .build());
-            addLandmarks(adminJSON, batch, index);
+//            addLandmarks(adminJSON, batch, index);
         }
     }
 

@@ -62,7 +62,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             try {
                 aq.id(holder.mLeadImage).image(getThumbnail(imagesJson.get(0)));
             } catch (Exception ex) { }
-        }
+        } catch (Exception ex) { }
         setDistanceView(holder, c);
         addClick(holder, c);
     }

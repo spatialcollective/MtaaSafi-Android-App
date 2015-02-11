@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
@@ -82,7 +83,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         ListView drawerList = (ListView) view.findViewById(R.id.location_list);
         placeAdapter = new SimpleCursorAdapter(getActivity(), R.layout.drawer_list_item, 
-            null, new String[]{ Contract.Admin.COLUMN_NAME }, new int[]{ R.id.place_name }, 0);
+            null, new String[] { Contract.Admin.COLUMN_NAME }, new int[] { R.id.place_name }, 0);
         drawerList.setAdapter(placeAdapter);
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
         view.findViewById(R.id.nearby).setOnClickListener(new StaticItemClickListener());
@@ -91,9 +92,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
-            Cursor c = (Cursor) placeAdapter.getItem(pos);
-            setFeedLocation(c.getString(c.getColumnIndex(Contract.Admin.COLUMN_NAME)), id);
-            c.close();
+            setFeedLocation( (String) ((TextView)view).getText(), id);
         }
     }
     private class StaticItemClickListener implements View.OnClickListener {
@@ -171,7 +170,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         if (id == PLACES_LOADER)
             return new CursorLoader(getActivity(), Contract.Admin.ADMIN_URI,
                     new String[] { Contract.Admin.COLUMN_SERVER_ID, Contract.Admin.COLUMN_NAME },
-                    null, null, Contract.Admin.COLUMN_NAME + " DESC");
+                    null, null, Contract.Admin.COLUMN_NAME + " ASC");
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
                 Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0, null, sortOrder);
     }
