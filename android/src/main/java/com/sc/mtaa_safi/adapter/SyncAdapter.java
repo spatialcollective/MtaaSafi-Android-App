@@ -97,8 +97,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         String[] projection = {Contract.Entry.COLUMN_ID, Contract.Entry.COLUMN_SERVER_ID};
         Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection,
                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
-
-        assert c != null;
         while (c.moveToNext()) {
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
             if (!serverIds.contains(serverId)) {
@@ -118,6 +116,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, ContentProviderClient provider, SyncResult syncResult)
             throws RemoteException, OperationApplicationException, JSONException {
+
         if (serverResponse == null)
             return;
         JSONArray reportsArray = serverResponse.getJSONArray("reports");
@@ -135,6 +134,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private JSONObject getNewReportsFromServer(ArrayList serverIds, ContentProviderClient provider) throws
             IOException, JSONException, OperationApplicationException, RemoteException {
+
         if (!Utils.getUserName(mContext).isEmpty() && !serverIds.isEmpty()) {
             String fetchReportsURL = this.getContext().getString(R.string.feed_details) + Utils.getScreenWidth(mContext) + "/";
             JSONObject fetchRequest = new JSONObject().put("username", Utils.getUserName(mContext))
@@ -197,6 +197,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i(TAG, "Network synchronization complete");
+        Log.e(TAG, "Network synchronization complete");
     }
 }

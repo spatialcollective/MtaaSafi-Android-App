@@ -2,7 +2,9 @@ package com.sc.mtaa_safi.feed;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -14,6 +16,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,7 +39,8 @@ import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 
-public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class NewsFeedFragment extends Fragment implements
+        LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener  {
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -70,7 +74,7 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         createToolbar(view);
 
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-        refreshLayout.setOnRefreshListener((MainActivity) getActivity());
+        refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeResources(R.color.Coral, R.color.mtaa_safi_blue);
         return view;
     }
@@ -143,6 +147,24 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         SyncUtils.CreateSyncAccount(activity);
     }
 
+    @Override
+    public void onRefresh() {
+        Activity act = getActivity();
+        Location loc = ((MainActivity) act).getLocation();
+        if (loc != null) {
+            Utils.saveLocation(act, loc);
+            if (NetworkUtils.isOnline(act))
+                SyncUtils.TriggerRefresh();
+                if (getView() != null) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override public void run() {
+                            ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
+                        }
+                    }, 2000); }
+        } else
+            refreshFailed();
+    }
+
     public void refreshFailed(){
         View view = getView();
         if (view != null) {
@@ -185,9 +207,8 @@ public class NewsFeedFragment extends Fragment implements LoaderManager.LoaderCa
         ((FeedAdapter) mAdapter).swapCursor(cursor);
         View view = getView();
         if (view != null) {
+            Log.e("News feed", "Has view");
             SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
-//            if (refreshLayout.isRefreshing()) // refresh --> content displayed chronologically
-//                ((Spinner) v.findViewById(R.id.feed_sorter)).setSelection(0);
             refreshLayout.setRefreshing(false);
             if (cursor.getCount() == 0)
                 view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);

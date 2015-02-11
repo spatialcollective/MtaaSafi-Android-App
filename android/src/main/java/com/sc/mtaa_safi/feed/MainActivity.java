@@ -37,8 +37,7 @@ import com.sc.mtaa_safi.uploading.UploadingActivity;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends ActionBarActivity implements
-        AlertDialogFragment.AlertDialogListener,
-        SwipeRefreshLayout.OnRefreshListener {
+        AlertDialogFragment.AlertDialogListener {
 
     ReportDetailFragment detailFragment;
     NewsFeedFragment newsFeedFrag;
@@ -193,18 +192,6 @@ public class MainActivity extends ActionBarActivity implements
     public Location getLocation() { return mBoundService.findLocation(this); }
     private void onLocationDisabled() {
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
-    }
-
-    @Override
-    public void onRefresh() {
-        Location loc = getLocation();
-        if (loc != null) {
-            Utils.saveLocation(this, loc);
-            if (NetworkUtils.isOnline(this))
-                SyncUtils.TriggerRefresh();
-        } else
-            ((NewsFeedFragment) getSupportFragmentManager().findFragmentByTag(NEWSFEED_TAG))
-                    .refreshFailed();
     }
 
     @Override
