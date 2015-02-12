@@ -2,10 +2,12 @@ package com.sc.mtaa_safi.uploading;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,20 +16,19 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageButton;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
-public class ReportUploadingFragment extends ListFragment
+public class ReportUploadingFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private UploadingAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
     ReportUploader uploader;
-    SimpleUploadingCursorAdapter mAdapter;
 
     public static final int SHOW_CANCEL = 0, SHOW_RETRY = 1, HIDE_CANCEL = -1;
     private int pendingReportCount = -1, 
@@ -36,16 +37,6 @@ public class ReportUploadingFragment extends ListFragment
                 inProgressIndex = 1; // human readable index (starts at 1)
     private String mText = "Uploading...";
 
-    public String[] LIST_FROM_COLUMNS = new String[] {
-        Contract.Entry.COLUMN_CONTENT,
-        Contract.Entry.COLUMN_TIMESTAMP,
-        Contract.Entry.COLUMN_PENDINGFLAG
-    };
-    private static final int[] LIST_TO_FIELDS = new int[] {
-        R.id.uploadingContent,
-        R.id.uploadingTime,
-        R.id.upload_row,
-    };
     public ReportUploadingFragment() {}
 
     @Override
@@ -57,12 +48,25 @@ public class ReportUploadingFragment extends ListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         super.onCreateView(inflater, container, savedState);
-        return inflater.inflate(R.layout.upload_list, container, false);
+        return inflater.inflate(R.layout.fragment_upload, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedState) {
         super.onViewCreated(view, savedState);
+        createToolbar(view);
+
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.upload_list);
+        // recyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new UploadingAdapter(getActivity(), null);
+        recyclerView.setAdapter(mAdapter);
+        getLoaderManager().initLoader(0, null, this);
+    }
+
+    private void createToolbar(View view) {
         UploadingActivity act = (UploadingActivity) getActivity();
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.upload_toolbar);
         act.setSupportActionBar(toolbar);
@@ -70,13 +74,7 @@ public class ReportUploadingFragment extends ListFragment
         act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_back);
         changeHeader(mText, mColor, mBtnState);
 
-        mAdapter = new SimpleUploadingCursorAdapter(getActivity(), R.layout.upload_item_v2,
-                null, LIST_FROM_COLUMNS, LIST_TO_FIELDS, 0);
-        mAdapter.setViewBinder(new CustomViewBinder());
-        Log.e("Binder", "ViewBinderNull: " + (mAdapter.getViewBinder() == null));
-        setListAdapter(mAdapter);
-        getLoaderManager().initLoader(0, null, this);
-
+        final ReportUploadingFragment me = this;
         final ImageButton cancelButton = (ImageButton) view.findViewById(R.id.cancel_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,43 +84,24 @@ public class ReportUploadingFragment extends ListFragment
                     if (tag.equals("cancel"))
                         cancelSession(ReportUploader.CANCEL_SESSION);
                     else if (tag.equals("restart"))
-                        beamUpFirstReport();
+                        getLoaderManager().restartLoader(0, null, me);
                 }
             }
         });
     }
 
-    public class CustomViewBinder implements SimpleCursorAdapter.ViewBinder {
-        @Override
-        public boolean setViewValue(View view, Cursor cursor, int i) {
-            if (view.getId() == R.id.uploadingTime)
-                ((TextView) view).setText(Utils.getElapsedTime(cursor.getLong(i)));
-            else if (view.getId() == R.id.upload_row)
-                mAdapter.updateProgressView(cursor.getInt(i), view);
-            else if (i == cursor.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS))
-                if (cursor.getInt(i) == 1)
-                    mAdapter.indicateRow(view);
-                else
-                    mAdapter.resetRow(view);
-            else
-                return false;
-            return true;
-        }
-    }
-
-    public void beamUpFirstReport() {
-        if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getCount() > 0)
-            beamUpReport(new Report((Cursor) mAdapter.getItem(0)));
-        else if (mAdapter.getCount() == 0 && getView() != null)
+    public void beamUpFirstReport(Cursor c) {
+        if ((uploader == null || uploader.isCancelled()) && mAdapter != null && mAdapter.getItemCount() > 0) {
+            if (c.moveToFirst()) beamUpReport(new Report(c));
+        } else if (mAdapter.getItemCount() == 0 && getView() != null)
             exitSmoothly();
-        else if (mAdapter.getCount() == 0 && getActivity() != null)
+        else if (mAdapter.getItemCount() == 0 && getActivity() != null)
             getActivity().finish();
-        else if (mAdapter.getCount() == 0)
+        else if (mAdapter.getItemCount() == 0)
             setRetainInstance(false);
     }
 
     private void beamUpReport(Report pendingReport) {
-        Log.e("RUF", "Beam up report has been called!");
         if (NetworkUtils.isOnline(getActivity()) && getView() != null) {
             changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount,
                     R.color.white, SHOW_CANCEL);
@@ -150,9 +129,7 @@ public class ReportUploadingFragment extends ListFragment
         changeHeader("Report uploaded successfully!", R.color.white, HIDE_CANCEL);
         uploader = null;
         inProgressIndex++;
-        if (mAdapter.getCount() > 0)
-            beamUpFirstReport();
-        else if (getView() != null) {
+        if (mAdapter.getItemCount() == 0  && getView() != null) {
             changeHeader("Successfully uploaded " + pendingReportCount + " reports.",
                     R.color.white, HIDE_CANCEL);
             exitSmoothly();
@@ -190,6 +167,8 @@ public class ReportUploadingFragment extends ListFragment
         changeHeader("Cancelling...", R.color.LightGrey, HIDE_CANCEL);
         if (uploader != null)
             uploader.cancelSession(reason);
+        if (reason == ReportUploader.DELETE_BUTTON)
+            getLoaderManager().restartLoader(0, null, this);
     }
 
     @Override
@@ -206,14 +185,12 @@ public class ReportUploadingFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        mAdapter.changeCursor(cursor);
-        pendingReportCount = mAdapter.getCount() + inProgressIndex - 1;
-        if (mAdapter.getCount() > 0)
-            changeHeader("Uploading " + inProgressIndex + " of " + pendingReportCount, R.color.white, SHOW_CANCEL);
+        mAdapter.swapCursor(cursor);
+        pendingReportCount = mAdapter.getItemCount() + inProgressIndex - 1;
         boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
         if (pendingReportCount > (inProgressIndex - 1) && shouldAutoStart)
-            beamUpFirstReport();
+            beamUpFirstReport(cursor);
     }
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) { mAdapter.changeCursor(null); }
+    public void onLoaderReset(Loader<Cursor> loader) { mAdapter.swapCursor(null); }
 }

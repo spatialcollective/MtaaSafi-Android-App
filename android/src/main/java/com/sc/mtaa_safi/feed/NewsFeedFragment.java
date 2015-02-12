@@ -17,7 +17,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -214,7 +213,6 @@ public class NewsFeedFragment extends Fragment implements
         ((FeedAdapter) mAdapter).swapCursor(cursor);
         View view = getView();
         if (view != null) {
-            Log.e("News feed", "Has view");
             SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
             refreshLayout.setRefreshing(false);
             if (cursor.getCount() == 0)

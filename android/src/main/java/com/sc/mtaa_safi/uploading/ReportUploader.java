@@ -115,7 +115,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     @Override
     protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
 
-    public void cancelSession(int reason) {
+    public Integer cancelSession(int reason) {
         canceller = reason;
         cancel(true);
         return reason;
@@ -134,11 +134,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     protected void onCancelled(Integer result) {
         if (result == CANCEL_SESSION)
             mFragment.changeHeader("Upload Cancelled", R.color.Crimson, ReportUploadingFragment.SHOW_RETRY);
-        else if (result == DELETE_BUTTON)
-            mFragment.beamUpFirstReport();
         else if(result == NETWORK_ERROR)
             mFragment.changeHeader("Connection Error: Retry?", R.color.DarkRed, ReportUploadingFragment.SHOW_RETRY);
-        else
+        else if (result != DELETE_BUTTON)
             mFragment.changeHeader("Error", R.color.DarkRed, ReportUploadingFragment.SHOW_RETRY);
     }
 }

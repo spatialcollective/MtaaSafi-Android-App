@@ -194,7 +194,16 @@ public class Report {
         return Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
     }
 
-    public String getJsonRep() throws JSONException, IOException, NoSuchAlgorithmException {
+    public static ArrayList<String> getMediaList(String mediaString) {
+        Gson statGson = new Gson();
+        ArrayList<String> imgs = new ArrayList<String>();
+        Type type = new TypeToken<ArrayList<String>>() {}.getType();
+        if (mediaString != null && !mediaString.isEmpty())
+            imgs = statGson.fromJson(mediaString, type);
+        return imgs;
+    }
+
+    public JSONObject getJsonRep() throws JSONException, IOException, NoSuchAlgorithmException {
         JSONObject json = new JSONObject();
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
