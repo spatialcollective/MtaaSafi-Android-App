@@ -1,7 +1,9 @@
 package com.sc.mtaa_safi;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -9,7 +11,9 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.sc.mtaa_safi.SystemUtils.Utils;
 
@@ -17,6 +21,7 @@ import com.sc.mtaa_safi.SystemUtils.Utils;
 public class MtaaLocationService extends Service {
     public Location mLocation = null;
     LocationManager mLocationManager;
+    AlertDialog mDialog;
     private static final int TWO_MINUTES = 1000 * 60 * 2;
 
     private final IBinder mBinder = new LocalBinder();
@@ -71,10 +76,34 @@ public class MtaaLocationService extends Service {
                 }
             }
             public void onStatusChanged(String provider, int status, Bundle extras) {}
-            public void onProviderEnabled(String provider) {}
-            public void onProviderDisabled(String provider) {}
+            public void onProviderEnabled(String provider) {
+                alertGPS(false);
+            }
+            public void onProviderDisabled(String provider) {
+                alertGPS(true);
+            }
         };
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TWO_MINUTES, 10, locationListener);
+    }
+
+    private void alertGPS(Boolean state){
+        if (state){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("You need GPS enabled to use this app.")
+                    .setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            getApplication().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                        }
+                    });
+            mDialog = builder.create();
+            mDialog.setCanceledOnTouchOutside(false);
+            mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            mDialog.show();
+        }else {
+            if (mDialog != null){
+                mDialog.hide();
+            }
+        }
     }
 
     private boolean newLocationIsBetter(Location location) {
