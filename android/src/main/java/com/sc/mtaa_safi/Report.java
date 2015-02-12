@@ -194,7 +194,7 @@ public class Report {
         return Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(dbId)).build();
     }
 
-    public String getJsonStringRep() throws JSONException, IOException, NoSuchAlgorithmException {
+    public String getJsonRep() throws JSONException, IOException, NoSuchAlgorithmException {
         JSONObject json = new JSONObject();
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
@@ -221,7 +221,7 @@ public class Report {
                 json.accumulate("picHashes", getSHA1forPic(i));
             }
         }
-        return json.toString();
+        return json;
     }
 
     public ContentValues updateValues(JSONObject response) throws JSONException {

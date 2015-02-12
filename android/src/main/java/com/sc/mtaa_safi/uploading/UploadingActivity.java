@@ -41,15 +41,9 @@ public class UploadingActivity extends ActionBarActivity {
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
             mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
-//            Toast.makeText(this, "Location Service Enabled", Toast.LENGTH_SHORT).show();
         }
-        // This should never happen
-        public void onServiceDisconnected(ComponentName className) {
-            mBoundService = null;
-//            Toast.makeText(this, "Location Service Disconnected", Toast.LENGTH_SHORT).show();
-        }
+        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
     };
-
     void bindLocationService() {
         bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
     }

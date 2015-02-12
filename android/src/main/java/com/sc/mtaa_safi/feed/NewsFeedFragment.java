@@ -167,7 +167,7 @@ public class NewsFeedFragment extends Fragment implements
                     public void run() {
                         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
                     }
-                }, 2000);
+                }, 3000);
             }
         }
     }

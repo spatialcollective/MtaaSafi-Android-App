@@ -30,7 +30,7 @@ public class NetworkUtils {
         return false;
     }
 
-    public static JSONObject makeRequest(String url, String type, JSONObject entity) throws IOException {
+    public static JSONObject makeRequest(String url, String type, JSONObject entity) throws IOException, JSONException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpRequestBase httpRequest;
         if (type == "post") {
@@ -41,8 +41,31 @@ public class NetworkUtils {
         httpRequest.setHeader("Accept", "application/json");
         httpRequest.setHeader("Content-type", "application/json");
         HttpResponse response = httpClient.execute(httpRequest);
-        if (response.getStatusLine().getStatusCode() > 400) { /*TODO: alert for statuses > 400*/ }
+        if (response.getStatusLine().getStatusCode() > 400) {
+            JSONObject json = new JSONObject();
+            return json.put("error", response.getStatusLine().getStatusCode());
+        }
         return convertHttpResponseToJSON(response);
+    }
+
+    public static JSONObject streamRequest(String urlString, byte[] data) {
+        URL url = new URL(urlString);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setInstanceFollowRedirects(false);
+        urlConnection.setConnectTimeout(15000);
+        urlConnection.setDoOutput(true);
+        urlConnection.setChunkedStreamingMode(0);
+        urlConnection.connect();
+        DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
+        // Log.e("BYTES 2 SERVER", "Bytes being sent:" + bytes.length);
+        out.write(data);
+        out.flush();
+        out.close();
+        InputStream is = urlConnection.getInputStream();
+        String response = NetworkUtils.convertInputStreamToString(is);
+        is.close();
+        urlConnection.disconnect();
+        return new JSONObject(response);
     }
 
     public static String convertInputStreamToString(InputStream inputStream) throws IOException {

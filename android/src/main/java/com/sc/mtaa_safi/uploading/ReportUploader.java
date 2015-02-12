@@ -64,55 +64,28 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
                     serverResponse = writeTextToServer();
                 else if (pendingReport.pendingState > 0)
                     serverResponse = writePicToServer();
-                if (serverResponse != null)
+                if (serverResponse != null && !serverResponse.has("error"))
                     updateDB(serverResponse);
             }
             return 1;
         } catch (IOException e) {
             e.printStackTrace();
-            canceller = NETWORK_ERROR;
-            cancel(true);
-            return NETWORK_ERROR;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            return cancelSession(NETWORK_ERROR);
+        } catch (Exception e) { e.printStackTrace(); }
         return -1;
     }
 
     private JSONObject writeTextToServer() throws IOException, JSONException, NoSuchAlgorithmException {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(mContext.getString(R.string.base_write) + "/");
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-        Log.e("Write Text:", pendingReport.getJsonStringRep());
-        // send along user's upvote data, if any, with the report text
-//        JSONObject withUpvoteData = VoteInterface.recordUpvoteLog(
-//                mFragment.getActivity(), new JSONObject(pendingReport.getJsonStringRep())).toString();
-        httpPost.setEntity(new StringEntity(pendingReport.getJsonStringRep()));
-        return processResponse(httpclient.execute(httpPost));
+        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.base_write) + "/", "post", pendingReport.getJsonRep());
+        if (response.has("error") && response.getInt("error") > 400)
+            cancelSession(NETWORK_ERROR);
+        return response;
     }
 
     private JSONObject writePicToServer() throws IOException, JSONException {
         String urlString = mContext.getString(R.string.base_write) + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
-        Log.e("Pic URL", urlString);
-        URL url = new URL(urlString);
-        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-        urlConnection.setInstanceFollowRedirects(false);
-        urlConnection.setConnectTimeout(15000);
-        urlConnection.setDoOutput(true);
-        urlConnection.setChunkedStreamingMode(0);
-        urlConnection.connect();
-        DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
-        byte[] bytes = pendingReport.getBytesForPic(pendingReport.pendingState - 1);
-        Log.e("BYTES 2 SERVER", "Bytes being sent:" + bytes.length);
-        out.write(bytes);
-        out.flush();
-        out.close();
-        InputStream is = urlConnection.getInputStream();
-        String response = NetworkUtils.convertInputStreamToString(is);
-        is.close();
-        urlConnection.disconnect();
-        return new JSONObject(response);
+        byte[] data = pendingReport.getBytesForPic(pendingReport.pendingState - 1);
+        return NetworkUtils.streamRequest(urlString, data);
     }
     
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
@@ -139,21 +112,13 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         }
     }
 
-    private JSONObject processResponse(HttpResponse response) throws JSONException, IOException {
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode >= 400){
-            Log.e("Cancelled!", "From ProcessRequest");
-            cancel(true);
-        }
-        return NetworkUtils.convertHttpResponseToJSON(response);
-    }
-
     @Override
     protected void onPostExecute(Integer result) { mFragment.reportUploadSuccess(); }
 
     public void cancelSession(int reason) {
         canceller = reason;
         cancel(true);
+        return reason;
     }
 
     private void updateProgressStopped() {

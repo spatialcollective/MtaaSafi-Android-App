@@ -49,7 +49,7 @@ public class ReportUploadingFragment extends ListFragment
     public ReportUploadingFragment() {}
 
     @Override
-    public void onCreate(Bundle instate){
+    public void onCreate(Bundle instate) {
         super.onCreate(instate);
         setRetainInstance(true);
     }
