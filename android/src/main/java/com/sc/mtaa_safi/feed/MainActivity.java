@@ -222,7 +222,7 @@ public class MainActivity extends ActionBarActivity implements
 
     private void onLocationEnabled(){
         AlertDialogFragment alert = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alert");
-        if (alert != null && alert.isVisible())
+        if (alert != null && alert.isAdded())
             alert.dismiss();
     }
 
