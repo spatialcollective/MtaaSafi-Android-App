@@ -6,16 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -28,9 +23,7 @@ import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
-import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
-import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
@@ -107,7 +100,6 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
         supportInvalidateOptionsMenu();
         bindLocationService();
-        GPSstatus();
         pickUserAccount();
         Utils.saveScreenWidth(this, getScreenWidth());
         setUpWeirdGPlayStuff();
@@ -144,35 +136,6 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void GPSstatus(){
-        if (!isGPSEnabled())
-            AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
-    }
-    public boolean isGPSEnabled(){
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
-            String providers = Settings.Secure.getString(getContentResolver(),
-                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-            return providers.contains(LocationManager.GPS_PROVIDER);
-        } else {
-            final int locationMode;
-            try {
-                locationMode = Settings.Secure.getInt(getContentResolver(),
-                        Settings.Secure.LOCATION_MODE);
-            } catch (Settings.SettingNotFoundException e) {
-                e.printStackTrace();
-                return false;
-            }
-            switch (locationMode){
-                case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
-                case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
-                    return true;
-                case Settings.Secure.LOCATION_MODE_BATTERY_SAVING:
-                case Settings.Secure.LOCATION_MODE_OFF:
-                default:
-                    return false;
-            }
-        }
-    }
     private void pickUserAccount() {
         if (Utils.getUserName(this).isEmpty()) {
             String[] accountTypes = new String[] {"com.google"};
@@ -190,9 +153,6 @@ public class MainActivity extends ActionBarActivity implements
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
     public Location getLocation() { return mBoundService.findLocation(this); }
-    private void onLocationDisabled() {
-        AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
-    }
 
     @Override
     public void onAlertButtonPressed(int eventKey) {
@@ -225,11 +185,6 @@ public class MainActivity extends ActionBarActivity implements
                 break;
             case ConnectionResult.SERVICE_INVALID:
                 AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_INVALID, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SUCCESS:
-                String locationProviders = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-                if (locationProviders == null || locationProviders.equals(""))
-                    onLocationDisabled();
                 break;
         }
     }

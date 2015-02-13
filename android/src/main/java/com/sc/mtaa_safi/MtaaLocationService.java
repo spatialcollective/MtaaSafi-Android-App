@@ -1,7 +1,9 @@
 package com.sc.mtaa_safi;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -16,6 +19,8 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.sc.mtaa_safi.SystemUtils.Utils;
+
+import java.util.List;
 
 
 public class MtaaLocationService extends Service {
@@ -84,24 +89,65 @@ public class MtaaLocationService extends Service {
             }
         };
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TWO_MINUTES, 10, locationListener);
+        if (!isGPSEnabled()){
+            alertGPS(true);
+        }
+    }
+
+    public boolean isForeground(String myPackage){
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        List< ActivityManager.RunningTaskInfo > runningTaskInfo = manager.getRunningTasks(1);
+
+        ComponentName componentInfo = runningTaskInfo.get(0).topActivity;
+        if(componentInfo.getPackageName().equals(myPackage)) return true;
+        return false;
     }
 
     private void alertGPS(Boolean state){
-        if (state){
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("You need GPS enabled to use this app.")
-                    .setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            getApplication().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                        }
-                    });
-            mDialog = builder.create();
-            mDialog.setCanceledOnTouchOutside(false);
-            mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        if (state && isForeground("com.sc.mtaa_safi")){
+            if (mDialog == null){
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("You need GPS enabled to use this app.")
+                        .setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                getApplication().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                            }
+                        });
+                mDialog = builder.create();
+                mDialog.setCanceledOnTouchOutside(false);
+                mDialog.setCancelable(false);
+                mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            }
             mDialog.show();
         }else {
             if (mDialog != null){
                 mDialog.hide();
+            }
+        }
+    }
+
+    public boolean isGPSEnabled(){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
+            String providers = Settings.Secure.getString(getContentResolver(),
+                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return providers.contains(LocationManager.GPS_PROVIDER);
+        } else {
+            final int locationMode;
+            try {
+                locationMode = Settings.Secure.getInt(getContentResolver(),
+                        Settings.Secure.LOCATION_MODE);
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+            switch (locationMode){
+                case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
+                case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
+                    return true;
+                case Settings.Secure.LOCATION_MODE_BATTERY_SAVING:
+                case Settings.Secure.LOCATION_MODE_OFF:
+                default:
+                    return false;
             }
         }
     }
