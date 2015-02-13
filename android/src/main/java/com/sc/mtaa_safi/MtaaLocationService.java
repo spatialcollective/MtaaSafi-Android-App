@@ -81,17 +81,10 @@ public class MtaaLocationService extends Service {
                 }
             }
             public void onStatusChanged(String provider, int status, Bundle extras) {}
-            public void onProviderEnabled(String provider) {
-                alertGPS(false);
-            }
-            public void onProviderDisabled(String provider) {
-                alertGPS(true);
-            }
+            public void onProviderEnabled(String provider) {}
+            public void onProviderDisabled(String provider) {}
         };
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TWO_MINUTES, 10, locationListener);
-        if (!isGPSEnabled()){
-            alertGPS(true);
-        }
     }
 
     public boolean isForeground(String myPackage){
@@ -105,52 +98,28 @@ public class MtaaLocationService extends Service {
 
     private void alertGPS(Boolean state){
         if (state && isForeground("com.sc.mtaa_safi")){
-            if (mDialog == null){
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("You need GPS enabled to use this app.")
-                        .setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                getApplication().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                            }
-                        });
-                mDialog = builder.create();
-                mDialog.setCanceledOnTouchOutside(false);
-                mDialog.setCancelable(false);
-                mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-            }
+
+            Log.e("MtaaLocationService", "building alert dialog");
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("You need GPS enabled to use this app.")
+                    .setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            getApplication().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                        }
+                    });
+            mDialog = builder.create();
+            mDialog.setCanceledOnTouchOutside(false);
+            mDialog.setCancelable(false);
+            mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
             mDialog.show();
+
         }else {
             if (mDialog != null){
-                mDialog.hide();
+                mDialog.dismiss();
             }
         }
     }
 
-    public boolean isGPSEnabled(){
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT){
-            String providers = Settings.Secure.getString(getContentResolver(),
-                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-            return providers.contains(LocationManager.GPS_PROVIDER);
-        } else {
-            final int locationMode;
-            try {
-                locationMode = Settings.Secure.getInt(getContentResolver(),
-                        Settings.Secure.LOCATION_MODE);
-            } catch (Settings.SettingNotFoundException e) {
-                e.printStackTrace();
-                return false;
-            }
-            switch (locationMode){
-                case Settings.Secure.LOCATION_MODE_HIGH_ACCURACY:
-                case Settings.Secure.LOCATION_MODE_SENSORS_ONLY:
-                    return true;
-                case Settings.Secure.LOCATION_MODE_BATTERY_SAVING:
-                case Settings.Secure.LOCATION_MODE_OFF:
-                default:
-                    return false;
-            }
-        }
-    }
 
     private boolean newLocationIsBetter(Location location) {
         if (mLocation == null)
