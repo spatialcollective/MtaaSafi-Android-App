@@ -17,6 +17,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -27,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -110,6 +112,7 @@ public class NewsFeedFragment extends Fragment implements
         getActivity().setTitle(name);
         mDrawerLayout.closeDrawer(GravityCompat.END);
         attemptRefresh(getActivity());
+        refreshMessage("Pull down to see reports", true);
     }
 
     @Override
@@ -204,9 +207,12 @@ public class NewsFeedFragment extends Fragment implements
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if (loader.getId() == FEED_LOADER)
+        if (loader.getId() == FEED_LOADER) {
             feedLoaded(cursor);
-        else
+            if (cursor.getCount() == 0) {
+                refreshMessage("Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.", false);
+            }
+        }else
             placeAdapter.swapCursor(cursor);
     }
     private void feedLoaded(Cursor cursor) {
@@ -297,5 +303,17 @@ public class NewsFeedFragment extends Fragment implements
         int count = c.getCount();
         c.close();
         return count;
+    }
+
+    private void refreshMessage(String message, Boolean showArrow){
+        final ImageView imageView = (ImageView) getView().findViewById(R.id.doneButton);
+        if (showArrow)
+            imageView.setVisibility(View.VISIBLE);
+        else
+            imageView.setVisibility(View.INVISIBLE);
+        final TextView textView = (TextView) getView().findViewById(R.id.pullDownText);
+        textView.setText(message);
+        textView.setPadding(20, 0, 0, 20);
+
     }
 }
