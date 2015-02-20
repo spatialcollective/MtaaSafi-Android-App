@@ -50,9 +50,10 @@ public class MtaaLocationService extends Service {
         Location l = null;
         if (mLocation != null)
             l = mLocation;
-
-        if (l == null && mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        else if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null)
             l = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        else if (Utils.getLocation(context).getTime() != 0)
+            l = Utils.getLocation(context);
         return l;
     }
 
