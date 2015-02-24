@@ -36,6 +36,7 @@ public class NetworkUtils {
     public static JSONObject makeRequest(String url, String type, JSONObject entity) throws IOException, JSONException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpRequestBase httpRequest;
+        Log.e("Network utils", "requesting from: " + url);
         if (type == "post") {
             httpRequest = new HttpPost(url);
             ((HttpPost) httpRequest).setEntity(new StringEntity(entity.toString()));
