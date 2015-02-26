@@ -167,7 +167,8 @@ public class NewsFeedFragment extends Fragment implements
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
+                        if (getView() != null)
+                            ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
                     }
                 }, 3000);
             }
