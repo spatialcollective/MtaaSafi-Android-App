@@ -134,13 +134,14 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     private Bitmap getThumbnail(String picPath) {
         int thumbWidth = Utils.getScreenWidth(getActivity())/3;
         Bitmap bmp = BitmapFactory.decodeFile(picPath);
-
-        int origWidth = bmp.getWidth();
-        int origHeight = bmp.getHeight();
-        if (origWidth > origHeight)
-            return Bitmap.createScaledBitmap(bmp, thumbWidth, (origHeight * thumbWidth) / origWidth, false);
-        else
-            return Bitmap.createScaledBitmap(bmp, (origWidth * thumbWidth) / origHeight, thumbWidth, false);
+        if (bmp != null) {
+            int origWidth = bmp.getWidth();
+            int origHeight = bmp.getHeight();
+            if (origWidth > origHeight)
+                return Bitmap.createScaledBitmap(bmp, thumbWidth, (origHeight * thumbWidth) / origWidth, false);
+            else
+                return Bitmap.createScaledBitmap(bmp, (origWidth * thumbWidth) / origHeight, thumbWidth, false);
+        }
     }
 
     private void updateDetailsView() {

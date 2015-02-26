@@ -116,7 +116,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:minWidth="88dp"
-                    android:text="@string/report_button_text"
+                    android:text="@string/send"
                     android:id="@+id/sendButton"
                     android:background="@drawable/primary_button"
                     android:textColor="@color/White"

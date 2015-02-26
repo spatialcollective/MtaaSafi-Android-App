@@ -97,6 +97,7 @@ public class UploadingAdapter extends RecyclerViewCursorAdapter<UploadingAdapter
     private boolean setInProgress(ViewHolder holder, Cursor c) {
         if (c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS)) == 1) {
             holder.mRoot.setBackgroundDrawable(highlight);
+            holder.mRoot.setPadding(16, 16, 16, 16);
             holder.mImageRow.getChildAt(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG)) - 1)
                     .findViewById(R.id.pic_progress).setVisibility(View.VISIBLE);
             return true;
@@ -125,7 +126,7 @@ public class UploadingAdapter extends RecyclerViewCursorAdapter<UploadingAdapter
 
         public ViewHolder(View v) {
             super(v);
-            mRoot = v;
+            mRoot = v.findViewById(R.id.upload_row);
             mTitleView = (TextView) v.findViewById(R.id.uploadingContent);
             mTime = (TextView) v.findViewById(R.id.uploadingTime);
             mImageRow = (LinearLayout) v.findViewById(R.id.uploading_pic_row);

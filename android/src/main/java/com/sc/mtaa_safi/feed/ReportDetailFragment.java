@@ -75,13 +75,15 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
-
-        int width = ((MainActivity) getActivity()).getScreenWidth();
-        int height = ((MainActivity) getActivity()).getScreenHeight()/2;
-        AQuery aq = new AQuery(getActivity());
-        String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width;
-        ImageView iv = (ImageView) view.findViewById(R.id.leadImage);
-        aq.id(iv).image(imageUrl).animate(R.anim.abc_fade_in);
+        
+        if (mReport.media.size() > 0) {
+            int width = ((MainActivity) getActivity()).getScreenWidth();
+            int height = ((MainActivity) getActivity()).getScreenHeight()/2;
+            AQuery aq = new AQuery(getActivity());
+            String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width;
+            ImageView iv = (ImageView) view.findViewById(R.id.leadImage);
+            aq.id(iv).image(imageUrl).animate(R.anim.abc_fade_in);
+        }
     }
 
     private void updateVote(VoteButton voter) { // (VoteButton) v.findViewById(R.id.voteInterface)

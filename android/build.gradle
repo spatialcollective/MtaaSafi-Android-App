@@ -17,23 +17,29 @@ repositories {
 }
 
 android {
+    signingConfigs {
+        mtaa_safi {
+            keyAlias 'mtaa_safi'
+            storeFile file('/home/kutalek/Desktop/mtaa_safi.jks')
+            keyPassword 'safiproduction'
+            storePassword 'mtaasafi'
+        }
+    }
     compileSdkVersion 21
     buildToolsVersion '21.1.2'
-
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
         applicationId "com.sc.mtaa_safi"
-        versionCode 18
-        versionName "0.9.1.locationtest"
+        versionCode 20
+        versionName "1.0.1"
     }
     buildTypes {
         release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
-
-    productFlavors{
+    productFlavors {
         production {
             applicationId "com.sc.mtaa_safi"
         }
