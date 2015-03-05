@@ -123,7 +123,9 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
             if (picPaths.get(i) != null) {
                 ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
                 thumb.setVisibility(View.VISIBLE);
-                thumb.setImageBitmap(getThumbnail(picPaths.get(i)));
+                Bitmap bitmap = getThumbnail(picPaths.get(i));
+                if (bitmap != null)
+                    thumb.setImageBitmap(bitmap);
             }
         if (picPaths.size() >= 3)
             getView().findViewById(R.id.take_pic).setVisibility(View.GONE);
@@ -142,6 +144,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
             else
                 return Bitmap.createScaledBitmap(bmp, (origWidth * thumbWidth) / origHeight, thumbWidth, false);
         }
+        return null;
     }
 
     private void updateDetailsView() {
