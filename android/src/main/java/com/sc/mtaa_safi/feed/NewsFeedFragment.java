@@ -277,7 +277,7 @@ public class NewsFeedFragment extends Fragment implements
 
     private void updateUploadAction(Menu menu) {
         int drawable = 0;
-        switch (getSavedReportCount(getActivity())) {
+        switch (Utils.getSavedReportCount(getActivity())) {
             case 0: menu.findItem(R.id.upload).setVisible(false); break;
             case 1: drawable = R.drawable.button_uploadsaved1; break;
             case 2: drawable = R.drawable.button_uploadsaved2; break;
@@ -296,15 +296,6 @@ public class NewsFeedFragment extends Fragment implements
         }
     }
 
-    public static int getSavedReportCount(Activity ac){
-        String[] projection = new String[1];
-        projection[0] = Contract.Entry.COLUMN_ID;
-        Cursor c = ac.getContentResolver().query(Contract.Entry.CONTENT_URI,
-                projection, Contract.Entry.COLUMN_PENDINGFLAG + " >= 0 ", null, null);
-        int count = c.getCount();
-        c.close();
-        return count;
-    }
 
     private void refreshMessage(String message, Boolean showArrow){
         final ImageView imageView = (ImageView) getView().findViewById(R.id.doneButton);

@@ -115,6 +115,7 @@ public class NewReportActivity extends ActionBarActivity {
             locationJSON.put("admin", frag.adminText);
 
         Report newReport = new Report(frag.detailsText, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
+        Utils.saveSavedReportCount(this,Utils.getSavedReportCount(this)+1);
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 

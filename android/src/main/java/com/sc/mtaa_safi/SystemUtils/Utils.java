@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 
@@ -16,7 +15,7 @@ import java.util.Date;
 public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
-                                ADMIN = "admin", ADMIN_ID = "adminId";
+                                ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount";
 
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
@@ -88,5 +87,15 @@ public class Utils {
         else if (timeElapsed > minute)
             return (long) Math.floor(timeElapsed/minute) + " min";
         return "just now";
+    }
+
+    public static int getSavedReportCount(Context context){
+        return getSharedPrefs(context).getInt(SAVED_REPORT_COUNT, 0);
+    }
+
+    public static void saveSavedReportCount(Context context, int count) {
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putInt(SAVED_REPORT_COUNT, count);
+        editor.commit();
     }
 }
