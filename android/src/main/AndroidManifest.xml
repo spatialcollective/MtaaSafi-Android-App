@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -40,9 +41,9 @@
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="6f93595b646ee4fdb2be81b10b3f4019e5d5fcd5" />
-
+        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/app_id"/>
         <activity
-            android:name="com.sc.mtaa_safi.feed.MainActivity"
+            android:name=".feed.MainActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden|adjustPan" >
             <intent-filter>
@@ -52,9 +53,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sc.mtaa_safi.newReport.NewReportActivity"
+            android:name=".newReport.NewReportActivity"
             android:label="@string/new_report"
-            android:parentActivityName="com.sc.mtaa_safi.feed.MainActivity"
+            android:parentActivityName=".feed.MainActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" >
 
             <!-- Parent activity meta-data to support API level 4+ -->
@@ -63,23 +64,24 @@
                 android:value="com.sc.mtaa_safi.feed.MainActivity" />
         </activity>
         <activity
-            android:name="com.sc.mtaa_safi.uploading.UploadingActivity"
+            android:name=".uploading.UploadingActivity"
             android:label="@string/title_activity_uploading"
-            android:parentActivityName="com.sc.mtaa_safi.feed.MainActivity" >
+            android:parentActivityName=".feed.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.sc.mtaa_safi.feed.MainActivity" />
         </activity>
-
+        <activity android:name="com.facebook.LoginActivity"
+            android:label="@string/app_name"/>
         <provider
-            android:name="com.sc.mtaa_safi.database.ReportProvider"
+            android:name=".database.ReportProvider"
             android:authorities="com.sc.mtaa_safi"
             android:exported="false"
             android:syncable="true" >
         </provider>
 
         <service
-            android:name="com.sc.mtaa_safi.adapter.SyncService"
+            android:name=".adapter.SyncService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -89,7 +91,7 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <service android:name="com.sc.mtaa_safi.database.AuthenticatorService" >
+        <service android:name=".database.AuthenticatorService" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -98,7 +100,8 @@
                 android:name="android.accounts.AccountAuthenticator"
                 android:resource="@xml/authenticator" />
         </service>
-        <service android:name="com.sc.mtaa_safi.MtaaLocationService"></service>
+        <service android:name=".MtaaLocationService" />
+
     </application>
 
 </manifest>

@@ -30,6 +30,7 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.Utils;
+import com.sc.mtaa_safi.login.LoginFragment;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
@@ -40,10 +41,11 @@ public class MainActivity extends ActionBarActivity implements
 
     ReportDetailFragment detailFragment;
     NewsFeedFragment newsFeedFrag;
+    LoginFragment loginFragment;
     LocationListener locationListener;
     LocationManager mLocationManager;
     static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
-    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", ONBOARD_TAG= "onboard";
+    public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", LOGIN_TAG= "login";
 
     private MtaaLocationService mBoundService;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -119,7 +121,8 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
         supportInvalidateOptionsMenu();
         bindLocationService();
-        pickUserAccount();
+        //if (!Utils.getSignInStatus(this))
+         signInUser();
         Utils.saveScreenWidth(this, getScreenWidth());
         setUpWeirdGPlayStuff();
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 60 * 2, 10, locationListener);
@@ -138,18 +141,20 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
-        if (newsFeedFrag != null)
+        if (loginFragment != null && loginFragment.isAdded())
+            getSupportFragmentManager().putFragment(bundle, LOGIN_TAG, loginFragment);
+        if (newsFeedFrag != null && newsFeedFrag.isAdded())
             getSupportFragmentManager().putFragment(bundle, NEWSFEED_TAG, newsFeedFrag);
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
         else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
             Utils.saveUserName(this, data);
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -159,12 +164,12 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    private void pickUserAccount() {
-        if (Utils.getUserName(this).isEmpty()) {
-            String[] accountTypes = new String[] {"com.google"};
-            Intent intent = AccountPicker.newChooseAccountIntent(null, null, accountTypes, false, null, null, null, null);
-            startActivityForResult(intent, REQUEST_CODE_PICK_ACCOUNT);
-        }
+    private void signInUser() {
+        loginFragment = new LoginFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, loginFragment, LOGIN_TAG)
+                .commit();
     }
 
     public void uploadSavedReports() {
