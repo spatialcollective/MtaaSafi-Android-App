@@ -70,6 +70,7 @@ public class Utils {
         editor.putString(USERNAME, username);
         editor.commit();
     }
+    
     public static void saveScreenWidth(Context context, int width) {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
         editor.putInt(SCREEN_WIDTH, width);

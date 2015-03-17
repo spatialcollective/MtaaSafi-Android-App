@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +35,8 @@ public class LoginFragment extends Fragment {
         }
     };
 
+    public final static String NEWSFEED_TAG = "newsFeed";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,11 +57,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        Session session = Session.getActiveSession();
-        if (session != null &&
-                (session.isOpened() || session.isClosed()) ) {
-            onSessionStateChange(session, session.getState(), null);
-        }
         uiHelper.onResume();
     }
 
@@ -88,13 +84,32 @@ public class LoginFragment extends Fragment {
         uiHelper.onSaveInstanceState(outState);
     }
 
-    private void goToFeed(){
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
+        Log.e("LoginFragment", "got this");
+        Session session = Session.getActiveSession();
+        if (session != null &&
+                (session.isOpened() || session.isClosed()) ) {
+            onSessionStateChange(session, session.getState(), null);
+        }
+
+        if (Utils.getSignInStatus(getActivity()))
+            goToFeed(savedInstanceState);
+    }
+
+    private void goToFeed(Bundle savedInstanceState){
         FragmentManager manager = getActivity().getSupportFragmentManager();
-        NewsFeedFragment newsFeedFrag = new NewsFeedFragment();
-        manager.beginTransaction()
-                .replace(R.id.fragment_container, newsFeedFrag)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit();
+        NewsFeedFragment newsFeedFrag = null;
+        if (savedInstanceState != null){
+             newsFeedFrag = (NewsFeedFragment) manager.getFragment(savedInstanceState, NEWSFEED_TAG);
+        }
+        if (newsFeedFrag == null) {
+            newsFeedFrag = new NewsFeedFragment();
+            manager.beginTransaction()
+                   .replace(R.id.fragment_container, newsFeedFrag, NEWSFEED_TAG)
+                   .commit();
+        }
     }
 
     private void signInUser(Session session){
