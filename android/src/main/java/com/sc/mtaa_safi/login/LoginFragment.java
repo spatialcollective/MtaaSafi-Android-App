@@ -19,10 +19,17 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.feed.NewsFeedFragment;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoginFragment extends Fragment {
     private static final String TAG = "LoginFragment";
@@ -87,7 +94,7 @@ public class LoginFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        Log.e("LoginFragment", "got this");
+
         Session session = Session.getActiveSession();
         if (session != null &&
                 (session.isOpened() || session.isClosed()) ) {
@@ -114,37 +121,48 @@ public class LoginFragment extends Fragment {
 
     private void signInUser(Session session){
         final Context context = getActivity();
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setTitle("Please wait");
-        progressDialog.setMessage("Logging you in...");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.show();
         Request.newMeRequest(session, new Request.GraphUserCallback() {
             @Override
             public void onCompleted(GraphUser graphUser, Response response) {
                 if (graphUser != null) {
                     Utils.setUserId(context, graphUser.getId());
+                    //check for early adopters' email
+                    String useremail = Utils.getUserName(context);
+                    Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+                    Matcher m = p.matcher(useremail);
+                    if(m.matches())
+                        Utils.saveEmail(context, useremail);
+
                     //graphUser.getUsername() doesn't work
                     Utils.saveUserName(context, graphUser.getFirstName()+" "+graphUser.getLastName());
-                    Log.e(TAG+" userdata", Utils.getUserName(context));
-                    progressDialog.dismiss();
-                } else {
-                    Log.i("userdata", "user null");
+
+                    beamUpUserData(context);
                 }
             }
         }).executeAsync();
+    }
+
+    private void beamUpUserData(Context context){
+        JSONObject userdata = new JSONObject();
+        try {
+            userdata.put("social_id", Utils.getUserId(context));
+            userdata.put("name", Utils.getUserName(context));
+            if(!Utils.getEmail(context).equals(""))
+                userdata.put("email", Utils.getEmail(context));
+            UserDataUploader uploader = new UserDataUploader(context, userdata);
+            uploader.execute();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception){
         if (state.isOpened() && !Utils.getSignInStatus(getActivity())){
             Utils.setSignInStatus(getActivity(),true);
             signInUser(session);
-            //goToFeed();
-            Log.i(TAG, "Logged in");
         }
         else if (state.isClosed()){
             Utils.setSignInStatus(getActivity(),false);
-            Log.i(TAG, "Logged out");
         }
     }
 

@@ -16,7 +16,7 @@ public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
                                 ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount",
-                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id";
+                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email";
 
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
@@ -43,10 +43,14 @@ public class Utils {
         editor.commit();
     }
 
-
     public static String getUserName(Context context) {
         return getSharedPrefs(context).getString(USERNAME, "");
     }
+
+    public static String getEmail(Context context){
+        return getSharedPrefs(context).getString(EMAIL, "");
+    }
+
     public static int getScreenWidth(Context context) {
         return getSharedPrefs(context).getInt(SCREEN_WIDTH, 400);
     }
@@ -68,6 +72,12 @@ public class Utils {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
         //editor.putString(USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
         editor.putString(USERNAME, username);
+        editor.commit();
+    }
+
+    public static void saveEmail(Context context, String email){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(EMAIL, email);
         editor.commit();
     }
     
