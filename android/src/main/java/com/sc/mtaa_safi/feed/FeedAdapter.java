@@ -11,25 +11,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.androidquery.AQuery;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.Contract;
+import com.squareup.picasso.Picasso;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolder> {
     ArrayList<Integer> upvoteList;
-    AQuery aq;
     private Gson gson = new Gson();
 
     public FeedAdapter(Context context, Cursor cursor) {
         super(context, cursor);
-        aq = new AQuery(context);
         upvoteList = new ArrayList<Integer>();
     }
 
@@ -55,28 +53,19 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             if (imagesJson != null && !imagesJson.get(0).isEmpty()) {
                 Integer.parseInt(imagesJson.get(0));
                 imageUrl = getContext().getString(R.string.base_url) + "get_thumbnail/" + imagesJson.get(0) + "/76x76";
-                aq.id(holder.mLeadImage).image(imageUrl);
+                Picasso.with(getContext()).load(imageUrl)
+                        .placeholder(R.drawable.image_placeholder)
+                        .into(holder.mLeadImage);
             }
         } catch (NumberFormatException e) {
             try {
-                aq.id(holder.mLeadImage).image(getThumbnail(imagesJson.get(0)));
+                Picasso.with(getContext()).load(imagesJson.get(0))
+                        .placeholder(R.drawable.image_placeholder)
+                        .into(holder.mLeadImage);
             } catch (Exception ex) { }
         } catch (Exception ex) { }
         setDistanceView(holder, c);
         addClick(holder, c);
-    }
-
-    private Bitmap getThumbnail(String picPath) throws FileNotFoundException {
-        Bitmap bmp = BitmapFactory.decodeFile(picPath);
-        if (bmp != null) {
-            int origWidth = bmp.getWidth();
-            int origHeight = bmp.getHeight();
-            if (origWidth > origHeight)
-                return Bitmap.createScaledBitmap(bmp, 76, (origHeight * 76) / origWidth, false);
-            else
-                return Bitmap.createScaledBitmap(bmp, (origWidth * 76) / origHeight, 76, false);
-        }
-        return null;
     }
 
     private void addClick(ViewHolder holder, Cursor c) {

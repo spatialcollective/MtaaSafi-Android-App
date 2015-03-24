@@ -56,9 +56,10 @@
         <ImageView android:id="@+id/leadImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="300dp"
             android:scaleType="centerCrop"
             android:layout_below="@id/toolbar"
-            android:src="@drawable/sample_image" />
+            android:src="@drawable/image_placeholder" />
 
         <include android:id="@+id/topVote"
             layout="@layout/vote_interface_floating"

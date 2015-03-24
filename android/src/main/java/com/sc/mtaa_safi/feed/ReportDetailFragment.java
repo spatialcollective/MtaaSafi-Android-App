@@ -17,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.androidquery.AQuery;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
@@ -27,6 +26,7 @@ import com.sc.mtaa_safi.feed.comments.CommentAdapter;
 import com.sc.mtaa_safi.feed.comments.CommentLayoutManager;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 import com.sc.mtaa_safi.feed.comments.SyncComments;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 
@@ -79,10 +79,11 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         if (mReport.media.size() > 0) {
             int width = ((MainActivity) getActivity()).getScreenWidth();
             int height = ((MainActivity) getActivity()).getScreenHeight()/2;
-            AQuery aq = new AQuery(getActivity());
             String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width;
             ImageView iv = (ImageView) view.findViewById(R.id.leadImage);
-            aq.id(iv).image(imageUrl).animate(R.anim.abc_fade_in);
+            Picasso.with(getActivity()).load(imageUrl)
+                    .placeholder(R.drawable.image_placeholder)
+                    .into(iv);
         }
     }
 

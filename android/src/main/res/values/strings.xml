@@ -32,8 +32,8 @@
     <string name="app_id">903751569639797</string>
 
     <string-array name="feed_sort_choices">
-        <item>recently</item>
-        <item>most up-voted</item>
+        <item>newest</item>
+        <item>votes</item>
     </string-array>
 
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>
