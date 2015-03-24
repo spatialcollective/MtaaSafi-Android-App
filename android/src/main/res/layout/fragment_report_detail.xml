@@ -53,13 +53,9 @@
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
 
-        <ImageView android:id="@+id/leadImage"
+        <android.support.v4.view.ViewPager android:id="@+id/image_pager"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="300dp"
-            android:scaleType="centerCrop"
-            android:layout_below="@id/toolbar"
-            android:src="@drawable/image_placeholder" />
+            android:layout_height="400dp" />
 
         <include android:id="@+id/topVote"
             layout="@layout/vote_interface_floating"
@@ -76,7 +72,7 @@
             layout="@layout/comments_interface"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/leadImage" />
+            android:layout_below="@id/image_pager" />
 
     </RelativeLayout>
 </ScrollView>

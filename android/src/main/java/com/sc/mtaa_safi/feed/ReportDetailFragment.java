@@ -1,14 +1,16 @@
 package com.sc.mtaa_safi.feed;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -29,6 +31,7 @@ import com.sc.mtaa_safi.feed.comments.SyncComments;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 
 public class ReportDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -47,6 +50,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         setUpHeader(view);
+        setUpImagePager(view);
         if (savedState != null)
             mReport = new Report(savedState);
         if (NetworkUtils.isOnline(getActivity()))
@@ -75,16 +79,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
-        
-        if (mReport.media.size() > 0) {
-            int width = ((MainActivity) getActivity()).getScreenWidth();
-            int height = ((MainActivity) getActivity()).getScreenHeight()/2;
-            String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + width;
-            ImageView iv = (ImageView) view.findViewById(R.id.leadImage);
-            Picasso.with(getActivity()).load(imageUrl)
-                    .placeholder(R.drawable.image_placeholder)
-                    .into(iv);
-        }
     }
 
     private void updateVote(VoteButton voter) { // (VoteButton) v.findViewById(R.id.voteInterface)
@@ -141,29 +135,48 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
     @Override public void onLoaderReset(Loader<Cursor> loader) {}
 
-// ==========================   Images   ===============================
-    private void setUpViewPager(View view) {
-//        viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-//        viewPager.setAdapter(new ImageSlideAdapter(getChildFragmentManager(), mReport.media.toArray(new String[mReport.media.size()])));
-//        viewPager.setOffscreenPageLimit(3);
-//        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+    private void setUpImagePager(View view) {
+        ViewPager viewPager = (ViewPager) view.findViewById(R.id.image_pager);
+        viewPager.setAdapter(new ImagePagerAdapter(mReport.media));
+        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
     }
 
-//    private class ImageSlideAdapter extends FragmentPagerAdapter {
-//        String[] mediaPaths;
-//        public ImageSlideAdapter(FragmentManager fm, String[] mediaPaths) {
-//            super(fm);
-//            this.mediaPaths = mediaPaths;
-//        }
-//        @Override
-//        public int getCount() { return mediaPaths.length; }
-//        @Override
-//        public Fragment getItem(int i) {
-//            ImageFragment iF = new ImageFragment();
-//            Bundle args = new Bundle();
-//            args.putString("mediaPath", mediaPaths[i]);
-//            iF.setArguments(args);
-//            return iF;
-//        }
-//    }
+    private class ImagePagerAdapter extends PagerAdapter {
+        String[] mediaPaths;
+
+        public ImagePagerAdapter(ArrayList<String> paths) {
+            super();
+            this.mediaPaths = paths.toArray(new String[paths.size()]);
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Context c = getActivity();
+            int width = ((MainActivity) c).getScreenWidth();
+            int height = ((MainActivity) c).getScreenHeight()/2;
+            ImageView imageView = new ImageView(c);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mediaPaths[position] + "/" + width;
+            Picasso.with(c).load(imageUrl)
+                    .placeholder(R.drawable.image_placeholder)
+                    .into(imageView);
+            ((ViewPager) container).addView(imageView, 0);
+            return imageView;
+        }
+
+        @Override
+        public int getCount() {
+            return mediaPaths.length;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == ((ImageView) object);
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            ((ViewPager) container).removeView((ImageView) object);
+        }
+    }
 }
