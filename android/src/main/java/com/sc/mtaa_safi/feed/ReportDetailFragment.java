@@ -184,17 +184,17 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     private static class PageButtonListener extends ViewPager.SimpleOnPageChangeListener implements View.OnClickListener {
         ViewPager vp;
         View topView;
-        ImagePagerAdapter ipa;
+        int pageCount;
 
         public PageButtonListener(View view, ImagePagerAdapter adapter, ViewPager pager) {
             topView = view;
-            ipa = adapter;
+            pageCount = adapter.getCount();
             vp = pager;
             vp.setPageTransformer(true, new ZoomOutPageTransformer());
             view.findViewById(R.id.page_left).setOnClickListener(this);
             view.findViewById(R.id.page_right).setOnClickListener(this);
             view.findViewById(R.id.page_left).setVisibility(View.INVISIBLE);
-            if (ipa.getCount() == 1)
+            if (pageCount == 1)
                 view.findViewById(R.id.page_right).setVisibility(View.INVISIBLE);
         }
 
@@ -212,7 +212,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
                 topView.findViewById(R.id.page_left).setVisibility(View.INVISIBLE);
             else
                 topView.findViewById(R.id.page_left).setVisibility(View.VISIBLE);
-            if (position == ipa.getCount() - 1)
+            if (position == pageCount - 1)
                 topView.findViewById(R.id.page_right).setVisibility(View.INVISIBLE);
             else
                 topView.findViewById(R.id.page_right).setVisibility(View.VISIBLE);
