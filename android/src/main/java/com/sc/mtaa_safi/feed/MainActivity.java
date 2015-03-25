@@ -14,8 +14,10 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
@@ -25,21 +27,25 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.Utils;
-import com.sc.mtaa_safi.login.LoginFragment;
+import com.sc.mtaa_safi.login.FacebookActivity;
+import com.sc.mtaa_safi.login.GooglePlusActivity;
+import com.sc.mtaa_safi.login.LoginActivityListener;
+import com.sc.mtaa_safi.login.LoginManager;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends ActionBarActivity implements
-        AlertDialogFragment.AlertDialogListener {
+        AlertDialogFragment.AlertDialogListener, LoginActivityListener {
 
     ReportDetailFragment detailFragment;
     NewsFeedFragment newsFeedFrag;
-    LoginFragment loginFragment;
+    LoginManager loginManager;
     LocationListener locationListener;
     LocationManager mLocationManager;
-    static final int    REQUEST_CODE_PICK_ACCOUNT = 1000;
+
+    private static final int GOOGLE_PLUS_LOGIN = 100, FACEBOOK_LOGIN = 102;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", LOGIN_TAG= "login";
 
     private MtaaLocationService mBoundService;
@@ -59,6 +65,7 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
+        loginManager = initializeLoginManager();
         restoreFragment(savedInstanceState);
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -74,9 +81,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
-        if (!Utils.getSignInStatus(this))
-            signInUser();
-        else if (savedInstanceState != null)
+        if (!loginManager.isLoggedIn(this)){
+            showLoginManager();
+        }else if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
         else if (detailFragment == null)
             goToFeed(savedInstanceState);
@@ -92,6 +99,15 @@ public class MainActivity extends ActionBarActivity implements
                 .replace(R.id.fragment_container, newsFeedFrag, NEWSFEED_TAG)
                 .commit();
         }
+    }
+
+    public void goToFeed() {
+        newsFeedFrag = new NewsFeedFragment();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, newsFeedFrag, NEWSFEED_TAG)
+                .commit();
+
     }
 
     public void goToDetailView(Report r, int position) {
@@ -118,8 +134,10 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
         supportInvalidateOptionsMenu();
         bindLocationService();
-        //if (!Utils.getSignInStatus(this))
-         signInUser();
+        if (!loginManager.isLoggedIn(this))
+            showLoginManager();
+        else
+           goToFeed();
         Utils.saveScreenWidth(this, getScreenWidth());
         setUpWeirdGPlayStuff();
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 60 * 2, 10, locationListener);
@@ -138,20 +156,20 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
-        if (loginFragment != null && loginFragment.isAdded())
-            getSupportFragmentManager().putFragment(bundle, LOGIN_TAG, loginFragment);
+        if (loginManager != null && loginManager.isAdded())
+            getSupportFragmentManager().putFragment(bundle, LOGIN_TAG, loginManager);
         if (newsFeedFrag != null && newsFeedFrag.isAdded())
             getSupportFragmentManager().putFragment(bundle, NEWSFEED_TAG, newsFeedFrag);
     }
 
-    /*@Override
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_CANCELED && requestCode == REQUEST_CODE_PICK_ACCOUNT)
-            Toast.makeText(this, "You must pick an account to proceed", Toast.LENGTH_SHORT).show();
-        else if (requestCode == REQUEST_CODE_PICK_ACCOUNT)
-            Utils.saveUserName(this, data);
-    }*/
+        if (requestCode == FACEBOOK_LOGIN)
+            Toast.makeText(this, "Facebook user logged in", Toast.LENGTH_SHORT).show();
+        else if (requestCode == GOOGLE_PLUS_LOGIN)
+            Toast.makeText(this, "Google+ user logged in", Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -161,11 +179,22 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    private void signInUser() {
-        loginFragment = new LoginFragment();
+    public LoginManager initializeLoginManager(){
+        LoginManager loginManager = (LoginManager) getSupportFragmentManager().findFragmentByTag(LOGIN_TAG);
+        if (loginManager == null){
+            loginManager = new LoginManager();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(loginManager, LOGIN_TAG)
+                    .commit();
+        }
+        return loginManager;
+    }
+
+    public void showLoginManager(){
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, loginFragment, LOGIN_TAG)
+                .replace(R.id.fragment_container, loginManager, LOGIN_TAG)
                 .commit();
     }
 
@@ -269,5 +298,16 @@ public class MainActivity extends ActionBarActivity implements
 //                    .commit();
 //
 //        getSupportActionBar().hide();
+    }
+
+    @Override
+    public void startLoginActivity(String network) {
+        if(network.equals("google")){
+            Intent intent = new Intent(this,GooglePlusActivity.class);
+            startActivityForResult(intent, GOOGLE_PLUS_LOGIN);
+        } else if(network.equals("facebook")){
+            Intent intent = new Intent(this,FacebookActivity.class);
+            startActivityForResult(intent, FACEBOOK_LOGIN);
+        }
     }
 }

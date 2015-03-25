@@ -33,11 +33,31 @@ public class Utils {
         editor.commit();
     }
 
-    public static String getUserId(Context context){
+    public static int getUserId(Context context){
+        return getSharedPrefs(context).getInt(USER_ID, -1);
+    }
+
+    public static void setUserId(Context context, int userId){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putInt(USER_ID, userId);
+        editor.commit();
+    }
+
+    public static String getGooglePlusId(Context context){
         return getSharedPrefs(context).getString(USER_ID, "");
     }
 
-    public static void setUserId(Context context, String userId){
+    public static void setGooglePlusId(Context context, String userId){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(USER_ID, userId);
+        editor.commit();
+    }
+
+    public static String getFacebookId(Context context){
+        return getSharedPrefs(context).getString(USER_ID, "");
+    }
+
+    public static void setFacebookId(Context context, String userId){
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
         editor.putString(USER_ID, userId);
         editor.commit();

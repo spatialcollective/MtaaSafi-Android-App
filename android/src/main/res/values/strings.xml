@@ -28,10 +28,14 @@
     <string name="title_activity_new_report">NewReportActivity</string>
     <string name="title_activity_report_detail">ReportDetailActivity</string>
     <string name="title_activity_uploading">UploadingActivity</string>
+    <string name="title_activity_google_plus">Login with Google+</string>
+    <string name="title_activity_facebook">Login with Facebook</string>
+    <string name="sign_in_google">Sign in with Google+</string>
+    <string name="sign_in_facebook">Sign In with Facebook</string>
 
     <integer name="google_play_services_version">5208000</integer>
 
-    <string name="app_id">903751569639797</string>
+    <string name="facebook_app_id">903751569639797</string>
 
     <string-array name="feed_sort_choices">
         <item>recently</item>
