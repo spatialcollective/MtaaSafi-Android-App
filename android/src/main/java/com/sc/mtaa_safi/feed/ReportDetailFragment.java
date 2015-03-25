@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -136,9 +137,10 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     @Override public void onLoaderReset(Loader<Cursor> loader) {}
 
     private void setUpImagePager(View view) {
+        ImagePagerAdapter ipa = new ImagePagerAdapter(mReport.media);
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.image_pager);
-        viewPager.setAdapter(new ImagePagerAdapter(mReport.media));
-        viewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        viewPager.setAdapter(ipa);
+        viewPager.setOnPageChangeListener(new PageButtonListener(view, ipa, viewPager));
     }
 
     private class ImagePagerAdapter extends PagerAdapter {
@@ -156,9 +158,10 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
             int height = ((MainActivity) c).getScreenHeight()/2;
             ImageView imageView = new ImageView(c);
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mediaPaths[position] + "/" + width;
+            String imageUrl = getActivity().getString(R.string.base_url) + "get_thumbnail/" + mediaPaths[position] + "/" + width + "x" + height;
             Picasso.with(c).load(imageUrl)
                     .placeholder(R.drawable.image_placeholder)
+                    .error(R.drawable.image_error)
                     .into(imageView);
             ((ViewPager) container).addView(imageView, 0);
             return imageView;
@@ -168,15 +171,51 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         public int getCount() {
             return mediaPaths.length;
         }
-
         @Override
         public boolean isViewFromObject(View view, Object object) {
             return view == ((ImageView) object);
         }
-
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
             ((ViewPager) container).removeView((ImageView) object);
+        }
+    }
+
+    private static class PageButtonListener extends ViewPager.SimpleOnPageChangeListener implements View.OnClickListener {
+        ViewPager vp;
+        View topView;
+        ImagePagerAdapter ipa;
+
+        public PageButtonListener(View view, ImagePagerAdapter adapter, ViewPager pager) {
+            topView = view;
+            ipa = adapter;
+            vp = pager;
+            vp.setPageTransformer(true, new ZoomOutPageTransformer());
+            view.findViewById(R.id.page_left).setOnClickListener(this);
+            view.findViewById(R.id.page_right).setOnClickListener(this);
+            view.findViewById(R.id.page_left).setVisibility(View.INVISIBLE);
+            if (ipa.getCount() == 1)
+                view.findViewById(R.id.page_right).setVisibility(View.INVISIBLE);
+        }
+
+        @Override
+        public void onClick (View v) {
+            if (v.getId() == R.id.page_left)
+                vp.setCurrentItem(vp.getCurrentItem() - 1, true);
+            else
+                vp.setCurrentItem(vp.getCurrentItem() + 1, true);
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            if (position == 0)
+                topView.findViewById(R.id.page_left).setVisibility(View.INVISIBLE);
+            else
+                topView.findViewById(R.id.page_left).setVisibility(View.VISIBLE);
+            if (position == ipa.getCount() - 1)
+                topView.findViewById(R.id.page_right).setVisibility(View.INVISIBLE);
+            else
+                topView.findViewById(R.id.page_right).setVisibility(View.VISIBLE);
         }
     }
 }

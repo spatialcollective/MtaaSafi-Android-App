@@ -55,7 +55,26 @@
 
         <android.support.v4.view.ViewPager android:id="@+id/image_pager"
             android:layout_width="match_parent"
-            android:layout_height="400dp" />
+            android:layout_height="400dp"
+            android:layout_below="@id/toolbar"/>
+
+        <ImageButton android:id="@+id/page_left"
+            android:layout_width="50dp"
+            android:layout_height="400dp"
+            android:layout_below="@id/toolbar"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="@color/transparent"
+            android:src="@drawable/arrow_left"/>
+
+        <ImageButton android:id="@+id/page_right"
+            android:layout_width="50dp"
+            android:layout_height="400dp"
+            android:layout_below="@id/toolbar"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:background="@color/transparent"
+            android:src="@drawable/arrow_right"/>
 
         <include android:id="@+id/topVote"
             layout="@layout/vote_interface_floating"
