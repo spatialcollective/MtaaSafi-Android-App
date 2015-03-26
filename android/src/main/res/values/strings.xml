@@ -16,6 +16,7 @@
     <string name="nearby">Nearby</string>
     <string name="title_report_detail">Report Details</string>
     <string name="new_report">New Report</string>
+    <string name="my_activity">My Activity</string>
     <string name="new_photo">New Photo</string>
     <string name="add_pic">Add a Photo</string>
     <string name="report_detail_hint">Describe the problem</string>

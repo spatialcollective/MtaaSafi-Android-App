@@ -96,6 +96,26 @@
                 android:elevation="8dp"
                 android:onClick="goToNewReport" />
     </RelativeLayout>
+
+    <LinearLayout android:id="@+id/left_drawer"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="start"
+        android:background="@color/White" >
+
+        <TextView android:id="@+id/my_activity"
+                  android:layout_width="match_parent"
+                  android:layout_height="56dp"
+                  android:gravity="center_vertical"
+                  android:textSize="14sp"
+                  android:text="@string/my_activity"
+                  android:textColor="@color/mediumGrey"
+                  android:paddingLeft="16dp"
+                  android:paddingEnd="16dp"
+                  android:paddingRight="16dp" />
+    </LinearLayout>
+
     <LinearLayout android:id="@+id/right_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
@@ -103,7 +123,7 @@
         android:layout_gravity="end"
         android:background="@color/White" >
 
-        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:gravity="center_vertical"

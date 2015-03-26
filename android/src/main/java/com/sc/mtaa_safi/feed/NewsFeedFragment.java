@@ -15,6 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -45,8 +46,6 @@ import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 
-import org.w3c.dom.Text;
-
 public class NewsFeedFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
 
@@ -54,12 +53,14 @@ public class NewsFeedFragment extends Fragment implements
     private RecyclerView.LayoutManager mLayoutManager;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
+    public String FEED_CONTENT = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     private final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
     String sortOrder = SORT_RECENT;
 
     SimpleCursorAdapter placeAdapter;
     private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,12 +79,28 @@ public class NewsFeedFragment extends Fragment implements
             sortOrder = savedInstanceState.getString("sortOrder");
             navIndex = savedInstanceState.getInt("navIndex");
         }
+        mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         createToolbar(view);
+        createLocationChooser(view);
+
+        view.findViewById(R.id.my_activity).setOnClickListener(new MyActivityClickListener());
+        mDrawerToggle = new ActionBarDrawerToggle(getActivity(), mDrawerLayout,
+                (Toolbar) view.findViewById(R.id.main_toolbar), R.string.open, R.string.close);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeResources(R.color.Coral, R.color.mtaa_safi_blue);
         return view;
+    }
+
+    private class MyActivityClickListener implements View.OnClickListener {
+        @Override public void onClick(View v) {
+            ((TextView) getView().findViewById(R.id.title)).setText(R.string.my_activity);
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+            FEED_CONTENT = Contract.Entry.COLUMN_USERNAME  + " == " + Utils.getUserName(getActivity());
+            getLoaderManager().restartLoader(FEED_LOADER, null, NewsFeedFragment.this);
+        }
     }
 
     private void createToolbar(View view) {
@@ -92,23 +109,23 @@ public class NewsFeedFragment extends Fragment implements
         toolbar.setNavigationIcon(R.drawable.ic_menu);
         ((TextView) toolbar.findViewById(R.id.title)).setText(Utils.getSelectedAdminName(getActivity()));
         addSortSpinner(view);
+    }
 
-        mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
+    private void createLocationChooser(View view) {
         ListView drawerList = (ListView) view.findViewById(R.id.location_list);
         placeAdapter = new SimpleCursorAdapter(getActivity(), R.layout.drawer_list_item, 
             null, new String[] { Contract.Admin.COLUMN_NAME }, new int[] { R.id.place_name }, 0);
         drawerList.setAdapter(placeAdapter);
-        drawerList.setOnItemClickListener(new DrawerItemClickListener());
-        view.findViewById(R.id.nearby).setOnClickListener(new StaticItemClickListener());
+        drawerList.setOnItemClickListener(new LocationClickListener());
+        view.findViewById(R.id.nearby).setOnClickListener(new NearbyClickListener());
         getLoaderManager().initLoader(PLACES_LOADER, null, this);
     }
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+    private class LocationClickListener implements ListView.OnItemClickListener {
         @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
             setFeedToLocation((String) ((TextView) view).getText(), id);
         }
     }
-    private class StaticItemClickListener implements View.OnClickListener {
+    private class NearbyClickListener implements View.OnClickListener {
         @Override public void onClick(View v) {
             setFeedToLocation(getResources().getString(R.string.nearby), -1);
         }
@@ -175,8 +192,8 @@ public class NewsFeedFragment extends Fragment implements
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (getView() != null)
-                            ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
+                    if (getView() != null)
+                        ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
                     }
                 }, 3000);
             }
@@ -210,13 +227,10 @@ public class NewsFeedFragment extends Fragment implements
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
         ActionBar ab = ((MainActivity) getActivity()).getSupportActionBar();
-        if (scrollState == ScrollState.UP) {
-            if (ab.isShowing())
-                ab.hide();
-        } else if (scrollState == ScrollState.DOWN) {
-            if (!ab.isShowing())
-                ab.show();
-        }
+        if (scrollState == ScrollState.UP && ab.isShowing())
+            ab.hide();
+        else if (scrollState == ScrollState.DOWN && !ab.isShowing())
+            ab.show();
     }
 
     @Override
@@ -226,7 +240,7 @@ public class NewsFeedFragment extends Fragment implements
                     new String[] { Contract.Admin.COLUMN_SERVER_ID, Contract.Admin.COLUMN_NAME },
                     null, null, Contract.Admin.COLUMN_NAME + " ASC");
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-                Report.PROJECTION, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0, null, sortOrder);
+                Report.PROJECTION, FEED_CONTENT, null, sortOrder);
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -317,7 +331,6 @@ public class NewsFeedFragment extends Fragment implements
             menu.findItem(R.id.upload).setVisible(true);
         }
     }
-
 
     private void refreshMessage(String message, Boolean showArrow){
         final ImageView imageView = (ImageView) getView().findViewById(R.id.doneButton);

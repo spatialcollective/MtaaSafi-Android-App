@@ -8,8 +8,6 @@
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
-    <output url="file:///media/Storage/Active/SpatialCollective/Software/MtaaSafi/Android/build/classes/main" />
-    <output-test url="file:///media/Storage/Active/SpatialCollective/Software/MtaaSafi/Android/build/classes/test" />
     <exclude-output />
     <content url="file:///media/Storage/Active/SpatialCollective/Software/MtaaSafi/Android">
       <excludeFolder url="file:///media/Storage/Active/SpatialCollective/Software/MtaaSafi/Android/.gradle" />
