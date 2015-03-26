@@ -2,7 +2,7 @@
 
 <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/MyActionBar</item>
-        <item name="actionMenuTextColor">@color/action_menu_colors</item>
+        <item name="actionMenuTextColor">@color/white</item>
         <item name="windowActionBar">false</item>
         <item name="android:spinnerDropDownItemStyle">@style/MyActionBarDropDown</item>
         <item name="colorPrimary">@color/mtaa_safi_blue</item>
@@ -33,5 +33,6 @@
     </style>
     <style name="MyActionBarDropDownText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/White</item>
+        <item name="background">@drawable/app_color</item>
     </style>
 </resources>

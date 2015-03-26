@@ -14,6 +14,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -34,6 +35,9 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
@@ -41,8 +45,10 @@ import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 
+import org.w3c.dom.Text;
+
 public class NewsFeedFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener  {
+        LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -65,7 +71,6 @@ public class NewsFeedFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
-        getActivity().setTitle(Utils.getSelectedAdminName(getActivity()));
 
         if (savedInstanceState != null) {
             index = savedInstanceState.getInt("index");
@@ -84,6 +89,8 @@ public class NewsFeedFragment extends Fragment implements
     private void createToolbar(View view) {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu);
+        ((TextView) toolbar.findViewById(R.id.title)).setText(Utils.getSelectedAdminName(getActivity()));
         addSortSpinner(view);
 
         mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
@@ -109,7 +116,7 @@ public class NewsFeedFragment extends Fragment implements
     public void setFeedToLocation(String name, long id) {
         Utils.saveSelectedAdmin(getActivity(), name, id);
         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
-        getActivity().setTitle(name);
+        ((TextView) getView().findViewById(R.id.title)).setText(name);
         mDrawerLayout.closeDrawer(GravityCompat.END);
         attemptRefresh(getActivity());
         refreshMessage("Pull down to see reports", true);
@@ -128,6 +135,7 @@ public class NewsFeedFragment extends Fragment implements
         recyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
+        ((ObservableRecyclerView) recyclerView).setScrollViewCallbacks(this);
 
         mAdapter = new FeedAdapter(getActivity(), null);
         recyclerView.setAdapter(mAdapter);
@@ -194,6 +202,20 @@ public class NewsFeedFragment extends Fragment implements
             });
             refreshFailed.startAnimation(out);
             refreshFailed.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) { }
+    @Override public void onDownMotionEvent() { }
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        ActionBar ab = ((MainActivity) getActivity()).getSupportActionBar();
+        if (scrollState == ScrollState.UP) {
+            if (ab.isShowing())
+                ab.hide();
+        } else if (scrollState == ScrollState.DOWN) {
+            if (!ab.isShowing())
+                ab.show();
         }
     }
 
