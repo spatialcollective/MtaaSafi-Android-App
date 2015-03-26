@@ -137,7 +137,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         if (!Utils.getUserName(mContext).isEmpty() && !serverIds.isEmpty()) {
             String fetchReportsURL = this.getContext().getString(R.string.feed_details) + Utils.getScreenWidth(mContext) + "/";
-            JSONObject fetchRequest = new JSONObject().put("username", Utils.getUserName(mContext))
+            JSONObject fetchRequest = new JSONObject().put("userId", Utils.getUserId(mContext))
                                                       .put("ids", new JSONArray());
             for (int i=0; i < serverIds.size(); i++)
                 fetchRequest.accumulate("ids", serverIds.get(i));
@@ -149,7 +149,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private JSONObject addNewUpvotes(JSONObject fetchRequest, ContentProviderClient provider) throws RemoteException, OperationApplicationException, JSONException {
-        JSONObject upvoteData = new JSONObject().put("username", Utils.getUserName(mContext));
+        JSONObject upvoteData = new JSONObject().put("userId", Utils.getUserId(mContext));
         upvoteData.put("ids", new JSONArray());
 
         Cursor upvoteLog = provider.query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);

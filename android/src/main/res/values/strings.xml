@@ -49,6 +49,7 @@
     <string name="send_comment">http://app.spatialcollective.com/mtaasafi/post_comment/</string>
     <string name="refresh_comment">http://app.spatialcollective.com/mtaasafi/get_comments/</string>
     <string name="location_data">http://app.spatialcollective.com/mtaasafi/get_location_data/</string>
+    <string name="signin">http://app.spatialcollective.com/mtaasafi/sign_in_user/</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
