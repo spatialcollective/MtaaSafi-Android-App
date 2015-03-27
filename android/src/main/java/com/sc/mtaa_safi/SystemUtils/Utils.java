@@ -16,7 +16,7 @@ public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
                                 ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount",
-                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email";
+                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email", FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid";
 
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
@@ -44,22 +44,22 @@ public class Utils {
     }
 
     public static String getGooglePlusId(Context context){
-        return getSharedPrefs(context).getString(USER_ID, "");
+        return getSharedPrefs(context).getString(GOOGLE_PLUS_UUID, "");
     }
 
     public static void setGooglePlusId(Context context, String userId){
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
-        editor.putString(USER_ID, userId);
+        editor.putString(GOOGLE_PLUS_UUID, userId);
         editor.commit();
     }
 
     public static String getFacebookId(Context context){
-        return getSharedPrefs(context).getString(USER_ID, "");
+        return getSharedPrefs(context).getString(FACEBOOK_UUID, "");
     }
 
     public static void setFacebookId(Context context, String userId){
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
-        editor.putString(USER_ID, userId);
+        editor.putString(FACEBOOK_UUID, userId);
         editor.commit();
     }
 
