@@ -15,16 +15,62 @@ import java.util.Date;
 public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
-                                ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount";
+                                ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount",
+                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email";
 
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
                 Context.MODE_MULTI_PROCESS);
     }
 
+    public static Boolean getSignInStatus(Context context){
+        return getSharedPrefs(context).getBoolean(SIGN_IN_STATUS, false);
+    }
+
+    public static void setSignInStatus(Context context, Boolean status){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putBoolean(SIGN_IN_STATUS, status);
+        editor.commit();
+    }
+
+    public static int getUserId(Context context){
+        return getSharedPrefs(context).getInt(USER_ID, -1);
+    }
+
+    public static void setUserId(Context context, int userId){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putInt(USER_ID, userId);
+        editor.commit();
+    }
+
+    public static String getGooglePlusId(Context context){
+        return getSharedPrefs(context).getString(USER_ID, "");
+    }
+
+    public static void setGooglePlusId(Context context, String userId){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(USER_ID, userId);
+        editor.commit();
+    }
+
+    public static String getFacebookId(Context context){
+        return getSharedPrefs(context).getString(USER_ID, "");
+    }
+
+    public static void setFacebookId(Context context, String userId){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(USER_ID, userId);
+        editor.commit();
+    }
+
     public static String getUserName(Context context) {
         return getSharedPrefs(context).getString(USERNAME, "");
     }
+
+    public static String getEmail(Context context){
+        return getSharedPrefs(context).getString(EMAIL, "");
+    }
+
     public static int getScreenWidth(Context context) {
         return getSharedPrefs(context).getInt(SCREEN_WIDTH, 400);
     }
@@ -42,11 +88,19 @@ public class Utils {
         return getSharedPrefs(context).getLong(ADMIN_ID, -1);
     }
 
-    public static void saveUserName(Context context, Intent data) {
+    public static void saveUserName(Context context, String username) {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
-        editor.putString(USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
+        //editor.putString(USERNAME, data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME).replaceAll("\"",""));
+        editor.putString(USERNAME, username);
         editor.commit();
     }
+
+    public static void saveEmail(Context context, String email){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(EMAIL, email);
+        editor.commit();
+    }
+    
     public static void saveScreenWidth(Context context, int width) {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
         editor.putInt(SCREEN_WIDTH, width);

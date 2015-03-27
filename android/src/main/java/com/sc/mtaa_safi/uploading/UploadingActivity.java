@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 
 import com.sc.mtaa_safi.MtaaLocationService;
-import com.sc.mtaa_safi.R;
 
 public class UploadingActivity extends ActionBarActivity {
 
