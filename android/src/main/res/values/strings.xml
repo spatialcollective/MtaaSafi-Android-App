@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="settings">Settings</string>
     <string name="fb_login">Login to Facebook</string>
     <string name="accounts">Accounts</string>
@@ -24,13 +25,18 @@
     <string name="get_landmark">What is nearby?</string>
     <string name="upload_saved">Upload Saved Reports</string>
     <string name="choose_location">Choose Location</string>
-
     <string name="app_name">Mtaa Safi</string>
     <string name="title_activity_new_report">NewReportActivity</string>
     <string name="title_activity_report_detail">ReportDetailActivity</string>
     <string name="title_activity_uploading">UploadingActivity</string>
+    <string name="title_activity_google_plus">Login with Google+</string>
+    <string name="title_activity_facebook">Login with Facebook</string>
+    <string name="sign_in_google">Sign in with Google+</string>
+    <string name="sign_in_facebook">Sign In with Facebook</string>
+
     <integer name="google_play_services_version">5208000</integer>
-    <string name="app_id">903751569639797</string>
+
+    <string name="facebook_app_id">903751569639797</string>
 
     <string-array name="feed_sort_choices">
         <item>Newest</item>
@@ -44,4 +50,10 @@
     <string name="send_comment">http://app.spatialcollective.com/mtaasafi/post_comment/</string>
     <string name="refresh_comment">http://app.spatialcollective.com/mtaasafi/get_comments/</string>
     <string name="location_data">http://app.spatialcollective.com/mtaasafi/get_location_data/</string>
+    <string name="signin">http://app.spatialcollective.com/mtaasafi/sign_in_user/</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

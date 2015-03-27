@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.apache.http.HttpResponse;
@@ -33,6 +34,8 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
     NewCommentLayout mLayout;
     int mReportId = 0;
     boolean isSending = true;
+    int canceller = -1;
+    public static final int CANCEL_SESSION = 0, DELETE_BUTTON = 1, NETWORK_ERROR = 2;
 
     public SyncComments(Context context, Comment comment, NewCommentLayout layout) {
         mContext = context;
@@ -51,7 +54,7 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
         JSONObject response;
         try {
             if (isSending)
-                response = sendToServer(mComment.setTime(System.currentTimeMillis(), mContext).getJson());
+                response = sendToServer();
             else
                 response = getFromServer();
             addNewCommentsToDb(response);
@@ -62,14 +65,13 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
         return 0;
     }
 
-    private JSONObject sendToServer(JSONObject json) throws IOException {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost(mContext.getString(R.string.send_comment));
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
-        httpPost.setEntity(new StringEntity(json.toString()));
-        HttpResponse response = httpClient.execute(httpPost);
-        return NetworkUtils.convertHttpResponseToJSON(response);
+    private JSONObject sendToServer() throws IOException, JSONException {
+        JSONObject comment = mComment.setTime(System.currentTimeMillis(), mContext).getJson();
+        comment.put("userId", Utils.getUserId(mContext));
+        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.send_comment) + "/", "post", comment);
+        if (response.has("error") && response.getInt("error") > 400)
+            cancelSession(NETWORK_ERROR);
+        return response;
     }
 
     private JSONObject getFromServer() throws IOException {
@@ -97,5 +99,11 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
             if (result == 1) mLayout.onSuccessfulSend();
             else mLayout.onSendFailure();
         }
+    }
+
+    public Integer cancelSession(int reason) {
+        canceller = reason;
+        cancel(true);
+        return reason;
     }
 }
