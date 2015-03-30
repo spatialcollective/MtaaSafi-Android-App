@@ -39,6 +39,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     Report mReport;
     CommentAdapter mAdapter;
+    String mCommentText;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -51,9 +52,9 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         setUpHeader(view);
-        setUpImagePager(view);
         if (savedState != null)
             mReport = new Report(savedState);
+        setUpImagePager(view);
         if (NetworkUtils.isOnline(getActivity()))
             new SyncComments(getActivity(), mReport.serverId).execute();
         return view;
@@ -89,12 +90,18 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        mCommentText = ((TextView) getView().findViewById(R.id.commentEditText)).getText().toString();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);
-        String commentText = ((TextView) getView().findViewById(R.id.commentEditText)).getText().toString();
-        if (commentText != null)
-            outstate.putString(Contract.Comments.COLUMN_CONTENT, commentText);
-        outstate = mReport.saveState(outstate);
+        if (mReport != null)
+            outstate = mReport.saveState(outstate);
+        if (mCommentText != null)
+            outstate.putString(Contract.Comments.COLUMN_CONTENT, mCommentText);
     }
 
     @Override

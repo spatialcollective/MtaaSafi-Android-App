@@ -81,9 +81,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
-        if (!loginManager.isLoggedIn(this)){
+        if (!loginManager.isLoggedIn(this))
             showLoginManager();
-        }else if (savedInstanceState != null)
+        else if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
         else if (detailFragment == null)
             goToFeed(savedInstanceState);
