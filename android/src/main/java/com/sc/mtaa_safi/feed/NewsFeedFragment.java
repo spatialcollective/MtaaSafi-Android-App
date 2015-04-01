@@ -54,7 +54,7 @@ public class NewsFeedFragment extends Fragment implements
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
     public String FEED_CONTENT = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
-    private final int PLACES_LOADER = 0, FEED_LOADER = 1;
+    public final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
     String sortOrder = SORT_RECENT;
 

@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,6 +26,7 @@ import com.sc.mtaa_safi.database.Contract;
 import java.util.ArrayList;
 
 public class NavigationDrawer extends DrawerLayout {
+    NewsFeedFragment frag;
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
     private NavArrayAdapter adapter;
@@ -39,7 +39,8 @@ public class NavigationDrawer extends DrawerLayout {
     public NavigationDrawer(Context context, AttributeSet attrs) { super(context, attrs); }
     public NavigationDrawer(Context context) { super(context); }
 
-    public void setupDrawer(Toolbar drawerToolbar, NewsFeedFragment frag) {
+    public void setupDrawer(Toolbar drawerToolbar, NewsFeedFragment nff) {
+        frag = nff;
         navItems = new ArrayList<>();
         ((TextView) this.findViewById(R.id.user_name)).setText(Utils.getUserName(getActivity()));
         ((TextView) this.findViewById(R.id.user_email)).setText(Utils.getEmail(getActivity()));
@@ -52,21 +53,20 @@ public class NavigationDrawer extends DrawerLayout {
         toolbar = drawerToolbar;
         setupDrawerToggle();
 
-        addNavItem("Feed", R.drawable.ic_list, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0);
+        addNavItem("Nearby", R.drawable.ic_place_grey, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0);
         addNavItem("My Reports", R.drawable.ic_message_grey600_24dp, Contract.Entry.COLUMN_USERID  + " == " + Utils.getUserId(getActivity()));
     }
 
     public void addNavItem(String name, int icon, String feed_value) {
         NavItem ni = new NavItem(name, icon, feed_value);
         adapter.items.add(ni);
-//        list.getView(adapter.getCount() - 1);
         navItems.add(ni);
     }
 
     public void selectNavItem(int position) {
         NavItem navItem = navItems.get(position);
-//        FEED_CONTENT = navItem.value;
-        // getLoaderManager().restartLoader(FEED_LOADER, null, NewsFeedFragment.this);
+        frag.FEED_CONTENT = navItem.value;
+        frag.getLoaderManager().restartLoader(frag.FEED_LOADER, null, frag);
         list.setItemChecked(position, true);
         setTitle(navItem.name); // ;
         closeDrawer(GravityCompat.START);
