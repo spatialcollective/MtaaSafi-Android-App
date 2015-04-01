@@ -1,9 +1,12 @@
 package com.sc.mtaa_safi.login;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,8 +20,8 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.internal.SessionTracker;
 import com.facebook.internal.Utility;
 import com.facebook.model.GraphUser;
+import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.SystemUtils.Utils;
-
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +43,17 @@ public class FacebookActivity extends Activity {
         }
     };
 
+    private MtaaLocationService mBoundService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
+        }
+        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
+    };
+    void bindLocationService() {
+        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +61,12 @@ public class FacebookActivity extends Activity {
         uiHelper.onCreate(savedInstanceState);
         initializeSession();
         requestLogin();
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        bindLocationService();
     }
 
     @Override
@@ -59,6 +79,12 @@ public class FacebookActivity extends Activity {
     public void onPause() {
         super.onPause();
         uiHelper.onPause();
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        unbindService(mConnection);
     }
 
     @Override

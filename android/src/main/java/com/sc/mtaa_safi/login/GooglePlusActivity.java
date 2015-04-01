@@ -5,12 +5,16 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
+import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -27,10 +31,20 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
 
     private boolean mIntentInProgress, mSignInClicked = true;
 
+    private MtaaLocationService mBoundService;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
+        }
+        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
+    };
+    void bindLocationService() {
+        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -42,15 +56,16 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
     @Override
     public void onStart(){
         super.onStart();
+        bindLocationService();
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onStop(){
         super.onStop();
-        if (mGoogleApiClient.isConnected()) {
+        if (mGoogleApiClient.isConnected())
             mGoogleApiClient.disconnect();
-        }
+        unbindService(mConnection);
     }
 
     @Override

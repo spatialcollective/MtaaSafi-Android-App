@@ -35,12 +35,11 @@ public class UserDataUploader extends AsyncTask<Integer, Integer, Integer> {
         int result = 1;
         try {
             serverResponse = sendToServer();
-            if (serverResponse != null){
-                if (serverResponse.has("error"))
-                    result = -1;
+            if (isCancelled())
+                return -1;
 
-                if (serverResponse.has("userId"))
-                    Utils.setUserId(mContext, serverResponse.getInt("userId"));
+            if (serverResponse.has("userId")) {
+                Utils.setUserId(mContext, serverResponse.getInt("userId"));
                 Log.i("UserDataUploader", String.valueOf(Utils.getUserId(mContext)));
             }
 

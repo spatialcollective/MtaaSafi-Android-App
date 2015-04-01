@@ -54,7 +54,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void updatePlaces(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
         Location cachedLocation = Utils.getLocation(mContext);
         Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.location_data));
-        if (cachedLocation != null) {
+        if (cachedLocation != null && cachedLocation.getTime() != 0) {
             JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
             Community.addCommunities(responseJson, provider);
         }
@@ -71,7 +71,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Location cachedLocation = Utils.getLocation(mContext);
         Log.e(TAG, "cachedLocation: " + cachedLocation);
         ArrayList serverIds = new ArrayList();
-        if (cachedLocation != null) {
+        if (cachedLocation != null && cachedLocation.getTime() != 0) {
             JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
             JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
             for (int i = 0; i < serverIdsJSON.length(); i++)
@@ -99,7 +99,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         while (c.moveToNext()) {
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
-            if (!serverIds.contains(serverId)) {
+            int userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USERID));
+            if (!serverIds.contains(serverId) && userId != Utils.getUserId(mContext)) {
                 batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());
                 syncResult.stats.numEntries++;
                 syncResult.stats.numDeletes++;
@@ -116,7 +117,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void writeNewReports(JSONObject serverResponse, ArrayList<ContentProviderOperation> batch, ContentProviderClient provider, SyncResult syncResult)
             throws RemoteException, OperationApplicationException, JSONException {
-
         if (serverResponse == null)
             return;
         JSONArray reportsArray = serverResponse.getJSONArray("reports");

@@ -36,6 +36,7 @@ public class Contract {
             COLUMN_LOC_PROV = "provider",
             COLUMN_LOC_DATA = "loc_data",
             COLUMN_USERNAME = "user",
+            COLUMN_USERID = "user_id",
             COLUMN_MEDIA = "media",
             COLUMN_PENDINGFLAG = "pending",
             COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",

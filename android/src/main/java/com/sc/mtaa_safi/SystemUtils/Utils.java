@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 
+import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.R;
 
 import java.text.SimpleDateFormat;
@@ -112,6 +113,7 @@ public class Utils {
         editor.putFloat(LAT, (float) loc.getLatitude());
         editor.putLong(LOCATION_TIMESTAMP, loc.getTime());
         editor.commit();
+        SyncUtils.TriggerRefresh();
     }
     public static void saveSelectedAdmin(Context context, String name, long id) {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();

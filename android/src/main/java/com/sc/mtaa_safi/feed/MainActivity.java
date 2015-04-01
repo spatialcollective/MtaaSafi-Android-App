@@ -14,7 +14,6 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -30,7 +29,7 @@ import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.login.FacebookActivity;
 import com.sc.mtaa_safi.login.GooglePlusActivity;
 import com.sc.mtaa_safi.login.LoginActivityListener;
-import com.sc.mtaa_safi.login.LoginManager;
+import com.sc.mtaa_safi.login.LoginManagerFragment;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
@@ -41,9 +40,8 @@ public class MainActivity extends ActionBarActivity implements
 
     ReportDetailFragment detailFragment;
     NewsFeedFragment newsFeedFrag;
-    LoginManager loginManager;
+    LoginManagerFragment loginManagerFragment;
     LocationListener locationListener;
-    LocationManager mLocationManager;
 
     private static final int GOOGLE_PLUS_LOGIN = 100, FACEBOOK_LOGIN = 102;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", LOGIN_TAG= "login";
@@ -55,7 +53,6 @@ public class MainActivity extends ActionBarActivity implements
         }
         public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
     };
-
     void bindLocationService() {
         bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
@@ -65,9 +62,8 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
-        loginManager = initializeLoginManager();
+        loginManagerFragment = initializeLoginManager();
         restoreFragment(savedInstanceState);
-        mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {}
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -81,7 +77,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
-        if (!loginManager.isLoggedIn(this))
+        if (!loginManagerFragment.isLoggedIn(this))
             showLoginManager();
         else if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
@@ -134,13 +130,12 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
         supportInvalidateOptionsMenu();
         bindLocationService();
-        if (!loginManager.isLoggedIn(this))
+        if (!loginManagerFragment.isLoggedIn(this))
             showLoginManager();
         else
            goToFeed();
         Utils.saveScreenWidth(this, getScreenWidth());
         setUpWeirdGPlayStuff();
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 60 * 2, 10, locationListener);
         if(!isGPSEnabled())
             onLocationDisabled();
     }
@@ -148,7 +143,6 @@ public class MainActivity extends ActionBarActivity implements
     protected void onStop() {
         super.onStop();
         unbindService(mConnection);
-        mLocationManager.removeUpdates(locationListener);
     }
 
     @Override
@@ -156,8 +150,8 @@ public class MainActivity extends ActionBarActivity implements
         super.onSaveInstanceState(bundle);
         if (detailFragment != null && detailFragment.isAdded())
             getSupportFragmentManager().putFragment(bundle, DETAIL_TAG, detailFragment);
-        if (loginManager != null && loginManager.isAdded())
-            getSupportFragmentManager().putFragment(bundle, LOGIN_TAG, loginManager);
+        if (loginManagerFragment != null && loginManagerFragment.isAdded())
+            getSupportFragmentManager().putFragment(bundle, LOGIN_TAG, loginManagerFragment);
         if (newsFeedFrag != null && newsFeedFrag.isAdded())
             getSupportFragmentManager().putFragment(bundle, NEWSFEED_TAG, newsFeedFrag);
     }
@@ -179,22 +173,22 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public LoginManager initializeLoginManager(){
-        LoginManager loginManager = (LoginManager) getSupportFragmentManager().findFragmentByTag(LOGIN_TAG);
-        if (loginManager == null){
-            loginManager = new LoginManager();
+    public LoginManagerFragment initializeLoginManager() {
+        LoginManagerFragment loginManagerFragment = (LoginManagerFragment) getSupportFragmentManager().findFragmentByTag(LOGIN_TAG);
+        if (loginManagerFragment == null){
+            loginManagerFragment = new LoginManagerFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(loginManager, LOGIN_TAG)
+                    .add(loginManagerFragment, LOGIN_TAG)
                     .commit();
         }
-        return loginManager;
+        return loginManagerFragment;
     }
 
     public void showLoginManager(){
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, loginManager, LOGIN_TAG)
+                .replace(R.id.fragment_container, loginManagerFragment, LOGIN_TAG)
                 .commit();
     }
 
@@ -243,15 +237,13 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    private void onLocationDisabled(){
-
+    private void onLocationDisabled() {
         AlertDialogFragment alert = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alert");
         if (alert != null)
             alert.dismiss();
         AlertDialogFragment.showAlert(AlertDialogFragment.LOCATION_FAILED, this, getSupportFragmentManager());
     }
-
-    private void onLocationEnabled(){
+    private void onLocationEnabled() {
         AlertDialogFragment alert = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alert");
         if (alert != null && alert.isAdded())
             alert.dismiss();

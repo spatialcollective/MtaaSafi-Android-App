@@ -17,7 +17,8 @@
     <string name="nearby">Nearby</string>
     <string name="title_report_detail">Report Details</string>
     <string name="new_report">New Report</string>
-    <string name="my_activity">My Activity</string>
+    <string name="my_activity">My Report</string>
+    <string name="feed_title">Feed</string>
     <string name="new_photo">New Photo</string>
     <string name="add_pic">Add a Photo</string>
     <string name="report_detail_hint">Describe the problem</string>
@@ -37,6 +38,11 @@
     <integer name="google_play_services_version">5208000</integer>
 
     <string name="facebook_app_id">903751569639797</string>
+
+    <string-array name="nav_choices">
+        <item>Feed</item>
+        <item>My Reports</item>
+    </string-array>
 
     <string-array name="feed_sort_choices">
         <item>Newest</item>

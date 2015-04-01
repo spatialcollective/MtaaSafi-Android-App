@@ -60,7 +60,6 @@ public class NewsFeedFragment extends Fragment implements
 
     SimpleCursorAdapter placeAdapter;
     private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,13 +79,13 @@ public class NewsFeedFragment extends Fragment implements
             navIndex = savedInstanceState.getInt("navIndex");
         }
         mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
-        createToolbar(view);
+        Toolbar toolbar = createToolbar(view);
         createLocationChooser(view);
 
-        view.findViewById(R.id.my_activity).setOnClickListener(new MyActivityClickListener());
-        mDrawerToggle = new ActionBarDrawerToggle(getActivity(), mDrawerLayout,
-                (Toolbar) view.findViewById(R.id.main_toolbar), R.string.open, R.string.close);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        NavigationDrawer dlDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
+        dlDrawer.setupDrawer(toolbar, this);
+        if (savedInstanceState == null)
+            dlDrawer.selectNavItem(0);
 
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener(this);
@@ -94,21 +93,13 @@ public class NewsFeedFragment extends Fragment implements
         return view;
     }
 
-    private class MyActivityClickListener implements View.OnClickListener {
-        @Override public void onClick(View v) {
-            ((TextView) getView().findViewById(R.id.title)).setText(R.string.my_activity);
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-            FEED_CONTENT = Contract.Entry.COLUMN_USERNAME  + " == " + Utils.getUserName(getActivity());
-            getLoaderManager().restartLoader(FEED_LOADER, null, NewsFeedFragment.this);
-        }
-    }
-
-    private void createToolbar(View view) {
+    private Toolbar createToolbar(View view) {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_menu);
         ((TextView) toolbar.findViewById(R.id.title)).setText(Utils.getSelectedAdminName(getActivity()));
         addSortSpinner(view);
+        return toolbar;
     }
 
     private void createLocationChooser(View view) {

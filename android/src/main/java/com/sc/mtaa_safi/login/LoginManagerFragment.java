@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LoginManager extends Fragment implements View.OnClickListener {
+public class LoginManagerFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "LoginManager";
     protected Button mGooglePlusButton, mFacebookButton;
     private static final String FACEBOOK_LOGIN = "facebook", GOOGLEPLUS_LOGIN = "google";
