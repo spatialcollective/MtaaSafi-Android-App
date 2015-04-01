@@ -99,8 +99,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         while (c.moveToNext()) {
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
-            int userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USERID));
-            if (!serverIds.contains(serverId) && userId != Utils.getUserId(mContext)) {
+            if (!serverIds.contains(serverId)) {
                 batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());
                 syncResult.stats.numEntries++;
                 syncResult.stats.numDeletes++;

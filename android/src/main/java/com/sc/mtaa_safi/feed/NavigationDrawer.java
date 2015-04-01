@@ -2,9 +2,11 @@
 package com.sc.mtaa_safi.feed;
 
 import android.content.Context;
+import android.opengl.Visibility;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,7 +28,7 @@ import com.sc.mtaa_safi.database.Contract;
 
 import java.util.ArrayList;
 
-public class NavigationDrawer extends DrawerLayout {
+public class NavigationDrawer extends DrawerLayout implements View.OnClickListener{
     NewsFeedFragment frag;
     private ActionBarDrawerToggle toggle;
     private Toolbar toolbar;
@@ -53,11 +56,12 @@ public class NavigationDrawer extends DrawerLayout {
         toolbar = drawerToolbar;
         setupDrawerToggle();
 
-        addNavItem("Nearby", R.drawable.ic_place_grey, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0);
-        addNavItem("My Reports", R.drawable.ic_message_grey600_24dp, Contract.Entry.COLUMN_USERID  + " == " + Utils.getUserId(getActivity()));
+        addNavItem(R.string.nearby, R.drawable.ic_place_grey, Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0);
+        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, Contract.Entry.COLUMN_USERID  + " == " + Utils.getUserId(getActivity()));
+        createLocationChooser(this);
     }
 
-    public void addNavItem(String name, int icon, String feed_value) {
+    public void addNavItem(int name, int icon, String feed_value) {
         NavItem ni = new NavItem(name, icon, feed_value);
         adapter.items.add(ni);
         navItems.add(ni);
@@ -78,13 +82,46 @@ public class NavigationDrawer extends DrawerLayout {
         }
     }
 
+    private void createLocationChooser(View view) {
+        ListView drawerList = (ListView) view.findViewById(R.id.places_list);
+        frag.placeAdapter = new SimpleCursorAdapter(getActivity(), R.layout.places_item,
+                null, new String[] { Contract.Admin.COLUMN_NAME }, new int[] { R.id.place_name }, 0);
+        drawerList.setAdapter(frag.placeAdapter);
+        drawerList.setOnItemClickListener(new LocationClickListener());
+        frag.getLoaderManager().initLoader(frag.PLACES_LOADER, null, frag);
+        view.findViewById(R.id.places_toggle).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        View list = this.findViewById(R.id.places_list);
+        boolean listOpen = VISIBLE == list.getVisibility();
+        if (listOpen) {
+            this.findViewById(R.id.bottom_border).setVisibility(INVISIBLE);
+            this.findViewById(R.id.top_border).setVisibility(INVISIBLE);
+            list.setVisibility(INVISIBLE);
+            ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(
+                    getResources().getDrawable(R.drawable.ic_map_grey), null, getResources().getDrawable(R.drawable.ic_expand_more_grey), null);
+        } else {
+            this.findViewById(R.id.bottom_border).setVisibility(VISIBLE);
+            this.findViewById(R.id.top_border).setVisibility(VISIBLE);
+            list.setVisibility(VISIBLE);
+            ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(
+                    getResources().getDrawable(R.drawable.ic_map_grey), null, getResources().getDrawable(R.drawable.ic_expand_less_grey), null);
+        }
+
+    }
+    private class LocationClickListener implements ListView.OnItemClickListener {
+        @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
+            frag.setFeedToLocation((String) ((TextView) view).getText(), id);
+            closeDrawer(GravityCompat.START);
+        }
+    }
+
     private void setTitle(CharSequence title) {
         ((TextView) this.findViewById(R.id.title)).setText(title);
     }
 
-    public ActionBarDrawerToggle getDrawerToggle() {
-        return toggle;
-    }
     private void setupDrawerToggle() {
         toggle = new ActionBarDrawerToggle(getActivity(), this, toolbar, R.string.open, R.string.close);
         setDrawerListener(toggle);
@@ -94,15 +131,11 @@ public class NavigationDrawer extends DrawerLayout {
         return (FragmentActivity) getContext();
     }
 
-    private ActionBar getSupportActionBar() {
-        return ((ActionBarActivity) getActivity()).getSupportActionBar();
-    }
-
     private class NavItem {
         public String name, value;
         public int icon;
-        public NavItem(String name, int icon, String value) {
-            this.name = name;
+        public NavItem(int name, int icon, String value) {
+            this.name = getResources().getString(name);
             this.icon = icon;
             this.value = value;
         }

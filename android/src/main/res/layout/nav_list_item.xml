@@ -5,7 +5,7 @@
     android:paddingLeft="16dp"
     android:paddingEnd="16dp"
     android:paddingRight="16dp"
-    android:text="@string/feed"
+    android:text="@string/places"
     android:textColor="@color/textDark"
     android:textSize="14sp"
     android:gravity="center_vertical"

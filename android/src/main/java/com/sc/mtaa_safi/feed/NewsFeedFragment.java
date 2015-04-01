@@ -80,7 +80,6 @@ public class NewsFeedFragment extends Fragment implements
         }
         mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
         Toolbar toolbar = createToolbar(view);
-        createLocationChooser(view);
 
         NavigationDrawer dlDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
         dlDrawer.setupDrawer(toolbar, this);
@@ -102,38 +101,20 @@ public class NewsFeedFragment extends Fragment implements
         return toolbar;
     }
 
-    private void createLocationChooser(View view) {
-        ListView drawerList = (ListView) view.findViewById(R.id.location_list);
-        placeAdapter = new SimpleCursorAdapter(getActivity(), R.layout.drawer_list_item, 
-            null, new String[] { Contract.Admin.COLUMN_NAME }, new int[] { R.id.place_name }, 0);
-        drawerList.setAdapter(placeAdapter);
-        drawerList.setOnItemClickListener(new LocationClickListener());
-        view.findViewById(R.id.nearby).setOnClickListener(new NearbyClickListener());
-        getLoaderManager().initLoader(PLACES_LOADER, null, this);
-    }
-    private class LocationClickListener implements ListView.OnItemClickListener {
-        @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
-            setFeedToLocation((String) ((TextView) view).getText(), id);
-        }
-    }
-    private class NearbyClickListener implements View.OnClickListener {
-        @Override public void onClick(View v) {
-            setFeedToLocation(getResources().getString(R.string.nearby), -1);
-        }
-    }
     public void setFeedToLocation(String name, long id) {
         Utils.saveSelectedAdmin(getActivity(), name, id);
         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
         ((TextView) getView().findViewById(R.id.title)).setText(name);
-        mDrawerLayout.closeDrawer(GravityCompat.END);
         attemptRefresh(getActivity());
         refreshMessage("Pull down to see reports", true);
     }
 
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(getView().findViewById(R.id.right_drawer));
-        menu.findItem(R.id.choose_location).setVisible(!drawerOpen);
+//        try {
+//            boolean drawerOpen = mDrawerLayout.isDrawerOpen(getView().findViewById(R.id.left_drawer));
+//            menu.findItem(R.id.places_list).setVisible(!drawerOpen);
+//        } catch (Exception e) {}
     }
 
     @Override
@@ -296,7 +277,6 @@ public class NewsFeedFragment extends Fragment implements
     public boolean onOptionsItemSelected(MenuItem item) {
         MainActivity act = (MainActivity) getActivity();
         switch (item.getItemId()) {
-            case R.id.choose_location: mDrawerLayout.openDrawer(GravityCompat.END); return true;
             case R.id.upload: act.uploadSavedReports(); return true;
             default: return super.onOptionsItemSelected(item);
         }

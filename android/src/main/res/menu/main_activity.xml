@@ -6,8 +6,4 @@
         android:title="@string/upload_saved"
         app:showAsAction="always"
         android:visible="false"/>
-    <item android:id="@+id/choose_location"
-        android:title="@string/choose_location"
-        android:icon="@drawable/ic_place"
-        app:showAsAction="always" />
 </menu>
