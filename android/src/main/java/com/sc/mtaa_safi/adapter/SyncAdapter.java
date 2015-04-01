@@ -72,7 +72,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Log.e(TAG, "cachedLocation: " + cachedLocation);
         ArrayList serverIds = new ArrayList();
         if (cachedLocation != null && cachedLocation.getTime() != 0) {
-            JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+            JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + Utils.getUserId(mContext) + "/" + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
             JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
             for (int i = 0; i < serverIdsJSON.length(); i++)
                 serverIds.add(serverIdsJSON.getInt(i));
@@ -81,7 +81,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private ArrayList getIdsForAdmin() throws IOException, JSONException {
-        JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + Utils.getSelectedAdminId(mContext) + "/", "get", null);
+        JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + Utils.getUserId(mContext) + "/" + Utils.getSelectedAdminId(mContext) + "/", "get", null);
         ArrayList serverIds = new ArrayList();
         JSONArray serverIdsJSON = responseJSON.getJSONArray("ids");
         for (int i = 0; i < serverIdsJSON.length(); i++)
