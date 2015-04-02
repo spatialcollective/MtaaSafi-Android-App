@@ -5,30 +5,49 @@
     android:orientation="vertical"
     android:background="@color/White">
 
-    <TextView android:id="@+id/user_name"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="72dp"
         android:paddingTop="16dp"
         android:paddingLeft="16dp"
         android:paddingEnd="16dp"
         android:paddingRight="16dp"
-        android:gravity="center_vertical"
-        android:textSize="14sp"
-        android:textColor="@color/Black"
-        android:background="@color/ultraLightGrey" />
-
-    <TextView android:id="@+id/user_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:paddingBottom="16dp"
         android:layout_marginBottom="8dp"
-        android:gravity="center_vertical"
-        android:textSize="14sp"
-        android:textColor="@color/Black"
-        android:background="@color/ultraLightGrey"
-        android:paddingLeft="16dp"
-        android:paddingEnd="16dp"
-        android:paddingRight="16dp"/>
+        android:background="@color/ultraLightGrey" >
+
+        <TextView android:id="@+id/user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="Spatial Collective"
+            android:textSize="14sp"
+            android:textColor="@color/Black"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView android:id="@+id/user_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="spatial@collective.com"
+            android:textSize="14sp"
+            android:textColor="@color/Black"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <include android:id="@+id/report_count"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            layout="@layout/report_count"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
 
     <ListView android:id="@+id/nav_list"
         android:layout_width="match_parent"

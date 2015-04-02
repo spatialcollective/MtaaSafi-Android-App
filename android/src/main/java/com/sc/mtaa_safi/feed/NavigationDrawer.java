@@ -7,18 +7,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -72,7 +68,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         frag.FEED_CONTENT = navItem.value;
         frag.getLoaderManager().restartLoader(frag.FEED_LOADER, null, frag);
         list.setItemChecked(position, true);
-        setTitle(navItem.name); // ;
+        setTitle(navItem.name);
         closeDrawer(GravityCompat.START);
     }
     private class NavItemListener implements ListView.OnItemClickListener {
