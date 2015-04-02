@@ -31,6 +31,9 @@
     <string name="sign_in_google">Sign in with Google+</string>
     <string name="sign_in_facebook">Sign In with Facebook</string>
 
+    <string name="accept_photo">Accept</string>
+    <string name="discard_photo">Discard</string>
+
     <integer name="google_play_services_version">5208000</integer>
 
     <string name="title_activity_new_report">NewReportActivity</string>

@@ -1,5 +1,6 @@
 package com.sc.mtaa_safi.newReport;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -30,6 +31,8 @@ import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,6 +124,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         Log.i("new report frag", "Pic paths was size " + picPaths.size());
         for (int i = 0; i < picPaths.size(); i++)
             if (picPaths.get(i) != null) {
+
                 ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
                 thumb.setVisibility(View.VISIBLE);
                 Bitmap bitmap = getThumbnail(picPaths.get(i));
@@ -139,6 +143,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         if (bmp != null) {
             int origWidth = bmp.getWidth();
             int origHeight = bmp.getHeight();
+            Log.i("NewReportFragment", "Width: "+origWidth+" Height: "+origHeight);
             if (origWidth > origHeight)
                 return Bitmap.createScaledBitmap(bmp, thumbWidth, (origHeight * thumbWidth) / origWidth, false);
             else
@@ -163,7 +168,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     public void takePicture() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        /*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null){
             try {
                 File photoFile = createImageFile();
@@ -173,7 +178,11 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
                 Toast.makeText(getActivity(), "Couldn't create file", Toast.LENGTH_SHORT).show();
             }
         } else
-            Toast.makeText(getActivity(), "Couldn't resolve activity", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Couldn't resolve activity", Toast.LENGTH_SHORT).show();*/
+
+        Intent intent = new Intent();
+        intent.setClass(getActivity(),ImageCaptureActivity.class);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
     @Override
@@ -181,13 +190,22 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != REQUEST_IMAGE_CAPTURE)
             return;
-        File file = new File(picPaths.get(picPaths.size() - 1));
+        if (resultCode == Activity.RESULT_OK){
+            Bundle bundle = data.getExtras();
+            Uri fileUri = Uri.parse(bundle.getString("IMAGE_FILE_NAME"));
+            Toast.makeText(getActivity(), "Image saved to:"+ fileUri.getPath(), Toast.LENGTH_LONG).show();
+
+            picPaths.add(fileUri.getPath());
+
+            updatePicPreviews();
+            attemptEnableSendSave();
+        }
+        /*File file = new File(picPaths.get(picPaths.size() - 1));
         if (file.length() == 0) {
             picPaths.remove(picPaths.size() - 1);
             file.delete();
-        }
-        updatePicPreviews();
-        attemptEnableSendSave();
+        }*/
+
     }
 
     private File createImageFile() throws IOException {
