@@ -11,11 +11,12 @@
         android:id="@+id/doneButton"
         android:src="@drawable/swipe_up_arrow" />
 
-    <TextView
+    <TextView android:id="@+id/pullDownText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingBottom="20dp"
         android:text="Pull down to see reports"
-        android:id="@+id/pullDownText"
         android:textColor="@color/mtaa_safi_blue_dark"
         android:textStyle="bold"
         android:textSize="20dp" />

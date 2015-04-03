@@ -10,12 +10,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -32,7 +29,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -52,18 +48,21 @@ public class NewsFeedFragment extends Fragment implements
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
-                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC";
-    public String FEED_CONTENT = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
+                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
+                                LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
+    public static String LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ";
+    public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
+    CharSequence title;
     String sortOrder = SORT_RECENT;
 
     SimpleCursorAdapter placeAdapter;
-    private DrawerLayout mDrawerLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         index = top = 0;
+        LOAD_USER = LOAD_USER + Utils.getUserId(getActivity());
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
@@ -73,18 +72,13 @@ public class NewsFeedFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
 
         if (savedInstanceState != null) {
+            LOAD_USER = savedInstanceState.getString("Load_user");
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
+            feedContent = savedInstanceState.getString("feedContent");
             sortOrder = savedInstanceState.getString("sortOrder");
             navIndex = savedInstanceState.getInt("navIndex");
         }
-        mDrawerLayout = (DrawerLayout) view.findViewById(R.id.drawer_layout);
-        Toolbar toolbar = createToolbar(view);
-
-        NavigationDrawer dlDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
-        dlDrawer.setupDrawer(toolbar, this);
-        if (savedInstanceState == null)
-            dlDrawer.selectNavItem(0);
 
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener(this);
@@ -92,34 +86,13 @@ public class NewsFeedFragment extends Fragment implements
         return view;
     }
 
-    private Toolbar createToolbar(View view) {
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
-        ((MainActivity) getActivity()).setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu);
-        ((TextView) toolbar.findViewById(R.id.title)).setText(Utils.getSelectedAdminName(getActivity()));
-        addSortSpinner(view);
-        return toolbar;
-    }
-
-    public void setFeedToLocation(String name, long id) {
-        Utils.saveSelectedAdmin(getActivity(), name, id);
-        ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
-        ((TextView) getView().findViewById(R.id.title)).setText(name);
-        attemptRefresh(getActivity());
-        refreshMessage("Pull down to see reports", true);
-    }
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-//        try {
-//            boolean drawerOpen = mDrawerLayout.isDrawerOpen(getView().findViewById(R.id.left_drawer));
-//            menu.findItem(R.id.places_list).setVisible(!drawerOpen);
-//        } catch (Exception e) {}
-    }
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        createToolbar(view);
+        if (savedInstanceState != null)
+            setTitle(savedInstanceState.getCharSequence("title"));
+
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
         recyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(getActivity());
@@ -129,13 +102,30 @@ public class NewsFeedFragment extends Fragment implements
         mAdapter = new FeedAdapter(getActivity(), null);
         recyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(FEED_LOADER, null, this);
+
+        NavigationDrawer dlDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
+        dlDrawer.setupDrawer((Toolbar) view.findViewById(R.id.main_toolbar), this);
+        // if (savedInstanceState == null)
+        //     dlDrawer.selectNavItem(0);
+    }
+
+    private Toolbar createToolbar(View view) {
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
+        ((MainActivity) getActivity()).setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu);
+        setTitle(Utils.getSelectedAdminName(getActivity()));
+        addSortSpinner(view);
+        return toolbar;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);
+        outstate.putCharSequence("Load_user", LOAD_USER);
+        outstate.putCharSequence("title", title);
         outstate.putInt("top", top);
         outstate.putInt("index", index);
+        outstate.putString("feedContent", feedContent);
         outstate.putString("sortOrder", sortOrder);
         outstate.putInt("navIndex", navIndex);
     }
@@ -167,7 +157,7 @@ public class NewsFeedFragment extends Fragment implements
                     if (getView() != null)
                         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(false);
                     }
-                }, 3000);
+                }, 8000);
             }
         }
     }
@@ -205,6 +195,15 @@ public class NewsFeedFragment extends Fragment implements
             ab.show();
     }
 
+    public void setFeedToLocation(String name, long id) {
+        Utils.saveSelectedAdmin(getActivity(), name, id);
+        setTitle(name);
+        getLoaderManager().restartLoader(FEED_LOADER, null, this);
+        attemptRefresh(getActivity());
+        ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
+        refreshMessage("Pull down to see reports", true);
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == PLACES_LOADER)
@@ -212,16 +211,15 @@ public class NewsFeedFragment extends Fragment implements
                     new String[] { Contract.Admin.COLUMN_SERVER_ID, Contract.Admin.COLUMN_NAME },
                     null, null, Contract.Admin.COLUMN_NAME + " ASC");
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-                Report.PROJECTION, FEED_CONTENT, null, sortOrder);
+                Report.PROJECTION, feedContent, null, sortOrder);
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (loader.getId() == FEED_LOADER) {
             feedLoaded(cursor);
-            if (cursor.getCount() == 0) {
+            if (cursor.getCount() == 0)
                 refreshMessage("Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.", false);
-            }
-        }else
+        } else
             placeAdapter.swapCursor(cursor);
     }
     private void feedLoaded(Cursor cursor) {
@@ -242,6 +240,12 @@ public class NewsFeedFragment extends Fragment implements
             ((FeedAdapter) mAdapter).swapCursor(null);
         else
             placeAdapter.swapCursor(null);
+    }
+
+    public void setTitle(CharSequence title) {
+        this.title = title;
+        try { ((TextView) getView().findViewById(R.id.title)).setText(title); }
+        catch (Exception e) { Log.e("nnf", "Failed to set title"); }
     }
 
     private void addSortSpinner(View v) {
@@ -311,7 +315,5 @@ public class NewsFeedFragment extends Fragment implements
             imageView.setVisibility(View.INVISIBLE);
         final TextView textView = (TextView) getView().findViewById(R.id.pullDownText);
         textView.setText(message);
-        textView.setPadding(20, 0, 0, 20);
-
     }
 }

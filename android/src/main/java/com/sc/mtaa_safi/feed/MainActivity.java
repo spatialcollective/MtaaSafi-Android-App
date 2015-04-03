@@ -97,15 +97,6 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void goToFeed() {
-        newsFeedFrag = new NewsFeedFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, newsFeedFrag, NEWSFEED_TAG)
-                .commit();
-
-    }
-
     public void goToDetailView(Report r, int position) {
         detailFragment = new ReportDetailFragment();
         detailFragment.setData(r);
@@ -132,8 +123,6 @@ public class MainActivity extends ActionBarActivity implements
         bindLocationService();
         if (!loginManagerFragment.isLoggedIn(this))
             showLoginManager();
-        else
-           goToFeed();
         Utils.saveScreenWidth(this, getScreenWidth());
         setUpWeirdGPlayStuff();
         if(!isGPSEnabled())
