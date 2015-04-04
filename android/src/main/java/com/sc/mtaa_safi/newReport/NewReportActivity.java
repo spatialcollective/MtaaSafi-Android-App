@@ -18,6 +18,7 @@ import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 import org.json.JSONException;
@@ -25,6 +26,7 @@ import org.json.JSONObject;
 
 public class NewReportActivity extends ActionBarActivity {
     public final static String NEW_REPORT_TAG = "newreport";
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,5 +123,8 @@ public class NewReportActivity extends ActionBarActivity {
 
     public void takePic(View view) {
         ((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG)).takePicture();
+        /*Intent intent = new Intent();
+        intent.setClass(this,ImageCaptureActivity.class);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);*/
     }
 }

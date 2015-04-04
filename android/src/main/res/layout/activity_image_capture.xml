@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5">
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/shoot_button_container"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/shoot_button"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+             />
+
+        <ImageView
+            android:id="@+id/camera_icon"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_menu_camera"
+             />
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/confirm_buttons_container"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/accept_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/accept_photo"
+            android:layout_gravity="right|center_vertical" />
+
+        <Button
+            android:id="@+id/discard_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/discard_photo"
+            android:layout_gravity="left|center_vertical" />
+    </FrameLayout>
+</LinearLayout>
