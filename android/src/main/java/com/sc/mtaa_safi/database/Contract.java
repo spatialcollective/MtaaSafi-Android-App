@@ -31,6 +31,7 @@ public class Contract {
 	        COLUMN_TIMESTAMP = "timestamp",
             COLUMN_LAT = "latitude",
             COLUMN_LNG = "longitude",
+            COLUMN_ADMIN_ID = "admin_id",
             COLUMN_LOC_ACC = "accuracy",
             COLUMN_LOC_TIME = "loc_time",
             COLUMN_LOC_PROV = "provider",

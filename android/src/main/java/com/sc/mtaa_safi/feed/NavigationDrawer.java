@@ -76,7 +76,6 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
 
     private void updateFeedView(String title, long adminId) {
         frag.setFeedToLocation(title, adminId);
-        frag.feedContent = NewsFeedFragment.LOAD_ALL;
         closeDrawer(GravityCompat.START);
     }
 
@@ -91,6 +90,9 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     }
     private class PlacesClickListener implements ListView.OnItemClickListener {
         @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
+            frag.feedContent = NewsFeedFragment.LOAD_ALL;
+            if (id != -1)
+                frag.feedContent = frag.feedContent + " AND " + NewsFeedFragment.LOAD_ADMIN + id;
             updateFeedView((String) ((TextView) view).getText(), id);
         }
     }

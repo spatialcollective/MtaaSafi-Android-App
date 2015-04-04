@@ -45,10 +45,12 @@ public class NetworkUtils {
         httpRequest.setHeader("Accept", "application/json");
         httpRequest.setHeader("Content-type", "application/json");
         HttpResponse response = httpClient.execute(httpRequest);
+        Log.e("Network Utils", "Response Code: " + response.getStatusLine().getStatusCode());
         if (response.getStatusLine().getStatusCode() > 400) {
             JSONObject json = new JSONObject();
             return json.put("error", response.getStatusLine().getStatusCode());
         }
+        Log.e("Network Utils", "Server Response: " + response.toString());
         return convertHttpResponseToJSON(response);
     }
 
@@ -79,14 +81,14 @@ public class NetworkUtils {
         while((line = bufferedReader.readLine()) != null)
             result.append(line);
         inputStream.close();
-        Log.e("Network Utils: Server Response: ", result.toString());
+        Log.e("Network Utils", "Server Response: " + result.toString());
         return result.toString();
     }
 
     public static JSONObject convertHttpResponseToJSON(HttpResponse response) {
         try {
             String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            Log.e("Network Utils: Server Response: ", responseString);
+            Log.e("Network Utils", "Server Response: " + responseString);
             return new JSONObject(responseString);
         } catch (Exception e) {
             e.printStackTrace();

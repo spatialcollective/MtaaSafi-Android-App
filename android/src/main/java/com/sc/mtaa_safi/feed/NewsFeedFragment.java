@@ -50,7 +50,8 @@ public class NewsFeedFragment extends Fragment implements
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
-    public static String LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ";
+    public static String    LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
+                            LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
@@ -210,6 +211,7 @@ public class NewsFeedFragment extends Fragment implements
             return new CursorLoader(getActivity(), Contract.Admin.ADMIN_URI,
                     new String[] { Contract.Admin.COLUMN_SERVER_ID, Contract.Admin.COLUMN_NAME },
                     null, null, Contract.Admin.COLUMN_NAME + " ASC");
+        Log.e("NFF", "feedContent: " + feedContent);
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
                 Report.PROJECTION, feedContent, null, sortOrder);
     }

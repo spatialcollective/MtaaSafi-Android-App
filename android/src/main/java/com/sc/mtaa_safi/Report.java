@@ -29,7 +29,7 @@ import java.util.Date;
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public int serverId, dbId, userId, pendingState = -1, upVoteCount, inProgress = 0;
+    public int serverId, dbId, userId, adminId, pendingState = -1, upVoteCount, inProgress = 0;
     public String locationDescript, content, timeElapsed, userName, locationJSON;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
@@ -43,6 +43,7 @@ public class Report {
             Contract.Entry.COLUMN_TIMESTAMP,
             Contract.Entry.COLUMN_LAT,
             Contract.Entry.COLUMN_LNG,
+            Contract.Entry.COLUMN_ADMIN_ID,
             Contract.Entry.COLUMN_LOC_ACC,
             Contract.Entry.COLUMN_LOC_TIME,
             Contract.Entry.COLUMN_LOC_PROV,
@@ -78,6 +79,7 @@ public class Report {
         userId = bundle.getInt(Contract.Entry.COLUMN_USERID);
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
+        adminId = bundle.getInt(Contract.Entry.COLUMN_ADMIN_ID);
         locationJSON = bundle.getString(Contract.Entry.COLUMN_LOC_DATA);
         
         location = new Location("report_location");
@@ -101,6 +103,7 @@ public class Report {
         timeElapsed = Utils.getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USERID));
+        adminId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID));
         if(userName.equals(""))
             userName = "Unknown user";
 
@@ -128,6 +131,7 @@ public class Report {
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         userId = jsonData.getInt(Contract.Entry.COLUMN_USERID);
+        adminId = jsonData.getInt(Contract.Entry.COLUMN_ADMIN_ID);
 
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
@@ -156,6 +160,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
         reportValues.put(Contract.Entry.COLUMN_USERID, userId);
+        reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         if (upVoted)
@@ -185,6 +190,7 @@ public class Report {
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);
         output.putInt(Contract.Entry.COLUMN_USERID, userId);
+        output.putInt(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
         output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
         output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
@@ -216,6 +222,7 @@ public class Report {
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_USERID, this.userId);
+        json.put(Contract.Entry.COLUMN_ADMIN_ID, this.adminId);
 
         if (this.locationJSON != null)
             json.put(Contract.Entry.COLUMN_LOC_DATA, this.locationJSON);
