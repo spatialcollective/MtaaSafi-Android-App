@@ -15,7 +15,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
             android:id="@+id/uploadingView">
 
             <TextView
@@ -25,8 +24,8 @@
                 android:text="Uploading..."
                 android:id="@+id/uploadingText"
                 android:textColor="@color/White"
-                android:textStyle="bold"
-                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_centerHorizontal="true" />
 
             <ImageButton

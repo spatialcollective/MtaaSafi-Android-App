@@ -62,7 +62,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.new_toolbar);
         act.setSupportActionBar(toolbar);
         act.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_action_remove);
+        act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
 
         updateDetailsView();
         updatePicPreviews();

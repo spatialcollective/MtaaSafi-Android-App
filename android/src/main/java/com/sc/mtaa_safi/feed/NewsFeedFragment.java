@@ -55,7 +55,7 @@ public class NewsFeedFragment extends Fragment implements
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
-    CharSequence title;
+    CharSequence title = "Nearby";
     String sortOrder = SORT_RECENT;
 
     SimpleCursorAdapter placeAdapter;
@@ -250,7 +250,8 @@ public class NewsFeedFragment extends Fragment implements
     private void addSortSpinner(View v) {
         Spinner spin = ((Spinner) v.findViewById(R.id.feed_sorter));
         ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(getActivity(),
-                R.array.feed_sort_choices, android.R.layout.simple_spinner_dropdown_item);
+                R.array.feed_sort_choices, R.layout.spinner_header);
+        mSpinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
         spin.setAdapter(mSpinnerAdapter);
         spin.setSelection(navIndex);
         spin.setOnItemSelectedListener(new SortListener());

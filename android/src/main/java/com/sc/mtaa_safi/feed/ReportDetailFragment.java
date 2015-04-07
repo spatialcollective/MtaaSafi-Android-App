@@ -64,6 +64,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
         ((MainActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationIcon(R.drawable.ic_action_back);
     }
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -107,13 +108,11 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onResume() {
         super.onResume();
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ((MainActivity) getActivity()).getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
     }
     @Override
     public void onStop() {
         super.onStop();
-        ((ActionBarActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ((MainActivity) getActivity()).getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
     private String createHumanReadableTimestamp() {
