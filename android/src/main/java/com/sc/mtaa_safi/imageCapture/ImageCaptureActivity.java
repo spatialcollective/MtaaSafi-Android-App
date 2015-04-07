@@ -36,6 +36,7 @@ import android.widget.Toast;
 import com.sc.mtaa_safi.R;
 
 public class ImageCaptureActivity extends Activity implements SensorEventListener {
+
     private Camera mCamera;
     private CameraPreview mPreview;
 
@@ -50,7 +51,6 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
     private File sdRoot;
     private String dir;
     private String fileName;
-
 
     public final String IMAGE_FILE_NAME = "IMAGE_FILE_NAME";
     public static final String TAG = "ImageCaptureActivity";
@@ -137,7 +137,7 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
     }
 
     private boolean checkCameraHardware(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
     }
 
     private boolean checkSDCard() {
@@ -153,11 +153,11 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
     public static Camera getCameraInstance() {
         Camera c = null;
         try {
-            c = Camera.open();
+            c = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
         } catch (Exception e) {
             Log.e(TAG, "Camera could not open: "+e.getMessage());
+            c = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
         }
-
         return c;
     }
 
@@ -206,12 +206,14 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
                 if (event.values[0] < 4 && event.values[0] > -4) {
                     if (event.values[1] > 0 && orientation != ExifInterface.ORIENTATION_ROTATE_90) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_90;
+
                     } else if (event.values[1] < 0 && orientation != ExifInterface.ORIENTATION_ROTATE_270) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_270;
                     }
                 } else if (event.values[1] < 4 && event.values[1] > -4) {
                     if (event.values[0] > 0 && orientation != ExifInterface.ORIENTATION_NORMAL) {
                         orientation = ExifInterface.ORIENTATION_NORMAL;
+
                     } else if (event.values[0] < 0 && orientation != ExifInterface.ORIENTATION_ROTATE_180) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_180;
                     }
