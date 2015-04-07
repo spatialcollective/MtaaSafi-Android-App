@@ -116,6 +116,7 @@ public class FacebookActivity extends Activity {
         if (openSession != null) {
             Toast.makeText(this, "Facebook already logged in", Toast.LENGTH_LONG).show();
             Log.i(TAG, "Facebook already logged in");
+            setResult(RESULT_OK);
             finish();
         }
         Session currentSession = mSessionTracker.getSession();
@@ -189,6 +190,7 @@ public class FacebookActivity extends Activity {
             getUserData(session);
             Toast.makeText(this, "Facebook user is signed in", Toast.LENGTH_LONG).show();
             Log.i(TAG, "Facebook user is signed in");
+            setResult(RESULT_OK);
             finish();
         }
         else if (state.isClosed()){

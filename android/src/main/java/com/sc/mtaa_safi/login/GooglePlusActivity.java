@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class GooglePlusActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int RC_SIGN_IN = 101, RESULT_OK = -1;
+    private static final int RC_SIGN_IN = 101;
     private GoogleApiClient mGoogleApiClient;
 
     private boolean mIntentInProgress, mSignInClicked = true;
@@ -70,8 +70,9 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
 
     @Override
     public void onConnected(Bundle bundle) {
-        Utils.setSignInStatus(getApplicationContext(),true);
+        Utils.setSignInStatus(getApplicationContext(), true);
         getProfileInformation();
+        setResult(RESULT_OK);
         finish();
     }
 
@@ -94,8 +95,10 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
                     mIntentInProgress = false;
                     mGoogleApiClient.connect();
                 }
-            } else
+            } else {
+                setResult(RESULT_CANCELED);
                 finish();
+            }
 
         }
     }
