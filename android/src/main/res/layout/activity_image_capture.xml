@@ -49,7 +49,7 @@
             android:id="@+id/discard_button"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:src="@drawable/ic_action_remove"
+            android:src="@drawable/ic_close"
             android:background="@drawable/floating_button_blue"
             android:layout_gravity="left|center_vertical"
             android:layout_marginLeft="16dp"
