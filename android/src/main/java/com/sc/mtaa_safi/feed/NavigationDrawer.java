@@ -54,7 +54,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     }
     private void addNavItems() {
         addNavItem(R.string.nearby, R.drawable.ic_place_grey, NewsFeedFragment.LOAD_ALL);
-        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, NewsFeedFragment.LOAD_USER + Utils.getUserId(getActivity()));
+        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, NewsFeedFragment.LOAD_USER);
         createOtherPlacesChooser();
     }
     public void addNavItem(int name, int icon, String feed_value) {
@@ -71,6 +71,8 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         NavItem navItem = (NavItem) adapter.getItem(position);
         list.setItemChecked(position, true);
         frag.feedContent = navItem.value;
+        if (navItem.value == NewsFeedFragment.LOAD_USER)
+            frag.feedContent += Utils.getUserId(getActivity());
         updateFeedView(navItem.name, -1);
     }
 
