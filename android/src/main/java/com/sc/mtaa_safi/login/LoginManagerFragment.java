@@ -84,7 +84,7 @@ public class LoginManagerFragment extends Fragment implements View.OnClickListen
 
     public boolean isLoggedIn(Context context){
         Log.i(TAG, "Checking if user is logged in");
-        boolean status = Utils.getSignInStatus(context);
+        boolean status = Utils.isSignedIn(context);
         Log.e(TAG, String.valueOf(status));
         return status;
     }

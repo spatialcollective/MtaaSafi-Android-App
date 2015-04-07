@@ -80,9 +80,9 @@ public class MainActivity extends ActionBarActivity implements
         loginManagerFragment = initializeLoginManager();
         if (savedInstanceState != null)
             detailFragment = (ReportDetailFragment) getSupportFragmentManager().getFragment(savedInstanceState, DETAIL_TAG);
-        if (detailFragment == null && Utils.getSignInStatus(this))
+        if (detailFragment == null && Utils.isSignedIn(this))
             goToFeed(savedInstanceState);
-        else if (!Utils.getSignInStatus(this))
+        else if (!Utils.isSignedIn(this))
             showLoginManager();
     }
 

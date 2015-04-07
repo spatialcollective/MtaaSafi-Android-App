@@ -28,6 +28,7 @@ import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -42,9 +43,9 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
     private ExifInterface exif;
     private SensorManager sensorManager = null;
 
-    private Button discardButton;
-    private Button acceptButton;
-    private Button shootButton;
+    private ImageButton discardButton;
+    private ImageButton acceptButton;
+    private ImageButton shootButton;
     private FrameLayout shootButtonContainer, confirmButtonsContainer;
     private File sdRoot;
     private String dir;
@@ -62,9 +63,9 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
         dir = "/DCIM/Camera/";
 
 
-        discardButton = (Button) findViewById(R.id.discard_button);
-        acceptButton = (Button) findViewById(R.id.accept_button);
-        shootButton = (Button) findViewById(R.id.shoot_button);
+        discardButton = (ImageButton) findViewById(R.id.discard_button);
+        acceptButton = (ImageButton) findViewById(R.id.accept_button);
+        shootButton = (ImageButton) findViewById(R.id.shoot_button);
         shootButtonContainer = (FrameLayout) findViewById(R.id.shoot_button_container);
         confirmButtonsContainer = (FrameLayout) findViewById(R.id.confirm_buttons_container);
 

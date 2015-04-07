@@ -24,7 +24,7 @@ public class Utils {
                 Context.MODE_MULTI_PROCESS);
     }
 
-    public static Boolean getSignInStatus(Context context){
+    public static Boolean isSignedIn(Context context){
         return getSharedPrefs(context).getBoolean(SIGN_IN_STATUS, false);
     }
 
