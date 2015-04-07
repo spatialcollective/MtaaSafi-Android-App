@@ -54,7 +54,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     }
     private void addNavItems() {
         addNavItem(R.string.nearby, R.drawable.ic_place_grey, NewsFeedFragment.LOAD_ALL);
-        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, NewsFeedFragment.LOAD_USER);
+        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, NewsFeedFragment.LOAD_USER + Utils.getUserId(getActivity()));
         createOtherPlacesChooser();
     }
     public void addNavItem(int name, int icon, String feed_value) {

@@ -49,9 +49,9 @@ public class NewsFeedFragment extends Fragment implements
     private RecyclerView.LayoutManager mLayoutManager;
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
-                                LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
-    public static String    LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
-                            LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
+                                LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0,
+                                LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
+                                LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
@@ -63,7 +63,6 @@ public class NewsFeedFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         index = top = 0;
-        LOAD_USER = LOAD_USER + Utils.getUserId(getActivity());
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
@@ -73,7 +72,6 @@ public class NewsFeedFragment extends Fragment implements
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
 
         if (savedInstanceState != null) {
-            LOAD_USER = savedInstanceState.getString("Load_user");
             index = savedInstanceState.getInt("index");
             top = savedInstanceState.getInt("top");
             feedContent = savedInstanceState.getString("feedContent");
@@ -114,7 +112,7 @@ public class NewsFeedFragment extends Fragment implements
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_menu);
-        setTitle(Utils.getSelectedAdminName(getActivity()));
+//        setTitle(Utils.getSelectedAdminName(getActivity()));
         addSortSpinner(view);
         return toolbar;
     }
@@ -122,7 +120,6 @@ public class NewsFeedFragment extends Fragment implements
     @Override
     public void onSaveInstanceState(Bundle outstate){
         super.onSaveInstanceState(outstate);
-        outstate.putCharSequence("Load_user", LOAD_USER);
         outstate.putCharSequence("title", title);
         outstate.putInt("top", top);
         outstate.putInt("index", index);
