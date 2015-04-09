@@ -1,5 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.sc.mtaa_safi.android.ReportDetailActivity" >
+    tools:context="com.sc.mtaa_safi.feed.MainActivity" >
+    <item
+        android:id="@+id/menu_item_fb_share"
+        app:showAsAction="always"
+        android:title="@string/share"
+        android:icon="@drawable/fb_icon_white_29"
+     />
 </menu>

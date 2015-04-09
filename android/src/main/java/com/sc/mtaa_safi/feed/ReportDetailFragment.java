@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.feed;
 
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -10,16 +11,23 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.Session;
+import com.facebook.internal.SessionTracker;
+import com.facebook.widget.FacebookDialog;
+import com.facebook.widget.WebDialog;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
@@ -43,6 +51,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onCreate(Bundle savedInstanceState){
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
 
@@ -70,6 +79,38 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setDataInViews(view);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.report_detail, menu);
+        MenuItem item = menu.findItem(R.id.menu_item_fb_share);
+        if (!FacebookDialog.canPresentShareDialog(getActivity().getApplicationContext(),
+                FacebookDialog.ShareDialogFeature.SHARE_DIALOG))
+            item.setVisible(false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()) {
+            case R.id.menu_item_fb_share:
+                createShareDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void createShareDialog(){
+        FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(getActivity())
+                .setName(mReport.content)
+                .setLink("http://mtaasafi.co.ke/all")
+                .setDescription("This is in "+mReport.locationDescript)
+                .setCaption("MtaaSafi")
+                .setPicture("http://lorempixel.com/400/200/")
+                .setPlace(mReport.locationDescript)
+                .build();
+        shareDialog.present();
     }
 
     private void setDataInViews(View view) {

@@ -93,7 +93,9 @@
             android:exported="false"
             android:syncable="true" >
         </provider>
-
+        <provider android:authorities="com.facebook.app.NativeAppCallContentProvider903751569639797"
+            android:name="com.facebook.NativeAppCallContentProvider"
+            android:exported="true"/>
         <service
             android:name=".adapter.SyncService"
             android:exported="true" >

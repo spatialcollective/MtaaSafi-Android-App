@@ -36,7 +36,7 @@
     <string name="title_activity_facebook">Login with Facebook</string>
     <string name="sign_in_google">Sign in with Google+</string>
     <string name="sign_in_facebook">Sign In with Facebook</string>
-
+    <string name="share">share</string>
     <integer name="google_play_services_version">5208000</integer>
 
     <string name="facebook_app_id">903751569639797</string>
