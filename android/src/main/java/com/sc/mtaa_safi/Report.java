@@ -191,7 +191,7 @@ public class Report {
         output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
         output.putInt(Contract.Entry.COLUMN_ID, dbId);
         output.putString(Contract.Entry.COLUMN_CONTENT, content);
-        output.putString(Contract.Entry.COLUMN_STATUS, status);
+        output.putInt(Contract.Entry.COLUMN_STATUS, status);
         output.putString(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);

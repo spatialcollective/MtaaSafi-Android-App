@@ -41,13 +41,33 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
         Log.e("FeedAdapter", "adminId: " +  c.getString(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID)));
-        holder.mTitleView.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT)));
+        setTitle(holder.mTitleView, c);
         holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC)));
         holder.mVoteButton.mServerId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
                 c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
 
+        addImage(holder, c);
+        setDistanceView(holder, c);
+        addClick(holder, c);
+    }
+
+    private void setTitle(TextView view, Cursor c) {
+        view.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT)));
+        int status = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_STATUS));
+        int drawable;
+        if (status == 1)
+            drawable = R.drawable.status_progress_selected;
+        else if (status == 2)
+            drawable = R.drawable.status_fixed_selected;
+        else
+            drawable = R.drawable.status_broken_selected;
+
+//        view.setCompoundDrawablesWithIntrinsicBounds(null, null, getContext().getResources().getDrawable(drawable), null);
+    }
+
+    private void addImage(ViewHolder holder, Cursor c) {
         ArrayList<String> imagesJson = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), new TypeToken<ArrayList<String>>() {
         }.getType());
         String imageUrl = "";
@@ -66,8 +86,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
                         .into(holder.mLeadImage);
             } catch (Exception ex) { }
         } catch (Exception ex) { }
-        setDistanceView(holder, c);
-        addClick(holder, c);
     }
 
     private void addClick(ViewHolder holder, Cursor c) {
