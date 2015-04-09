@@ -30,7 +30,7 @@
     <string name="title_activity_facebook">Login with Facebook</string>
     <string name="sign_in_google">Sign in with Google+</string>
     <string name="sign_in_facebook">Sign In with Facebook</string>
-
+    <string name="share">share</string>
     <string name="accept_photo">Accept</string>
     <string name="discard_photo">Discard</string>
 
