@@ -29,7 +29,7 @@ import java.util.Date;
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public int serverId, dbId, userId, adminId, pendingState = -1, upVoteCount, inProgress = 0;
+    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0;
     public String locationDescript, content, timeElapsed, userName, locationJSON;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
@@ -41,6 +41,7 @@ public class Report {
             Contract.Entry.COLUMN_CONTENT,
             Contract.Entry.COLUMN_HUMAN_LOC,
             Contract.Entry.COLUMN_TIMESTAMP,
+            Contract.Entry.COLUMN_STATUS,
             Contract.Entry.COLUMN_LAT,
             Contract.Entry.COLUMN_LNG,
             Contract.Entry.COLUMN_ADMIN_ID,
@@ -57,9 +58,10 @@ public class Report {
             Contract.Entry.COLUMN_USER_UPVOTED
     };
     // for Report objects created by the user to send to the server
-    public Report(String details, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+    public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
         this.serverId = this.dbId = 0;
         this.content = details;
+        this.status = status;
         this.locationDescript = "";
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
@@ -73,6 +75,7 @@ public class Report {
         serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
         dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
         content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
+        status = bundle.getInt(Contract.Entry.COLUMN_STATUS);
         locationDescript = bundle.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
@@ -98,6 +101,7 @@ public class Report {
         dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
         pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
         content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
+        status = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_STATUS));
         locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC));
         timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         timeElapsed = Utils.getElapsedTime(timeStamp);
@@ -127,6 +131,7 @@ public class Report {
         serverId = jsonData.getInt("unique_id");
         locationDescript = jsonData.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
+        status = jsonData.getInt(Contract.Entry.COLUMN_STATUS);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
@@ -142,7 +147,6 @@ public class Report {
             locationJSON = "";
         }
 
-        
         location = new Location("ReportLocation");
         location.setLatitude(jsonData.getDouble(Contract.Entry.COLUMN_LAT));
         location.setLongitude(jsonData.getDouble(Contract.Entry.COLUMN_LNG));
@@ -157,6 +161,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_SERVER_ID, serverId);
         reportValues.put(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         reportValues.put(Contract.Entry.COLUMN_CONTENT, content);
+        reportValues.put(Contract.Entry.COLUMN_STATUS, status);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
         reportValues.put(Contract.Entry.COLUMN_USERID, userId);
@@ -186,6 +191,7 @@ public class Report {
         output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
         output.putInt(Contract.Entry.COLUMN_ID, dbId);
         output.putString(Contract.Entry.COLUMN_CONTENT, content);
+        output.putString(Contract.Entry.COLUMN_STATUS, status);
         output.putString(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);
@@ -219,6 +225,7 @@ public class Report {
     public JSONObject getJsonRep() throws JSONException, IOException, NoSuchAlgorithmException {
         JSONObject json = new JSONObject();
         json.put(Contract.Entry.COLUMN_CONTENT, this.content);
+        json.put(Contract.Entry.COLUMN_STATUS, this.status);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_USERID, this.userId);

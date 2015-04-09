@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="10dp"
-                android:visibility="invisible">
+                android:visibility="gone">
 
                 <TextView
                     android:layout_height="wrap_content"
@@ -81,12 +81,20 @@
                     android:paddingBottom="28dp" />
             </LinearLayout>
 
+            <include layout="@layout/status_chooser"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="52dp"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="16dp"/>
+
             <include layout="@layout/attach_pic_row"
                 android:id="@+id/include"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:minHeight="50dp"/>
+                android:minHeight="52dp"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="16dp"/>
 
             <LinearLayout
                 android:orientation="horizontal"

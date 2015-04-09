@@ -12,12 +12,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.sc.mtaa_safi.MtaaLocationService;
+import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.NewsFeedFragment;
 import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
@@ -116,8 +119,8 @@ public class NewReportActivity extends ActionBarActivity {
         } else
             locationJSON.put("admin", frag.adminText);
 
-        Report newReport = new Report(frag.detailsText, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
-        Utils.saveSavedReportCount(this,Utils.getSavedReportCount(this)+1);
+        Report newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
+        Utils.saveSavedReportCount(this, Utils.getSavedReportCount(this) + 1);
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 
@@ -126,5 +129,21 @@ public class NewReportActivity extends ActionBarActivity {
         /*Intent intent = new Intent();
         intent.setClass(this,ImageCaptureActivity.class);
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);*/
+    }
+
+    public void setStatus(View view) {
+        NewReportFragment frag = (NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG);
+        if (((RadioButton) view).isChecked())
+            switch(view.getId()) {
+                case R.id.progress:
+                    frag.status = 1;
+                    break;
+                case R.id.fixed:
+                    frag.status = 2;
+                    break;
+                case R.id.broken:
+                default:
+                    frag.status = 0;
+            }
     }
 }

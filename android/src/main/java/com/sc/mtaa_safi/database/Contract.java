@@ -29,6 +29,7 @@ public class Contract {
         	COLUMN_HUMAN_LOC = "title",
 	        COLUMN_CONTENT = "details",
 	        COLUMN_TIMESTAMP = "timestamp",
+            COLUMN_STATUS = "status",
             COLUMN_LAT = "latitude",
             COLUMN_LNG = "longitude",
             COLUMN_ADMIN_ID = "admin_id",

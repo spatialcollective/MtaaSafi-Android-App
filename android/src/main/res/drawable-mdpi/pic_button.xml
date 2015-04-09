@@ -4,13 +4,7 @@
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="2dp" />
-            <stroke android:width="3dp"
-                android:color="@color/Coral" />
+            <solid android:color="@color/Coral" />
         </shape>
-        <padding
-            android:left="10dp"
-            android:top="10dp"
-            android:right="10dp"
-            android:bottom="10dp" />
     </item>
 </selector>
