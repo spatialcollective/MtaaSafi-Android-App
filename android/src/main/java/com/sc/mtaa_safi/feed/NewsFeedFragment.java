@@ -55,7 +55,7 @@ public class NewsFeedFragment extends Fragment implements
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
     int index, top, navIndex = 0;
-    CharSequence title = "Nearby";
+    CharSequence title;
     String sortOrder = SORT_RECENT;
 
     SimpleCursorAdapter placeAdapter;
@@ -63,6 +63,7 @@ public class NewsFeedFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         index = top = 0;
+        title = getResources().getString(R.string.nearby);
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
