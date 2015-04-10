@@ -104,10 +104,10 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public void createShareDialog(){
         FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(getActivity())
                 .setName(mReport.content)
-                .setLink("http://mtaasafi.co.ke/all")
+                .setLink(getActivity().getString(R.string.public_url)+"/mtaasafi/community/"+mReport.adminId+"/?format=json&selected="+mReport.serverId)
                 .setDescription("This is in "+mReport.locationDescript)
                 .setCaption("MtaaSafi")
-                .setPicture("http://lorempixel.com/400/200/")
+                .setPicture(getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + 500)
                 .setPlace(mReport.locationDescript)
                 .build();
         shareDialog.present();

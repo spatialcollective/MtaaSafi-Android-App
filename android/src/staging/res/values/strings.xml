@@ -53,4 +53,5 @@
     <string name="refresh_comment">http://staging.spatialcollective.com/mtaasafi/get_comments/</string>
     <string name="location_data">http://staging.spatialcollective.com/mtaasafi/get_location_data/</string>
     <string name="signin">http://staging.spatialcollective.com/mtaasafi/sign_in_user/</string>
+    <string name="public_url">http://staging.spatialcollective.com/</string>
 </resources>
