@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -44,6 +45,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     SimpleCursorAdapter mAdapter;
     public static final int REQUEST_IMAGE_CAPTURE = 1, MAX_PIC_COUNT = 3;
     public String detailsText = "", selectedAdmin = "", adminText = "";
+    public int status = 0;
     public long selectedAdminId;
     public ArrayList<String> picPaths = new ArrayList<String>();
 
@@ -58,16 +60,18 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     }
     @Override
     public void onViewCreated(View view, Bundle savedState) {
+        createToolbar(view);
+        updateDetailsView();
+        updatePicPreviews();
+        setUpVillages();
+    }
+
+    private void createToolbar(View view) {
         NewReportActivity act = (NewReportActivity) getActivity();
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.new_toolbar);
         act.setSupportActionBar(toolbar);
         act.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         act.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
-
-        updateDetailsView();
-        updatePicPreviews();
-        
-        setUpVillages();
     }
 
     @Override
@@ -123,18 +127,29 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     private void updatePicPreviews() {
         Log.i("new report frag", "Pic paths was size " + picPaths.size());
         for (int i = 0; i < picPaths.size(); i++)
-            if (picPaths.get(i) != null) {
+            addThumb(i);
+        setPicButtonState((Button) getView().findViewById(R.id.take_pic));
+    }
 
-                ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
-                thumb.setVisibility(View.VISIBLE);
-                Bitmap bitmap = getThumbnail(picPaths.get(i));
-                if (bitmap != null)
-                    thumb.setImageBitmap(bitmap);
-            }
+    private void addThumb(int i) {
+        if (picPaths.get(i) != null) {
+            ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
+            thumb.setVisibility(View.VISIBLE);
+            Bitmap bitmap = getThumbnail(picPaths.get(i));
+            if (bitmap != null)
+                thumb.setImageBitmap(bitmap);
+        }
+    }
+
+    private void setPicButtonState(Button takePic) {
         if (picPaths.size() >= 3)
-            getView().findViewById(R.id.take_pic).setVisibility(View.GONE);
+            takePic.setVisibility(View.GONE);
         else
-            getView().findViewById(R.id.take_pic).setVisibility(View.VISIBLE);
+            takePic.setVisibility(View.VISIBLE);
+        if (picPaths.size() >= 1)
+            takePic.setText(R.string.take_another_pic);
+        else
+            takePic.setText(R.string.take_pic);
     }
 
     private Bitmap getThumbnail(String picPath) {
@@ -168,18 +183,6 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     public void takePicture() {
-        /*Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null){
-            try {
-                File photoFile = createImageFile();
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            } catch (IOException ex){
-                Toast.makeText(getActivity(), "Couldn't create file", Toast.LENGTH_SHORT).show();
-            }
-        } else
-            Toast.makeText(getActivity(), "Couldn't resolve activity", Toast.LENGTH_SHORT).show();*/
-
         Intent intent = new Intent();
         intent.setClass(getActivity(),ImageCaptureActivity.class);
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
@@ -190,32 +193,16 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode != REQUEST_IMAGE_CAPTURE)
             return;
-        if (resultCode == Activity.RESULT_OK){
+        if (resultCode == Activity.RESULT_OK) {
             Bundle bundle = data.getExtras();
             Uri fileUri = Uri.parse(bundle.getString("IMAGE_FILE_NAME"));
-            Toast.makeText(getActivity(), "Image saved to:"+ fileUri.getPath(), Toast.LENGTH_LONG).show();
+//            Toast.makeText(getActivity(), "Image saved to:"+ fileUri.getPath(), Toast.LENGTH_LONG).show();
 
             picPaths.add(fileUri.getPath());
 
             updatePicPreviews();
             attemptEnableSendSave();
         }
-        /*File file = new File(picPaths.get(picPaths.size() - 1));
-        if (file.length() == 0) {
-            picPaths.remove(picPaths.size() - 1);
-            file.delete();
-        }*/
-
-    }
-
-    private File createImageFile() throws IOException {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
-        String imageFileName = "JPEG_" + timestamp + "_" + picPaths.size();
-        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-        Log.i("FILE PATH", image.getAbsolutePath());
-        picPaths.add(image.getAbsolutePath());
-        return image;
     }
 
     public void attemptEnableSendSave() {

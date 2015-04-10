@@ -2,45 +2,52 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_horizontal">
+    android:layout_height="wrap_content">
+
+    <Button android:id="@+id/take_pic"
+        android:layout_width="wrap_content"
+        android:layout_height="52dp"
+        android:minWidth="88dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="28dp"
+        android:text="@string/take_pic"
+        android:drawablePadding="16dp"
+        android:padding="8dp"
+        android:drawableLeft="@drawable/ic_camera_white"
+        android:drawableStart="@drawable/ic_camera_white"
+        android:textColor="@color/White"
+        android:background="@drawable/pic_button"
+        android:elevation="4dp"
+        android:onClick="takePic" />
 
     <LinearLayout android:id="@+id/pic_previews"
         android:orientation="horizontal"
-        android:minHeight="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
             android:layout_weight="1"
             android:layout_gravity="start"
-            android:visibility="invisible" />
+            android:src="@drawable/sample_image"
+            android:visibility="gone" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_weight="1"
+            android:layout_gravity="start"
+            android:src="@drawable/sample_image"
+            android:visibility="gone" />
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="start"
-            android:visibility="invisible" />
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="start"
-            android:visibility="invisible" />
+            android:src="@drawable/sample_image"
+            android:visibility="gone" />
 
     </LinearLayout>
-
-    <ImageButton android:id="@+id/take_pic"
-        android:src="@drawable/icon_camera"
-        android:background="@drawable/pic_button"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:minHeight="50dp"
-        android:layout_weight="1"
-        android:translationZ="0dp"
-        android:layout_margin="16dp"
-        android:onClick="takePic" />
-
 </LinearLayout>
