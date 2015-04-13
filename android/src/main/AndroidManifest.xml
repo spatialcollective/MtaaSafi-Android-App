@@ -142,16 +142,6 @@
         </receiver>
 
         <service android:name=".SystemUtils.GcmIntentService" />
-        <service
-            android:name=".SystemUtils.GcmIntentService"
-            android:exported="false" >
-        </service>
-
-        <receiver
-            android:name=".SystemUtils.GcmBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true" >
-        </receiver>
     </application>
 
 </manifest>
