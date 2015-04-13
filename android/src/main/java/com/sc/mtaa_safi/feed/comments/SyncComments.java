@@ -25,9 +25,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by Agree on 11/17/2014.
- */
 public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
     Context mContext;
     Comment mComment;

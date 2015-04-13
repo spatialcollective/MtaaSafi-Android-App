@@ -4,9 +4,13 @@ import android.accounts.AccountManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.R;
 
@@ -17,7 +21,10 @@ public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
                                 ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount",
-                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email", FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid";
+                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
+                                FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid",
+                                PROPERTY_REG_ID = "registration_id", PROPERTY_APP_VERSION = "appVersion",
+                                SENDER_ID = "Your-Sender-ID";
 
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
@@ -42,6 +49,36 @@ public class Utils {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();
         editor.putInt(USER_ID, userId);
         editor.commit();
+    }
+
+    public static String getRegistrationId(Context context) {
+        final SharedPreferences prefs = getSharedPrefs(context);
+        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+        if (registrationId.isEmpty())
+            Log.i("Utils", "Registration not found.");
+        // Check if app was updated; if so, it must clear the registration ID
+        // since the existing registration ID is not guaranteed to work with
+        // the new app version.
+        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion)
+            Log.i("Utils", "App version changed.");
+        return registrationId;
+    }
+    public static void setRegistrationId(Context context, String regId) {
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(PROPERTY_REG_ID, regId);
+        editor.putInt(PROPERTY_APP_VERSION, getAppVersion(context));
+        editor.commit();
+    }
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) { // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
+        }
     }
 
     public static String getGooglePlusId(Context context){

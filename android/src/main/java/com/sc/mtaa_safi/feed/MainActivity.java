@@ -22,10 +22,12 @@ import android.widget.Toast;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
+import com.sc.mtaa_safi.SystemUtils.RegisterWithGcm;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.login.FacebookActivity;
 import com.sc.mtaa_safi.login.GooglePlusActivity;
@@ -33,6 +35,8 @@ import com.sc.mtaa_safi.login.LoginActivityListener;
 import com.sc.mtaa_safi.login.LoginManagerFragment;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -43,6 +47,11 @@ public class MainActivity extends ActionBarActivity implements
     NewsFeedFragment newsFeedFrag;
     LoginManagerFragment loginManagerFragment;
     LocationListener locationListener;
+
+    public static final String EXTRA_MESSAGE = "message";
+    String regid;
+    GoogleCloudMessaging gcm;
+    AtomicInteger msgId = new AtomicInteger();
 
     private static final int GOOGLE_PLUS_LOGIN = 100, FACEBOOK_LOGIN = 102;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", LOGIN_TAG= "login";
@@ -63,6 +72,13 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
+        if (checkGPlayServices()) {
+            gcm = GoogleCloudMessaging.getInstance(this);
+            regid = Utils.getRegistrationId(getApplicationContext());
+
+            if (regid.isEmpty())
+                new RegisterWithGcm(this, gcm).execute();
+        }
         restoreFragment(savedInstanceState);
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {}
@@ -126,9 +142,13 @@ public class MainActivity extends ActionBarActivity implements
         // if (!loginManagerFragment.isLoggedIn(this))
         //     showLoginManager();
         Utils.saveScreenWidth(this, getScreenWidth());
-        setUpWeirdGPlayStuff();
         if(!isGPSEnabled())
             onLocationDisabled();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkGPlayServices();
     }
     @Override
     protected void onStop() {
@@ -214,22 +234,18 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    private void setUpWeirdGPlayStuff() {
-        int gPlayCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        switch (gPlayCode) {
-            case ConnectionResult.SERVICE_MISSING:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_MISSING, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_UPDATE, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SERVICE_DISABLED:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_DISABLED, this, getSupportFragmentManager());
-                break;
-            case ConnectionResult.SERVICE_INVALID:
-                AlertDialogFragment.showAlert(AlertDialogFragment.GPLAY_INVALID, this, getSupportFragmentManager());
-                break;
+    private boolean checkGPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
+            } else {
+                Log.i("Main Activity", "This device is not supported.");
+                finish();
+            }
+            return false;
         }
+        return true;
     }
 
     private void onLocationDisabled() {
