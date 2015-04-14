@@ -24,7 +24,7 @@ public class Utils {
                                 SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
                                 FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid",
                                 PROPERTY_REG_ID = "registration_id", PROPERTY_APP_VERSION = "appVersion",
-                                SENDER_ID = "Your-Sender-ID";
+                                SENDER_ID = "46655663326";
 
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
