@@ -66,7 +66,7 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
         JSONObject comment = mComment.setTime(System.currentTimeMillis(), mContext).getJson();
         comment.put("userId", Utils.getUserId(mContext));
         JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.send_comment) + "/", "post", comment);
-        if (response.has("error") && response.getInt("error") > 400)
+        if (response.has("error") && response.getInt("error") >= 400)
             cancelSession(NETWORK_ERROR);
         return response;
     }

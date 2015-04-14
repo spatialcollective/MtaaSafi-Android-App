@@ -79,7 +79,7 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         JSONObject report = pendingReport.getJsonRep();
         report.put("userId", Utils.getUserId(mContext));
         JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.base_write) + "/", "post", report);
-        if (response.has("error") && response.getInt("error") > 400)
+        if (response.has("error") && response.getInt("error") >= 400)
             cancelSession(NETWORK_ERROR);
         return response;
     }

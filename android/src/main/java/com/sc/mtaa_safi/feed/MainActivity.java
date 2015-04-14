@@ -4,6 +4,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -29,6 +32,8 @@ import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.RegisterWithGcm;
 import com.sc.mtaa_safi.SystemUtils.Utils;
+import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.database.ReportDatabase;
 import com.sc.mtaa_safi.login.FacebookActivity;
 import com.sc.mtaa_safi.login.GooglePlusActivity;
 import com.sc.mtaa_safi.login.LoginActivityListener;
@@ -47,11 +52,6 @@ public class MainActivity extends ActionBarActivity implements
     NewsFeedFragment newsFeedFrag;
     LoginManagerFragment loginManagerFragment;
     LocationListener locationListener;
-
-    public static final String EXTRA_MESSAGE = "message";
-    String regid;
-    GoogleCloudMessaging gcm;
-    AtomicInteger msgId = new AtomicInteger();
 
     private static final int GOOGLE_PLUS_LOGIN = 100, FACEBOOK_LOGIN = 102;
     public final static String NEWSFEED_TAG = "newsFeed", DETAIL_TAG = "details", LOGIN_TAG= "login";
@@ -72,14 +72,10 @@ public class MainActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
-        if (checkGPlayServices()) {
-            gcm = GoogleCloudMessaging.getInstance(this);
-            regid = Utils.getRegistrationId(getApplicationContext());
-
-            if (regid.isEmpty())
-                new RegisterWithGcm(this, gcm).execute();
-        }
+        registerWithGcm();
         restoreFragment(savedInstanceState);
+        if (getIntent().getExtras() != null )
+            viewDetailFromNotification();
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {}
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -92,6 +88,17 @@ public class MainActivity extends ActionBarActivity implements
         };
     }
 
+    private void viewDetailFromNotification() {
+        ReportDatabase dbHelper  = new ReportDatabase(this);
+        Cursor cursor = dbHelper.getReadableDatabase().query(Contract.Entry.TABLE_NAME,
+                null, Contract.Entry.COLUMN_SERVER_ID + " = " + getIntent().getIntExtra("reportId", -1), null, null, null, null);
+        if (cursor.moveToFirst()) {
+            Report r = new Report(cursor);
+            cursor.close();
+            goToDetailView(r);
+        } else { Log.e("Main activity", "Cursor is empty..."); }
+    }
+
     private void restoreFragment(Bundle savedInstanceState) {
         loginManagerFragment = initializeLoginManager();
         if (savedInstanceState != null)
@@ -100,6 +107,15 @@ public class MainActivity extends ActionBarActivity implements
             goToFeed(savedInstanceState);
         else if (!Utils.isSignedIn(this))
             showLoginManager();
+    }
+
+    private void registerWithGcm() {
+        if (checkGPlayServices()) {
+            GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+            String regid = Utils.getRegistrationId(getApplicationContext());
+            if (regid.isEmpty())
+                new RegisterWithGcm(this, gcm).execute();
+        }
     }
 
     public void goToFeed(Bundle savedInstanceState) {
@@ -115,7 +131,7 @@ public class MainActivity extends ActionBarActivity implements
         }
     }
 
-    public void goToDetailView(Report r, int position) {
+    public void goToDetailView(Report r) {
         detailFragment = new ReportDetailFragment();
         detailFragment.setData(r);
         getSupportFragmentManager().beginTransaction()
@@ -142,7 +158,7 @@ public class MainActivity extends ActionBarActivity implements
         // if (!loginManagerFragment.isLoggedIn(this))
         //     showLoginManager();
         Utils.saveScreenWidth(this, getScreenWidth());
-        if(!isGPSEnabled())
+        if (!isGPSEnabled())
             onLocationDisabled();
     }
     @Override
@@ -174,11 +190,11 @@ public class MainActivity extends ActionBarActivity implements
             Toast.makeText(this, "Facebook user logged in", Toast.LENGTH_SHORT).show();
         else if (resultCode == RESULT_OK && requestCode == GOOGLE_PLUS_LOGIN)
             Toast.makeText(this, "Google+ user logged in", Toast.LENGTH_SHORT).show();
-        if (resultCode != RESULT_OK)
-            showLoginManager();
-        else
+        if (resultCode == RESULT_OK) {
+            registerWithGcm();
             goToFeed(null);
-
+        } else
+            showLoginManager();
     }
 
     @Override
@@ -237,12 +253,10 @@ public class MainActivity extends ActionBarActivity implements
     private boolean checkGPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
                 GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
-            } else {
-                Log.i("Main Activity", "This device is not supported.");
+            else
                 finish();
-            }
             return false;
         }
         return true;

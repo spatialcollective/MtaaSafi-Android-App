@@ -25,7 +25,7 @@ public class UploadingActivity extends ActionBarActivity {
         if (frag == null){
             frag = new ReportUploadingFragment();
             Bundle args = new Bundle();
-            if(getIntent().getData() != null ){
+            if (getIntent().getData() != null ) {
                 args.putString("ORDER", "descending");
                 frag.setArguments(args);
             }

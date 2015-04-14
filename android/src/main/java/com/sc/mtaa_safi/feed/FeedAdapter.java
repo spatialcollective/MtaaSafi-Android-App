@@ -40,7 +40,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
-        Log.e("FeedAdapter", "adminId: " +  c.getString(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID)));
         setTitle(holder.mTitleView, c);
         holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC)));
         holder.mVoteButton.mServerId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
@@ -93,7 +92,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         final Report report = new Report(c);
         final MainActivity activity = (MainActivity) getContext();
         holder.mListener = new FeedAdapter.ViewHolder.ViewHolderClicks() {
-            public void detailClick(View caller) { activity.goToDetailView(report, pos); };
+            public void detailClick(View caller) { activity.goToDetailView(report); };
             public void upvoteClick(VoteButton b) { upvoteList.add(b.mServerId); }; };
     }
 
