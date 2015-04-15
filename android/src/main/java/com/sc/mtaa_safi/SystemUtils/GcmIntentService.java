@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.SystemUtils;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -52,6 +53,9 @@ public class GcmIntentService extends IntentService {
 
         NotificationCompat.Builder mBuilder =  new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.notification_logo)
+                .setColor(getResources().getColor(R.color.mtaa_safi_blue))
+                .setDefaults(Notification.DEFAULT_SOUND)
+                .setAutoCancel(true)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg_data.getString("blurb")))
                 .setContentTitle(msg_data.getString("message"))
                 .setContentText(msg_data.getString("blurb"));
