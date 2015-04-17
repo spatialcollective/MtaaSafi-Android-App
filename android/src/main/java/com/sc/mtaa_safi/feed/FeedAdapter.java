@@ -17,6 +17,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.squareup.picasso.Picasso;
 
@@ -40,8 +41,12 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
-        setTitle(holder.mTitleView, c);
+        String title = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
+        holder.mTitle.setText(title.substring(0,1).toUpperCase() + title.substring(1));
+        setStatus(holder.mStatus, c);
         holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC)));
+        holder.mDate.setText(Utils.getElapsedTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))));
+//        holder.mUser.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME)));
         holder.mVoteButton.mServerId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
@@ -52,18 +57,14 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         addClick(holder, c);
     }
 
-    private void setTitle(TextView view, Cursor c) {
-        view.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT)));
+    private void setStatus(ImageView view, Cursor c) {
         int status = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_STATUS));
-        int drawable;
         if (status == 1)
-            drawable = R.drawable.status_progress_selected;
+            view.setImageResource(R.drawable.status_progress_selected);
         else if (status == 2)
-            drawable = R.drawable.status_fixed_selected;
+            view.setImageResource(R.drawable.status_fixed_selected);
         else
-            drawable = R.drawable.status_broken_selected;
-
-//        view.setCompoundDrawablesWithIntrinsicBounds(null, null, getContext().getResources().getDrawable(drawable), null);
+            view.setImageResource(R.drawable.status_broken_selected);
     }
 
     private void addImage(ViewHolder holder, Cursor c) {
@@ -73,7 +74,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         try {
             if (imagesJson != null && !imagesJson.get(0).isEmpty()) {
                 Integer.parseInt(imagesJson.get(0));
-                imageUrl = getContext().getString(R.string.base_url) + "get_thumbnail/" + imagesJson.get(0) + "/76x76";
+                imageUrl = getContext().getString(R.string.base_url) + "get_thumbnail/" + imagesJson.get(0) + "/64x76";
                 Picasso.with(getContext()).load(imageUrl)
                         .placeholder(R.drawable.image_placeholder)
                         .into(holder.mLeadImage);
@@ -116,8 +117,8 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ViewHolderClicks mListener;
-        public TextView mTitleView, mLocation;
-        public ImageView mLeadImage;
+        public TextView mTitle, mLocation, mDate, mUser, mCommentCount;
+        public ImageView mLeadImage, mStatus;
         public VoteButton mVoteButton;
 
         public static interface ViewHolderClicks {
@@ -127,10 +128,14 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
         public ViewHolder(View v) {
             super(v);
-            mTitleView = (TextView) v.findViewById(R.id.itemTitle);
+            mTitle = (TextView) v.findViewById(R.id.itemTitle);
             mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
             mLocation = (TextView) v.findViewById(R.id.itemLocation);
+            mDate = (TextView) v.findViewById(R.id.itemDate);
+//            mUser = (TextView) v.findViewById(R.id.itemUser);
+//            mCommentCount = (TextView) v.findViewById(R.id.itemCommentCount);
             mLeadImage = (ImageView) v.findViewById(R.id.leadImage);
+            mStatus = (ImageView) v.findViewById(R.id.itemStatus);
             v.setOnClickListener(this);
             mVoteButton.setOnClickListener(this);
         }

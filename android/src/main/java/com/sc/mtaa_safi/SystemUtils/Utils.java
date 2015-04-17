@@ -171,12 +171,14 @@ public class Utils {
             return new SimpleDateFormat("dd LLL' '''yy").format(date);
         else if (timeElapsed > week)
             return new SimpleDateFormat("dd LLL").format(date);
-        else if (timeElapsed > 1.5 * day)
+        else if (timeElapsed > 2 * day)
             return (long) Math.floor(timeElapsed/day) + " days";
         else if (timeElapsed > day)
             return "1 day";
-        else if (timeElapsed > hour)
+        else if (timeElapsed > 2 * hour)
             return (long) Math.floor(timeElapsed/hour) + " hours";
+        else if (timeElapsed > hour)
+            return (long) Math.floor(timeElapsed/hour) + " hour";
         else if (timeElapsed > minute)
             return (long) Math.floor(timeElapsed/minute) + " min";
         return "just now";

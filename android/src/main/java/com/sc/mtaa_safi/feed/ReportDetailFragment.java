@@ -121,8 +121,18 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     private void updateDetails(View view) {
         ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
-        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content);
+        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content.substring(0,1).toUpperCase() + mReport.content.substring(1));
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
+        setStatus((ImageView) view.findViewById(R.id.r_status), mReport.status);
+    }
+
+    private void setStatus(ImageView view, int status) {
+        if (status == 1)
+            view.setImageResource(R.drawable.status_progress_selected);
+        else if (status == 2)
+            view.setImageResource(R.drawable.status_fixed_selected);
+        else
+            view.setImageResource(R.drawable.status_broken_selected);
     }
 
     private void updateVote(VoteButton voter) { // (VoteButton) v.findViewById(R.id.voteInterface)
