@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.feed.MainActivity;
 
 import org.json.JSONException;
@@ -92,6 +93,8 @@ public class GcmIntentService extends IntentService {
     }
 
     private JSONObject updateNew(JSONObject msg_data) throws JSONException {
+        if (NetworkUtils.isOnline(this))
+            SyncUtils.TriggerRefresh();
         notificationType = NEW_REPORT;
         if (!new_message.isEmpty())
             new_message += ", ";
