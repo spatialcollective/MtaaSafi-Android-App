@@ -90,9 +90,7 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void viewDetailFromNotification() {
-        GcmIntentService.numComments = 0;
-        GcmIntentService.numUpvotes = 0;
-        GcmIntentService.numNew = 0;
+        GcmIntentService.resetAll();
         ReportDatabase dbHelper  = new ReportDatabase(this);
         if (getIntent().getIntExtra("reportId", -1) == GcmIntentService.MULTIPLE_UPDATE) {
             newsFeedFrag.setSection(1);

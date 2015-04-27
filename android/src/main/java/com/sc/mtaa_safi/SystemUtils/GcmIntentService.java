@@ -21,7 +21,8 @@ import org.json.JSONObject;
 public class GcmIntentService extends IntentService {
     public static final int REPORT_UPDATE = 1, NEW_REPORT = 2, RESET_NEW = 3, RESET_UPDATE = 4, MULTIPLE_UPDATE = -2, MULTIPLE_NEW = -3;
     private static final String NEW_COMMENT = " new comment", NEW_VOTE = " new upvote", YOURS = " on your reports";
-    public static int numComments = 0, numUpvotes = 0,  numNew = 0, notificationType = REPORT_UPDATE;
+    private static int numComments = 0, numUpvotes = 0,  numNew = 0, notificationType = REPORT_UPDATE;
+    private static String new_message = "", update_message = "";
     private NotificationManager mNotificationManager;
     public GcmIntentService() { super("GcmIntentService"); }
 
@@ -58,6 +59,9 @@ public class GcmIntentService extends IntentService {
 
     private JSONObject updateUpdates(JSONObject msg_data) throws JSONException {
         notificationType = REPORT_UPDATE;
+        if (!update_message.isEmpty())
+            update_message += ", ";
+        update_message += msg_data.getString("message");
         if (msg_data.getString("type").trim().equals("comment"))
             numComments++;
         if (msg_data.getString("type").trim().equals("upvote"))
@@ -80,16 +84,20 @@ public class GcmIntentService extends IntentService {
             upvotes = numUpvotes + NEW_VOTE;
         if (numUpvotes > 1)
             upvotes = upvotes + "s";
+
         msg_data.put("title", comments + upvotes + YOURS);
-        msg_data.put("message", "");
+        msg_data.put("message", update_message);
         msg_data.put("reportId", MULTIPLE_UPDATE);
         return msg_data;
     }
 
     private JSONObject updateNew(JSONObject msg_data) throws JSONException {
         notificationType = NEW_REPORT;
+        if (!new_message.isEmpty())
+            new_message += ", ";
+        new_message += msg_data.getString("message");
         if (++numNew > 1) {
-            msg_data.put("message", "");
+            msg_data.put("message", new_message);
             msg_data.put("reportId", MULTIPLE_NEW);
             msg_data.put("title", numNew + " new reports near you");
         }
@@ -122,5 +130,19 @@ public class GcmIntentService extends IntentService {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg_data.getString("message")))
                 .setContentTitle(msg_data.getString("title"))
                 .setContentText(msg_data.getString("message"));
+    }
+
+    public static void resetAll() {
+        GcmIntentService.resetNew();
+        GcmIntentService.resetUpdate();
+    }
+    public static void resetUpdate() {
+        GcmIntentService.numComments = 0;
+        GcmIntentService.numUpvotes = 0;
+        GcmIntentService.update_message = "";
+    }
+    public static void resetNew() {
+        GcmIntentService.numNew = 0;
+        GcmIntentService.new_message = "";
     }
 }
