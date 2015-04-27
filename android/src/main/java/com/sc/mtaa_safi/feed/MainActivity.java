@@ -30,6 +30,7 @@ import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
+import com.sc.mtaa_safi.SystemUtils.GcmIntentService;
 import com.sc.mtaa_safi.SystemUtils.RegisterWithGcm;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
@@ -89,14 +90,21 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     private void viewDetailFromNotification() {
+        GcmIntentService.numComments = 0;
+        GcmIntentService.numUpvotes = 0;
+        GcmIntentService.numNew = 0;
         ReportDatabase dbHelper  = new ReportDatabase(this);
-        Cursor cursor = dbHelper.getReadableDatabase().query(Contract.Entry.TABLE_NAME,
-                null, Contract.Entry.COLUMN_SERVER_ID + " = " + getIntent().getIntExtra("reportId", -1), null, null, null, null);
-        if (cursor.moveToFirst()) {
-            Report r = new Report(cursor);
-            cursor.close();
-            goToDetailView(r);
-        } else { Log.e("Main activity", "Cursor is empty..."); }
+        if (getIntent().getIntExtra("reportId", -1) == GcmIntentService.MULTIPLE_UPDATE) {
+            newsFeedFrag.setSection(1);
+        } else {
+            Cursor cursor = dbHelper.getReadableDatabase().query(Contract.Entry.TABLE_NAME,
+                    null, Contract.Entry.COLUMN_SERVER_ID + " = " + getIntent().getIntExtra("reportId", -1), null, null, null, null);
+            if (cursor.moveToFirst()) {
+                Report r = new Report(cursor);
+                cursor.close();
+                goToDetailView(r);
+            } else { Log.e("Main activity", "Cursor is empty..."); }
+        }
     }
 
     private void restoreFragment(Bundle savedInstanceState) {
@@ -122,7 +130,6 @@ public class MainActivity extends ActionBarActivity implements
         if (savedInstanceState != null)
             newsFeedFrag = (NewsFeedFragment) getSupportFragmentManager().getFragment(savedInstanceState, NEWSFEED_TAG);
         if (newsFeedFrag == null) {
-            Log.e("Main", "creating new feed frag");
             newsFeedFrag = new NewsFeedFragment();
             getSupportFragmentManager()
                 .beginTransaction()

@@ -54,7 +54,7 @@ public class NewsFeedFragment extends Fragment implements
                                 LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
-    int index, top, navIndex = 0;
+    int index, top, navIndex = 0, navPos = 0;
     CharSequence title;
     String sortOrder = SORT_RECENT;
 
@@ -103,10 +103,10 @@ public class NewsFeedFragment extends Fragment implements
         recyclerView.setAdapter(mAdapter);
         getLoaderManager().initLoader(FEED_LOADER, null, this);
 
-        NavigationDrawer dlDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
-        dlDrawer.setupDrawer((Toolbar) view.findViewById(R.id.main_toolbar), this);
-        // if (savedInstanceState == null)
-        //     dlDrawer.selectNavItem(0);
+        NavigationDrawer mDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
+        mDrawer.setupDrawer((Toolbar) view.findViewById(R.id.main_toolbar), this);
+        if (navPos != 0)
+             mDrawer.selectNavItem(navPos);
     }
 
     private Toolbar createToolbar(View view) {
@@ -127,6 +127,10 @@ public class NewsFeedFragment extends Fragment implements
         outstate.putString("feedContent", feedContent);
         outstate.putString("sortOrder", sortOrder);
         outstate.putInt("navIndex", navIndex);
+    }
+
+    public void setSection(int navPos) {
+        this.navPos = navPos;
     }
 
     @Override

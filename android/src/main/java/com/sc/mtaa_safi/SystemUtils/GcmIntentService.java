@@ -19,9 +19,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class GcmIntentService extends IntentService {
-    private static final int NOTIFICATION_ID = 1;
+    public static final int REPORT_UPDATE = 1, NEW_REPORT = 2, RESET_NEW = 3, RESET_UPDATE = 4, MULTIPLE_UPDATE = -2, MULTIPLE_NEW = -3;
+    private static final String NEW_COMMENT = " new comment", NEW_VOTE = " new upvote", YOURS = " on your reports";
+    public static int numComments = 0, numUpvotes = 0,  numNew = 0, notificationType = REPORT_UPDATE;
     private NotificationManager mNotificationManager;
-
     public GcmIntentService() { super("GcmIntentService"); }
 
     @Override
@@ -34,9 +35,7 @@ public class GcmIntentService extends IntentService {
             if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType))
                 try {
                     sendNotification(extras.getString("msg"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                } catch (JSONException e) { e.printStackTrace(); }
 //            else if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType))
 //            else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType))
         }
@@ -44,23 +43,84 @@ public class GcmIntentService extends IntentService {
     }
 
     private void sendNotification(String msg) throws JSONException {
+        JSONObject msg_data  = new JSONObject(msg);
+        if (msg_data.getString("type").trim().equals("new"))
+            msg_data = updateNew(msg_data);
+        else
+            msg_data = updateUpdates(msg_data);
+
+        NotificationCompat.Builder mBuilder = buildNotification(msg_data);
+        mBuilder.setContentIntent(buildIntent(msg_data));
+
         mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        JSONObject msg_data = new JSONObject(msg);
+        mNotificationManager.notify(notificationType, mBuilder.build());
+    }
+
+    private JSONObject updateUpdates(JSONObject msg_data) throws JSONException {
+        notificationType = REPORT_UPDATE;
+        if (msg_data.getString("type").trim().equals("comment"))
+            numComments++;
+        if (msg_data.getString("type").trim().equals("upvote"))
+            numUpvotes++;
+        if (numComments + numUpvotes <= 1)
+            return msg_data;
+
+        return updateUpdateText(msg_data);
+    }
+
+    private JSONObject updateUpdateText(JSONObject msg_data) throws JSONException {
+        String comments = "", upvotes = "";
+        if (numComments > 0)
+            comments = numComments + NEW_COMMENT;
+        if (numComments > 1)
+            comments = comments + "s";
+        if (numComments > 0 && numUpvotes > 0)
+            comments = comments + ", ";
+        if (numUpvotes > 0)
+            upvotes = numUpvotes + NEW_VOTE;
+        if (numUpvotes > 1)
+            upvotes = upvotes + "s";
+        msg_data.put("title", comments + upvotes + YOURS);
+        msg_data.put("message", "");
+        msg_data.put("reportId", MULTIPLE_UPDATE);
+        return msg_data;
+    }
+
+    private JSONObject updateNew(JSONObject msg_data) throws JSONException {
+        notificationType = NEW_REPORT;
+        if (++numNew > 1) {
+            msg_data.put("message", "");
+            msg_data.put("reportId", MULTIPLE_NEW);
+            msg_data.put("title", numNew + " new reports near you");
+        }
+        return msg_data;
+    }
+
+    private PendingIntent buildIntent(JSONObject msg_data) throws JSONException {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra("reportId", msg_data.getInt("reportId"));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
 
-        NotificationCompat.Builder mBuilder =  new NotificationCompat.Builder(this)
+    private PendingIntent createOnDismissIntent(int notificationId) {
+        Intent intent = new Intent(this, GcmBroadcastReceiver.class);
+        intent.putExtra("notificationId", notificationId);
+        return PendingIntent.getBroadcast(this, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private NotificationCompat.Builder buildNotification(JSONObject msg_data) throws JSONException {
+        int dismiss_type = RESET_UPDATE;
+        if (msg_data.getString("type").trim().equals("new"))
+            dismiss_type = RESET_NEW;
+        return new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.notification_logo)
                 .setColor(getResources().getColor(R.color.mtaa_safi_blue))
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setAutoCancel(true)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(msg_data.getString("blurb")))
-                .setContentTitle(msg_data.getString("message"))
-                .setContentText(msg_data.getString("blurb"));
-
-        mBuilder.setContentIntent(contentIntent);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+                .setDeleteIntent(createOnDismissIntent(dismiss_type))
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(msg_data.getString("message")))
+                .setContentTitle(msg_data.getString("title"))
+                .setContentText(msg_data.getString("message"));
     }
 }
