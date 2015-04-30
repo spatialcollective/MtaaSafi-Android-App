@@ -103,12 +103,12 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     public void createShareDialog(){
         FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(getActivity())
-                .setName(mReport.content)
-                .setLink(getActivity().getString(R.string.public_url)+"/mtaasafi/community/"+mReport.adminId+"/?format=json&selected="+mReport.serverId)
-                .setDescription("This is in "+mReport.locationDescript)
+                .setName(mReport.description)
+                .setLink(getActivity().getString(R.string.public_url) + "/mtaasafi/community/" + mReport.adminId + "/?format=json&selected=" + mReport.serverId)
+                .setDescription("This is in " + mReport.placeDescript)
                 .setCaption("MtaaSafi")
                 .setPicture(getActivity().getString(R.string.base_url) + "get_thumbnail/" + mReport.media.get(0) + "/" + 500)
-                .setPlace(mReport.locationDescript)
+                .setPlace(mReport.placeDescript)
                 .build();
         shareDialog.present();
     }
@@ -121,8 +121,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
 
     private void updateDetails(View view) {
         ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
-        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.content.substring(0,1).toUpperCase() + mReport.content.substring(1));
-        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.locationDescript);
+        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.description.substring(0,1).toUpperCase() + mReport.description.substring(1));
+        ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.placeDescript);
         setStatus((ImageView) view.findViewById(R.id.r_status), mReport.status);
     }
 

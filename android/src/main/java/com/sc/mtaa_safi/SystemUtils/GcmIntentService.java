@@ -61,7 +61,7 @@ public class GcmIntentService extends IntentService {
     private JSONObject updateUpdates(JSONObject msg_data) throws JSONException {
         notificationType = REPORT_UPDATE;
         if (!update_message.isEmpty())
-            update_message += ", ";
+            update_message += " | ";
         update_message += msg_data.getString("message");
         if (msg_data.getString("type").trim().equals("comment"))
             numComments++;
@@ -97,7 +97,7 @@ public class GcmIntentService extends IntentService {
             SyncUtils.TriggerRefresh();
         notificationType = NEW_REPORT;
         if (!new_message.isEmpty())
-            new_message += ", ";
+            new_message += " | ";
         new_message += msg_data.getString("message");
         if (++numNew > 1) {
             msg_data.put("message", new_message);

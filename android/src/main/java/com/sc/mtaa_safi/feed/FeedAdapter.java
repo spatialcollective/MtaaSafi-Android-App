@@ -41,10 +41,10 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
-        String title = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
+        String title = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_DESCRIPTION));
         holder.mTitle.setText(title.substring(0,1).toUpperCase() + title.substring(1));
         setStatus(holder.mStatus, c);
-        holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC)));
+        holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_PLACE_DESCRIPT)));
         holder.mDate.setText(Utils.getElapsedTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))));
 //        holder.mUser.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME)));
         holder.mVoteButton.mServerId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));

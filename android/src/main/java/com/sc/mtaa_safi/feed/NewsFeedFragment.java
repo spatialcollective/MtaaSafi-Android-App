@@ -50,7 +50,7 @@ public class NewsFeedFragment extends Fragment implements
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0,
-                                LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
+                                LOAD_USER = Contract.Entry.COLUMN_USER  + " == ",
                                 LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
@@ -204,7 +204,7 @@ public class NewsFeedFragment extends Fragment implements
         getLoaderManager().restartLoader(FEED_LOADER, null, this);
         attemptRefresh(getActivity());
         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
-        refreshMessage("Pull down to see reports", true);
+        refreshMessage(R.string.pull_refresh, true);
     }
 
     @Override
@@ -221,8 +221,8 @@ public class NewsFeedFragment extends Fragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (loader.getId() == FEED_LOADER) {
             feedLoaded(cursor);
-            if (cursor.getCount() == 0)
-                refreshMessage("Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.", false);
+//            if (cursor.getCount() == 0)
+//                refreshMessage(R.string.sorry_nothing, false);
         } else
             placeAdapter.swapCursor(cursor);
     }
@@ -312,13 +312,13 @@ public class NewsFeedFragment extends Fragment implements
         }
     }
 
-    private void refreshMessage(String message, Boolean showArrow){
+    private void refreshMessage(int messageId, Boolean showArrow){
         final ImageView imageView = (ImageView) getView().findViewById(R.id.doneButton);
         if (showArrow)
             imageView.setVisibility(View.VISIBLE);
         else
             imageView.setVisibility(View.INVISIBLE);
         final TextView textView = (TextView) getView().findViewById(R.id.pullDownText);
-        textView.setText(message);
+        textView.setText(getString(messageId));
     }
 }
