@@ -26,8 +26,8 @@ public class Contract {
         public static final String TABLE_NAME = "reports",
         	COLUMN_ID = "_id",
         	COLUMN_SERVER_ID = "server_id",
-        	COLUMN_HUMAN_LOC = "title",
-	        COLUMN_CONTENT = "details",
+        	COLUMN_HUMAN_LOC = "place",
+	        COLUMN_CONTENT = "description",
 	        COLUMN_TIMESTAMP = "timestamp",
             COLUMN_STATUS = "status",
             COLUMN_LAT = "latitude",
@@ -43,7 +43,8 @@ public class Contract {
             COLUMN_PENDINGFLAG = "pending",
             COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
             COLUMN_UPVOTE_COUNT = "upvote_count",
-            COLUMN_USER_UPVOTED = "upvoted";
+            COLUMN_USER_UPVOTED = "upvoted",
+            COLUMN_PARENT_REPORT = "parent";
     }
 
     public static class UpvoteLog implements BaseColumns {

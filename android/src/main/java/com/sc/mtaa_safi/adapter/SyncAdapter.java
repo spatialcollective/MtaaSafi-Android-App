@@ -55,7 +55,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Location cachedLocation = Utils.getLocation(mContext);
         Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.location_data));
         if (cachedLocation != null && cachedLocation.getTime() != 0) {
-            JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+            JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data), "get", null);
             Community.addCommunities(responseJson, provider);
         }
     }

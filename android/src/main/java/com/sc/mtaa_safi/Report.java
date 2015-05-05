@@ -29,7 +29,7 @@ import java.util.Date;
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0;
+    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0, parentReportId;
     public String locationDescript, content, timeElapsed, userName, locationJSON;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
@@ -55,7 +55,8 @@ public class Report {
             Contract.Entry.COLUMN_PENDINGFLAG,
             Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS,
             Contract.Entry.COLUMN_UPVOTE_COUNT,
-            Contract.Entry.COLUMN_USER_UPVOTED
+            Contract.Entry.COLUMN_USER_UPVOTED,
+            Contract.Entry.COLUMN_PARENT_REPORT
     };
     // for Report objects created by the user to send to the server
     public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
@@ -71,6 +72,20 @@ public class Report {
         this.media = picPaths;
     }
 
+    public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
+        this.serverId = this.dbId = 0;
+        this.content = details;
+        this.status = status;
+        this.locationDescript = "";
+        this.pendingState = 0;
+        this.timeStamp = System.currentTimeMillis();
+        this.userName = userName;
+        this.location = newLocation;
+        this.locationJSON = locationJSON;
+        this.media = picPaths;
+        this.parentReportId = parentReportId;
+    }
+
     public Report(Bundle bundle) {
         serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
         dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
@@ -84,7 +99,8 @@ public class Report {
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         adminId = bundle.getInt(Contract.Entry.COLUMN_ADMIN_ID);
         locationJSON = bundle.getString(Contract.Entry.COLUMN_LOC_DATA);
-        
+        parentReportId = bundle.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
+
         location = new Location("report_location");
         location.setLatitude(bundle.getDouble(Contract.Entry.COLUMN_LAT));
         location.setLongitude(bundle.getDouble(Contract.Entry.COLUMN_LNG));
@@ -108,6 +124,7 @@ public class Report {
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USERID));
         adminId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID));
+        parentReportId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PARENT_REPORT));
         if(userName.equals(""))
             userName = "Unknown user";
 
@@ -137,6 +154,7 @@ public class Report {
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         userId = jsonData.getInt(Contract.Entry.COLUMN_USERID);
         adminId = jsonData.getInt(Contract.Entry.COLUMN_ADMIN_ID);
+        parentReportId = jsonData.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
 
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
@@ -168,6 +186,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
+        reportValues.put(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
         if (upVoted)
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
@@ -204,7 +223,7 @@ public class Report {
         output.putFloat(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
         output.putLong(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
         output.putString(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
-
+        output.putInt(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
         output.putString(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return output;
     }
@@ -230,7 +249,7 @@ public class Report {
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_USERID, this.userId);
         json.put(Contract.Entry.COLUMN_ADMIN_ID, this.adminId);
-
+        json.put(Contract.Entry.COLUMN_PARENT_REPORT, this.parentReportId);
         if (this.locationJSON != null)
             json.put(Contract.Entry.COLUMN_LOC_DATA, this.locationJSON);
         else

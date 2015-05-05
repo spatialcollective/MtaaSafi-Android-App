@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.Toast;
@@ -30,10 +31,15 @@ import org.json.JSONObject;
 public class NewReportActivity extends ActionBarActivity {
     public final static String NEW_REPORT_TAG = "newreport";
     public static final int REQUEST_IMAGE_CAPTURE = 1;
-
+    private int parentReportId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        parentReportId = intent.getIntExtra("parentReportId", 0);
+        Log.e("NewReportActivity", String.valueOf(parentReportId));
+        if (intent.hasExtra("title"))
+            setTitle(intent.getStringExtra("title"));
         restoreFragment(savedInstanceState);
     }
 
@@ -113,14 +119,19 @@ public class NewReportActivity extends ActionBarActivity {
 
     public Uri saveNewReport(NewReportFragment frag) throws JSONException {
         JSONObject locationJSON = new JSONObject();
+        Report newReport;
         if (frag.adminText == frag.selectedAdmin.trim()) {
             locationJSON.put("admin", frag.selectedAdmin.trim());
             locationJSON.put("adminId", frag.selectedAdminId);
         } else
             locationJSON.put("admin", frag.adminText);
-
-        Report newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
+        if(parentReportId != 0) {
+            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString(), parentReportId);
+        }else{
+            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
+        }
         Utils.saveSavedReportCount(this, Utils.getSavedReportCount(this) + 1);
+
         return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
     }
 
