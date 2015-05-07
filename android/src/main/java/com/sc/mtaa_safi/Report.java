@@ -29,7 +29,7 @@ import java.util.Date;
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0, parentReportId;
+    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0, parentReportId=0;
     public String locationDescript, content, timeElapsed, userName, locationJSON;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
@@ -186,7 +186,8 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
-        reportValues.put(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
+        if (parentReportId != 0)
+            reportValues.put(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
         if (upVoted)
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
@@ -249,7 +250,8 @@ public class Report {
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_USERID, this.userId);
         json.put(Contract.Entry.COLUMN_ADMIN_ID, this.adminId);
-        json.put(Contract.Entry.COLUMN_PARENT_REPORT, this.parentReportId);
+        if (this.parentReportId !=0)
+            json.put(Contract.Entry.COLUMN_PARENT_REPORT, this.parentReportId);
         if (this.locationJSON != null)
             json.put(Contract.Entry.COLUMN_LOC_DATA, this.locationJSON);
         else
