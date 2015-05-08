@@ -36,8 +36,7 @@ public class Contract {
                 COLUMN_PENDINGFLAG = "pending",
                 COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
                 COLUMN_UPVOTE_COUNT = "upvote_count",
-                COLUMN_USER_UPVOTED = "upvoted",
-            	COLUMN_PARENT_REPORT = "parent";
+                COLUMN_USER_UPVOTED = "upvoted";
     }
 
     public static class MtaaLocation implements BaseColumns {

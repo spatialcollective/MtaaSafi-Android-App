@@ -25,7 +25,6 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Entry.COLUMN_USER_UPVOTED + " integer default 0, "
             + Contract.Entry.COLUMN_PENDINGFLAG + " integer default -1, "
             + Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS + " integer default 0, "
-            + Contract.Entry.COLUMN_PARENT_REPORT + " integer default 0, "
             + "FOREIGN KEY (" + Contract.Entry.COLUMN_LOCATION + ") "
             + "REFERENCES " + Contract.MtaaLocation.TABLE_NAME + "(" + Contract.MtaaLocation._ID + ")"
         + ")";

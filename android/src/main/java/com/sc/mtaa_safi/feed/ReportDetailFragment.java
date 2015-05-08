@@ -1,11 +1,9 @@
 package com.sc.mtaa_safi.feed;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -23,7 +21,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,7 +31,6 @@ import com.facebook.widget.WebDialog;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
-import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.comments.CommentAdapter;
@@ -52,7 +48,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     Report mReport;
     CommentAdapter mAdapter;
     String mCommentText;
-    private ReportUpdateListener reportUpdateListener;
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         setHasOptionsMenu(true);
@@ -65,21 +61,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         setUpHeader(view);
-        if (savedState != null) {
+        if (savedState != null)
             mReport = new Report(savedState);
-        }
-        Location cachedLocation = Utils.getLocation(getActivity());
-        Button updateButton = (Button) view.findViewById(R.id.update_button);
-        updateButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                reportUpdateListener.goToUpdateReport(mReport.serverId);
-            }
-        });
-        if (cachedLocation.distanceTo(mReport.location) < 100 && mReport.userId == Utils.getUserId(getActivity()))
-            updateButton.setVisibility(View.VISIBLE);
-        else
-            updateButton.setVisibility(View.GONE);
         setUpImagePager(view);
         if (NetworkUtils.isOnline(getActivity()))
             new SyncComments(getActivity(), mReport.serverId).execute();
@@ -156,15 +139,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         voter.mServerId = mReport.serverId;
         voter.mReportUri = Report.getUri(mReport.dbId);
         voter.setCheckedState(mReport.upVoted, mReport.upVoteCount, null);
-    }
-
-    public void onAttach(Activity activity){
-        super.onAttach(activity);
-        try{
-            reportUpdateListener = (ReportUpdateListener) activity;
-        }catch (ClassCastException exception){
-            Log.e("ReportDetailFragment", "MainActivity does not implement LoginActivityListener");
-        }
     }
 
     @Override

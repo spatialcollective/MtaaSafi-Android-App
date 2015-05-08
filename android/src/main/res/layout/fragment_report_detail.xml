@@ -65,18 +65,6 @@
                     android:textSize="18sp"
                     android:layout_marginRight="88dp"
                     android:layout_marginEnd="88dp" />
-
-                <Button
-                    android:id="@+id/update_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="14pt"
-                    android:text="update this report"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textColor="@color/White"
-                    android:background="@color/Coral"
-                    android:visibility="gone"
-                    />
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
 
