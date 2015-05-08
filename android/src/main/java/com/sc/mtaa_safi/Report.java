@@ -1,5 +1,6 @@
 package com.sc.mtaa_safi;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
@@ -49,7 +50,12 @@ public class Report {
             Contract.Entry.COLUMN_PENDINGFLAG,
             Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS,
             Contract.Entry.COLUMN_UPVOTE_COUNT,
-            Contract.Entry.COLUMN_USER_UPVOTED
+            Contract.Entry.COLUMN_USER_UPVOTED,
+            Contract.MtaaLocation.COLUMN_LAT,
+            Contract.MtaaLocation.COLUMN_LNG,
+            Contract.MtaaLocation.COLUMN_LOC_ACC,
+            Contract.MtaaLocation.COLUMN_LOC_TIME,
+            Contract.MtaaLocation.COLUMN_LOC_PROV
     };
     // for Report objects created by the user to send to the server
     public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
@@ -98,10 +104,10 @@ public class Report {
         status = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_STATUS));
         timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         timeElapsed = Utils.getElapsedTime(timeStamp);
-        userName = c.getString(c.getColumnIndex(Contract.User.COLUMN_NAME));
+//        userName = c.getString(c.getColumnIndex(Contract.User.COLUMN_NAME));
         userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER));
         adminId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID));
-        if (userName.equals(""))
+        if (userName == null || userName.equals(""))
             userName = "Unknown User";
 
         pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
@@ -150,6 +156,17 @@ public class Report {
             media.add(mediaIdsJSON.get(i) + "");
     }
 
+    public ArrayList<ContentProviderOperation> createContentProviderOperation(ArrayList<ContentProviderOperation> batch) {
+        batch.add(ContentProviderOperation.newInsert(Contract.MtaaLocation.LOCATION_URI)
+                .withValues(getLocationContentValues())
+                .build());
+        batch.add(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
+                .withValues(getContentValues())
+                .withValueBackReference(Contract.Entry.COLUMN_LOCATION, 0)
+                .build());
+        return batch;
+    }
+
     public ContentValues getContentValues() {
         ContentValues reportValues = new ContentValues();
         reportValues.put(Contract.Entry.COLUMN_SERVER_ID, serverId);
@@ -157,7 +174,7 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_PLACE_DESCRIPT, placeDescript);
         reportValues.put(Contract.Entry.COLUMN_STATUS, status);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
-        reportValues.put(Contract.User.COLUMN_NAME, userName);
+//        reportValues.put(Contract.User.COLUMN_NAME, userName);
         reportValues.put(Contract.Entry.COLUMN_USER, userId);
         reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
@@ -166,19 +183,23 @@ public class Report {
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 0);
-
-        reportValues.put(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());
-        reportValues.put(Contract.MtaaLocation.COLUMN_LNG, location.getLongitude());
-        reportValues.put(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
-        reportValues.put(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
-        reportValues.put(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
-        if ( locationJSON != null)
-            reportValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, locationJSON);
-        else
-            reportValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
-
         reportValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
+
         return reportValues;
+    }
+
+    public ContentValues getLocationContentValues() {
+        ContentValues locValues = new ContentValues();
+        locValues.put(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());
+        locValues.put(Contract.MtaaLocation.COLUMN_LNG, location.getLongitude());
+        locValues.put(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
+        locValues.put(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
+        locValues.put(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
+        if ( locationJSON != null)
+            locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, locationJSON);
+        else
+            locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
+        return locValues;
     }
 
     public Bundle saveState(Bundle output) {

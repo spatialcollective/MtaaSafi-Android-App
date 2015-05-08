@@ -45,7 +45,7 @@
 
     <string name="facebook_app_id">903751569639797</string>
     <string name="sorry_nothing">Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.</string>
-    <string name="pull_refresh">"Pull down to see reports"</string>
+    <string name="pull_refresh">"Pull down to refresh"</string>
 
     <string-array name="nav_choices">
         <item>Feed</item>

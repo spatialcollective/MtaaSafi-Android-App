@@ -91,7 +91,12 @@ public class ReportProvider extends ContentProvider {
                 String id = uri.getLastPathSegment();
                 builder.where(Contract.Entry._ID + "=?", id);
             case ROUTE_ENTRIES:
-                builder.table(Contract.Entry.TABLE_NAME)
+                builder.table(Contract.REPORTS_JOIN_LOCATIONS)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LAT, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LNG, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_ACC, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_TIME, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_PROV, Contract.MtaaLocation.TABLE_NAME)
                         .where(selection, selectionArgs);
                 return buildQuery(uri, builder, db, projection, sortOrder);
             case ROUTE_USERS_ID:
@@ -140,8 +145,7 @@ public class ReportProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
-    private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db,
-                                String[] projection, String sortOrder){
+    private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db, String[] projection, String sortOrder) {
         Cursor cursor = builder.query(db, projection, sortOrder);
         Context context = getContext();
         assert context != null;

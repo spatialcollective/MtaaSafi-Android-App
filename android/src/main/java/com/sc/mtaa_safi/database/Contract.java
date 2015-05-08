@@ -16,6 +16,7 @@ public class Contract {
                                  PATH_COMMENTS = "comments",
                                  PATH_ADMINS = "admins",
                                  PATH_LANDMARKS = "landmarks";
+    public static String REPORTS_JOIN_LOCATIONS = "reports LEFT OUTER JOIN locations ON reports.location=locations.location_id ";
 
     public static class Entry implements BaseColumns {
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
@@ -29,7 +30,7 @@ public class Contract {
                 COLUMN_TIMESTAMP = "timestamp",
                 COLUMN_STATUS = "status",
                 COLUMN_ADMIN_ID = "admin_id",
-                COLUMN_USER = "user",
+                COLUMN_USER = "user_id",
                 COLUMN_LOCATION = "location",
                 COLUMN_MEDIA = "media",
                 COLUMN_PENDINGFLAG = "pending",
@@ -43,7 +44,7 @@ public class Contract {
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
         public static final Uri LOCATION_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
         public static final String TABLE_NAME = "locations",
-                COLUMN_ID = "_id",
+                COLUMN_ID = "location_id",
                 COLUMN_LAT = "latitude",
                 COLUMN_LNG= "longitude",
                 COLUMN_LOC_ACC = "accuracy",
@@ -59,7 +60,7 @@ public class Contract {
         public static final String TABLE_NAME = "users",
                 COLUMN_ID = "_id",
                 COLUMN_SERVER_ID = "server_id",
-                COLUMN_NAME = "username";
+                COLUMN_NAME = "user";
     }
 
     public static class UpvoteLog implements BaseColumns {

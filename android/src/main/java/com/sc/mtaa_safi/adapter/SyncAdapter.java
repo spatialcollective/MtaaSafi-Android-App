@@ -55,7 +55,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Location cachedLocation = Utils.getLocation(mContext);
         Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.location_data));
         if (cachedLocation != null && cachedLocation.getTime() != 0) {
-            JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data) + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
+            JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data), "get", null);
             Community.addCommunities(responseJson, provider);
         }
     }
@@ -121,10 +121,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         JSONArray reportsArray = serverResponse.getJSONArray("reports");
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
-            batch.add(ContentProviderOperation
-                 .newInsert(Contract.Entry.CONTENT_URI)
-                 .withValues(report.getContentValues())
-                 .build());
+            batch = report.createContentProviderOperation(batch);
             syncResult.stats.numEntries++;
             syncResult.stats.numInserts++;
             provider.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
