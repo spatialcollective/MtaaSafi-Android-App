@@ -51,10 +51,6 @@ public class ReportProvider extends ContentProvider {
                 return Contract.Entry.CONTENT_TYPE;
             case ROUTE_ENTRIES_ID:
                 return Contract.Entry.CONTENT_ITEM_TYPE;
-            case ROUTE_USERS:
-                return Contract.User.CONTENT_TYPE;
-            case ROUTE_USERS_ID:
-                return Contract.User.CONTENT_ITEM_TYPE;
             case ROUTE_LOCATIONS:
                 return Contract.MtaaLocation.CONTENT_TYPE;
             case ROUTE_LOCATIONS_ID:
@@ -97,13 +93,6 @@ public class ReportProvider extends ContentProvider {
                         .mapToTable(Contract.MtaaLocation.COLUMN_LOC_ACC, Contract.MtaaLocation.TABLE_NAME)
                         .mapToTable(Contract.MtaaLocation.COLUMN_LOC_TIME, Contract.MtaaLocation.TABLE_NAME)
                         .mapToTable(Contract.MtaaLocation.COLUMN_LOC_PROV, Contract.MtaaLocation.TABLE_NAME)
-                        .where(selection, selectionArgs);
-                return buildQuery(uri, builder, db, projection, sortOrder);
-            case ROUTE_USERS_ID:
-                String userId = uri.getLastPathSegment();
-                builder.where(Contract.User._ID + "=?", userId);
-            case ROUTE_USERS:
-                builder.table(Contract.User.TABLE_NAME)
                         .where(selection, selectionArgs);
                 return buildQuery(uri, builder, db, projection, sortOrder);
             case ROUTE_LOCATIONS_ID:
@@ -164,12 +153,6 @@ public class ReportProvider extends ContentProvider {
                 result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + reportId);
                 break;
             case ROUTE_ENTRIES_ID:
-                throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
-            case ROUTE_USERS:
-                long userId = db.insertOrThrow(Contract.User.TABLE_NAME, null, values);
-                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + userId);
-                break;
-            case ROUTE_USERS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
             case ROUTE_LOCATIONS:
                 long locationId = db.insertOrThrow(Contract.MtaaLocation.TABLE_NAME, null, values);
@@ -243,18 +226,6 @@ public class ReportProvider extends ContentProvider {
                         .where(selection, selectionArgs)
                         .update(db, values);
                 break;
-            case ROUTE_USERS:
-                count = builder.table(Contract.User.TABLE_NAME)
-                        .where(selection, selectionArgs)
-                        .update(db, values);
-                break;
-            case ROUTE_USERS_ID:
-                String userId = uri.getLastPathSegment();
-                count = builder.table(Contract.User.TABLE_NAME)
-                        .where(Contract.Entry._ID + "=?", userId)
-                        .where(selection, selectionArgs)
-                        .update(db, values);
-                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -282,18 +253,6 @@ public class ReportProvider extends ContentProvider {
                        .where(Contract.Entry._ID + "=?", id)
                        .where(selection, selectionArgs)
                        .delete(db);
-                break;
-            case ROUTE_USERS:
-                count = builder.table(Contract.User.TABLE_NAME)
-                        .where(selection, selectionArgs)
-                        .delete(db);
-                break;
-            case ROUTE_USERS_ID:
-                String userId = uri.getLastPathSegment();
-                count = builder.table(Contract.User.TABLE_NAME)
-                        .where(Contract.User._ID + "=?", userId)
-                        .where(selection, selectionArgs)
-                        .delete(db);
                 break;
             case ROUTE_LOCATIONS:
                 count = builder.table(Contract.MtaaLocation.TABLE_NAME)

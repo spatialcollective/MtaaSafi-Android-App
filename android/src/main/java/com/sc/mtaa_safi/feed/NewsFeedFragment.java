@@ -50,7 +50,7 @@ public class NewsFeedFragment extends Fragment implements
     public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0,
-                                LOAD_USER = Contract.Entry.COLUMN_USER  + " == ",
+                                LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
                                 LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;

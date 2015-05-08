@@ -44,7 +44,8 @@ public class Report {
             Contract.Entry.COLUMN_TIMESTAMP,
             Contract.Entry.COLUMN_STATUS,
             Contract.Entry.COLUMN_ADMIN_ID,
-            Contract.Entry.COLUMN_USER,
+            Contract.Entry.COLUMN_USERID,
+            Contract.Entry.COLUMN_USERNAME,
             Contract.Entry.COLUMN_LOCATION,
             Contract.Entry.COLUMN_MEDIA,
             Contract.Entry.COLUMN_PENDINGFLAG,
@@ -78,8 +79,8 @@ public class Report {
         placeDescript = bundle.getString(Contract.Entry.COLUMN_PLACE_DESCRIPT);
         status = bundle.getInt(Contract.Entry.COLUMN_STATUS);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
-        userName = bundle.getString(Contract.User.COLUMN_NAME);
-        userId = bundle.getInt(Contract.Entry.COLUMN_USER);
+        userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
+        userId = bundle.getInt(Contract.Entry.COLUMN_USERID);
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         adminId = bundle.getInt(Contract.Entry.COLUMN_ADMIN_ID);
@@ -104,8 +105,8 @@ public class Report {
         status = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_STATUS));
         timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         timeElapsed = Utils.getElapsedTime(timeStamp);
-//        userName = c.getString(c.getColumnIndex(Contract.User.COLUMN_NAME));
-        userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER));
+        userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
+        userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USERID));
         adminId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID));
         if (userName == null || userName.equals(""))
             userName = "Unknown User";
@@ -134,8 +135,8 @@ public class Report {
         status = jsonData.getInt(Contract.Entry.COLUMN_STATUS);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
-        userName = jsonData.getString(Contract.User.COLUMN_NAME);
-        userId = jsonData.getInt(Contract.Entry.COLUMN_USER);
+        userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
+        userId = jsonData.getInt(Contract.Entry.COLUMN_USERID);
         adminId = jsonData.getInt(Contract.Entry.COLUMN_ADMIN_ID);
 
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
@@ -174,8 +175,8 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_PLACE_DESCRIPT, placeDescript);
         reportValues.put(Contract.Entry.COLUMN_STATUS, status);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
-//        reportValues.put(Contract.User.COLUMN_NAME, userName);
-        reportValues.put(Contract.Entry.COLUMN_USER, userId);
+        reportValues.put(Contract.Entry.COLUMN_USERID, userId);
+        reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
         reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
@@ -195,7 +196,7 @@ public class Report {
         locValues.put(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
         locValues.put(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
         locValues.put(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
-        if ( locationJSON != null)
+        if (locationJSON != null)
             locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, locationJSON);
         else
             locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
@@ -209,8 +210,8 @@ public class Report {
         output.putString(Contract.Entry.COLUMN_PLACE_DESCRIPT, placeDescript);
         output.putInt(Contract.Entry.COLUMN_STATUS, status);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
-        output.putString(Contract.User.COLUMN_NAME, userName);
-        output.putInt(Contract.Entry.COLUMN_USER, userId);
+        output.putString(Contract.Entry.COLUMN_USERNAME, userName);
+        output.putInt(Contract.Entry.COLUMN_USERID, userId);
         output.putInt(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
         output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
@@ -243,8 +244,8 @@ public class Report {
         json.put(Contract.Entry.COLUMN_PLACE_DESCRIPT, this.placeDescript);
         json.put(Contract.Entry.COLUMN_STATUS, this.status);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
-        json.put(Contract.User.COLUMN_NAME, this.userName);
-        json.put(Contract.Entry.COLUMN_USER, this.userId);
+        json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
+        json.put(Contract.Entry.COLUMN_USERID, this.userId);
         json.put(Contract.Entry.COLUMN_ADMIN_ID, this.adminId);
 
         if (this.locationJSON != null)

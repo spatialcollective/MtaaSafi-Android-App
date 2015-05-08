@@ -10,13 +10,12 @@ public class Contract {
     public static final String CONTENT_AUTHORITY = "com.sc.mtaa_safi";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     private static final String PATH_ENTRIES = "entries",
-                                 PATH_USER = "users",
                                  PATH_LOCATION = "locations",
                                  PATH_UPVOTES = "upvotes",
                                  PATH_COMMENTS = "comments",
                                  PATH_ADMINS = "admins",
                                  PATH_LANDMARKS = "landmarks";
-    public static String REPORTS_JOIN_LOCATIONS = "reports LEFT OUTER JOIN locations ON reports.location=locations.location_id ";
+    public static String REPORTS_JOIN_LOCATIONS = "reports LEFT OUTER JOIN locations ON reports.location=locations.location_id";
 
     public static class Entry implements BaseColumns {
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
@@ -30,7 +29,8 @@ public class Contract {
                 COLUMN_TIMESTAMP = "timestamp",
                 COLUMN_STATUS = "status",
                 COLUMN_ADMIN_ID = "admin_id",
-                COLUMN_USER = "user_id",
+                COLUMN_USERID = "user_id",
+                COLUMN_USERNAME = "user",
                 COLUMN_LOCATION = "location",
                 COLUMN_MEDIA = "media",
                 COLUMN_PENDINGFLAG = "pending",
@@ -51,16 +51,6 @@ public class Contract {
                 COLUMN_LOC_TIME = "loc_time",
                 COLUMN_LOC_PROV = "provider",
                 COLUMN_LOC_DATA = "loc_data";
-    }
-
-    public static class User implements BaseColumns {
-        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
-        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
-        public static final Uri USER_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USER).build();
-        public static final String TABLE_NAME = "users",
-                COLUMN_ID = "_id",
-                COLUMN_SERVER_ID = "server_id",
-                COLUMN_NAME = "user";
     }
 
     public static class UpvoteLog implements BaseColumns {

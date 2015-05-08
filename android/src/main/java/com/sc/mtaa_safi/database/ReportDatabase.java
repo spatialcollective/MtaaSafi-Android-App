@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 29;
+    private static final int DATABASE_VERSION = 28;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -17,24 +17,16 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Entry.COLUMN_TIMESTAMP + " long, "
             + Contract.Entry.COLUMN_STATUS + " integer default 0, "
             + Contract.Entry.COLUMN_ADMIN_ID + " integer default 0, "
-            + Contract.Entry.COLUMN_USER + " integer not null, "
+            + Contract.Entry.COLUMN_USERID + " integer not null, "
+            + Contract.Entry.COLUMN_USERNAME + " text not null, "
             + Contract.Entry.COLUMN_LOCATION + " integer not null, "
             + Contract.Entry.COLUMN_MEDIA + " text not null, "
             + Contract.Entry.COLUMN_UPVOTE_COUNT + " integer default 0, "
             + Contract.Entry.COLUMN_USER_UPVOTED + " integer default 0, "
             + Contract.Entry.COLUMN_PENDINGFLAG + " integer default -1, "
             + Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS + " integer default 0, "
-            + "FOREIGN KEY (" + Contract.Entry.COLUMN_USER + ") "
-            + "REFERENCES " + Contract.User.TABLE_NAME + "(" + Contract.User.COLUMN_SERVER_ID + ") "
             + "FOREIGN KEY (" + Contract.Entry.COLUMN_LOCATION + ") "
             + "REFERENCES " + Contract.MtaaLocation.TABLE_NAME + "(" + Contract.MtaaLocation._ID + ")"
-        + ")";
-
-    private static final String USER_TABLE_CREATE = "create table "
-            + Contract.User.TABLE_NAME + "("
-            + Contract.User.COLUMN_ID + " integer primary key autoincrement, "
-            + Contract.User.COLUMN_SERVER_ID + " integer, "
-            + Contract.User.COLUMN_NAME + " text not null "
         + ")";
 
     private static final String LOCATION_TABLE_CREATE = "create table "
@@ -90,7 +82,6 @@ public class ReportDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(REPORT_TABLE_CREATE);
-        database.execSQL(USER_TABLE_CREATE);
         database.execSQL(LOCATION_TABLE_CREATE);
         database.execSQL(UPVOTE_TABLE_CREATE);
         database.execSQL(COMMENT_TABLE_CREATE);
@@ -100,11 +91,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(ReportDatabase.class.getName(),
-                "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data"
-        );
+        Log.w(ReportDatabase.class.getName(), "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Entry.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + Contract.User.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.MtaaLocation.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.UpvoteLog.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Comments.TABLE_NAME);
