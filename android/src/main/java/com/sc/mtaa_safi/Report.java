@@ -30,8 +30,8 @@ import java.util.Date;
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0;
     public String description, placeDescript, timeElapsed, userName, locationJSON;
+    public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0, parentReportId=0;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
     public Location location;
@@ -52,18 +52,27 @@ public class Report {
             Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS,
             Contract.Entry.COLUMN_UPVOTE_COUNT,
             Contract.Entry.COLUMN_USER_UPVOTED,
+            Contract.Entry.COLUMN_PARENT_REPORT,
             Contract.MtaaLocation.COLUMN_LAT,
             Contract.MtaaLocation.COLUMN_LNG,
             Contract.MtaaLocation.COLUMN_LOC_ACC,
             Contract.MtaaLocation.COLUMN_LOC_TIME,
             Contract.MtaaLocation.COLUMN_LOC_PROV
     };
+
     // for Report objects created by the user to send to the server
     public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+        initialize(description, status, userName, newLocation, picPaths, locationJSON);
+    }
+    public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
+        initialize(description, status, userName, newLocation, picPaths, locationJSON);
+        this.parentReportId = parentReportId;
+    }
+    private void initialize(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
         this.serverId = this.dbId = 0;
         this.description = description;
-        this.placeDescript = "";
         this.status = status;
+        this.placeDescript = "";
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
@@ -84,8 +93,9 @@ public class Report {
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         adminId = bundle.getInt(Contract.Entry.COLUMN_ADMIN_ID);
+        parentReportId = bundle.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
+
         locationJSON = bundle.getString(Contract.Entry.COLUMN_LOCATION);
-        
         location = new Location("report_location");
         location.setLatitude(bundle.getDouble(Contract.MtaaLocation.COLUMN_LAT));
         location.setLongitude(bundle.getDouble(Contract.MtaaLocation.COLUMN_LNG));
@@ -111,6 +121,7 @@ public class Report {
         if (userName == null || userName.equals(""))
             userName = "Unknown User";
 
+        parentReportId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PARENT_REPORT));
         pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
@@ -138,6 +149,7 @@ public class Report {
         userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
         userId = jsonData.getInt(Contract.Entry.COLUMN_USERID);
         adminId = jsonData.getInt(Contract.Entry.COLUMN_ADMIN_ID);
+        parentReportId = jsonData.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
 
         upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
@@ -180,6 +192,8 @@ public class Report {
         reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
+        if (parentReportId != 0)
+            reportValues.put(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
         if (upVoted)
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
@@ -215,12 +229,14 @@ public class Report {
         output.putInt(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
         output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
+
         output.putDouble(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());
         output.putDouble(Contract.MtaaLocation.COLUMN_LNG, location.getLongitude());
         output.putFloat(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
         output.putLong(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
         output.putString(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
 
+        output.putInt(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
         output.putString(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return output;
     }
@@ -247,7 +263,8 @@ public class Report {
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
         json.put(Contract.Entry.COLUMN_USERID, this.userId);
         json.put(Contract.Entry.COLUMN_ADMIN_ID, this.adminId);
-
+        if (this.parentReportId !=0)
+            json.put(Contract.Entry.COLUMN_PARENT_REPORT, this.parentReportId);
         if (this.locationJSON != null)
             json.put(Contract.MtaaLocation.COLUMN_LOC_DATA, this.locationJSON);
         else

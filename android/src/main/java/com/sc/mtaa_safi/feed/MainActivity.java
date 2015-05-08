@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends ActionBarActivity implements
-        AlertDialogFragment.AlertDialogListener, LoginActivityListener {
+        AlertDialogFragment.AlertDialogListener, LoginActivityListener, ReportUpdateListener {
 
     ReportDetailFragment detailFragment;
     NewsFeedFragment newsFeedFrag;
@@ -151,6 +151,14 @@ public class MainActivity extends ActionBarActivity implements
     }
     public void goToNewReport() {
         Intent intent = new Intent();
+        intent.setClass(this, NewReportActivity.class);
+        startActivity(intent);
+    }
+
+    public void goToUpdateReport(int parentReportId){
+        Intent intent = new Intent();
+        intent.putExtra("parentReportId", parentReportId);
+        intent.putExtra("title", "Update Report");
         intent.setClass(this, NewReportActivity.class);
         startActivity(intent);
     }

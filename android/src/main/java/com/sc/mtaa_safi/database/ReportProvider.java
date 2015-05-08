@@ -29,8 +29,6 @@ public class ReportProvider extends ContentProvider {
         static {
             sUriMatcher.addURI(AUTHORITY, "entries", ROUTE_ENTRIES);
             sUriMatcher.addURI(AUTHORITY, "entries/*", ROUTE_ENTRIES_ID);
-            sUriMatcher.addURI(AUTHORITY, "users", ROUTE_USERS);
-            sUriMatcher.addURI(AUTHORITY, "users/*", ROUTE_USERS_ID);
             sUriMatcher.addURI(AUTHORITY, "locations", ROUTE_LOCATIONS);
             sUriMatcher.addURI(AUTHORITY, "locations/*", ROUTE_LOCATIONS_ID);
             sUriMatcher.addURI(AUTHORITY, "upvotes", ROUTE_UPVOTES);
