@@ -1,6 +1,5 @@
 package com.sc.mtaa_safi;
 
-import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
@@ -30,8 +29,8 @@ import java.util.Date;
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public String description, placeDescript, timeElapsed, userName, locationJSON;
     public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0, parentReportId=0;
+    public String locationDescript, content, timeElapsed, userName, locationJSON;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
     public Location location;
@@ -39,40 +38,32 @@ public class Report {
     public static final String[] PROJECTION = new String[] {
             Contract.Entry.COLUMN_ID,
             Contract.Entry.COLUMN_SERVER_ID,
-            Contract.Entry.COLUMN_DESCRIPTION,
-            Contract.Entry.COLUMN_PLACE_DESCRIPT,
+            Contract.Entry.COLUMN_CONTENT,
+            Contract.Entry.COLUMN_HUMAN_LOC,
             Contract.Entry.COLUMN_TIMESTAMP,
             Contract.Entry.COLUMN_STATUS,
+            Contract.Entry.COLUMN_LAT,
+            Contract.Entry.COLUMN_LNG,
             Contract.Entry.COLUMN_ADMIN_ID,
-            Contract.Entry.COLUMN_USERID,
+            Contract.Entry.COLUMN_LOC_ACC,
+            Contract.Entry.COLUMN_LOC_TIME,
+            Contract.Entry.COLUMN_LOC_PROV,
+            Contract.Entry.COLUMN_LOC_DATA,
             Contract.Entry.COLUMN_USERNAME,
-            Contract.Entry.COLUMN_LOCATION,
+            Contract.Entry.COLUMN_USERID,
             Contract.Entry.COLUMN_MEDIA,
             Contract.Entry.COLUMN_PENDINGFLAG,
             Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS,
             Contract.Entry.COLUMN_UPVOTE_COUNT,
             Contract.Entry.COLUMN_USER_UPVOTED,
-            Contract.Entry.COLUMN_PARENT_REPORT,
-            Contract.MtaaLocation.COLUMN_LAT,
-            Contract.MtaaLocation.COLUMN_LNG,
-            Contract.MtaaLocation.COLUMN_LOC_ACC,
-            Contract.MtaaLocation.COLUMN_LOC_TIME,
-            Contract.MtaaLocation.COLUMN_LOC_PROV
+            Contract.Entry.COLUMN_PARENT_REPORT
     };
-
     // for Report objects created by the user to send to the server
-    public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
-        initialize(description, status, userName, newLocation, picPaths, locationJSON);
-    }
-    public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
-        initialize(description, status, userName, newLocation, picPaths, locationJSON);
-        this.parentReportId = parentReportId;
-    }
-    private void initialize(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+    public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
         this.serverId = this.dbId = 0;
-        this.description = description;
+        this.content = details;
         this.status = status;
-        this.placeDescript = "";
+        this.locationDescript = "";
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
@@ -81,58 +72,72 @@ public class Report {
         this.media = picPaths;
     }
 
+    public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
+        this.serverId = this.dbId = 0;
+        this.content = details;
+        this.status = status;
+        this.locationDescript = "";
+        this.pendingState = 0;
+        this.timeStamp = System.currentTimeMillis();
+        this.userName = userName;
+        this.location = newLocation;
+        this.locationJSON = locationJSON;
+        this.media = picPaths;
+        this.parentReportId = parentReportId;
+    }
+
     public Report(Bundle bundle) {
-        dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
         serverId = bundle.getInt(Contract.Entry.COLUMN_SERVER_ID);
-        description = bundle.getString(Contract.Entry.COLUMN_DESCRIPTION);
-        placeDescript = bundle.getString(Contract.Entry.COLUMN_PLACE_DESCRIPT);
+        dbId = bundle.getInt(Contract.Entry.COLUMN_ID);
+        content = bundle.getString(Contract.Entry.COLUMN_CONTENT);
         status = bundle.getInt(Contract.Entry.COLUMN_STATUS);
+        locationDescript = bundle.getString(Contract.Entry.COLUMN_HUMAN_LOC);
         timeStamp = bundle.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         userName = bundle.getString(Contract.Entry.COLUMN_USERNAME);
         userId = bundle.getInt(Contract.Entry.COLUMN_USERID);
         upVoted = bundle.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         upVoteCount = bundle.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
         adminId = bundle.getInt(Contract.Entry.COLUMN_ADMIN_ID);
+        locationJSON = bundle.getString(Contract.Entry.COLUMN_LOC_DATA);
         parentReportId = bundle.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
 
-        locationJSON = bundle.getString(Contract.Entry.COLUMN_LOCATION);
         location = new Location("report_location");
-        location.setLatitude(bundle.getDouble(Contract.MtaaLocation.COLUMN_LAT));
-        location.setLongitude(bundle.getDouble(Contract.MtaaLocation.COLUMN_LNG));
-        location.setAccuracy(bundle.getFloat(Contract.MtaaLocation.COLUMN_LOC_ACC));
-        location.setTime(bundle.getLong(Contract.MtaaLocation.COLUMN_LOC_TIME));
-        location.setProvider(bundle.getString(Contract.MtaaLocation.COLUMN_LOC_PROV));
+        location.setLatitude(bundle.getDouble(Contract.Entry.COLUMN_LAT));
+        location.setLongitude(bundle.getDouble(Contract.Entry.COLUMN_LNG));
+        location.setAccuracy(bundle.getFloat(Contract.Entry.COLUMN_LOC_ACC));
+        location.setTime(bundle.getLong(Contract.Entry.COLUMN_LOC_TIME));
+        location.setProvider(bundle.getString(Contract.Entry.COLUMN_LOC_PROV));
 
         media = gson.fromJson(bundle.getString(Contract.Entry.COLUMN_MEDIA), new TypeToken<ArrayList<String>>() {
         }.getType());
     }
 
     public Report(Cursor c)  {
-        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
         serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
-        description = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_DESCRIPTION));
-        placeDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_PLACE_DESCRIPT));
+        dbId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID));
+        pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
+        content = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT));
         status = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_STATUS));
+        locationDescript = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_HUMAN_LOC));
         timeStamp = c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP));
         timeElapsed = Utils.getElapsedTime(timeStamp);
         userName = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_USERNAME));
         userId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USERID));
         adminId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ADMIN_ID));
-        if (userName == null || userName.equals(""))
-            userName = "Unknown User";
-
         parentReportId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PARENT_REPORT));
-        pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
+        if(userName.equals(""))
+            userName = "Unknown user";
+
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
-        locationJSON = c.getString(c.getColumnIndexOrThrow(Contract.Entry.COLUMN_LOCATION));
+        locationJSON = c.getString(c.getColumnIndexOrThrow(Contract.Entry.COLUMN_LOC_DATA));
 
         location = new Location("ReportLocation");
-        location.setLatitude(c.getDouble(c.getColumnIndex(Contract.MtaaLocation.COLUMN_LAT)));
-        location.setLongitude(c.getDouble(c.getColumnIndex(Contract.MtaaLocation.COLUMN_LNG)));
-        location.setAccuracy(c.getFloat(c.getColumnIndex(Contract.MtaaLocation.COLUMN_LOC_ACC)));
-        location.setTime(c.getLong(c.getColumnIndex(Contract.MtaaLocation.COLUMN_LOC_TIME)));
-        location.setProvider(c.getString(c.getColumnIndex(Contract.MtaaLocation.COLUMN_LOC_PROV)));
+        location.setLatitude(c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LAT)));
+        location.setLongitude(c.getDouble(c.getColumnIndex(Contract.Entry.COLUMN_LNG)));
+        location.setAccuracy(c.getFloat(c.getColumnIndex(Contract.Entry.COLUMN_LOC_ACC)));
+        location.setTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_LOC_TIME)));
+        location.setProvider(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_LOC_PROV)));
 
         Type type = new TypeToken<ArrayList<String>>() {}.getType();
         if (c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)) != null && !c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)).isEmpty())
@@ -141,8 +146,8 @@ public class Report {
 
     public Report(JSONObject jsonData, int pending) throws JSONException {
         serverId = jsonData.getInt("unique_id");
-        description = jsonData.getString(Contract.Entry.COLUMN_DESCRIPTION);
-        placeDescript = jsonData.getString(Contract.Entry.COLUMN_PLACE_DESCRIPT);
+        locationDescript = jsonData.getString(Contract.Entry.COLUMN_HUMAN_LOC);
+        content = jsonData.getString(Contract.Entry.COLUMN_CONTENT);
         status = jsonData.getInt(Contract.Entry.COLUMN_STATUS);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
@@ -155,40 +160,29 @@ public class Report {
         upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
         pendingState = pending;
         try {
-            locationJSON = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
+            locationJSON = jsonData.getString(Contract.Entry.COLUMN_LOC_DATA);
         }catch (JSONException e) {
             locationJSON = "";
         }
 
         location = new Location("ReportLocation");
-        location.setLatitude(jsonData.getDouble(Contract.MtaaLocation.COLUMN_LAT));
-        location.setLongitude(jsonData.getDouble(Contract.MtaaLocation.COLUMN_LNG));
+        location.setLatitude(jsonData.getDouble(Contract.Entry.COLUMN_LAT));
+        location.setLongitude(jsonData.getDouble(Contract.Entry.COLUMN_LNG));
 
         JSONArray mediaIdsJSON = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
         for (int i = 0; i < mediaIdsJSON.length(); i++)
             media.add(mediaIdsJSON.get(i) + "");
     }
 
-    public ArrayList<ContentProviderOperation> createContentProviderOperation(ArrayList<ContentProviderOperation> batch) {
-        batch.add(ContentProviderOperation.newInsert(Contract.MtaaLocation.LOCATION_URI)
-                .withValues(getLocationContentValues())
-                .build());
-        batch.add(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
-                .withValues(getContentValues())
-                .withValueBackReference(Contract.Entry.COLUMN_LOCATION, 0)
-                .build());
-        return batch;
-    }
-
     public ContentValues getContentValues() {
         ContentValues reportValues = new ContentValues();
         reportValues.put(Contract.Entry.COLUMN_SERVER_ID, serverId);
-        reportValues.put(Contract.Entry.COLUMN_DESCRIPTION, description);
-        reportValues.put(Contract.Entry.COLUMN_PLACE_DESCRIPT, placeDescript);
+        reportValues.put(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
+        reportValues.put(Contract.Entry.COLUMN_CONTENT, content);
         reportValues.put(Contract.Entry.COLUMN_STATUS, status);
         reportValues.put(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
-        reportValues.put(Contract.Entry.COLUMN_USERID, userId);
         reportValues.put(Contract.Entry.COLUMN_USERNAME, userName);
+        reportValues.put(Contract.Entry.COLUMN_USERID, userId);
         reportValues.put(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         reportValues.put(Contract.Entry.COLUMN_PENDINGFLAG, pendingState);
         reportValues.put(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
@@ -198,44 +192,38 @@ public class Report {
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 1);
         else
             reportValues.put(Contract.Entry.COLUMN_USER_UPVOTED, 0);
-        reportValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
 
-        return reportValues;
-    }
-
-    public ContentValues getLocationContentValues() {
-        ContentValues locValues = new ContentValues();
-        locValues.put(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());
-        locValues.put(Contract.MtaaLocation.COLUMN_LNG, location.getLongitude());
-        locValues.put(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
-        locValues.put(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
-        locValues.put(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
-        if (locationJSON != null)
-            locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, locationJSON);
+        reportValues.put(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        reportValues.put(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        reportValues.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
+        reportValues.put(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
+        reportValues.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
+        if ( locationJSON != null)
+            reportValues.put(Contract.Entry.COLUMN_LOC_DATA, locationJSON);
         else
-            locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
-        return locValues;
+            reportValues.put(Contract.Entry.COLUMN_LOC_DATA, "");
+
+        reportValues.put(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
+        return reportValues;
     }
 
     public Bundle saveState(Bundle output) {
         output.putInt(Contract.Entry.COLUMN_SERVER_ID, serverId);
         output.putInt(Contract.Entry.COLUMN_ID, dbId);
-        output.putString(Contract.Entry.COLUMN_DESCRIPTION, description);
-        output.putString(Contract.Entry.COLUMN_PLACE_DESCRIPT, placeDescript);
+        output.putString(Contract.Entry.COLUMN_CONTENT, content);
         output.putInt(Contract.Entry.COLUMN_STATUS, status);
+        output.putString(Contract.Entry.COLUMN_HUMAN_LOC, locationDescript);
         output.putLong(Contract.Entry.COLUMN_TIMESTAMP, timeStamp);
         output.putString(Contract.Entry.COLUMN_USERNAME, userName);
         output.putInt(Contract.Entry.COLUMN_USERID, userId);
         output.putInt(Contract.Entry.COLUMN_ADMIN_ID, adminId);
         output.putBoolean(Contract.Entry.COLUMN_USER_UPVOTED, upVoted);
         output.putInt(Contract.Entry.COLUMN_UPVOTE_COUNT, upVoteCount);
-
-        output.putDouble(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());
-        output.putDouble(Contract.MtaaLocation.COLUMN_LNG, location.getLongitude());
-        output.putFloat(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
-        output.putLong(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
-        output.putString(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
-
+        output.putDouble(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        output.putDouble(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        output.putFloat(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
+        output.putLong(Contract.Entry.COLUMN_LOC_TIME, location.getTime());
+        output.putString(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
         output.putInt(Contract.Entry.COLUMN_PARENT_REPORT, parentReportId);
         output.putString(Contract.Entry.COLUMN_MEDIA, gson.toJson(media));
         return output;
@@ -256,8 +244,7 @@ public class Report {
 
     public JSONObject getJsonRep() throws JSONException, IOException, NoSuchAlgorithmException {
         JSONObject json = new JSONObject();
-        json.put(Contract.Entry.COLUMN_DESCRIPTION, this.description);
-        json.put(Contract.Entry.COLUMN_PLACE_DESCRIPT, this.placeDescript);
+        json.put(Contract.Entry.COLUMN_CONTENT, this.content);
         json.put(Contract.Entry.COLUMN_STATUS, this.status);
         json.put(Contract.Entry.COLUMN_TIMESTAMP, this.timeStamp);
         json.put(Contract.Entry.COLUMN_USERNAME, this.userName);
@@ -266,16 +253,16 @@ public class Report {
         if (this.parentReportId !=0)
             json.put(Contract.Entry.COLUMN_PARENT_REPORT, this.parentReportId);
         if (this.locationJSON != null)
-            json.put(Contract.MtaaLocation.COLUMN_LOC_DATA, this.locationJSON);
+            json.put(Contract.Entry.COLUMN_LOC_DATA, this.locationJSON);
         else
-            json.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
+            json.put(Contract.Entry.COLUMN_LOC_DATA, "");
 
         JSONObject loc = new JSONObject();
-        loc.put(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());
-        loc.put(Contract.MtaaLocation.COLUMN_LNG, location.getLongitude());
-        loc.put(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
+        loc.put(Contract.Entry.COLUMN_LAT, location.getLatitude());
+        loc.put(Contract.Entry.COLUMN_LNG, location.getLongitude());
+        loc.put(Contract.Entry.COLUMN_LOC_ACC, location.getAccuracy());
         loc.put("timestamp", location.getTime());
-        loc.put(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
+        loc.put(Contract.Entry.COLUMN_LOC_PROV, location.getProvider());
         json.put("location", loc);
 
         json.put("picHashes", new JSONArray());
@@ -294,8 +281,8 @@ public class Report {
         ContentValues updateValues = new ContentValues();
         
         if (pendingState == 1) {
+            updateValues.put(Contract.Entry.COLUMN_HUMAN_LOC, response.getString("output"));
             updateValues.put(Contract.Entry.COLUMN_SERVER_ID, response.getInt("id"));
-            updateValues.put(Contract.Entry.COLUMN_PLACE_DESCRIPT, response.getString("output"));
             serverId = response.getInt("id");
         } else if (pendingState >= 2) {
             media.set(pendingState - 2, response.getString("output"));

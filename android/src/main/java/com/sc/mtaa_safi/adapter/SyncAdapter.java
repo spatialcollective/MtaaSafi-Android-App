@@ -121,7 +121,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         JSONArray reportsArray = serverResponse.getJSONArray("reports");
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
-            batch = report.createContentProviderOperation(batch);
+            batch.add(ContentProviderOperation
+                 .newInsert(Contract.Entry.CONTENT_URI)
+                 .withValues(report.getContentValues())
+                 .build());
             syncResult.stats.numEntries++;
             syncResult.stats.numInserts++;
             provider.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);

@@ -56,7 +56,7 @@ public class UploadingAdapter extends RecyclerViewCursorAdapter<UploadingAdapter
 
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
-        holder.mTitleView.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_DESCRIPTION)));
+        holder.mTitleView.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_CONTENT)));
         holder.mTime.setText(Utils.getElapsedTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))));
         addImages(holder, Report.getMediaList(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA))));
 

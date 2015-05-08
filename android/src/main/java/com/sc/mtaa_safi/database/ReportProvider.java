@@ -11,13 +11,16 @@ import android.net.Uri;
 public class ReportProvider extends ContentProvider {
     ReportDatabase mDatabaseHelper;
     private static final String AUTHORITY = Contract.CONTENT_AUTHORITY;
-    public static final int ROUTE_ENTRIES = 1, ROUTE_ENTRIES_ID = 2,
-                            ROUTE_USERS = 3, ROUTE_USERS_ID = 4,
-                            ROUTE_LOCATIONS = 5, ROUTE_LOCATIONS_ID = 6,
-                            ROUTE_UPVOTES = 7, ROUTE_UPVOTES_ID = 8,
-                            ROUTE_COMMENTS = 9, ROUTE_COMMENTS_ID = 10,
-                            ROUTE_ADMINS = 11, ROUTE_ADMINS_ID = 12,
-                            ROUTE_LANDMARKS = 13, ROUTE_LANDMARKS_ID = 14;
+    public static final int ROUTE_ENTRIES = 1,
+                            ROUTE_ENTRIES_ID = 2,
+                            ROUTE_UPVOTES = 3,
+                            ROUTE_UPVOTES_ID = 4,
+                            ROUTE_COMMENTS =5,
+                            ROUTE_COMMENTS_ID = 6,
+                            ROUTE_ADMINS = 7,
+                            ROUTE_ADMINS_ID = 9,
+                            ROUTE_LANDMARKS = 10,
+                            ROUTE_LANDMARKS_ID = 11;
 
     @Override
     public boolean onCreate() {
@@ -29,8 +32,6 @@ public class ReportProvider extends ContentProvider {
         static {
             sUriMatcher.addURI(AUTHORITY, "entries", ROUTE_ENTRIES);
             sUriMatcher.addURI(AUTHORITY, "entries/*", ROUTE_ENTRIES_ID);
-            sUriMatcher.addURI(AUTHORITY, "locations", ROUTE_LOCATIONS);
-            sUriMatcher.addURI(AUTHORITY, "locations/*", ROUTE_LOCATIONS_ID);
             sUriMatcher.addURI(AUTHORITY, "upvotes", ROUTE_UPVOTES);
             sUriMatcher.addURI(AUTHORITY, "upvotes/*", ROUTE_UPVOTES_ID);
             sUriMatcher.addURI(AUTHORITY, "comments", ROUTE_COMMENTS);
@@ -49,10 +50,6 @@ public class ReportProvider extends ContentProvider {
                 return Contract.Entry.CONTENT_TYPE;
             case ROUTE_ENTRIES_ID:
                 return Contract.Entry.CONTENT_ITEM_TYPE;
-            case ROUTE_LOCATIONS:
-                return Contract.MtaaLocation.CONTENT_TYPE;
-            case ROUTE_LOCATIONS_ID:
-                return Contract.MtaaLocation.CONTENT_ITEM_TYPE;
             case ROUTE_UPVOTES:
                 return Contract.UpvoteLog.CONTENT_TYPE;
             case ROUTE_UPVOTES_ID:
@@ -81,23 +78,12 @@ public class ReportProvider extends ContentProvider {
         SelectionBuilder builder = new SelectionBuilder();
         int uriMatch = sUriMatcher.match(uri);
         switch (uriMatch) {
-            case ROUTE_ENTRIES_ID: // Return a single entry, by ID.
+            case ROUTE_ENTRIES_ID:
+                // Return a single entry, by ID.
                 String id = uri.getLastPathSegment();
                 builder.where(Contract.Entry._ID + "=?", id);
             case ROUTE_ENTRIES:
-                builder.table(Contract.REPORTS_JOIN_LOCATIONS)
-                        .mapToTable(Contract.MtaaLocation.COLUMN_LAT, Contract.MtaaLocation.TABLE_NAME)
-                        .mapToTable(Contract.MtaaLocation.COLUMN_LNG, Contract.MtaaLocation.TABLE_NAME)
-                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_ACC, Contract.MtaaLocation.TABLE_NAME)
-                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_TIME, Contract.MtaaLocation.TABLE_NAME)
-                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_PROV, Contract.MtaaLocation.TABLE_NAME)
-                        .where(selection, selectionArgs);
-                return buildQuery(uri, builder, db, projection, sortOrder);
-            case ROUTE_LOCATIONS_ID:
-                String locationId = uri.getLastPathSegment();
-                builder.where(Contract.MtaaLocation._ID + "=?", locationId);
-            case ROUTE_LOCATIONS:
-                builder.table(Contract.MtaaLocation.TABLE_NAME)
+                builder.table(Contract.Entry.TABLE_NAME)
                         .where(selection, selectionArgs);
                 return buildQuery(uri, builder, db, projection, sortOrder);
             case ROUTE_UPVOTES_ID:
@@ -132,7 +118,8 @@ public class ReportProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
-    private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db, String[] projection, String sortOrder) {
+    private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db,
+                                String[] projection, String sortOrder){
         Cursor cursor = builder.query(db, projection, sortOrder);
         Context context = getContext();
         assert context != null;
@@ -151,12 +138,6 @@ public class ReportProvider extends ContentProvider {
                 result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + reportId);
                 break;
             case ROUTE_ENTRIES_ID:
-                throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
-            case ROUTE_LOCATIONS:
-                long locationId = db.insertOrThrow(Contract.MtaaLocation.TABLE_NAME, null, values);
-                result = Uri.parse(Contract.Entry.CONTENT_URI + "/" + locationId);
-                break;
-            case ROUTE_LOCATIONS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " + uri);
             case ROUTE_UPVOTES:
                 long upvoteId = db.insertOrThrow(Contract.UpvoteLog.TABLE_NAME, null, values);
@@ -212,18 +193,6 @@ public class ReportProvider extends ContentProvider {
                         .where(selection, selectionArgs)
                         .update(db, values);
                 break;
-            case ROUTE_LOCATIONS:
-                count = builder.table(Contract.MtaaLocation.TABLE_NAME)
-                        .where(selection, selectionArgs)
-                        .update(db, values);
-                break;
-            case ROUTE_LOCATIONS_ID:
-                String locId = uri.getLastPathSegment();
-                count = builder.table(Contract.MtaaLocation.TABLE_NAME)
-                        .where(Contract.MtaaLocation._ID + "=?", locId)
-                        .where(selection, selectionArgs)
-                        .update(db, values);
-                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -251,18 +220,6 @@ public class ReportProvider extends ContentProvider {
                        .where(Contract.Entry._ID + "=?", id)
                        .where(selection, selectionArgs)
                        .delete(db);
-                break;
-            case ROUTE_LOCATIONS:
-                count = builder.table(Contract.MtaaLocation.TABLE_NAME)
-                        .where(selection, selectionArgs)
-                        .delete(db);
-                break;
-            case ROUTE_LOCATIONS_ID:
-                String locId = uri.getLastPathSegment();
-                count = builder.table(Contract.MtaaLocation.TABLE_NAME)
-                        .where(Contract.MtaaLocation._ID + "=?", locId)
-                        .where(selection, selectionArgs)
-                        .delete(db);
                 break;
             case ROUTE_UPVOTES:
                 count = builder.table(Contract.UpvoteLog.TABLE_NAME)

@@ -204,7 +204,7 @@ public class NewsFeedFragment extends Fragment implements
         getLoaderManager().restartLoader(FEED_LOADER, null, this);
         attemptRefresh(getActivity());
         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
-        refreshMessage(R.string.pull_refresh, true);
+        refreshMessage("Pull down to see reports", true);
     }
 
     @Override
@@ -221,8 +221,8 @@ public class NewsFeedFragment extends Fragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (loader.getId() == FEED_LOADER) {
             feedLoaded(cursor);
-//            if (cursor.getCount() == 0)
-//                refreshMessage(R.string.sorry_nothing, false);
+            if (cursor.getCount() == 0)
+                refreshMessage("Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.", false);
         } else
             placeAdapter.swapCursor(cursor);
     }
@@ -312,13 +312,13 @@ public class NewsFeedFragment extends Fragment implements
         }
     }
 
-    private void refreshMessage(int messageId, Boolean showArrow){
+    private void refreshMessage(String message, Boolean showArrow){
         final ImageView imageView = (ImageView) getView().findViewById(R.id.doneButton);
         if (showArrow)
             imageView.setVisibility(View.VISIBLE);
         else
             imageView.setVisibility(View.INVISIBLE);
         final TextView textView = (TextView) getView().findViewById(R.id.pullDownText);
-        textView.setText(getString(messageId));
+        textView.setText(message);
     }
 }

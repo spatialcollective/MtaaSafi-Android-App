@@ -56,7 +56,9 @@ public class SelectionBuilder {
     }
 
     private void assertTable() {
-        if (mTable == null) throw new IllegalStateException("Table not specified");
+        if (mTable == null) {
+            throw new IllegalStateException("Table not specified");
+        }
     }
 
     public SelectionBuilder mapToTable(String column, String table) {
@@ -80,14 +82,16 @@ public class SelectionBuilder {
     private void mapColumns(String[] columns) {
         for (int i = 0; i < columns.length; i++) {
             final String target = mProjectionMap.get(columns[i]);
-            if (target != null)
+            if (target != null) {
                 columns[i] = target;
+            }
         }
     }
 
     @Override
     public String toString() {
-        return "SelectionBuilder[table=" + mTable + ", selection=" + getSelection() + ", selectionArgs=" + Arrays.toString(getSelectionArgs()) + "]";
+        return "SelectionBuilder[table=" + mTable + ", selection=" + getSelection()
+                + ", selectionArgs=" + Arrays.toString(getSelectionArgs()) + "]";
     }
 
     // Execute query using the current internal state as {@code WHERE} clause.
@@ -96,11 +100,13 @@ public class SelectionBuilder {
     }
 
     // Execute query using the current internal state as {@code WHERE} clause.
-    public Cursor query(SQLiteDatabase db, String[] columns, String groupBy, String having, String orderBy, String limit) {
+    public Cursor query(SQLiteDatabase db, String[] columns, String groupBy,
+                        String having, String orderBy, String limit) {
         assertTable();
         if (columns != null) mapColumns(columns);
         Log.v(TAG, "query(columns=" + Arrays.toString(columns) + ") " + this);
-        return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having, orderBy, limit);
+        return db.query(mTable, columns, getSelection(), getSelectionArgs(), groupBy, having,
+                orderBy, limit);
     }
 
     // Execute update using the current internal state as {@code WHERE} clause.

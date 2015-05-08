@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="settings">Settings</string>
     <string name="fb_login">Login to Facebook</string>
     <string name="accounts">Accounts</string>
@@ -44,8 +45,6 @@
     <integer name="google_play_services_version">5208000</integer>
 
     <string name="facebook_app_id">903751569639797</string>
-    <string name="sorry_nothing">Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.</string>
-    <string name="pull_refresh">"Pull down to refresh"</string>
 
     <string-array name="nav_choices">
         <item>Feed</item>
