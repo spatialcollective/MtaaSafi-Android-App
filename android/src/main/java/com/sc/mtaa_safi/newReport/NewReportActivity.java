@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.newReport;
 
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -125,14 +126,12 @@ public class NewReportActivity extends ActionBarActivity {
             locationJSON.put("adminId", frag.selectedAdminId);
         } else
             locationJSON.put("admin", frag.adminText);
-        if(parentReportId != 0) {
+        if (parentReportId != 0)
             newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString(), parentReportId);
-        }else{
+        else
             newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
-        }
-        Utils.saveSavedReportCount(this, Utils.getSavedReportCount(this) + 1);
 
-        return getContentResolver().insert(Contract.Entry.CONTENT_URI, newReport.getContentValues());
+        return newReport.save(this);
     }
 
     public void takePic(View view) {

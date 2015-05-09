@@ -1,7 +1,9 @@
 package com.sc.mtaa_safi;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
@@ -167,6 +169,15 @@ public class Report {
         JSONArray mediaIdsJSON = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
         for (int i = 0; i < mediaIdsJSON.length(); i++)
             media.add(mediaIdsJSON.get(i) + "");
+    }
+
+    public Uri save(Context context) {
+        Utils.saveSavedReportCount(context, Utils.getSavedReportCount(context) + 1);
+        Uri locUri = context.getContentResolver().insert(Contract.MtaaLocation.LOCATION_URI, getLocationContentValues());
+        long locId = Integer.valueOf(locUri.getLastPathSegment());
+        ContentValues cv = getContentValues();
+        cv.put(Contract.Entry.COLUMN_LOCATION, locId);
+        return context.getContentResolver().insert(Contract.Entry.CONTENT_URI, cv);
     }
 
     public ArrayList<ContentProviderOperation> createContentProviderOperation(ArrayList<ContentProviderOperation> batch) {
