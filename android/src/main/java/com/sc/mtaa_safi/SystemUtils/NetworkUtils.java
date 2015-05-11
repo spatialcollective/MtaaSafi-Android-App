@@ -49,7 +49,7 @@ public class NetworkUtils {
         Log.e("Network Utils", "Response Code: " + response.getStatusLine().getStatusCode());
         if (response.getStatusLine().getStatusCode() >= 400) {
             JSONObject json = new JSONObject();
-            return json.put("error", response.getStatusLine().getStatusCode());
+            return json.put("error", response.getStatusLine().toString());
         }
         Log.e("Network Utils", "Server Response: " + response.toString());
         return convertHttpResponseToJSON(response);

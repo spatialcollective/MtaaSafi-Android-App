@@ -30,7 +30,7 @@ public class Contract {
                 COLUMN_STATUS = "status",
                 COLUMN_ADMIN_ID = "admin_id",
                 COLUMN_USERID = "user_id",
-                COLUMN_USERNAME = "user",
+                COLUMN_USERNAME = "username",
                 COLUMN_LOCATION = "location",
                 COLUMN_MEDIA = "media",
                 COLUMN_PENDINGFLAG = "pending",

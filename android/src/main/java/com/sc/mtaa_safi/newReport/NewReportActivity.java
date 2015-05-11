@@ -127,10 +127,9 @@ public class NewReportActivity extends ActionBarActivity {
         } else
             locationJSON.put("admin", frag.adminText);
         if (parentReportId != 0)
-            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString(), parentReportId);
+            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths, locationJSON.toString(), parentReportId);
         else
-            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), getLocation(), frag.picPaths, locationJSON.toString());
-
+            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths, locationJSON.toString());
         return newReport.save(this);
     }
 

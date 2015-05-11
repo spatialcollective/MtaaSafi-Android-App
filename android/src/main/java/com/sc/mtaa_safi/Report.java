@@ -63,14 +63,14 @@ public class Report {
     };
 
     // for Report objects created by the user to send to the server
-    public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
-        initialize(description, status, userName, newLocation, picPaths, locationJSON);
+    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+        initialize(description, status, userName, userId, newLocation, picPaths, locationJSON);
     }
-    public Report(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
-        initialize(description, status, userName, newLocation, picPaths, locationJSON);
+    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
+        initialize(description, status, userName, userId, newLocation, picPaths, locationJSON);
         this.parentReportId = parentReportId;
     }
-    private void initialize(String description, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+    private void initialize(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
         this.serverId = this.dbId = 0;
         this.description = description;
         this.status = status;
@@ -78,6 +78,7 @@ public class Report {
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
+        this.userId = userId;
         this.location = newLocation;
         this.locationJSON = locationJSON;
         this.media = picPaths;
