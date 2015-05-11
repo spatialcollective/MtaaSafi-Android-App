@@ -1,6 +1,9 @@
 package com.sc.mtaa_safi;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
@@ -59,31 +62,25 @@ public class Report {
             Contract.Entry.COLUMN_PARENT_REPORT
     };
     // for Report objects created by the user to send to the server
-    public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
-        this.serverId = this.dbId = 0;
-        this.content = details;
-        this.status = status;
-        this.locationDescript = "";
-        this.pendingState = 0;
-        this.timeStamp = System.currentTimeMillis();
-        this.userName = userName;
-        this.location = newLocation;
-        this.locationJSON = locationJSON;
-        this.media = picPaths;
+    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+        initialize(description, status, userName, userId, newLocation, picPaths, locationJSON);
     }
-
-    public Report(String details, int status, String userName, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
+    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
+        initialize(description, status, userName, userId, newLocation, picPaths, locationJSON);
+        this.parentReportId = parentReportId;
+    }
+    private void initialize(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
         this.serverId = this.dbId = 0;
-        this.content = details;
+        this.content = description;
         this.status = status;
         this.locationDescript = "";
         this.pendingState = 0;
         this.timeStamp = System.currentTimeMillis();
         this.userName = userName;
+        this.userId = userId;
         this.location = newLocation;
         this.locationJSON = locationJSON;
         this.media = picPaths;
-        this.parentReportId = parentReportId;
     }
 
     public Report(Bundle bundle) {
@@ -172,6 +169,26 @@ public class Report {
         JSONArray mediaIdsJSON = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
         for (int i = 0; i < mediaIdsJSON.length(); i++)
             media.add(mediaIdsJSON.get(i) + "");
+    }
+
+    public Uri save(Context context) {
+        Utils.saveSavedReportCount(context, Utils.getSavedReportCount(context) + 1);
+        Uri locUri = context.getContentResolver().insert(Contract.MtaaLocation.LOCATION_URI, getLocationContentValues());
+        long locId = Integer.valueOf(locUri.getLastPathSegment());
+        ContentValues cv = getContentValues();
+        cv.put(Contract.Entry.COLUMN_LOCATION, locId);
+        return context.getContentResolver().insert(Contract.Entry.CONTENT_URI, cv);
+    }
+
+    public ArrayList<ContentProviderOperation> createContentProviderOperation(ArrayList<ContentProviderOperation> batch) {
+        batch.add(ContentProviderOperation.newInsert(Contract.MtaaLocation.LOCATION_URI)
+                .withValues(getLocationContentValues())
+                .build());
+        batch.add(ContentProviderOperation.newInsert(Contract.Entry.CONTENT_URI)
+                .withValues(getContentValues())
+                .withValueBackReference(Contract.Entry.COLUMN_LOCATION, 0)
+                .build());
+        return batch;
     }
 
     public ContentValues getContentValues() {

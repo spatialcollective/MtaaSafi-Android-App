@@ -14,20 +14,11 @@ import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
@@ -79,8 +70,10 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         JSONObject report = pendingReport.getJsonRep();
         report.put("userId", Utils.getUserId(mContext));
         JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.base_write) + "/", "post", report);
-        if (response.has("error") && response.getInt("error") >= 400)
+        if (response.has("error") && response.getInt("error") >= 400) {
+            Log.e("ReportUploader", "Error: " + response.get("error"));
             cancelSession(NETWORK_ERROR);
+        }
         return response;
     }
 
@@ -93,13 +86,12 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     private void updateDB(JSONObject response) throws JSONException, RemoteException, OperationApplicationException {
         ContentValues updateValues = pendingReport.updateValues(response);
 
-        if (pendingReport.pendingState == -1){
+        if (pendingReport.pendingState == -1) {
             deleteLocalPics();
-            Utils.saveSavedReportCount(mContext,Utils.getSavedReportCount(mContext)-1);
+            Utils.saveSavedReportCount(mContext,Utils.getSavedReportCount(mContext) - 1);
         }
 
-        Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon()
-                    .appendPath(Integer.toString(pendingReport.dbId)).build();
+        Uri reportUri = Contract.Entry.CONTENT_URI.buildUpon().appendPath(Integer.toString(pendingReport.dbId)).build();
         if (mContext.getContentResolver().query(reportUri, null, null, null, null).getCount() > 0)
             mContext.getContentResolver().update(reportUri, updateValues, null, null);
         else {

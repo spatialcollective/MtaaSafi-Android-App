@@ -24,27 +24,36 @@ public class Contract {
         public static final Uri CONTENT_URI =
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_ENTRIES).build();
         public static final String TABLE_NAME = "reports",
-        	COLUMN_ID = "_id",
-        	COLUMN_SERVER_ID = "server_id",
-        	COLUMN_HUMAN_LOC = "place",
-	        COLUMN_CONTENT = "description",
-	        COLUMN_TIMESTAMP = "timestamp",
-            COLUMN_STATUS = "status",
-            COLUMN_LAT = "latitude",
-            COLUMN_LNG = "longitude",
-            COLUMN_ADMIN_ID = "admin_id",
-            COLUMN_LOC_ACC = "accuracy",
-            COLUMN_LOC_TIME = "loc_time",
-            COLUMN_LOC_PROV = "provider",
-            COLUMN_LOC_DATA = "loc_data",
-            COLUMN_USERNAME = "user",
-            COLUMN_USERID = "user_id",
-            COLUMN_MEDIA = "media",
-            COLUMN_PENDINGFLAG = "pending",
-            COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
-            COLUMN_UPVOTE_COUNT = "upvote_count",
-            COLUMN_USER_UPVOTED = "upvoted",
-            COLUMN_PARENT_REPORT = "parent";
+                COLUMN_ID = "_id",
+                COLUMN_SERVER_ID = "server_id",
+                COLUMN_DESCRIPTION = "description",
+                COLUMN_PLACE_DESCRIPT = "place",
+                COLUMN_TIMESTAMP = "timestamp",
+                COLUMN_STATUS = "status",
+                COLUMN_ADMIN_ID = "admin_id",
+                COLUMN_USERID = "user_id",
+                COLUMN_USERNAME = "username",
+                COLUMN_LOCATION = "location",
+                COLUMN_MEDIA = "media",
+                COLUMN_PENDINGFLAG = "pending",
+                COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
+                COLUMN_UPVOTE_COUNT = "upvote_count",
+                COLUMN_USER_UPVOTED = "upvoted",
+            	COLUMN_PARENT_REPORT = "parent";
+    }
+
+    public static class MtaaLocation implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri LOCATION_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_LOCATION).build();
+        public static final String TABLE_NAME = "locations",
+                COLUMN_ID = "location_id",
+                COLUMN_LAT = "latitude",
+                COLUMN_LNG= "longitude",
+                COLUMN_LOC_ACC = "accuracy",
+                COLUMN_LOC_TIME = "loc_time",
+                COLUMN_LOC_PROV = "provider",
+                COLUMN_LOC_DATA = "loc_data";
     }
 
     public static class UpvoteLog implements BaseColumns {

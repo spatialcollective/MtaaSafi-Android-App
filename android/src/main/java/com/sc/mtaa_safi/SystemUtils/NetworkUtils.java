@@ -46,12 +46,11 @@ public class NetworkUtils {
         httpRequest.setHeader("Accept", "application/json");
         httpRequest.setHeader("Content-type", "application/json");
         HttpResponse response = httpClient.execute(httpRequest);
-        Log.e("Network Utils", "Response Code: " + response.getStatusLine().getStatusCode());
+        Log.e("Network Utils", "Response Code: " + response.getStatusLine().toString());
         if (response.getStatusLine().getStatusCode() >= 400) {
             JSONObject json = new JSONObject();
-            return json.put("error", response.getStatusLine().getStatusCode());
+            return json.put("error", response.getStatusLine().toString());
         }
-        Log.e("Network Utils", "Server Response: " + response.toString());
         return convertHttpResponseToJSON(response);
     }
 
