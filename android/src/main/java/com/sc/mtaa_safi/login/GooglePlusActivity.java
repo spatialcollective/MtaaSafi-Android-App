@@ -7,6 +7,7 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.SystemUtils.Utils;
+import com.sc.mtaa_safi.common.BaseActivity;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -24,23 +25,12 @@ import org.json.JSONObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GooglePlusActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class GooglePlusActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final int RC_SIGN_IN = 101;
     private GoogleApiClient mGoogleApiClient;
 
     private boolean mIntentInProgress, mSignInClicked = true;
-
-    private MtaaLocationService mBoundService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
-        }
-        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
-    };
-    void bindLocationService() {
-        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +46,6 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
     @Override
     public void onStart(){
         super.onStart();
-        bindLocationService();
         mGoogleApiClient.connect();
     }
 
@@ -65,7 +54,6 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
         super.onStop();
         if (mGoogleApiClient.isConnected())
             mGoogleApiClient.disconnect();
-        unbindService(mConnection);
     }
 
     @Override
@@ -104,7 +92,7 @@ public class GooglePlusActivity extends Activity implements GoogleApiClient.Conn
     }
 
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
-        Log.i("GooglePlusActivity activityresult", String.valueOf(responseCode));
+        Log.i("GooglePlusActivity res:", String.valueOf(responseCode));
         if (requestCode == RC_SIGN_IN) {
             if (responseCode != RESULT_OK) {
                 mSignInClicked = false;

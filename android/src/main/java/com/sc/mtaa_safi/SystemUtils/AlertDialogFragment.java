@@ -39,19 +39,17 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
                             ABANDON_REPORTS = 800;
 
     public static final String ALERT_KEY = "alert";
-
     public interface AlertDialogListener {
         void onAlertButtonPressed(int eventKey);
     }
-
     private AlertDialogListener listener;
 
     public AlertDialogFragment() { }
     public void setAlertDialogListener(AlertDialogListener adl){
         this.listener = adl;
     }
-    public static void showAlert(int alertCode, AlertDialogListener adl,
-                                 FragmentManager fm){
+
+    public static void showAlert(int alertCode, AlertDialogListener adl, FragmentManager fm){
         AlertDialogFragment alertDialogFragment = new AlertDialogFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(ALERT_KEY, alertCode);
@@ -66,7 +64,6 @@ public class AlertDialogFragment extends android.support.v4.app.DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(getArguments() != null)
             alertType = getArguments().getInt(ALERT_KEY);
-            Log.e("AlertDialogFragment", String.valueOf(alertType));
         switch (alertType) {
             case UPDATE_FAILED:
                 builder.setMessage("Sorry! The feed failed to update")

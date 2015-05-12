@@ -36,8 +36,8 @@ public class NetworkUtils {
     public static JSONObject makeRequest(String url, String type, JSONObject entity) throws IOException, JSONException {
         HttpClient httpClient = new DefaultHttpClient();
         HttpRequestBase httpRequest;
-        Log.e("Network utils", "data: "+String.valueOf(entity));
-        Log.e("Network utils", "requesting from: " + url);
+        Log.v("Network utils", "data: "+String.valueOf(entity));
+        Log.v("Network utils", "requesting from: " + url);
         if (type == "post") {
             httpRequest = new HttpPost(url);
             ((HttpPost) httpRequest).setEntity(new StringEntity(entity.toString()));
@@ -46,7 +46,7 @@ public class NetworkUtils {
         httpRequest.setHeader("Accept", "application/json");
         httpRequest.setHeader("Content-type", "application/json");
         HttpResponse response = httpClient.execute(httpRequest);
-        Log.e("Network Utils", "Response Code: " + response.getStatusLine().toString());
+        Log.v("Network Utils", "Response Code: " + response.getStatusLine().toString());
         if (response.getStatusLine().getStatusCode() >= 400) {
             JSONObject json = new JSONObject();
             return json.put("error", response.getStatusLine().toString());
@@ -63,7 +63,7 @@ public class NetworkUtils {
         urlConnection.setChunkedStreamingMode(0);
         urlConnection.connect();
         DataOutputStream out = new DataOutputStream(urlConnection.getOutputStream());
-        // Log.e("BYTES 2 SERVER", "Bytes being sent:" + bytes.length);
+        // Log.v("BYTES 2 SERVER", "Bytes being sent:" + bytes.length);
         out.write(data);
         out.flush();
         out.close();
@@ -81,14 +81,14 @@ public class NetworkUtils {
         while((line = bufferedReader.readLine()) != null)
             result.append(line);
         inputStream.close();
-        Log.e("Network Utils", "Server Response: " + result.toString());
+        Log.v("Network Utils", "Server Response: " + result.toString());
         return result.toString();
     }
 
     public static JSONObject convertHttpResponseToJSON(HttpResponse response) {
         try {
             String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-            Log.e("Network Utils", "Server Response: " + responseString);
+            Log.v("Network Utils", "Server Response: " + responseString);
             return new JSONObject(responseString);
         } catch (Exception e) {
             e.printStackTrace();

@@ -21,6 +21,7 @@ import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
+import com.sc.mtaa_safi.common.BaseActivity;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.NewsFeedFragment;
 import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
@@ -29,16 +30,16 @@ import com.sc.mtaa_safi.uploading.UploadingActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class NewReportActivity extends ActionBarActivity {
+public class NewReportActivity extends BaseActivity {
     public final static String NEW_REPORT_TAG = "newreport";
     public static final int REQUEST_IMAGE_CAPTURE = 1;
     private int parentReportId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         parentReportId = intent.getIntExtra("parentReportId", 0);
-        Log.e("NewReportActivity", String.valueOf(parentReportId));
         if (intent.hasExtra("title"))
             setTitle(intent.getStringExtra("title"));
         restoreFragment(savedInstanceState);
@@ -55,32 +56,6 @@ public class NewReportActivity extends ActionBarActivity {
                 .replace(android.R.id.content, frag, NEW_REPORT_TAG)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
-    }
-
-    private MtaaLocationService mBoundService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mBoundService = ((MtaaLocationService.LocalBinder) service).getService();
-        }
-        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
-    };
-    void bindLocationService() {
-        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        bindLocationService();
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(mConnection);
-    }
-
-    public Location getLocation() {
-        return mBoundService.findLocation(this);
     }
 
     @Override

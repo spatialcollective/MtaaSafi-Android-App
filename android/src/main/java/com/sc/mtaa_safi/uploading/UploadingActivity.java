@@ -10,10 +10,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 
 import com.sc.mtaa_safi.MtaaLocationService;
+import com.sc.mtaa_safi.common.BaseActivity;
 
-public class UploadingActivity extends ActionBarActivity {
+public class UploadingActivity extends BaseActivity {
 
-    final static String UPLOAD_TAG = "upload", ACTION = "action", DATA = "data";
+    final static String UPLOAD_TAG = "upload";
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,23 +37,6 @@ public class UploadingActivity extends ActionBarActivity {
             .commit();
     }
 
-    private MtaaLocationService mBoundService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mBoundService = ((MtaaLocationService.LocalBinder)service).getService();
-        }
-        public void onServiceDisconnected(ComponentName className) { mBoundService = null; } // This should never happen
-    };
-    void bindLocationService() {
-        bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        bindLocationService();
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle bundle){
         super.onSaveInstanceState(bundle);
@@ -62,16 +46,9 @@ public class UploadingActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(mConnection);
-    }
-
-    @Override
     public void finish() {
         super.finish();
-        ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager()
-                                        .findFragmentByTag(UPLOAD_TAG);
+        ReportUploadingFragment ruf = (ReportUploadingFragment) getSupportFragmentManager().findFragmentByTag(UPLOAD_TAG);
         if (ruf != null && ruf.uploader != null)
             ruf.uploader.cancel(true);
     }

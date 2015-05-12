@@ -142,6 +142,11 @@
         </receiver>
 
         <service android:name=".SystemUtils.GcmIntentService" />
+
+        <activity
+            android:name=".common.BaseActivity"
+            android:label="@string/title_activity_base" >
+        </activity>
     </application>
 
 </manifest>

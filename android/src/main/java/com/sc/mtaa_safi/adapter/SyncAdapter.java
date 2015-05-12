@@ -69,7 +69,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private ArrayList getIdsForCoords() throws IOException, JSONException {
         Location cachedLocation = Utils.getLocation(mContext);
-        Log.e(TAG, "cachedLocation: " + cachedLocation);
+        Log.v(TAG, "cachedLocation: " + cachedLocation);
         ArrayList serverIds = new ArrayList();
         if (cachedLocation != null && cachedLocation.getTime() != 0) {
             JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.feed) + Utils.getUserId(mContext) + "/" + cachedLocation.getLongitude() + "/" + cachedLocation.getLatitude() + "/", "get", null);
@@ -193,6 +193,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.e(TAG, "Network synchronization complete");
+        Log.v(TAG, "Network synchronization complete");
     }
 }
