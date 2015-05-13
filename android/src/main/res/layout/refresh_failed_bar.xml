@@ -4,13 +4,13 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <TextView android:id="@+id/failText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Feed refresh failed"
-        android:id="@+id/thankyouTV"
-        android:background="@color/Red"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:text="@string/refresh_loc_fail"
+        android:background="@color/Coral"
         android:textColor="@color/White"
-        android:gravity="center_horizontal"
-        android:padding="3dp" />
+        android:gravity="center_horizontal" />
 </LinearLayout>

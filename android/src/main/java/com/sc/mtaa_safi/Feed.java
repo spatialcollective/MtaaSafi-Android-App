@@ -7,7 +7,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.database.SyncUtils;
 
 public class Feed { // Singleton for keeping track of feed state
     private static Feed mInstance = null;
@@ -23,7 +25,7 @@ public class Feed { // Singleton for keeping track of feed state
     public String sortOrder = SORT_RECENT;
 
     public interface ResortListener {
-        void triggerResort();
+        void triggerReload();
     }
     private ResortListener listener;
     public void setListener(ResortListener sl) {
@@ -47,13 +49,20 @@ public class Feed { // Singleton for keeping track of feed state
     public void setTitle(CharSequence val, View view) {
         title = val;
         try { ((TextView) view.findViewById(R.id.title)).setText(title); }
-        catch (Exception e) { Log.e("nnf", "Failed to set title"); }
+        catch (Exception e) { Log.e("Feed", "Failed to set title"); }
+    }
+
+    public void setLocation(String name, long id, Context c, View v) {
+        Utils.saveSelectedAdmin(c, name, id);
+        setTitle(name, v);
+        SyncUtils.AttemptRefresh(c);
+        listener.triggerReload();
     }
 
     public void sort(String sorting) {
         if (sorting != sortOrder) {
             sortOrder = sorting;
-            listener.triggerResort();
+            listener.triggerReload();
         }
     }
 

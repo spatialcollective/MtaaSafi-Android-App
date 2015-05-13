@@ -80,7 +80,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     }
 
     private void updateFeedView(String title, long adminId) {
-        frag.setFeedToLocation(title, adminId);
+        mFeed.setLocation(title, adminId, getContext(), getRootView());
         closeDrawer(GravityCompat.START);
     }
 

@@ -58,6 +58,13 @@ public class MtaaLocationService extends Service {
             return true;
         return false;
     }
+    public boolean hasCoarseLocation(Context context) {
+        if (mCoarseLocation == null
+                && mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) == null
+                && Utils.getCoarseLocation(context).getTime() == 0)
+            return false;
+        return true;
+    }
 
     private void startLocationMgmt() {
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);

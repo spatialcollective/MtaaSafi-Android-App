@@ -74,7 +74,8 @@ public abstract class BaseActivity extends ActionBarActivity implements AlertDia
     @Override
     protected void onStop() {
         super.onStop();
-        mBoundService.mLocationManager.removeUpdates(providerStateChangeListener);
+        if (mBoundService != null)
+            mBoundService.mLocationManager.removeUpdates(providerStateChangeListener);
         unbindService(mConnection);
     }
 
@@ -94,6 +95,7 @@ public abstract class BaseActivity extends ActionBarActivity implements AlertDia
     public int getScreenHeight() { return getWindowManager().getDefaultDisplay().getHeight(); }
 
     public Location getLocation() { return mBoundService.findLocation(this); }
+    public boolean hasCoarseLocation() { return mBoundService.hasCoarseLocation(this); }
 
     private void locationDisabled() {
         AlertDialogFragment alert = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag(AlertDialogFragment.ALERT_KEY);
