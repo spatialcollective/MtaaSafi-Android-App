@@ -81,7 +81,7 @@
                 android:layout_centerInParent="true"/>
 
             <ImageButton android:id="@+id/newReportButton"
-                android:src="@drawable/ic_edit"
+                android:src="@drawable/ic_add_white"
                 android:background="@drawable/floating_button_orange"
                 android:layout_width="56dp"
                 android:layout_height="56dp"

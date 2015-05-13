@@ -20,6 +20,7 @@ import java.util.Date;
 public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
+                                COARSE_LAT = "c_lat", COARSE_LNG = "c_lon", COARSE_LOCATION_TIMESTAMP = "c_loc_tstamp",
                                 ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount",
                                 SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
                                 FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid",
@@ -119,6 +120,13 @@ public class Utils {
         loc.setTime(getSharedPrefs(context).getLong(LOCATION_TIMESTAMP, 0));
         return loc;
     }
+    public static Location getCoarseLocation(Context context) {
+        Location loc = new Location(LocationManager.NETWORK_PROVIDER);
+        loc.setLatitude(getSharedPrefs(context).getFloat(COARSE_LAT, 0));
+        loc.setLongitude(getSharedPrefs(context).getFloat(COARSE_LNG, 0));
+        loc.setTime(getSharedPrefs(context).getLong(COARSE_LOCATION_TIMESTAMP, 0));
+        return loc;
+    }
     public static String getSelectedAdminName(Context context) {
         return getSharedPrefs(context).getString(ADMIN, context.getResources().getString(R.string.nearby));
     }
@@ -150,7 +158,14 @@ public class Utils {
         editor.putFloat(LAT, (float) loc.getLatitude());
         editor.putLong(LOCATION_TIMESTAMP, loc.getTime());
         editor.commit();
-        SyncUtils.TriggerRefresh();
+    }
+    public static void saveCoarseLocation(Context context, Location loc) {
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putFloat(COARSE_LNG, (float) loc.getLongitude());
+        editor.putFloat(COARSE_LAT, (float) loc.getLatitude());
+        editor.putLong(COARSE_LOCATION_TIMESTAMP, loc.getTime());
+        editor.commit();
+        SyncUtils.AttemptRefresh(context);
     }
     public static void saveSelectedAdmin(Context context, String name, long id) {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();

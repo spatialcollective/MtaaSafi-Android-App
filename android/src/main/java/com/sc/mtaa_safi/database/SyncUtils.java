@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+
 public class SyncUtils {
     private static final long SYNC_FREQUENCY = 60 * 60; // 1 hour
     private static final String CONTENT_AUTHORITY = Contract.CONTENT_AUTHORITY;
@@ -57,5 +59,10 @@ public class SyncUtils {
                 AuthenticatorService.GetAccount(),      // Sync account
                 Contract.CONTENT_AUTHORITY, // Content authority
                 b);                                      // Extras
+    }
+
+    public static void AttemptRefresh(Context context) {
+        if (NetworkUtils.isOnline(context))
+            SyncUtils.TriggerRefresh();
     }
 }

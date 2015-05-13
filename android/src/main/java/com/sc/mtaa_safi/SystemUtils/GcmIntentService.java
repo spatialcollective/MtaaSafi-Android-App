@@ -93,8 +93,7 @@ public class GcmIntentService extends IntentService {
     }
 
     private JSONObject updateNew(JSONObject msg_data) throws JSONException {
-        if (NetworkUtils.isOnline(this))
-            SyncUtils.TriggerRefresh();
+        SyncUtils.AttemptRefresh(this);
         notificationType = NEW_REPORT;
         if (!new_message.isEmpty())
             new_message += " | ";

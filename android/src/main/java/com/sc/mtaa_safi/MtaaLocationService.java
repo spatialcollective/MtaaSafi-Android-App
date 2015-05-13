@@ -16,9 +16,10 @@ import android.util.Log;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 
 public class MtaaLocationService extends Service {
-    public Location mLocation = null;
+    public Location mLocation = null, mCoarseLocation = null;
     public LocationManager mLocationManager;
-    public static final int TIME_DIFF = 1000 * 60 * 2, DIST_DIFF = 10;
+    private LocationListener mGpsListener, mNetworkListener;
+    public static final int TIME_DIFF = 1000 * 60 * 2, DIST_DIFF = 10; // 2 Min, 10 Meters
 
     private final IBinder mBinder = new LocalBinder();
     public MtaaLocationService() { }
@@ -28,12 +29,10 @@ public class MtaaLocationService extends Service {
 
     @Override
     public void onCreate() { startLocationMgmt(); }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
-
     @Override
     public IBinder onBind(Intent intent) { return mBinder; }
 
@@ -63,19 +62,43 @@ public class MtaaLocationService extends Service {
     private void startLocationMgmt() {
         mLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        final Context me = this;
-        LocationListener locationListener = new LocationListener() {
+        mCoarseLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        createListeners(this);
+        requestUpdates();
+    }
+
+    public void requestUpdates() {
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TIME_DIFF, DIST_DIFF, mGpsListener);
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, TIME_DIFF * 5, DIST_DIFF * 10, mNetworkListener);
+    }
+
+    public void removeUpdates() {
+        mLocationManager.removeUpdates(mGpsListener);
+        mLocationManager.removeUpdates(mNetworkListener);
+    }
+
+    private void createListeners(final Context c) {
+        mGpsListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 if (newLocationIsBetter(location)) {
                     mLocation = location;
-                    Utils.saveLocation(me, location);
+                    Utils.saveLocation(c, location);
                 }
             }
             public void onStatusChanged(String provider, int status, Bundle extras) {}
             public void onProviderEnabled(String provider) {}
             public void onProviderDisabled(String provider) {}
         };
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, TIME_DIFF, DIST_DIFF, locationListener);
+
+        mNetworkListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                mCoarseLocation = location;
+                Utils.saveCoarseLocation(c, location);
+            }
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onProviderEnabled(String provider) {}
+            public void onProviderDisabled(String provider) {}
+        };
     }
 
     public boolean isGPSEnabled() {
@@ -119,9 +142,7 @@ public class MtaaLocationService extends Service {
         boolean isLessAccurate = accuracyDelta > 0;
         boolean isMoreAccurate = accuracyDelta < 0;
         boolean isSignificantlyLessAccurate = accuracyDelta > 200;
-
-        boolean isFromSameProvider = isSameProvider(location.getProvider(),
-                mLocation.getProvider());
+        boolean isFromSameProvider = isSameProvider(location.getProvider(), mLocation.getProvider());
 
         if (isMoreAccurate)
             return true;

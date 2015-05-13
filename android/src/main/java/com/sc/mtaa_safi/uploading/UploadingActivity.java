@@ -1,19 +1,11 @@
 package com.sc.mtaa_safi.uploading;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
 
-import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.common.BaseActivity;
 
 public class UploadingActivity extends BaseActivity {
-
     final static String UPLOAD_TAG = "upload";
     
     @Override

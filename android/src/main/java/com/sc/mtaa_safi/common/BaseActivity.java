@@ -38,6 +38,7 @@ public abstract class BaseActivity extends ActionBarActivity implements AlertDia
                 public void onProviderEnabled(String provider) { locationEnabled(); }
                 public void onProviderDisabled(String provider) { locationDisabled(); }
             };
+//            mBoundService.requestUpdates();
             mBoundService.mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     MtaaLocationService.TIME_DIFF, MtaaLocationService.DIST_DIFF, providerStateChangeListener);
         }
@@ -57,10 +58,18 @@ public abstract class BaseActivity extends ActionBarActivity implements AlertDia
         super.onResume();
         Utils.saveScreenWidth(this, getScreenWidth());
         checkGPlayServices();
-        if (mBoundService != null && !mBoundService.isGPSEnabled())
-            locationDisabled();
-        else
-            locationEnabled();
+        if (mBoundService != null) {
+//            mBoundService.requestUpdates();
+            if (!mBoundService.isGPSEnabled())
+                locationDisabled();
+            else
+                locationEnabled();
+        }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        mBoundService.removeUpdates();
     }
     @Override
     protected void onStop() {

@@ -4,7 +4,6 @@ import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SyncResult;
@@ -50,14 +49,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         syncFromServer(provider, syncResult);
     }
 
-
     private void updatePlaces(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
-        Location cachedLocation = Utils.getLocation(mContext);
-        Log.i(TAG, "Streaming data from network: " + this.getContext().getString(R.string.location_data));
-        if (cachedLocation != null && cachedLocation.getTime() != 0) {
-            JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data), "get", null);
-            Community.addCommunities(responseJson, provider);
-        }
+        JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data), "get", null);
+        Community.addCommunities(responseJson, provider);
     }
 
     private ArrayList getServerIds() throws IOException, JSONException {
@@ -68,7 +62,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private ArrayList getIdsForCoords() throws IOException, JSONException {
-        Location cachedLocation = Utils.getLocation(mContext);
+        Location cachedLocation = Utils.getCoarseLocation(mContext);
         Log.v(TAG, "cachedLocation: " + cachedLocation);
         ArrayList serverIds = new ArrayList();
         if (cachedLocation != null && cachedLocation.getTime() != 0) {

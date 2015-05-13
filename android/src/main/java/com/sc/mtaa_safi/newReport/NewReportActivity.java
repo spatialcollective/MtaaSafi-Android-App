@@ -1,30 +1,18 @@
 package com.sc.mtaa_safi.newReport;
 
-import android.content.ComponentName;
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.common.BaseActivity;
-import com.sc.mtaa_safi.database.Contract;
-import com.sc.mtaa_safi.feed.NewsFeedFragment;
-import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 import org.json.JSONException;
