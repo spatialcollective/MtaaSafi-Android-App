@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.sc.mtaa_safi.Feed;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
@@ -43,27 +44,18 @@ import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 
 public class NewsFeedFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks {
+        LoaderManager.LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener, ObservableScrollViewCallbacks, Feed.ResortListener {
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    public final static String  SORT_RECENT = Contract.Entry.COLUMN_SERVER_ID + " DESC",
-                                SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
-                                LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0,
-                                LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
-                                LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
-    public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public final int PLACES_LOADER = 0, FEED_LOADER = 1;
-    int index, top, navIndex = 0, navPos = 0;
-    CharSequence title;
-    String sortOrder = SORT_RECENT;
-
     SimpleCursorAdapter placeAdapter;
+    private Feed mFeed;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        index = top = 0;
-        title = getResources().getString(R.string.nearby);
+        mFeed = Feed.getInstance(getActivity());
+        mFeed.setListener(this);
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
     }
@@ -71,15 +63,6 @@ public class NewsFeedFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_feed, container, false);
-
-        if (savedInstanceState != null) {
-            index = savedInstanceState.getInt("index");
-            top = savedInstanceState.getInt("top");
-            feedContent = savedInstanceState.getString("feedContent");
-            sortOrder = savedInstanceState.getString("sortOrder");
-            navIndex = savedInstanceState.getInt("navIndex");
-        }
-
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         refreshLayout.setOnRefreshListener(this);
         refreshLayout.setColorSchemeResources(R.color.Coral, R.color.mtaa_safi_blue);
@@ -90,8 +73,6 @@ public class NewsFeedFragment extends Fragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         createToolbar(view);
-        if (savedInstanceState != null)
-            setTitle(savedInstanceState.getCharSequence("title"));
 
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recycle);
         recyclerView.setHasFixedSize(true);
@@ -105,32 +86,17 @@ public class NewsFeedFragment extends Fragment implements
 
         NavigationDrawer mDrawer = (NavigationDrawer) view.findViewById(R.id.drawer_layout);
         mDrawer.setupDrawer((Toolbar) view.findViewById(R.id.main_toolbar), this);
-        if (navPos != 0)
-             mDrawer.selectNavItem(navPos);
+        if (mFeed.navPos != 0)
+             mDrawer.selectNavItem(mFeed.navPos);
     }
 
     private Toolbar createToolbar(View view) {
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.main_toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_menu);
-//        setTitle(Utils.getSelectedAdminName(getActivity()));
+        ((TextView) view.findViewById(R.id.title)).setText(mFeed.title);
         addSortSpinner(view);
         return toolbar;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outstate){
-        super.onSaveInstanceState(outstate);
-        outstate.putCharSequence("title", title);
-        outstate.putInt("top", top);
-        outstate.putInt("index", index);
-        outstate.putString("feedContent", feedContent);
-        outstate.putString("sortOrder", sortOrder);
-        outstate.putInt("navIndex", navIndex);
-    }
-
-    public void setSection(int navPos) {
-        this.navPos = navPos;
     }
 
     @Override
@@ -200,7 +166,7 @@ public class NewsFeedFragment extends Fragment implements
 
     public void setFeedToLocation(String name, long id) {
         Utils.saveSelectedAdmin(getActivity(), name, id);
-        setTitle(name);
+        mFeed.setTitle(name, getView());
         getLoaderManager().restartLoader(FEED_LOADER, null, this);
         attemptRefresh(getActivity());
         ((SwipeRefreshLayout) getView().findViewById(R.id.swipeRefresh)).setRefreshing(true);
@@ -213,9 +179,8 @@ public class NewsFeedFragment extends Fragment implements
             return new CursorLoader(getActivity(), Contract.Admin.ADMIN_URI,
                     new String[] { Contract.Admin.COLUMN_SERVER_ID, Contract.Admin.COLUMN_NAME },
                     null, null, Contract.Admin.COLUMN_NAME + " ASC");
-        Log.e("NFF", "feedContent: " + feedContent);
         return new CursorLoader(getActivity(), Contract.Entry.CONTENT_URI,
-                Report.PROJECTION, feedContent, null, sortOrder);
+                Report.PROJECTION, mFeed.feedContent, null, mFeed.sortOrder);
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -246,34 +211,17 @@ public class NewsFeedFragment extends Fragment implements
             placeAdapter.swapCursor(null);
     }
 
-    public void setTitle(CharSequence title) {
-        this.title = title;
-        try { ((TextView) getView().findViewById(R.id.title)).setText(title); }
-        catch (Exception e) { Log.e("nnf", "Failed to set title"); }
-    }
-
     private void addSortSpinner(View v) {
         Spinner spin = ((Spinner) v.findViewById(R.id.feed_sorter));
         ArrayAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(getActivity(),
                 R.array.feed_sort_choices, R.layout.spinner_header);
         mSpinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
         spin.setAdapter(mSpinnerAdapter);
-        spin.setSelection(navIndex);
-        spin.setOnItemSelectedListener(new SortListener());
+        spin.setSelection(mFeed.navIndex);
+        spin.setOnItemSelectedListener(mFeed.new SortListener());
     }
-    public void sortFeed(String sorting) {
-        if (sorting != sortOrder) {
-            sortOrder = sorting;
-            getLoaderManager().restartLoader(FEED_LOADER, null, this);
-        }
-    }
-    private class SortListener implements AdapterView.OnItemSelectedListener {
-        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-            navIndex = pos;
-            if (pos == 0) sortFeed(SORT_RECENT);
-            else sortFeed(SORT_UPVOTES);
-        }
-        public void onNothingSelected(AdapterView<?> parent) { }
+    public void triggerResort() {
+        getLoaderManager().restartLoader(FEED_LOADER, null, this);
     }
 
     @Override

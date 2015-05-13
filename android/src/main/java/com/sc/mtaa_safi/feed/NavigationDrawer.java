@@ -19,6 +19,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.sc.mtaa_safi.Feed;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
@@ -29,6 +30,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     NewsFeedFragment frag;
     private NavArrayAdapter adapter;
     private ListView list;
+    private Feed mFeed;
 
     public NavigationDrawer(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -38,6 +40,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
 
     public void setupDrawer(Toolbar drawerToolbar, NewsFeedFragment nff) {
         frag = nff;
+        mFeed = Feed.getInstance(getContext());
         setDrawerListener(new ActionBarDrawerToggle(getActivity(), this, drawerToolbar, R.string.open, R.string.close));
         ((TextView) this.findViewById(R.id.user_name)).setText(Utils.getUserName(getActivity()));
         ((TextView) this.findViewById(R.id.user_email)).setText(Utils.getEmail(getActivity()));
@@ -53,8 +56,8 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         list.setOnItemClickListener(new NavItemListener());
     }
     private void addNavItems() {
-        addNavItem(R.string.nearby, R.drawable.ic_place_grey, NewsFeedFragment.LOAD_ALL);
-        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, NewsFeedFragment.LOAD_USER);
+        addNavItem(R.string.nearby, R.drawable.ic_place_grey, Feed.LOAD_ALL);
+        addNavItem(R.string.my_activity, R.drawable.ic_message_grey600_24dp, Feed.LOAD_USER);
         createOtherPlacesChooser();
     }
     public void addNavItem(int name, int icon, String feed_value) {
@@ -70,9 +73,9 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     public void selectNavItem(int position) {
         NavItem navItem = (NavItem) adapter.getItem(position);
         list.setItemChecked(position, true);
-        frag.feedContent = navItem.value;
-        if (navItem.value == NewsFeedFragment.LOAD_USER)
-            frag.feedContent += Utils.getUserId(getActivity());
+        mFeed.feedContent = navItem.value;
+        if (navItem.value == Feed.LOAD_USER)
+            mFeed.feedContent += Utils.getUserId(getActivity());
         updateFeedView(navItem.name, -1);
     }
 
@@ -92,9 +95,9 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     }
     private class PlacesClickListener implements ListView.OnItemClickListener {
         @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
-            frag.feedContent = NewsFeedFragment.LOAD_ALL;
+            mFeed.feedContent = Feed.LOAD_ALL;
             if (id != -1)
-                frag.feedContent = frag.feedContent + " AND " + NewsFeedFragment.LOAD_ADMIN + id;
+                mFeed.feedContent = mFeed.feedContent + " AND " + Feed.LOAD_ADMIN + id;
             updateFeedView((String) ((TextView) view).getText(), id);
         }
     }

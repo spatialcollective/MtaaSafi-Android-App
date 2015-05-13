@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.sc.mtaa_safi.Feed;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.GcmIntentService;
@@ -79,7 +80,7 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
         GcmIntentService.resetAll();
         ReportDatabase dbHelper  = new ReportDatabase(this);
         if (getIntent().getIntExtra("reportId", -1) == GcmIntentService.MULTIPLE_UPDATE) {
-            newsFeedFrag.setSection(1);
+            Feed.getInstance(this).setSection(1);
         } else {
             Cursor cursor = dbHelper.getReadableDatabase().query(Contract.Entry.TABLE_NAME,
                     null, Contract.Entry.COLUMN_SERVER_ID + " = " + getIntent().getIntExtra("reportId", -1), null, null, null, null);
