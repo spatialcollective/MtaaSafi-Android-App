@@ -78,12 +78,12 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
     }
     private void viewDetailFromNotification() {
         GcmIntentService.resetAll();
-        ReportDatabase dbHelper  = new ReportDatabase(this);
         if (getIntent().getIntExtra("reportId", -1) == GcmIntentService.MULTIPLE_UPDATE) {
             Feed.getInstance(this).setSection(1);
         } else {
-            Cursor cursor = dbHelper.getReadableDatabase().query(Contract.Entry.TABLE_NAME,
-                    null, Contract.Entry.COLUMN_SERVER_ID + " = " + getIntent().getIntExtra("reportId", -1), null, null, null, null);
+            Cursor cursor = getContentResolver().query(Contract.Entry.CONTENT_URI, Report.PROJECTION,
+                    Contract.Entry.COLUMN_SERVER_ID + " = " + getIntent().getIntExtra("reportId", -1),
+                    null, null);
             if (cursor.moveToFirst()) {
                 Report r = new Report(cursor);
                 cursor.close();

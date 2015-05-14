@@ -59,11 +59,10 @@ public class MtaaLocationService extends Service {
         return false;
     }
     public boolean hasCoarseLocation(Context context) {
-        if (mCoarseLocation == null
-                && mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) == null
-                && Utils.getCoarseLocation(context).getTime() == 0)
+        Location lastLoc = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (mCoarseLocation == null && lastLoc == null && Utils.getCoarseLocation(context).getTime() == 0)
             return false;
-        if (mCoarseLocation == null && mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) != null) {
+        if (mCoarseLocation == null && lastLoc != null) {
             mCoarseLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             Utils.saveCoarseLocation(context, mCoarseLocation);
         }
