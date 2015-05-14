@@ -31,6 +31,7 @@ public class RegisterWithGcm extends AsyncTask<String, String, String> {
             regid = gcm.register(Utils.SENDER_ID);
             msg = "Device registered, registration ID=" + regid;
 
+            Log.e("Reg w/GCM", "def signed in: " + Utils.isSignedIn(mContext));
             if (Utils.isSignedIn(mContext))
                 sendRegistrationIdToBackend();
         } catch (Exception ex) {

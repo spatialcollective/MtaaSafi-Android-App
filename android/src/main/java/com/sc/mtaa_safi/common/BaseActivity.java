@@ -129,7 +129,7 @@ public abstract class BaseActivity extends ActionBarActivity implements AlertDia
         if (checkGPlayServices()) {
             GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
             String regid = Utils.getRegistrationId(getApplicationContext());
-            if (regid.isEmpty())
+            if (regid.isEmpty() || regid == "-1")
                 new RegisterWithGcm(this, gcm).execute();
         }
     }

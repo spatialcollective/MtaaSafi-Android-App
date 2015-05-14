@@ -55,7 +55,7 @@ public class Utils {
     public static String getRegistrationId(Context context) {
         final SharedPreferences prefs = getSharedPrefs(context);
         String registrationId = prefs.getString(PROPERTY_REG_ID, "");
-        if (registrationId.isEmpty())
+        if (registrationId.isEmpty() || registrationId == "-1")
             Log.i("Utils", "Registration not found.");
         // Check if app was updated; if so, it must clear the registration ID
         // since the existing registration ID is not guaranteed to work with
