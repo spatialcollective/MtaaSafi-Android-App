@@ -83,7 +83,13 @@ public class ReportProvider extends ContentProvider {
         switch (uriMatch) {
             case ROUTE_ENTRIES_ID: // Return a single entry, by ID.
                 String id = uri.getLastPathSegment();
-                builder.where(Contract.Entry._ID + "=?", id);
+                builder.table(Contract.REPORTS_JOIN_LOCATIONS)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LAT, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LNG, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_ACC, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_TIME, Contract.MtaaLocation.TABLE_NAME)
+                        .mapToTable(Contract.MtaaLocation.COLUMN_LOC_PROV, Contract.MtaaLocation.TABLE_NAME)
+                        .where(Contract.Entry._ID + "=?", id);
             case ROUTE_ENTRIES:
                 builder.table(Contract.REPORTS_JOIN_LOCATIONS)
                         .mapToTable(Contract.MtaaLocation.COLUMN_LAT, Contract.MtaaLocation.TABLE_NAME)

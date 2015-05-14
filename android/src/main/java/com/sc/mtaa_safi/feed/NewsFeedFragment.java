@@ -162,10 +162,14 @@ public class NewsFeedFragment extends Fragment implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         if (loader.getId() == FEED_LOADER) {
             ((FeedAdapter) mAdapter).swapCursor(cursor);
-            if (cursor.getCount() == 0 && getView() != null)
-                getView().findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
-            else if (getView() != null)
-                getView().findViewById(R.id.refreshNotice).setVisibility(View.GONE);
+            View view = getView();
+            if (view != null) {
+                ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(false);
+                if (cursor.getCount() == 0)
+                    view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
+                else
+                    view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
+            }
         } else
             placeAdapter.swapCursor(cursor);
     }
