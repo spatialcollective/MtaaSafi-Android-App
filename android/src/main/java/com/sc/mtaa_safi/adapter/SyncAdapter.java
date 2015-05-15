@@ -92,10 +92,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection,
                            Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         while (c.moveToNext()) {
+            syncResult.stats.numEntries++;
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
             if (!serverIds.contains(serverId)) {
                 batch.add(ContentProviderOperation.newDelete(Report.getUri(c.getInt(0))).build());
-                syncResult.stats.numEntries++;
                 syncResult.stats.numDeletes++;
             } else {
                 serverIds.remove(serverIds.indexOf(serverId));
@@ -116,7 +116,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         for (int i = 0; i < reportsArray.length(); i++) {
             Report report = new Report(reportsArray.getJSONObject(i), -1);
             batch = report.createContentProviderOperation(batch);
-            syncResult.stats.numEntries++;
             syncResult.stats.numInserts++;
             provider.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
         }
