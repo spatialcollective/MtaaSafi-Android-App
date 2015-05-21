@@ -41,7 +41,7 @@ public class SyncHistory extends AsyncTask<Void, Integer, JSONObject> {
     }
 
     private JSONObject getReportHistory() throws IOException, JSONException {
-        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.base_url) + "get_child_reports/" + Utils.getUserId(mContext) + "/" + mReportId + "/", "get", null);
+        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.history) + mReportId + "/", "get", null);
         if (response.has("error") && response.getInt("error") >= 400)
             cancelSession(NETWORK_ERROR);
         return response;
