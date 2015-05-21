@@ -45,14 +45,14 @@
         <item>Most Upvoted</item>
     </string-array>
 
-    <string name="base_url">http://staging.spatialcollective.com/mtaasafi/</string>
-    <string name="feed">http://staging.spatialcollective.com/mtaasafi/fetch_reports/</string>
-    <string name="feed_details">http://staging.spatialcollective.com/mtaasafi/fetch_report_details/</string>
-    <string name="base_write">http://staging.spatialcollective.com/mtaasafi/add_post</string>
-    <string name="send_comment">http://staging.spatialcollective.com/mtaasafi/post_comment/</string>
-    <string name="refresh_comment">http://staging.spatialcollective.com/mtaasafi/get_comments/</string>
-    <string name="location_data">http://staging.spatialcollective.com/mtaasafi/get_location_data/</string>
-    <string name="signin">http://staging.spatialcollective.com/mtaasafi/sign_in_user/</string>
-    <string name="registerId">http://staging.spatialcollective.com/gcm/v1/device/register/</string>
-    <string name="public_url">http://staging.spatialcollective.com/</string>
+    <string name="base_url">http://192.168.0.30:8000/mtaasafi/</string>
+    <string name="feed">http://192.168.0.30:8000/mtaasafi/fetch_reports/</string>
+    <string name="feed_details">http://192.168.0.30:8000/mtaasafi/fetch_report_details/</string>
+    <string name="base_write">http://192.168.0.30:8000/mtaasafi/add_post</string>
+    <string name="send_comment">http://192.168.0.30:8000/mtaasafi/post_comment/</string>
+    <string name="refresh_comment">http://192.168.0.30:8000/mtaasafi/get_comments/</string>
+    <string name="location_data">http://192.168.0.30:8000/mtaasafi/get_location_data/</string>
+    <string name="signin">http://192.168.0.30:8000/mtaasafi/sign_in_user/</string>
+    <string name="registerId">http://192.168.0.30:8000/gcm/v1/device/register/</string>
+    <string name="public_url">http://192.168.0.30:8000/</string>
 </resources>

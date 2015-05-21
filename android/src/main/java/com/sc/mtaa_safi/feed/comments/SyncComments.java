@@ -74,7 +74,7 @@ public class SyncComments extends AsyncTask<JSONObject, Integer, Integer> {
     private JSONObject getFromServer() throws IOException {
         HttpClient httpClient = new DefaultHttpClient();
         Log.d("SyncComments", "Report id:" + mReportId);
-        HttpResponse response = httpClient.execute(new HttpGet(mContext.getString(R.string.refresh_comment) + "/" + mReportId));
+        HttpResponse response = httpClient.execute(new HttpGet(mContext.getString(R.string.refresh_comment) + mReportId));
         return NetworkUtils.convertHttpResponseToJSON(response);
     }
 

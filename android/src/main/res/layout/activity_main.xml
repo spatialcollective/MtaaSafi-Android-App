@@ -9,6 +9,6 @@
 		android:layout_height="match_parent"
 		android:layout_alignParentLeft="true"
 		android:layout_alignParentTop="true"
-        tools:layout="@layout/fragment_news_feed" />
+        tools:layout="@layout/fragment_feed" />
 
 </RelativeLayout>
