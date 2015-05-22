@@ -63,6 +63,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     String mCommentText;
     private ReportUpdateListener reportUpdateListener;
     private ExpandableListView expandableListView;
+    private int childHeight; 
+    private int fixedHeaderHeight;
     @Override
     public void onCreate(Bundle savedInstanceState){
         setHasOptionsMenu(true);
@@ -75,6 +77,8 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
         View view = inflater.inflate(R.layout.fragment_report_detail, container, false);
         setUpHeader(view);
+        childHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getActivity().getResources().getDisplayMetrics());
+        fixedHeaderHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getActivity().getResources().getDisplayMetrics());
         if (savedState != null) {
             mReport = new Report(savedState);
         }
@@ -248,8 +252,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void setUpHistoryListView(JSONObject result){
-        final int childHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getResources().getDisplayMetrics());
-        final int fixedHeaderHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
         try {
             final int childCount = result.getJSONArray("reports").length();
             if(childCount == 0)
