@@ -54,5 +54,6 @@
     <string name="location_data">http://staging.spatialcollective.com/mtaasafi/get_location_data/</string>
     <string name="signin">http://staging.spatialcollective.com/mtaasafi/sign_in_user/</string>
     <string name="registerId">http://staging.spatialcollective.com/gcm/v1/device/register/</string>
+    <string name="history">http://staging.spatialcollective.com/mtaasafi/get_report_history/</string>
     <string name="public_url">http://staging.spatialcollective.com/</string>
 </resources>

@@ -24,8 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Session;
 import com.facebook.internal.SessionTracker;
@@ -41,8 +43,14 @@ import com.sc.mtaa_safi.feed.comments.CommentAdapter;
 import com.sc.mtaa_safi.feed.comments.CommentLayoutManager;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 import com.sc.mtaa_safi.feed.comments.SyncComments;
+import com.sc.mtaa_safi.feed.history.HistoryListAdapter;
+import com.sc.mtaa_safi.feed.history.SyncHistory;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -53,6 +61,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     CommentAdapter mAdapter;
     String mCommentText;
     private ReportUpdateListener reportUpdateListener;
+    private ExpandableListView expandableListView;
     @Override
     public void onCreate(Bundle savedInstanceState){
         setHasOptionsMenu(true);
@@ -134,11 +143,12 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         updateVote((VoteButton) view.findViewById(R.id.topVote));
         updateDetails(view.findViewById(R.id.top_layout));
         addComments(view);
+        addHistory(view);
     }
 
     private void updateDetails(View view) {
         ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
-        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.description.substring(0,1).toUpperCase() + mReport.description.substring(1));
+        ((TextView) view.findViewById(R.id.r_content)).setText(mReport.description.substring(0, 1).toUpperCase() + mReport.description.substring(1));
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.placeDescript);
         setStatus((ImageView) view.findViewById(R.id.r_status), mReport.status);
     }
@@ -208,6 +218,16 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ((NewCommentLayout) view.findViewById(R.id.new_comment_standalone)).addData(mReport.serverId);
     }
 
+    private void addHistory(View view) {
+        expandableListView = (ExpandableListView) view.findViewById(R.id.history);
+        new SyncHistory(getActivity(), mReport.serverId){
+            @Override
+            protected void onPostExecute(final JSONObject result) {
+                setUpHistoryListView(result);
+            }
+        }.execute();
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(), Contract.Comments.COMMENTS_URI,
@@ -224,6 +244,36 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         ViewPager viewPager = (ViewPager) view.findViewById(R.id.image_pager);
         viewPager.setAdapter(ipa);
         viewPager.setOnPageChangeListener(new PageButtonListener(view, ipa, viewPager));
+    }
+
+    private void setUpHistoryListView(JSONObject result){
+        try {
+            final int eventCount = result.getJSONArray("reports").length();
+            if(eventCount == 0)
+                expandableListView.setVisibility(View.INVISIBLE);
+            else{
+                expandableListView.setAdapter(new HistoryListAdapter(getActivity(), result));
+                expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                        if (!parent.isGroupExpanded(groupPosition)) {
+                            ViewGroup.LayoutParams params = parent.getLayoutParams();
+                            params.height = eventCount * 150;
+                            parent.setLayoutParams(params);
+                        } else {
+                            ViewGroup.LayoutParams params = parent.getLayoutParams();
+                            params.height = 85;
+                            parent.setLayoutParams(params);
+                        }
+
+                        return false;
+                    }
+                });
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private class ImagePagerAdapter extends PagerAdapter {
