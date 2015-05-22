@@ -89,8 +89,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
         String[] projection = {Contract.Entry.COLUMN_ID, Contract.Entry.COLUMN_SERVER_ID};
-        Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection,
-                           Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
+        Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection, Contract.Entry.COLUMN_PENDINGFLAG + " = -1", null, null);
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
