@@ -17,6 +17,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -247,9 +248,11 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void setUpHistoryListView(JSONObject result){
+        final int childHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getResources().getDisplayMetrics());
+        final int fixedHeaderHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 50, getResources().getDisplayMetrics());
         try {
-            final int eventCount = result.getJSONArray("reports").length();
-            if(eventCount == 0)
+            final int childCount = result.getJSONArray("reports").length();
+            if(childCount == 0)
                 expandableListView.setVisibility(View.INVISIBLE);
             else{
                 expandableListView.setAdapter(new HistoryListAdapter(getActivity(), result));
@@ -258,11 +261,11 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
                     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
                         if (!parent.isGroupExpanded(groupPosition)) {
                             ViewGroup.LayoutParams params = parent.getLayoutParams();
-                            params.height = eventCount * 150;
+                            params.height = (childCount * childHeight) + fixedHeaderHeight;
                             parent.setLayoutParams(params);
                         } else {
                             ViewGroup.LayoutParams params = parent.getLayoutParams();
-                            params.height = 85;
+                            params.height = fixedHeaderHeight;
                             parent.setLayoutParams(params);
                         }
 
