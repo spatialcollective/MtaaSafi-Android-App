@@ -4,7 +4,7 @@
 
     <uses-sdk
         android:minSdkVersion="11"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
@@ -142,11 +142,6 @@
         </receiver>
 
         <service android:name=".SystemUtils.GcmIntentService" />
-
-        <activity
-            android:name=".common.BaseActivity"
-            android:label="@string/title_activity_base" >
-        </activity>
     </application>
 
 </manifest>

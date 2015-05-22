@@ -20,7 +20,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class GcmIntentService extends IntentService {
-    public static final int REPORT_UPDATE = 1, NEW_REPORT = 2, RESET_NEW = 3, RESET_UPDATE = 4, MULTIPLE_UPDATE = -2, MULTIPLE_NEW = -3;
+    public static final int REPORT_UPDATE = 1, NEW_REPORT = 2, 
+                            RESET_NEW = 3, RESET_UPDATE = 4, 
+                            MULTIPLE_UPDATE = -2, MULTIPLE_NEW = -3;
     private static final String NEW_COMMENT = " new comment", NEW_VOTE = " new upvote", YOURS = " on your reports";
     private static int numComments = 0, numUpvotes = 0,  numNew = 0, notificationType = REPORT_UPDATE;
     private static String new_message = "", update_message = "";
