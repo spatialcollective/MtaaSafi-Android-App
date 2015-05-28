@@ -46,6 +46,7 @@
     </string-array>
 
     <string name="base_url">http://staging.spatialcollective.com/mtaasafi/</string>
+    <string name="reports_url">http://staging.spatialcollective.com/mtaasafi/v1/report/?format=json&amp;limit=0</string>
     <string name="feed">http://staging.spatialcollective.com/mtaasafi/fetch_reports/</string>
     <string name="feed_details">http://staging.spatialcollective.com/mtaasafi/fetch_report_details/</string>
     <string name="base_write">http://staging.spatialcollective.com/mtaasafi/add_post</string>

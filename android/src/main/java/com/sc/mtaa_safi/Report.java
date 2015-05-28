@@ -27,12 +27,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class Report {
     private Gson gson = new Gson();
     public boolean upVoted = false;
-    public String description, placeDescript, timeElapsed, userName, locationJSON;
+    public String description, placeDescript, timeElapsed, userName;
     public int serverId, dbId, userId, adminId, status, pendingState = -1, upVoteCount, inProgress = 0, parentReportId=0;
     public long timeStamp;
     public ArrayList<String> media = new ArrayList<String>();
@@ -63,14 +65,14 @@ public class Report {
     };
 
     // for Report objects created by the user to send to the server
-    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
-        initialize(description, status, userName, userId, newLocation, picPaths, locationJSON);
+    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths) {
+        initialize(description, status, userName, userId, newLocation, picPaths);
     }
-    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON, int parentReportId) {
-        initialize(description, status, userName, userId, newLocation, picPaths, locationJSON);
+    public Report(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, int parentReportId) {
+        initialize(description, status, userName, userId, newLocation, picPaths);
         this.parentReportId = parentReportId;
     }
-    private void initialize(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths, String locationJSON) {
+    private void initialize(String description, int status, String userName, int userId, Location newLocation, ArrayList<String> picPaths) {
         this.serverId = this.dbId = 0;
         this.description = description;
         this.status = status;
@@ -80,7 +82,6 @@ public class Report {
         this.userName = userName;
         this.userId = userId;
         this.location = newLocation;
-        this.locationJSON = locationJSON;
         this.media = picPaths;
     }
 
@@ -98,7 +99,6 @@ public class Report {
         adminId = bundle.getInt(Contract.Entry.COLUMN_ADMIN_ID);
         parentReportId = bundle.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
 
-        locationJSON = bundle.getString(Contract.Entry.COLUMN_LOCATION);
         location = new Location("report_location");
         location.setLatitude(bundle.getDouble(Contract.MtaaLocation.COLUMN_LAT));
         location.setLongitude(bundle.getDouble(Contract.MtaaLocation.COLUMN_LNG));
@@ -128,7 +128,6 @@ public class Report {
         pendingState = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_PENDINGFLAG));
         upVoted = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0;
         upVoteCount = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT));
-        locationJSON = c.getString(c.getColumnIndexOrThrow(Contract.Entry.COLUMN_LOCATION));
 
         location = new Location("ReportLocation");
         location.setLatitude(c.getDouble(c.getColumnIndex(Contract.MtaaLocation.COLUMN_LAT)));
@@ -142,34 +141,35 @@ public class Report {
             media = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), type);
     }
 
-    public Report(JSONObject jsonData, int pending) throws JSONException {
-        serverId = jsonData.getInt("unique_id");
+    public Report(JSONObject jsonData, int pending, ArrayList<String> voteList) throws JSONException {
+        serverId = jsonData.getInt("id");
         description = jsonData.getString(Contract.Entry.COLUMN_DESCRIPTION);
         placeDescript = jsonData.getString(Contract.Entry.COLUMN_PLACE_DESCRIPT);
         status = jsonData.getInt(Contract.Entry.COLUMN_STATUS);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
-        userName = jsonData.getString(Contract.Entry.COLUMN_USERNAME);
-        userId = jsonData.getInt(Contract.Entry.COLUMN_USERID);
-        adminId = jsonData.getInt(Contract.Entry.COLUMN_ADMIN_ID);
-        parentReportId = jsonData.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
 
-        upVoteCount = jsonData.getInt(Contract.Entry.COLUMN_UPVOTE_COUNT);
-        upVoted = jsonData.getBoolean(Contract.Entry.COLUMN_USER_UPVOTED);
+        adminId = jsonData.getJSONObject("geo_admin").getInt("id");
+        userName = jsonData.getJSONObject("owner").getString(Contract.Entry.COLUMN_USERNAME);
+        userId = jsonData.getJSONObject("owner").getInt("id");
+        if (jsonData.has(Contract.Entry.COLUMN_PARENT_REPORT))
+            parentReportId = jsonData.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
+
+        upVoteCount = jsonData.getJSONArray("upvote_set").length();
+        if (voteList.contains(Integer.toString(serverId)))
+            upVoted = true;
+        else
+            upVoted = false;
         pendingState = pending;
-        try {
-            locationJSON = jsonData.getString(Contract.Entry.COLUMN_LOCATION);
-        }catch (JSONException e) {
-            locationJSON = "";
-        }
 
         location = new Location("ReportLocation");
-        location.setLatitude(jsonData.getDouble(Contract.MtaaLocation.COLUMN_LAT));
-        location.setLongitude(jsonData.getDouble(Contract.MtaaLocation.COLUMN_LNG));
+        JSONArray coords = jsonData.getJSONArray("shapes").getJSONObject(0).getJSONObject("shape").getJSONArray("coordinates");
+        location.setLatitude(coords.getDouble(1));
+        location.setLongitude(coords.getDouble(0));
 
-        JSONArray mediaIdsJSON = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
-        for (int i = 0; i < mediaIdsJSON.length(); i++)
-            media.add(mediaIdsJSON.get(i) + "");
+        JSONArray mediaArray = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
+        for (int i = 0; i < mediaArray.length(); i++)
+            media.add(mediaArray.getJSONObject(i).getInt("id") + "");
     }
 
     public Uri save(Context context) {
@@ -222,10 +222,6 @@ public class Report {
         locValues.put(Contract.MtaaLocation.COLUMN_LOC_ACC, location.getAccuracy());
         locValues.put(Contract.MtaaLocation.COLUMN_LOC_TIME, location.getTime());
         locValues.put(Contract.MtaaLocation.COLUMN_LOC_PROV, location.getProvider());
-        if (locationJSON != null)
-            locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, locationJSON);
-        else
-            locValues.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
         return locValues;
     }
 
@@ -277,10 +273,6 @@ public class Report {
         json.put(Contract.Entry.COLUMN_ADMIN_ID, this.adminId);
         if (this.parentReportId !=0)
             json.put(Contract.Entry.COLUMN_PARENT_REPORT, this.parentReportId);
-        if (this.locationJSON != null)
-            json.put(Contract.MtaaLocation.COLUMN_LOC_DATA, this.locationJSON);
-        else
-            json.put(Contract.MtaaLocation.COLUMN_LOC_DATA, "");
 
         JSONObject loc = new JSONObject();
         loc.put(Contract.MtaaLocation.COLUMN_LAT, location.getLatitude());

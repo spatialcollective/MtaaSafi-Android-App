@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 28;
+    private static final int DATABASE_VERSION = 29;
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -37,8 +37,7 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.MtaaLocation.COLUMN_LNG + " double not null, "
             + Contract.MtaaLocation.COLUMN_LOC_ACC + " float, "
             + Contract.MtaaLocation.COLUMN_LOC_TIME + " long, "
-            + Contract.MtaaLocation.COLUMN_LOC_PROV + " text, "
-            + Contract.MtaaLocation.COLUMN_LOC_DATA + " text "
+            + Contract.MtaaLocation.COLUMN_LOC_PROV + " text "
         + ")";
 
     private static final String UPVOTE_TABLE_CREATE = "create table "

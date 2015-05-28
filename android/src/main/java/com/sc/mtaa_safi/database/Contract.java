@@ -25,19 +25,19 @@ public class Contract {
                 COLUMN_ID = "_id",
                 COLUMN_SERVER_ID = "server_id",
                 COLUMN_DESCRIPTION = "description",
-                COLUMN_PLACE_DESCRIPT = "place",
+                COLUMN_PLACE_DESCRIPT = "name",
                 COLUMN_TIMESTAMP = "timestamp",
                 COLUMN_STATUS = "status",
-                COLUMN_ADMIN_ID = "admin_id",
-                COLUMN_USERID = "user_id",
-                COLUMN_USERNAME = "username",
-                COLUMN_LOCATION = "location",
-                COLUMN_MEDIA = "media",
+                COLUMN_ADMIN_ID = "geo_admin",  // id
+                COLUMN_USERID = "owner", // id
+                COLUMN_USERNAME = "username", //owner.user.username
+                COLUMN_LOCATION = "location", // misused in some places?
+                COLUMN_MEDIA = "media_set",
                 COLUMN_PENDINGFLAG = "pending",
                 COLUMN_UPLOAD_IN_PROGRESS = "uploadActive",
                 COLUMN_UPVOTE_COUNT = "upvote_count",
                 COLUMN_USER_UPVOTED = "upvoted",
-            	COLUMN_PARENT_REPORT = "parent";
+            	COLUMN_PARENT_REPORT = "parent_id";
     }
 
     public static class MtaaLocation implements BaseColumns {
@@ -50,8 +50,7 @@ public class Contract {
                 COLUMN_LNG= "longitude",
                 COLUMN_LOC_ACC = "accuracy",
                 COLUMN_LOC_TIME = "loc_time",
-                COLUMN_LOC_PROV = "provider",
-                COLUMN_LOC_DATA = "loc_data";
+                COLUMN_LOC_PROV = "provider";
     }
 
     public static class UpvoteLog implements BaseColumns {

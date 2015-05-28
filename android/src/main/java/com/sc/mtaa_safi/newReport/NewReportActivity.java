@@ -82,17 +82,11 @@ public class NewReportActivity extends BaseActivity {
     }
 
     public Uri saveNewReport(NewReportFragment frag) throws JSONException {
-        JSONObject locationJSON = new JSONObject();
         Report newReport;
-        if (frag.adminText == frag.selectedAdmin.trim()) {
-            locationJSON.put("admin", frag.selectedAdmin.trim());
-            locationJSON.put("adminId", frag.selectedAdminId);
-        } else
-            locationJSON.put("admin", frag.adminText);
         if (parentReportId != 0)
-            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths, locationJSON.toString(), parentReportId);
+            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths, parentReportId);
         else
-            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths, locationJSON.toString());
+            newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths);
         return newReport.save(this);
     }
 

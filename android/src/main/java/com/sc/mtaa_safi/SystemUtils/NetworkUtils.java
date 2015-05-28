@@ -78,7 +78,7 @@ public class NetworkUtils {
         BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
         StringBuilder result = new StringBuilder(inputStream.available());
         String line;
-        while((line = bufferedReader.readLine()) != null)
+        while ((line = bufferedReader.readLine()) != null)
             result.append(line);
         inputStream.close();
         Log.v("Network Utils", "Server Response: " + result.toString());
