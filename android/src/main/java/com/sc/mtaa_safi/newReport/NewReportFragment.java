@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,8 +33,11 @@ import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.tags.Tag;
+import com.sc.mtaa_safi.feed.tags.TagsCompletionView;
 import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
 import com.squareup.picasso.Picasso;
+import com.tokenautocomplete.TokenCompleteTextView;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +51,10 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     public String detailsText = "", selectedAdmin = "", adminText = "";
     public int status = 0;
     public long selectedAdminId;
+    public Tag[] tags;
     public ArrayList<String> picPaths = new ArrayList<String>();
-
+    public ArrayAdapter<Tag> mTagAdapter;
+    public TagsCompletionView tagsCompletionView;
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -64,6 +70,18 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         updateDetailsView();
         updatePicPreviews();
         setUpVillages();
+
+        tags = new Tag[]{
+                new Tag("water"),
+                new Tag("sewage"),
+                new Tag("cholera")
+        };
+
+        mTagAdapter = new ArrayAdapter<Tag>(getActivity(), android.R.layout.simple_list_item_1, tags);
+        tagsCompletionView = (TagsCompletionView)getActivity().findViewById(R.id.enterTag);
+        tagsCompletionView.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Delete);
+        tagsCompletionView.setSplitChar(' ');
+        tagsCompletionView.setAdapter(mTagAdapter);
     }
 
     private void createToolbar(View view) {
