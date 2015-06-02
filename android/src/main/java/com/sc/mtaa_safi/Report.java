@@ -149,7 +149,8 @@ public class Report {
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
 
-        adminId = jsonData.getJSONObject("geo_admin").getInt("id");
+        if (jsonData.has("geo_admin"))
+            adminId = jsonData.getJSONObject("geo_admin").getInt("id");
         userName = jsonData.getJSONObject("owner").getString(Contract.Entry.COLUMN_USERNAME);
         userId = jsonData.getJSONObject("owner").getInt("id");
         if (jsonData.has(Contract.Entry.COLUMN_PARENT_REPORT))

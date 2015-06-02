@@ -76,11 +76,15 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         mFeed.feedContent = navItem.value;
         if (navItem.value == Feed.LOAD_USER)
             mFeed.feedContent += Utils.getUserId(getActivity());
+        else if (navItem.value == Feed.LOAD_ALL)
+            mFeed.feedContent += " AND " + Utils.createCursorAdminList(Utils.getNearbyAdmins(getActivity()));
+        Log.e("Nav Drawer", "Feed Content: " + mFeed.feedContent);
         updateFeedView(navItem.name, -1);
     }
 
     private void updateFeedView(String title, long adminId) {
         mFeed.setLocation(title, adminId, getContext(), getRootView());
+        Log.e("Nav Drawer", "setting location: " + title + "-" + Utils.getSelectedAdminId(getContext()));
         closeDrawer(GravityCompat.START);
     }
 
@@ -93,11 +97,12 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         frag.getLoaderManager().initLoader(frag.PLACES_LOADER, null, frag);
         this.findViewById(R.id.places_toggle).setOnClickListener(this);
     }
+
     private class PlacesClickListener implements ListView.OnItemClickListener {
         @Override public void onItemClick(AdapterView parent, View view, int pos, long id) {
             mFeed.feedContent = Feed.LOAD_ALL;
             if (id != -1)
-                mFeed.feedContent = mFeed.feedContent + " AND " + Feed.LOAD_ADMIN + id;
+                mFeed.feedContent += " AND " + Feed.LOAD_ADMIN + id;
             updateFeedView((String) ((TextView) view).getText(), id);
         }
     }

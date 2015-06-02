@@ -11,17 +11,21 @@ import android.location.LocationManager;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
                                 COARSE_LAT = "c_lat", COARSE_LNG = "c_lon", COARSE_LOCATION_TIMESTAMP = "c_loc_tstamp",
-                                ADMIN = "admin", ADMIN_ID = "adminId", SAVED_REPORT_COUNT = "srcount",
+                                ADMIN = "admin", ADMIN_ID = "adminId", NEARBY_ADMINS = "nearby_admins", SAVED_REPORT_COUNT = "srcount",
                                 SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
                                 FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid",
                                 PROPERTY_REG_ID = "registration_id", PROPERTY_APP_VERSION = "appVersion",
@@ -130,6 +134,9 @@ public class Utils {
     public static String getSelectedAdminName(Context context) {
         return getSharedPrefs(context).getString(ADMIN, context.getResources().getString(R.string.nearby));
     }
+    public static String getNearbyAdmins(Context context) {
+        return getSharedPrefs(context).getString(NEARBY_ADMINS, "");
+    }
     public static long getSelectedAdminId(Context context) {
         return getSharedPrefs(context).getLong(ADMIN_ID, -1);
     }
@@ -173,6 +180,21 @@ public class Utils {
         editor.putString(ADMIN, name);
         editor.commit();
     }
+    public static void saveNearbyAdmins(Context context, String ids) {
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(NEARBY_ADMINS, ids);
+        editor.commit();
+    }
+
+    public static int getSavedReportCount(Context context){
+        return getSharedPrefs(context).getInt(SAVED_REPORT_COUNT, 0);
+    }
+
+    public static void saveSavedReportCount(Context context, int count) {
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putInt(SAVED_REPORT_COUNT, count);
+        editor.commit();
+    }
 
     public static String getElapsedTime(Long timestamp) {
         return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp, new Date(timestamp));
@@ -199,13 +221,20 @@ public class Utils {
         return "just now";
     }
 
-    public static int getSavedReportCount(Context context){
-        return getSharedPrefs(context).getInt(SAVED_REPORT_COUNT, 0);
+    public static String createCursorAdminList(String rawString) {
+        String[] adminArr = Utils.toStringArray(Utils.toStringList(rawString));
+        String sqlStatement = Contract.Entry.COLUMN_ADMIN_ID + " IN(";
+        for (int n = 0; n < adminArr.length - 1; n++)
+            sqlStatement += adminArr[n] + ", ";
+        sqlStatement += adminArr[adminArr.length - 1] + ")";
+        return sqlStatement;
     }
 
-    public static void saveSavedReportCount(Context context, int count) {
-        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
-        editor.putInt(SAVED_REPORT_COUNT, count);
-        editor.commit();
+    public static ArrayList<String> toStringList(String rawStringOfList) {
+        String stringList  = rawStringOfList.replace("[", "").replace("]", "");
+        return new ArrayList<>(Arrays.asList(stringList.split(", ")));
+    }
+    public static String[] toStringArray(List<String> rawStringList) {
+        return rawStringList.toArray(new String[rawStringList.size()]);
     }
 }

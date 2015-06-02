@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.facebook.android.Util;
 import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
@@ -39,6 +40,7 @@ import java.util.Map;
 class SyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String TAG = "SyncAdapter";
     private Context mContext;
+    private String[] projection = { Contract.Entry.COLUMN_ID, Contract.Entry.COLUMN_SERVER_ID };
 
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
@@ -57,20 +59,23 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Community.addCommunities(responseJson, provider);
     }
 
-    private JSONObject downloadReports(boolean getAll) throws IOException, JSONException {
-        String userFilter = "";
-        if (!getAll)
-            userFilter = "&userId=" + Utils.getUserId(mContext);
-        if (Utils.getSelectedAdminId(mContext) == -1) {
-            Location location = Utils.getCoarseLocation(mContext);
+    private JSONObject downloadReports(String type) throws IOException, JSONException {
+        String args = "";
+        if (type != "all")
+            args = "&userId=" + Utils.getUserId(this.getContext());
+        if (type == "user")
+            args += "&userOnly=true";
+        else if (Utils.getSelectedAdminId(this.getContext()) == -1) {
+            Location location = Utils.getCoarseLocation(this.getContext());
             if (location != null && location.getTime() != 0)
-                return contactServer(userFilter + "&lng=" + location.getLongitude() + "&lat=" + location.getLatitude());
-        }
-        return contactServer(userFilter + "&adminId" + Utils.getSelectedAdminId(mContext));
+                args += "&lng=" + location.getLongitude() + "&lat=" + location.getLatitude();
+        } else
+            args += "&adminId=" + Utils.getSelectedAdminId(this.getContext());
+        return contactServer(args);
     }
 
     private JSONObject contactServer(String whichReports) throws IOException, JSONException {
-        return NetworkUtils.makeRequest(mContext.getString(R.string.reports_url) + whichReports, "get", null);
+        return NetworkUtils.makeRequest(this.getContext().getString(R.string.reports_url) + whichReports, "get", null);
     }
 
     public void updateLocalData(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult)
@@ -78,64 +83,24 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             OperationApplicationException, ParseException, JSONException {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-        String[] projection = {Contract.Entry.COLUMN_ID, Contract.Entry.COLUMN_SERVER_ID};
-        String cursorFilter = createCursorFilter(serverData);
 
-        HashMap<Integer, Report> reportMap = createReportMap(serverData);
-        Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection, cursorFilter, null, null);
-        deleteUpdatedReports(c, reportMap, syncResult, batch);
-        saveReports(reportMap, batch, provider, syncResult);
-        c.close();
-        if (!db_Is_Sane(syncResult, serverData)) {
-            updateLocalData(downloadReports(true), provider, syncResult);
-            return;
-        }
-
+        updateReports(serverData, provider, syncResult, batch);
         Log.i(TAG, "Merge solution ready. Applying batch update");
         provider.applyBatch(batch);
+        sanityCheck(serverData, provider, syncResult);
     }
 
-    private String createCursorFilter(JSONObject serverData) throws JSONException {
-        String cursorFilter = Contract.Entry.COLUMN_PENDINGFLAG + " = -1";
-        if (serverData.getJSONObject("meta").has("nearby_admins")) {
-            List<String> nearbyAdmins = convertRawStringArray(serverData.getJSONObject("meta").getString("nearby_admins"));
-            String[] adminArr = nearbyAdmins.toArray(new String[nearbyAdmins.size()]);
+    private void updateReports(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult, ArrayList batch) throws
+            IOException, XmlPullParserException, RemoteException,
+            OperationApplicationException, ParseException, JSONException {
 
-            cursorFilter = cursorFilter + " AND " + Contract.Entry.COLUMN_ADMIN_ID + " IN(";
-            for (int n = 0; n < adminArr.length - 1; n++)
-                cursorFilter += adminArr[n] + ", ";
-            cursorFilter += adminArr[adminArr.length - 1] + ")";
-        }
-        return cursorFilter;
+        HashMap<Integer, Report> reportMap = createReportMap(serverData);
+        Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection, createCursorFilter(serverData), null, null);
+        deleteUpdatedReports(reportMap, c, syncResult, batch);
+        saveReports(reportMap, syncResult, batch);
+        c.close();
     }
-
-    private boolean db_Is_Sane(SyncResult syncResult, JSONObject serverData) throws JSONException {
-        long totalCount = syncResult.stats.numEntries + syncResult.stats.numInserts - syncResult.stats.numDeletes;
-        Log.v(TAG, "Cursor: " + totalCount + " Actual: " + serverData.getJSONObject("meta").getLong("actual_total"));
-        if (totalCount == serverData.getJSONObject("meta").getLong("actual_total"))
-            return true;
-        return false;
-    }
-
-    private HashMap<Integer, Report> createReportMap(JSONObject serverData) throws JSONException {
-        JSONArray reports = serverData.getJSONArray("objects");
-        String rawUpvoteList = "";
-        if (serverData.getJSONObject("meta").has("user_upvotes"))
-            rawUpvoteList = serverData.getJSONObject("meta").getString("user_upvotes");
-        HashMap<Integer, Report> map = new HashMap<>();
-        for (int i = 0; i < reports.length(); i++) {
-            Report report = new Report(reports.getJSONObject(i), -1, convertRawStringArray(rawUpvoteList));
-            map.put(report.serverId, report);
-        }
-        return map;
-    }
-
-    private ArrayList<String> convertRawStringArray(String rawStringList) {
-        String stringList  = rawStringList.replace("[", "").replace("]", "");
-        return new ArrayList<>(Arrays.asList(stringList.split(", ")));
-    }
-
-    private void deleteUpdatedReports(Cursor c, HashMap<Integer, Report> reportMap, SyncResult syncResult, ArrayList<ContentProviderOperation> batch) {
+    private void deleteUpdatedReports(HashMap<Integer, Report> reportMap, Cursor c, SyncResult syncResult, ArrayList<ContentProviderOperation> batch) {
         while (c.moveToNext()) {
             syncResult.stats.numEntries++;
             int serverId = c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID));
@@ -146,14 +111,65 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
     }
-
-    private void saveReports(HashMap<Integer, Report> serverData, ArrayList<ContentProviderOperation> batch, ContentProviderClient provider, SyncResult syncResult)
+    private void saveReports(HashMap<Integer, Report> reportMap, SyncResult syncResult, ArrayList<ContentProviderOperation> batch)
             throws RemoteException, OperationApplicationException, JSONException {
-        for (Report r : serverData.values()) {
+        for (Report r : reportMap.values()) {
             batch = r.createContentProviderOperation(batch);
             syncResult.stats.numInserts++;
-            provider.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
+//            provider.delete(Contract.UpvoteLog.UPVOTE_URI, null, null);
         }
+    }
+    private String createCursorFilter(JSONObject serverData) throws JSONException {
+        String cursorFilter = Contract.Entry.COLUMN_PENDINGFLAG + " = -1";
+        if (serverData.getJSONObject("meta").has("nearby_admins")) {
+            String rawString = serverData.getJSONObject("meta").getString("nearby_admins");
+            cursorFilter = cursorFilter + " AND " + Utils.createCursorAdminList(rawString);
+            Utils.saveNearbyAdmins(mContext, rawString);
+        } else if (Utils.getSelectedAdminId(this.getContext()) != -1) {
+            cursorFilter += " AND " + Contract.Entry.COLUMN_ADMIN_ID + " = " + Utils.getSelectedAdminId(this.getContext());
+        }
+        return cursorFilter;
+    }
+
+    private void sanityCheck(JSONObject serverData, ContentProviderClient provider, SyncResult syncResult) throws
+            IOException, XmlPullParserException, RemoteException,
+            OperationApplicationException, ParseException, JSONException {
+        syncResult.stats.numDeletes =  syncResult.stats.numInserts = syncResult.stats.numUpdates = 0;
+        if (!userHasOwnReports(serverData, provider))
+            updateLocalData(downloadReports("user"), provider, syncResult);
+
+        if (!db_Is_Sane(syncResult, serverData))
+            updateLocalData(downloadReports("all"), provider, syncResult);
+    }
+    private boolean db_Is_Sane(SyncResult syncResult, JSONObject serverData) throws JSONException {
+        long totalCount = syncResult.stats.numEntries + syncResult.stats.numInserts - syncResult.stats.numDeletes;
+        Log.v(TAG, "Cursor: " + totalCount + " Server Actual: " + serverData.getJSONObject("meta").getLong("actual_total"));
+        if (totalCount == serverData.getJSONObject("meta").getLong("actual_total"))
+            return true;
+        return false;
+    }
+    private boolean userHasOwnReports(JSONObject serverData, ContentProviderClient provider) throws JSONException, RemoteException {
+        Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection, Contract.Entry.COLUMN_USERID + " = " + Utils.getUserId(this.getContext()), null, null);
+        if (c.moveToFirst()) {
+            int userReportCount = c.getCount();
+            c.close();
+            if (!serverData.getJSONObject("meta").has("user_report_count") || serverData.getJSONObject("meta").getLong("user_report_count") <= userReportCount)
+                return true;
+        }
+        return false;
+    }
+
+    private HashMap<Integer, Report> createReportMap(JSONObject serverData) throws JSONException {
+        JSONArray reports = serverData.getJSONArray("objects");
+        String rawUpvoteList = "";
+        if (serverData.getJSONObject("meta").has("user_upvotes"))
+            rawUpvoteList = serverData.getJSONObject("meta").getString("user_upvotes");
+        HashMap<Integer, Report> map = new HashMap<>();
+        for (int i = 0; i < reports.length(); i++) {
+            Report report = new Report(reports.getJSONObject(i), -1, Utils.toStringList(rawUpvoteList));
+            map.put(report.serverId, report);
+        }
+        return map;
     }
 
     private JSONObject addNewUpvotes(JSONObject fetchRequest, ContentProviderClient provider) throws RemoteException, OperationApplicationException, JSONException {
@@ -170,8 +186,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void syncFromServer(ContentProviderClient provider, SyncResult syncResult) {
         try {
-//            updatePlaces(provider);
-            JSONObject reports = downloadReports(false);
+            updatePlaces(provider);
+            JSONObject reports = downloadReports("normal");
             if (reports != null)
                 updateLocalData(reports, provider, syncResult);
             else // TODO : handle null location errors, which will occur first time user opens app

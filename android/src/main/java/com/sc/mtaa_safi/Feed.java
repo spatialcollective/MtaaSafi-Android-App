@@ -18,7 +18,8 @@ public class Feed { // Singleton for keeping track of feed state
                                 SORT_UPVOTES = Contract.Entry.COLUMN_UPVOTE_COUNT + " DESC",
                                 LOAD_ALL = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0,
                                 LOAD_USER = Contract.Entry.COLUMN_USERID  + " == ",
-                                LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ";
+                                LOAD_ADMIN = Contract.Entry.COLUMN_ADMIN_ID  + " == ",
+                                LOAD_NEARBY_ADMINS = Contract.Entry.COLUMN_ADMIN_ID  + " IN(";
     public String feedContent = Contract.Entry.COLUMN_PENDINGFLAG  + " < " + 0;
     public int index = 0, top = 0, navIndex = 0, navPos = 0;
     public CharSequence title;
