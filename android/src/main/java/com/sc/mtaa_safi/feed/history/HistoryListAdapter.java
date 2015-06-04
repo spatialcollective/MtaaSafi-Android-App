@@ -120,7 +120,10 @@ public class HistoryListAdapter extends BaseExpandableListAdapter {
         }
         for (int i = 0; i < reportHistoryArray.length() ; i++) {
             JSONObject j = (JSONObject) reportHistoryArray.get(i);
-            reportHistoryString.add(j.getString("event")+" with status "+statusArray[j.getInt("status")]+" - "+Utils.getElapsedTime(j.getLong("timestamp")));
+            if (i==reportHistoryArray.length()-1)
+                reportHistoryString.add(j.getString("event")+" with status "+statusArray[j.getInt("status")]+" - "+Utils.getElapsedTime(j.getLong("timestamp")));
+            else
+                reportHistoryString.add(j.getString("event")+" to "+statusArray[j.getInt("status")]+" - "+Utils.getElapsedTime(j.getLong("timestamp")));
         }
         return reportHistoryString;
     }
