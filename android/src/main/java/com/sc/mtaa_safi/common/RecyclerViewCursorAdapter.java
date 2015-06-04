@@ -1,4 +1,4 @@
-package com.sc.mtaa_safi;
+package com.sc.mtaa_safi.common;
 
 import android.content.Context;
 import android.database.Cursor;

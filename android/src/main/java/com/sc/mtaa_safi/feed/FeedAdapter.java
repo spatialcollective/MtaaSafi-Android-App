@@ -2,10 +2,7 @@ package com.sc.mtaa_safi.feed;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +12,12 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
+import com.sc.mtaa_safi.common.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.squareup.picasso.Picasso;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolder> {

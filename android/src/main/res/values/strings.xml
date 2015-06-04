@@ -63,7 +63,8 @@
     <string name="reports_url">http://app.spatialcollective.com/mtaasafi/v1/report/?format=json&amp;limit=0</string>
     <string name="feed_details">http://app.spatialcollective.com/mtaasafi/fetch_report_details/</string>
     <string name="base_write">http://app.spatialcollective.com/mtaasafi/add_post</string>
-    <string name="send_comment">http://app.spatialcollective.com/mtaasafi/post_comment/</string>
+    <string name="send_comments">http://app.spatialcollective.com/mtaasafi/post_comments/</string>
+    <string name="send_upvotes">http://app.spatialcollective.com/mtaasafi/post_upvotes/</string>
     <string name="refresh_comment">http://app.spatialcollective.com/mtaasafi/get_comments/</string>
     <string name="location_data">http://app.spatialcollective.com/mtaasafi/get_location_data/</string>
     <string name="signin">http://app.spatialcollective.com/mtaasafi/sign_in_user/</string>

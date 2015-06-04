@@ -172,7 +172,6 @@ public class Utils {
         editor.putFloat(COARSE_LAT, (float) loc.getLatitude());
         editor.putLong(COARSE_LOCATION_TIMESTAMP, loc.getTime());
         editor.commit();
-        SyncUtils.AttemptRefresh(context);
     }
     public static void saveSelectedAdmin(Context context, String name, long id) {
         SharedPreferences.Editor editor = getSharedPrefs(context).edit();

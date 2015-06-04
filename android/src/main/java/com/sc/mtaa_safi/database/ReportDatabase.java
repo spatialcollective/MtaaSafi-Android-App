@@ -55,8 +55,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Comments.COLUMN_REPORT_ID + " integer not null, "
             + Contract.Comments.COLUMN_CONTENT + " text, "
             + Contract.Comments.COLUMN_TIMESTAMP + " long, "
-            + Contract.Comments.COLUMN_USERNAME + " text"
-        + ")";
+            + Contract.Comments.COLUMN_USERNAME + " text,"
+        + "unique (" + Contract.Comments.COLUMN_SERVER_ID + ") ON CONFLICT REPLACE)";
 
     private static final String ADMINS_TABLE_CREATE = "create table "
             + Contract.Admin.TABLE_NAME + "("

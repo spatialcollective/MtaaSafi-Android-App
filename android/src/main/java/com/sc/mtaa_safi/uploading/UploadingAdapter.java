@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import com.sc.mtaa_safi.R;
 import android.support.v7.widget.RecyclerView;
-import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
+import com.sc.mtaa_safi.common.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
