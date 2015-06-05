@@ -2,7 +2,6 @@ package com.sc.mtaa_safi.feed;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.location.Location;
@@ -14,7 +13,6 @@ import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
@@ -28,22 +26,16 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.facebook.Session;
-import com.facebook.internal.SessionTracker;
 import com.facebook.widget.FacebookDialog;
-import com.facebook.widget.WebDialog;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
-import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.comments.CommentAdapter;
 import com.sc.mtaa_safi.feed.comments.CommentLayoutManager;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
-import com.sc.mtaa_safi.feed.comments.SyncComments;
 import com.sc.mtaa_safi.feed.history.HistoryListAdapter;
 import com.sc.mtaa_safi.feed.history.SyncHistory;
 import com.squareup.picasso.Picasso;
@@ -51,7 +43,6 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -95,8 +86,6 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         else
             updateButton.setVisibility(View.GONE);
         setUpImagePager(view);
-        if (NetworkUtils.isOnline(getActivity()))
-            new SyncComments(getActivity(), mReport.serverId).execute();
         return view;
     }
 

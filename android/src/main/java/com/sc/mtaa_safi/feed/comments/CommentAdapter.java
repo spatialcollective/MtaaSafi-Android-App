@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.RecyclerViewCursorAdapter;
+import com.sc.mtaa_safi.common.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 

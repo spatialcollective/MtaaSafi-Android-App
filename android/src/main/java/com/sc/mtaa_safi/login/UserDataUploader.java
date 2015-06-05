@@ -54,7 +54,7 @@ public class UserDataUploader extends AsyncTask<Integer, Integer, Integer> {
         Log.e("UserDataUploader", String.valueOf(mUserdata));
         JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.signin), "post", mUserdata);
         Log.e("UserDataUploader", String.valueOf(response));
-        if (response != null && response.has("error") && response.getInt("error") >= 400)
+        if (response != null && response.has("error"))
             cancelSession(NETWORK_ERROR);
         return response;
     }

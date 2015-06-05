@@ -9,8 +9,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
+import com.sc.mtaa_safi.common.AsyncUploader;
 import com.sc.mtaa_safi.newReport.SafiEditText;
 
 import org.json.JSONException;
@@ -24,7 +24,7 @@ public class NewCommentLayout extends LinearLayout {
 
     public NewCommentLayout(Context context, AttributeSet attrs) { 
         super(context, attrs);
-        mComment = new Comment();
+        mComment = new Comment(context);
         mContext = context;
     }
 
@@ -68,20 +68,10 @@ public class NewCommentLayout extends LinearLayout {
 //                ((MainActivity) getContext()).getCurrentFocus().getWindowToken(),
 //                InputMethodManager.HIDE_NOT_ALWAYS);
         mSendButton.setText("Sending");
-        if (NetworkUtils.isOnline(getContext()) && !mComment.mText.isEmpty())
-            new SyncComments(getContext(), mComment, this).execute();
-        else // tell user she must be online to send
-            mSendButton.setEnabled(true);
-    }
-
-    public void onSuccessfulSend() {
+        if (!mComment.mText.isEmpty())
+            new AsyncUploader(getContext(), mComment).execute();
+        mSendButton.setEnabled(true);
         mSendButton.setText("Send");
         mEditText.setText("");
-        mSendButton.setEnabled(true);
-    }
-
-    public void onSendFailure() {
-        mSendButton.setText("Send");
-        mSendButton.setEnabled(true);
     }
 }

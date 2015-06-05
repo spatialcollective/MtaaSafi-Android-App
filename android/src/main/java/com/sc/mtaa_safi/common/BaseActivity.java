@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.sc.mtaa_safi.MtaaLocationService;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.RegisterWithGcm;
 import com.sc.mtaa_safi.SystemUtils.Utils;

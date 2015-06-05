@@ -1,7 +1,6 @@
 package com.sc.mtaa_safi;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -14,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.comments.Comment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,11 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 public class Report {
     private Gson gson = new Gson();
@@ -141,36 +137,55 @@ public class Report {
             media = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), type);
     }
 
-    public Report(JSONObject jsonData, int pending, ArrayList<String> voteList) throws JSONException {
+    public Report(JSONObject jsonData, int pending, ArrayList<String> voteList, Context context) throws JSONException {
+        getBasicData(jsonData);
+        getUserData(jsonData);
+        getUpvoteData(jsonData, voteList);
+        getLocationData(jsonData);
+        pendingState = pending;
+        addMedia(jsonData);
+        addComments(jsonData, context);
+    }
+    private void getBasicData(JSONObject jsonData) throws JSONException {
         serverId = jsonData.getInt("id");
         description = jsonData.getString(Contract.Entry.COLUMN_DESCRIPTION);
         placeDescript = jsonData.getString(Contract.Entry.COLUMN_PLACE_DESCRIPT);
         status = jsonData.getInt(Contract.Entry.COLUMN_STATUS);
         timeStamp = jsonData.getLong(Contract.Entry.COLUMN_TIMESTAMP);
         timeElapsed = Utils.getElapsedTime(this.timeStamp);
-
         if (jsonData.has("geo_admin"))
             adminId = jsonData.getJSONObject("geo_admin").getInt("id");
-        userName = jsonData.getJSONObject("owner").getString(Contract.Entry.COLUMN_USERNAME);
-        userId = jsonData.getJSONObject("owner").getInt("id");
         if (jsonData.has(Contract.Entry.COLUMN_PARENT_REPORT))
             parentReportId = jsonData.getInt(Contract.Entry.COLUMN_PARENT_REPORT);
-
+    }
+    private void getUserData(JSONObject jsonData) throws JSONException {
+        userName = jsonData.getJSONObject("owner").getString(Contract.Entry.COLUMN_USERNAME);
+        userId = jsonData.getJSONObject("owner").getInt("id");
+    }
+    private void getUpvoteData(JSONObject jsonData, ArrayList<String> voteList) throws JSONException {
         upVoteCount = jsonData.getJSONArray("upvote_set").length();
         if (voteList.contains(Integer.toString(serverId)))
             upVoted = true;
         else
             upVoted = false;
-        pendingState = pending;
-
+    }
+    private void getLocationData(JSONObject jsonData) throws JSONException {
         location = new Location("ReportLocation");
         JSONArray coords = jsonData.getJSONArray("shapes").getJSONObject(0).getJSONObject("shape").getJSONArray("coordinates");
         location.setLatitude(coords.getDouble(1));
         location.setLongitude(coords.getDouble(0));
-
+    }
+    private void addMedia(JSONObject jsonData) throws JSONException {
         JSONArray mediaArray = jsonData.getJSONArray(Contract.Entry.COLUMN_MEDIA);
         for (int i = 0; i < mediaArray.length(); i++)
             media.add(mediaArray.getJSONObject(i).getInt("id") + "");
+    }
+    private void addComments(JSONObject jsonData, Context context) throws JSONException {
+        if (jsonData.has("comment_set") && jsonData.getJSONArray("comment_set").length() > 0) {
+            for (int j = 0; j < jsonData.getJSONArray("comment_set").length(); j++) {
+                new Comment(jsonData.getJSONArray("comment_set").getJSONObject(j), serverId, context).save();
+            }
+        }
     }
 
     public Uri save(Context context) {
@@ -324,13 +339,11 @@ public class Report {
         reportLocation.setLongitude(reportLng);
         return getDistanceText(currentLocation, reportLocation);
     }
-
 	public String getDistanceText(Location currentLocation) {
         if (location == null)
             return "error";
         return getDistanceText(currentLocation, location);
     }
-
     public static String getDistanceText(Location current, Location reportLoc) {
         float distInMeters = reportLoc.distanceTo(current);
         String distText;
