@@ -38,7 +38,8 @@ public class GcmIntentService extends IntentService {
         if (!extras.isEmpty()) { // has effect of unparcelling Bundle
             if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType))
                 try {
-                    sendNotification(extras.getString("msg"));
+                    if (extras.containsKey("msg") && !extras.getString("msg").isEmpty())
+                        sendNotification(extras.getString("msg"));
                 } catch (JSONException e) { e.printStackTrace(); }
 //            else if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType))
 //            else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType))
@@ -48,7 +49,7 @@ public class GcmIntentService extends IntentService {
 
     private void sendNotification(String msg) throws JSONException {
         JSONObject msg_data  = new JSONObject(msg);
-        if (msg_data.getString("type").trim().equals("new"))
+        if (msg_data.has("type") && msg_data.getString("type").trim().equals("new"))
             msg_data = updateNew(msg_data);
         else
             msg_data = updateUpdates(msg_data);

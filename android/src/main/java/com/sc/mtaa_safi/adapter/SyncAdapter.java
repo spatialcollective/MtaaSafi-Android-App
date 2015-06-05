@@ -57,10 +57,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private JSONObject downloadReports(String type) throws IOException, JSONException {
-        String args = "";
-        if (type != "all")
-            args = "&userId=" + Utils.getUserId(this.getContext());
-        if (type == "user")
+        String args = "&userId=" + Utils.getUserId(this.getContext());
+        if (type.equals("all"))
+            args += "&all=true";
+        else if (type.equals("user"))
             args += "&userOnly=true";
         else if (Utils.getSelectedAdminId(this.getContext()) == -1) {
             Location location = Utils.getCoarseLocation(this.getContext());
@@ -140,11 +140,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException, JSONException {
         syncResult.stats.numDeletes =  syncResult.stats.numInserts = syncResult.stats.numUpdates = 0;
-        if (!userHasOwnReports(serverData, provider))
-            updateLocalData(downloadReports("user"), provider, syncResult);
-
         if (!db_Is_Sane(syncResult, serverData))
             updateLocalData(downloadReports("all"), provider, syncResult);
+        if (!userHasOwnReports(serverData, provider))
+            updateLocalData(downloadReports("user"), provider, syncResult);
     }
     private boolean db_Is_Sane(SyncResult syncResult, JSONObject serverData) throws JSONException {
         long totalCount = syncResult.stats.numEntries + syncResult.stats.numInserts - syncResult.stats.numDeletes;
