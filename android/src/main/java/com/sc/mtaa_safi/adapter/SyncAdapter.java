@@ -20,6 +20,8 @@ import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
+import com.sc.mtaa_safi.feed.tags.Tag;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +56,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void updatePlaces(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
         JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data), "get", null);
         Community.addCommunities(responseJson, provider);
+    }
+
+    private void updateTags(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
+        JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.tags), "get", null);
+        Tag.addTags(responseJSON, provider);
     }
 
     private JSONObject downloadReports(String type) throws IOException, JSONException {
@@ -179,6 +186,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void syncFromServer(ContentProviderClient provider, SyncResult syncResult) {
         try {
             updatePlaces(provider);
+            updateTags(provider);
             JSONObject reports = downloadReports("normal");
             if (reports != null)
                 updateLocalData(reports, provider, syncResult);

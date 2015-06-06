@@ -13,7 +13,9 @@ import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -69,6 +71,11 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
     private JSONObject writeTextToServer() throws IOException, JSONException, NoSuchAlgorithmException {
         JSONObject report = pendingReport.getJsonRep();
         report.put("userId", Utils.getUserId(mContext));
+
+        JSONArray tags = ReportTagJunction.getReportTags(mContext, pendingReport.dbId);
+        if (tags.length() != 0)
+            report.put("tags", ReportTagJunction.getReportTags(mContext, pendingReport.dbId));
+
         JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.base_write) + "/", "post", report);
         if (response.has("error"))
             cancelSession(NETWORK_ERROR);

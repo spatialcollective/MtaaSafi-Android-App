@@ -17,7 +17,9 @@ public class ReportProvider extends ContentProvider {
                             ROUTE_UPVOTES = 7, ROUTE_UPVOTES_ID = 8,
                             ROUTE_COMMENTS = 9, ROUTE_COMMENTS_ID = 10,
                             ROUTE_ADMINS = 11, ROUTE_ADMINS_ID = 12,
-                            ROUTE_LANDMARKS = 13, ROUTE_LANDMARKS_ID = 14;
+                            ROUTE_LANDMARKS = 13, ROUTE_LANDMARKS_ID = 14,
+                            ROUTE_TAGS = 15, ROUTE_TAGS_ID = 16,
+                            ROUTE_REPORT_TAGS = 17, ROUTE_REPORT_TAGS_ID = 18;
 
     @Override
     public boolean onCreate() {
@@ -39,6 +41,10 @@ public class ReportProvider extends ContentProvider {
             sUriMatcher.addURI(AUTHORITY, "admins/*", ROUTE_ADMINS_ID);
             sUriMatcher.addURI(AUTHORITY, "landmarks", ROUTE_LANDMARKS);
             sUriMatcher.addURI(AUTHORITY, "landmarks/*", ROUTE_LANDMARKS_ID);
+            sUriMatcher.addURI(AUTHORITY, "tags", ROUTE_TAGS);
+            sUriMatcher.addURI(AUTHORITY, "tags/*", ROUTE_TAGS_ID);
+            sUriMatcher.addURI(AUTHORITY, "reporttags", ROUTE_REPORT_TAGS);
+            sUriMatcher.addURI(AUTHORITY, "reporttags/*", ROUTE_REPORT_TAGS_ID);
         }
 
     @Override
@@ -69,6 +75,14 @@ public class ReportProvider extends ContentProvider {
                 return Contract.Landmark.CONTENT_TYPE;
             case ROUTE_LANDMARKS_ID:
                 return Contract.Landmark.CONTENT_ITEM_TYPE;
+            case ROUTE_TAGS:
+                return Contract.Tag.CONTENT_TYPE;
+            case ROUTE_TAGS_ID:
+                return Contract.Tag.CONTENT_ITEM_TYPE;
+            case ROUTE_REPORT_TAGS:
+                return Contract.ReportTagJunction.CONTENT_TYPE;
+            case ROUTE_REPORT_TAGS_ID:
+                return Contract.ReportTagJunction.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -134,6 +148,23 @@ public class ReportProvider extends ContentProvider {
                 builder.table(Contract.Landmark.TABLE_NAME)
                         .where(selection, selectionArgs);
                 return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_TAGS_ID:
+                String tagId = uri.getLastPathSegment();
+                builder.where(Contract.Tag._ID + "=?", tagId);
+            case ROUTE_TAGS:
+                builder.table(Contract.Tag.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_REPORT_TAGS_ID:
+                String reportTagId = uri.getLastPathSegment();
+                builder.table(Contract.REPORTS_JOIN_TAGS)
+                        .mapToTable(Contract.Tag.COLUMN_NAME, Contract.Tag.TABLE_NAME)
+                        .where(Contract.ReportTagJunction._ID + "=?", reportTagId);
+            case ROUTE_REPORT_TAGS:
+                builder.table(Contract.REPORTS_JOIN_TAGS)
+                        .mapToTable(Contract.Tag.COLUMN_NAME, Contract.Tag.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -188,6 +219,18 @@ public class ReportProvider extends ContentProvider {
                 break;
             case ROUTE_LANDMARKS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: " +uri);
+            case ROUTE_TAGS:
+                long tagId = db.insertOrThrow(Contract.Tag.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI +"/"+ tagId);
+                break;
+            case ROUTE_TAGS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+ uri);
+            case ROUTE_REPORT_TAGS:
+                long reportTagId = db.insertOrThrow(Contract.ReportTagJunction.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI+"/"+reportTagId);
+                break;
+            case ROUTE_REPORT_TAGS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }

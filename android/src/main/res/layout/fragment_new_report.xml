@@ -70,6 +70,8 @@
                 android:textSize="20sp"
                 android:completionThreshold="1"
                 android:background="@drawable/safi_text_background"
+
+                android:hint="@string/get_tags"
                 />
 
             <LinearLayout android:id="@+id/landmarkLayout"

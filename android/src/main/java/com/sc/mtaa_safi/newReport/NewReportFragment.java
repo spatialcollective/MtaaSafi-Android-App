@@ -7,8 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -25,9 +23,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
@@ -36,14 +34,9 @@ import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.tags.Tag;
 import com.sc.mtaa_safi.feed.tags.TagsCompletionView;
 import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
-import com.squareup.picasso.Picasso;
 import com.tokenautocomplete.TokenCompleteTextView;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class NewReportFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     SimpleCursorAdapter mAdapter;
@@ -51,10 +44,11 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
     public String detailsText = "", selectedAdmin = "", adminText = "";
     public int status = 0;
     public long selectedAdminId;
-    public Tag[] tags;
+
     public ArrayList<String> picPaths = new ArrayList<String>();
-    public ArrayAdapter<Tag> mTagAdapter;
+
     public TagsCompletionView tagsCompletionView;
+
     @Override
     public void onCreate(Bundle savedState) {
         super.onCreate(savedState);
@@ -70,18 +64,8 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         updateDetailsView();
         updatePicPreviews();
         setUpVillages();
+        setUpTags();
 
-        tags = new Tag[]{
-                new Tag("water"),
-                new Tag("sewage"),
-                new Tag("cholera")
-        };
-
-        mTagAdapter = new ArrayAdapter<Tag>(getActivity(), android.R.layout.simple_list_item_1, tags);
-        tagsCompletionView = (TagsCompletionView)getActivity().findViewById(R.id.enterTag);
-        tagsCompletionView.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Delete);
-        tagsCompletionView.setSplitChar(' ');
-        tagsCompletionView.setAdapter(mTagAdapter);
     }
 
     private void createToolbar(View view) {
@@ -106,7 +90,8 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         mAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.select_dialog_item, null,
                 Community.ADMIN_FROM, Community.ADMIN_TO, 0);
         mAdapter.setCursorToStringConverter(new SimpleCursorAdapter.CursorToStringConverter() {
-            @Override public CharSequence convertToString(Cursor cursor) {
+            @Override
+            public CharSequence convertToString(Cursor cursor) {
                 return cursor.getString(cursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME));
             }
         });
@@ -114,7 +99,10 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         AutoCompleteTextView autoComplete = (AutoCompleteTextView) getView().findViewById(R.id.enterWard);
         autoComplete.setAdapter(mAdapter);
         autoComplete.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onNothingSelected(AdapterView<?> parent) { }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Cursor c = (Cursor) mAdapter.getItem(position);
@@ -124,8 +112,14 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
             }
         });
         autoComplete.addTextChangedListener(new TextWatcher() {
-            @Override public void afterTextChanged(Editable s) { }
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adminText = s.toString().trim();
@@ -135,6 +129,33 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         });
         getLoaderManager().initLoader(0, null, this);
     }
+
+
+    private void setUpTags(){
+        Cursor cursor = getActivity().getContentResolver().query(
+                                        Contract.Tag.TAG_URI,
+                                        Tag.TAG_PROJECTION,
+                                        null, null, null);
+
+        Tag[] tags = new Tag[cursor.getCount()];
+
+        while (cursor.moveToNext())
+            tags[cursor.getPosition()] = new Tag(cursor.getString(2), cursor.getInt(0), cursor.getInt(1));
+        cursor.close();
+
+        ArrayAdapter<Tag> tagAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, tags);
+
+        tagsCompletionView = (TagsCompletionView)getActivity().findViewById(R.id.enterTag);
+        tagsCompletionView.setTokenClickStyle(TokenCompleteTextView.TokenClickStyle.Delete);
+        tagsCompletionView.setSplitChar(' ');
+        tagsCompletionView.allowCollapse(true);
+        tagsCompletionView.setTokenLimit(5);
+        tagsCompletionView.allowDuplicates(false);
+
+        tagsCompletionView.setAdapter(tagAdapter);
+
+    }
+
 
     @Override
     public void onResume(){

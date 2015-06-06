@@ -1,6 +1,7 @@
 package com.sc.mtaa_safi.newReport;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -13,10 +14,15 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.common.BaseActivity;
+import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
+import com.sc.mtaa_safi.feed.tags.Tag;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.sql.SQLException;
+import java.util.List;
 
 public class NewReportActivity extends BaseActivity {
     public final static String NEW_REPORT_TAG = "newreport";
@@ -87,14 +93,33 @@ public class NewReportActivity extends BaseActivity {
             newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths, parentReportId);
         else
             newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths);
-        return newReport.save(this);
+
+        Uri reportUri = newReport.save(this);
+
+        if (frag.tagsCompletionView.getObjects().size() != 0)
+            saveTags(frag.tagsCompletionView.getObjects(), Integer.valueOf(reportUri.getLastPathSegment()));
+
+        return reportUri;
+    }
+
+    public void saveTags(List tags, int reportId){
+        for (int i = 0; i < tags.size() ; i++) {
+            Tag tag = (Tag) tags.get(i);
+            if (tag.getServerId() == 0) {
+                try {
+                    Uri tagUri = tag.save(this);
+                    ReportTagJunction.save(this, reportId, Integer.valueOf(tagUri.getLastPathSegment()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                ReportTagJunction.save(this, reportId, tag.getId());
+            }
+        }
     }
 
     public void takePic(View view) {
         ((NewReportFragment) getSupportFragmentManager().findFragmentByTag(NEW_REPORT_TAG)).takePicture();
-        /*Intent intent = new Intent();
-        intent.setClass(this,ImageCaptureActivity.class);
-        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);*/
     }
 
     public void setStatus(View view) {

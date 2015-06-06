@@ -30,6 +30,7 @@
     <string name="report_detail_hint">Describe the problem</string>
     <string name="get_area">Which area is it in?</string>
     <string name="get_landmark">What is nearby?</string>
+    <string name="get_tags">Tags (optional)</string>
     <string name="upload_saved">Upload Saved Reports</string>
     <string name="choose_location">Choose Location</string>
     <string name="app_name">Mtaa Safi</string>
@@ -68,7 +69,7 @@
     <string name="refresh_comment">http://app.spatialcollective.com/mtaasafi/get_comments/</string>
     <string name="location_data">http://app.spatialcollective.com/mtaasafi/get_location_data/</string>
     <string name="signin">http://app.spatialcollective.com/mtaasafi/sign_in_user/</string>
-    <string name="registerId">http://staging.spatialcollective.com/gcm/v1/device/register/</string>
+    <string name="registerId">http://app.spatialcollective.com/gcm/v1/device/register/</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

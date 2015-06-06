@@ -20,6 +20,7 @@
     <string name="report_detail_hint">Describe the problem</string>
     <string name="get_area">What village or area is it in?</string>
     <string name="get_landmark">What is nearby?</string>
+    <string name="get_tags">Tags (optional)</string>
     <string name="new_post_hint">new post…</string>
     <string name="report_button_text">Send</string>
     <string name="dialog_update_failed">Failed to update feed</string>
@@ -57,5 +58,6 @@
     <string name="signin">http://staging.spatialcollective.com/mtaasafi/sign_in_user/</string>
     <string name="registerId">http://staging.spatialcollective.com/gcm/v1/device/register/</string>
     <string name="history">http://staging.spatialcollective.com/mtaasafi/get_report_history/</string>
+    <string name="tags">http://staging.spatialcollective.com/mtaasafi/v1/tag/?format=json</string>
     <string name="public_url">http://staging.spatialcollective.com/</string>
 </resources>

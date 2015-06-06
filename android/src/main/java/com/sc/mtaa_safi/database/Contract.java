@@ -14,8 +14,11 @@ public class Contract {
                                  PATH_UPVOTES = "upvotes",
                                  PATH_COMMENTS = "comments",
                                  PATH_ADMINS = "admins",
-                                 PATH_LANDMARKS = "landmarks";
+                                 PATH_LANDMARKS = "landmarks",
+                                 PATH_TAGS = "tags",
+                                PATH_REPORT_TAGS = "reporttags";
     public static String REPORTS_JOIN_LOCATIONS = "reports LEFT OUTER JOIN locations ON reports.location=locations.location_id";
+    public static String REPORTS_JOIN_TAGS = "reporttags LEFT OUTER JOIN tags on reporttags.fk_tag=tags._id ";
 
     public static class Entry implements BaseColumns {
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
@@ -95,5 +98,23 @@ public class Contract {
                 COLUMN_LONGITUDE = "longitude",
                 COLUMN_LATITUDE = "latitude",
                 COLUMN_FK_ADMIN = "fk_admin";
+    }
+
+    public static class Tag implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri TAG_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_TAGS).build();
+        public static final String TABLE_NAME = "tags",
+                COLUMN_SERVER_ID = "serverId",
+                COLUMN_NAME = "tag";
+    }
+
+    public static class ReportTagJunction implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri REPORT_TAG_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_REPORT_TAGS).build();
+        public static final String TABLE_NAME = "reporttags",
+                COLUMN_FK_REPORT = "fk_report",
+                COLUMN_FK_TAG = "fk_tag";
     }
 }

@@ -6,7 +6,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 29;
+
+    private static final int DATABASE_VERSION = 30;
+
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
             + Contract.Entry.TABLE_NAME + "("
@@ -74,6 +76,20 @@ public class ReportDatabase extends SQLiteOpenHelper {
                 + " FOREIGN KEY (" + Contract.Landmark.COLUMN_FK_ADMIN
                 + ") REFERENCES admins(" + Contract.Admin._ID + ")"
         + ")";
+
+    private static final String TAGS_TABLE_CREATE = "create table "
+            + Contract.Tag.TABLE_NAME + "("
+            + Contract.Tag._ID + " integer primary key autoincrement, "
+            + Contract.Tag.COLUMN_SERVER_ID + " integer, "
+            +Contract.Tag.COLUMN_NAME + " text unique "
+        +")";
+
+    private static final String REPORT_TAG_TABLE_CREATE = "create table "
+            + Contract.ReportTagJunction.TABLE_NAME + "("
+            + Contract.ReportTagJunction._ID  + " integer primary key autoincrement, "
+            + Contract.ReportTagJunction.COLUMN_FK_REPORT + " integer, "
+            + Contract.ReportTagJunction.COLUMN_FK_TAG + " integer "
+        +")";
             
     public ReportDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -87,6 +103,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
         database.execSQL(COMMENT_TABLE_CREATE);
         database.execSQL(ADMINS_TABLE_CREATE);
         database.execSQL(LANDMARKS_TABLE_CREATE);
+        database.execSQL(TAGS_TABLE_CREATE);
+        database.execSQL(REPORT_TAG_TABLE_CREATE);
     }
 
     @Override
@@ -98,6 +116,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Comments.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Admin.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Landmark.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.Tag.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.ReportTagJunction.TABLE_NAME);
         onCreate(db);
     }
 }

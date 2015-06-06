@@ -13,7 +13,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+
 import com.sc.mtaa_safi.feed.comments.Comment;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,6 +81,7 @@ public class Report {
         this.userId = userId;
         this.location = newLocation;
         this.media = picPaths;
+
     }
 
     public Report(Bundle bundle) {
