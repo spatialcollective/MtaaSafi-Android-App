@@ -69,7 +69,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             args += "&all=true";
         else if (type.equals("user"))
             args += "&userOnly=true";
-        else if (Utils.getSelectedAdminId(this.getContext()) == -1) {
+        if (Utils.getSelectedAdminId(this.getContext()) == -1) {
             Location location = Utils.getCoarseLocation(this.getContext());
             if (location != null && location.getTime() != 0)
                 args += "&lng=" + location.getLongitude() + "&lat=" + location.getLatitude();
