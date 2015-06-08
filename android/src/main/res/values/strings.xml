@@ -70,6 +70,8 @@
     <string name="location_data">http://app.spatialcollective.com/mtaasafi/get_location_data/</string>
     <string name="signin">http://app.spatialcollective.com/mtaasafi/sign_in_user/</string>
     <string name="registerId">http://app.spatialcollective.com/gcm/v1/device/register/</string>
+    <string name="tags">http://staging.spatialcollective.com/mtaasafi/v1/tag/?format=json</string>
+    <string name="history">http://staging.spatialcollective.com/mtaasafi/get_report_history/</string>
     <string name="title_activity_login">LoginActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
