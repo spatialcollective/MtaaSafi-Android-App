@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 public class ReportUploadingFragment extends Fragment
@@ -186,6 +187,7 @@ public class ReportUploadingFragment extends Fragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
+        Utils.saveSavedReportCount(getActivity(), cursor.getCount());
         pendingReportCount = mAdapter.getItemCount() + inProgressIndex - 1;
         boolean shouldAutoStart = uploader == null || uploader.canceller == uploader.DELETE_BUTTON;
         if (pendingReportCount > (inProgressIndex - 1) && shouldAutoStart)
