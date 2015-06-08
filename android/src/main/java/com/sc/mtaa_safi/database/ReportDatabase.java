@@ -29,7 +29,8 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.Entry.COLUMN_UPLOAD_IN_PROGRESS + " integer default 0, "
             + Contract.Entry.COLUMN_PARENT_REPORT + " integer default 0, "
             + "FOREIGN KEY (" + Contract.Entry.COLUMN_LOCATION + ") "
-            + "REFERENCES " + Contract.MtaaLocation.TABLE_NAME + "(" + Contract.MtaaLocation._ID + ")"
+            + "REFERENCES " + Contract.MtaaLocation.TABLE_NAME + "(" + Contract.MtaaLocation._ID + "),"
+            + "unique (" + Contract.Entry.COLUMN_SERVER_ID + ") ON CONFLICT REPLACE"
         + ")";
 
     private static final String LOCATION_TABLE_CREATE = "create table "
