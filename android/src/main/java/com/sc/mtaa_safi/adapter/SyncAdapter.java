@@ -17,6 +17,7 @@ import com.sc.mtaa_safi.Community;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.comments.Comment;
@@ -54,12 +55,13 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void updatePlaces(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
-        JSONObject responseJson = NetworkUtils.makeRequest(this.getContext().getString(R.string.location_data), "get", null);
+        JSONObject responseJson = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.LOCATION_GET_URL), "get", null);
         Community.addCommunities(responseJson, provider);
     }
 
     private void updateTags(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
-        JSONObject responseJSON = NetworkUtils.makeRequest(this.getContext().getString(R.string.tags), "get", null);
+
+        JSONObject responseJSON = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.TAG_GET_URL), "get", null);
         Tag.addTags(responseJSON, provider);
     }
 
@@ -79,7 +81,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private JSONObject contactServer(String whichReports) throws IOException, JSONException {
-        return NetworkUtils.makeRequest(this.getContext().getString(R.string.reports_url) + whichReports, "get", null);
+        return NetworkUtils.makeRequest(URLConstants.buildURL(this.getContext(), URLConstants.REPORT_GET_URL + whichReports), "get", null);
     }
 
     public void updateLocalData(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult)

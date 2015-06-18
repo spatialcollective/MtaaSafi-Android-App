@@ -11,6 +11,7 @@ import android.util.Log;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
@@ -76,14 +77,14 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
         if (tags.length() != 0)
             report.put("tags", ReportTagJunction.getReportTags(mContext, pendingReport.dbId));
 
-        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.base_write) + "/", "post", report);
+        JSONObject response = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.REPORT_POST_URL), "post", report);
         if (response.has("error"))
             cancelSession(NETWORK_ERROR);
         return response;
     }
 
     private JSONObject writePicToServer() throws IOException, JSONException {
-        String urlString = mContext.getString(R.string.base_write) + "_from_stream/" + pendingReport.serverId + "/" + screenW + "/";
+        String urlString = URLConstants.buildURL(mContext, URLConstants.REPORT_STREAM_URL + pendingReport.serverId + "/" + screenW + "/");
         byte[] data = pendingReport.getBytesForPic(pendingReport.pendingState - 1);
         return NetworkUtils.streamRequest(urlString, data);
     }

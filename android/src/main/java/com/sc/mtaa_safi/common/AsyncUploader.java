@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.Vote;
 import com.sc.mtaa_safi.database.Contract;
@@ -56,7 +57,8 @@ public class AsyncUploader extends AsyncTask<JSONObject, Integer, Integer> {
     private void sendUpvotes() throws RemoteException, OperationApplicationException, JSONException, IOException {
         Cursor upvoteLog = mContext.getContentResolver().query(Contract.UpvoteLog.UPVOTE_URI, null, null, null, null);
         if (upvoteLog.getCount() > 0) {
-            JSONObject response = send(mContext.getString(R.string.send_upvotes), upvoteLog, "votes");
+
+            JSONObject response = send(URLConstants.buildURL(mContext, URLConstants.UPVOTE_POST_URL), upvoteLog, "votes");
             if (response.has("error"))
                 cancelSession(NETWORK_ERROR);
             else
@@ -68,7 +70,8 @@ public class AsyncUploader extends AsyncTask<JSONObject, Integer, Integer> {
     private void sendComments() throws RemoteException, OperationApplicationException, JSONException, IOException {
         Cursor unsentComments = mContext.getContentResolver().query(Contract.Comments.COMMENTS_URI, Comment.PROJECTION, Contract.Comments.COLUMN_SERVER_ID + " = -1", null, null);
         if (unsentComments.getCount() > 0) {
-            JSONObject response = send(mContext.getString(R.string.send_comments), unsentComments, "comments");
+
+            JSONObject response = send(URLConstants.buildURL(mContext, URLConstants.COMMENT_POST_URL), unsentComments, "comments");
             if (response.has("error"))
                 cancelSession(NETWORK_ERROR);
             else

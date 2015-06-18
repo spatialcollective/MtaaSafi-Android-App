@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 
 import org.json.JSONException;
@@ -41,7 +42,7 @@ public class SyncHistory extends AsyncTask<Void, Integer, JSONObject> {
     }
 
     private JSONObject getReportHistory() throws IOException, JSONException {
-        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.history) + mReportId + "/", "get", null);
+        JSONObject response = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.HISTORY_GET_URL+ mReportId + "/"), "get", null);
         if (response.has("error") && response.getInt("error") >= 400)
             cancelSession(NETWORK_ERROR);
         return response;

@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.URLConstants;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +39,7 @@ public class SyncTags extends AsyncTask<Void, Integer, JSONObject>{
     }
 
     private JSONObject getTags() throws IOException, JSONException{
-        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.tags), "get", null);
+        JSONObject response = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.TAG_GET_URL), "get", null);
         if (response.has("error") && response.getInt("error") >= 400)
             cancelSession(NETWORK_ERROR);
         return  response;

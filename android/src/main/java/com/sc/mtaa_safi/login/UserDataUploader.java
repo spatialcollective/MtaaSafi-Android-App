@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
+import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 
 import org.json.JSONException;
@@ -52,7 +53,8 @@ public class UserDataUploader extends AsyncTask<Integer, Integer, Integer> {
 
     private JSONObject sendToServer() throws IOException, JSONException, NoSuchAlgorithmException {
         Log.e("UserDataUploader", String.valueOf(mUserdata));
-        JSONObject response = NetworkUtils.makeRequest(mContext.getString(R.string.signin), "post", mUserdata);
+
+        JSONObject response = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.SIGN_IN_URL), "post", mUserdata);
         Log.e("UserDataUploader", String.valueOf(response));
         if (response != null && response.has("error"))
             cancelSession(NETWORK_ERROR);
