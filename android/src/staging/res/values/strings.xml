@@ -49,6 +49,6 @@
     <string name="base_url">http://staging.spatialcollective.com/mtaasafi/</string>
     <string name="public_url">http://staging.spatialcollective.com/</string>
     <string name="registerId">http://staging.spatialcollective.com/gcm/v1/device/register/</string>
-    
+
 
 </resources>
