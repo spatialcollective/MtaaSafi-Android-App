@@ -90,7 +90,7 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
         acceptButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra(IMAGE_FILE_NAME, sdRoot.getPath()+dir+fileName);
+                intent.putExtra(IMAGE_FILE_NAME, sdRoot.getPath() + dir + fileName);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -137,7 +137,7 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
     }
 
     private boolean checkCameraHardware(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
     private boolean checkSDCard() {
@@ -185,7 +185,7 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
 
-            try {
+            /*try {
                 Log.e(TAG, "Captured orientation: "+String.valueOf(orientation));
                 exif = new ExifInterface("/sdcard/" + dir + fileName);
                 exif.setAttribute(ExifInterface.TAG_ORIENTATION, "" + orientation);
@@ -193,7 +193,7 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
                 Log.i(TAG, "Saved orientation: "+exif.getAttribute(ExifInterface.TAG_ORIENTATION));
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
 
         }
     };
@@ -206,19 +206,20 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
                 if (event.values[0] < 4 && event.values[0] > -4) {
                     if (event.values[1] > 0 && orientation != ExifInterface.ORIENTATION_ROTATE_90) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_90;
-
+                        changeDisplayOrientation(90);
                     } else if (event.values[1] < 0 && orientation != ExifInterface.ORIENTATION_ROTATE_270) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_270;
+                        changeDisplayOrientation(270);
                     }
                 } else if (event.values[1] < 4 && event.values[1] > -4) {
                     if (event.values[0] > 0 && orientation != ExifInterface.ORIENTATION_NORMAL) {
                         orientation = ExifInterface.ORIENTATION_NORMAL;
-
+                        changeDisplayOrientation(0);
                     } else if (event.values[0] < 0 && orientation != ExifInterface.ORIENTATION_ROTATE_180) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_180;
+                        changeDisplayOrientation(180);
                     }
                 }
-
             }
         }
     }
@@ -248,8 +249,18 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
 
         if (bestcs != null)
             params.setPictureSize(bestcs.width, bestcs.height);
-
         mCamera.setDisplayOrientation(90);
+        Log.wtf(TAG, "current orientation: " + getResources().getConfiguration().orientation);
         mCamera.setParameters(params);
+    }
+
+    private void changeDisplayOrientation(int degrees){
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            Camera.Parameters params = mCamera.getParameters();
+            params.setRotation(degrees);
+            mCamera.setParameters(params);
+            mCamera.startPreview();
+        }
     }
 }
