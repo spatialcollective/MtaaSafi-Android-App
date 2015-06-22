@@ -194,7 +194,7 @@ public class ImageCaptureActivity extends Activity implements SensorEventListene
         synchronized (this) {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 if (event.values[0] < 4 && event.values[0] > -4) {
-                    if (event.values[1] > 0 && + != ExifInterface.ORIENTATION_ROTATE_90) {
+                    if (event.values[1] > 0 && orientation != ExifInterface.ORIENTATION_ROTATE_90) {
                         orientation = ExifInterface.ORIENTATION_ROTATE_90;
                         changeDisplayOrientation(90);
                     } else if (event.values[1] < 0 && orientation != ExifInterface.ORIENTATION_ROTATE_270) {
