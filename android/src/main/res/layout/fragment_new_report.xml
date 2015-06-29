@@ -49,18 +49,6 @@
                 android:paddingTop="24dp"
                 android:paddingBottom="16dp"/>
 
-            <AutoCompleteTextView android:id="@+id/enterWard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="28dp"
-                android:paddingBottom="16dp"
-                android:textSize="20sp"
-                android:completionThreshold="1"
-                android:background="@drawable/safi_text_background"
-                android:hint="@string/get_area"
-                android:singleLine="true"
-                android:imeOptions="actionDone" />
-
             <com.sc.mtaa_safi.feed.tags.TagsCompletionView
                 android:id="@+id/enterTag"
                 android:layout_width="match_parent"

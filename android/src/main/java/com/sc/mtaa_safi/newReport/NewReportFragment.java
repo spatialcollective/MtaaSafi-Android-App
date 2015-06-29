@@ -41,7 +41,7 @@ import java.util.ArrayList;
 public class NewReportFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     SimpleCursorAdapter mAdapter;
     public static final int REQUEST_IMAGE_CAPTURE = 1, MAX_PIC_COUNT = 3;
-    public String detailsText = "", selectedAdmin = "", adminText = "";
+    public String detailsText = "", selectedAdmin = "";
     public int status = 0;
     public long selectedAdminId;
 
@@ -93,38 +93,6 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public CharSequence convertToString(Cursor cursor) {
                 return cursor.getString(cursor.getColumnIndexOrThrow(Contract.Admin.COLUMN_NAME));
-            }
-        });
-
-        AutoCompleteTextView autoComplete = (AutoCompleteTextView) getView().findViewById(R.id.enterWard);
-        autoComplete.setAdapter(mAdapter);
-        autoComplete.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Cursor c = (Cursor) mAdapter.getItem(position);
-                selectedAdminId = id;
-                selectedAdmin = c.getString(c.getColumnIndex(Contract.Admin.COLUMN_NAME));
-                c.close();
-            }
-        });
-        autoComplete.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adminText = s.toString().trim();
-                if (!adminText.isEmpty())
-                    attemptEnableSendSave();
             }
         });
         getLoaderManager().initLoader(0, null, this);
@@ -245,7 +213,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         View view = getView();
         if (view == null)
             return;
-        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty() || adminText == null || adminText.isEmpty()) {
+        if (detailsText.isEmpty() || picPaths == null || picPaths.isEmpty()) {
             view.findViewById(R.id.sendButton).setEnabled(false);
             view.findViewById(R.id.saveButton).setEnabled(false);
         } else {
