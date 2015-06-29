@@ -141,7 +141,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
     }
 
     private void updateDetails(View view) {
-        ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  ·  " + createHumanReadableTimestamp());
+        ((TextView) view.findViewById(R.id.r_meta)).setText(mReport.userName + "  \n" + createHumanReadableTimestamp());
         ((TextView) view.findViewById(R.id.r_content)).setText(mReport.description.substring(0, 1).toUpperCase() + mReport.description.substring(1));
         ((TextView) view.findViewById(R.id.itemLocation)).setText(mReport.placeDescript);
         setStatus((ImageView) view.findViewById(R.id.r_status), mReport.status);
