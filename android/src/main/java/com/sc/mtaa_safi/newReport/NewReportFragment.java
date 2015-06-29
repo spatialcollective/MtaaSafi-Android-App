@@ -23,7 +23,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -34,6 +33,7 @@ import com.sc.mtaa_safi.database.Contract;
 import com.sc.mtaa_safi.feed.tags.Tag;
 import com.sc.mtaa_safi.feed.tags.TagsCompletionView;
 import com.sc.mtaa_safi.imageCapture.ImageCaptureActivity;
+import com.squareup.picasso.Picasso;
 import com.tokenautocomplete.TokenCompleteTextView;
 
 import java.util.ArrayList;
@@ -174,9 +174,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         if (picPaths.get(i) != null) {
             ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
             thumb.setVisibility(View.VISIBLE);
-            Bitmap bitmap = getThumbnail(picPaths.get(i));
-            if (bitmap != null)
-                thumb.setImageBitmap(bitmap);
+            setThumbnailImage(picPaths.get(i), thumb);
         }
     }
 
@@ -191,19 +189,18 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
             takePic.setText(R.string.take_pic);
     }
 
-    private Bitmap getThumbnail(String picPath) {
+    private void setThumbnailImage(String picPath, ImageView thumb){
         int thumbWidth = Utils.getScreenWidth(getActivity())/3;
         Bitmap bmp = BitmapFactory.decodeFile(picPath);
         if (bmp != null) {
             int origWidth = bmp.getWidth();
             int origHeight = bmp.getHeight();
-            Log.i("NewReportFragment", "Width: "+origWidth+" Height: "+origHeight);
+            Log.i("NewReportFragment", "Width: " + origWidth + " Height: " + origHeight);
             if (origWidth > origHeight)
-                return Bitmap.createScaledBitmap(bmp, thumbWidth, (origHeight * thumbWidth) / origWidth, false);
+                Picasso.with(getActivity()).load("file://"+picPath).resize(thumbWidth, (origHeight * thumbWidth) / origWidth).into(thumb);
             else
-                return Bitmap.createScaledBitmap(bmp, (origWidth * thumbWidth) / origHeight, thumbWidth, false);
+                Picasso.with(getActivity()).load("file://"+picPath).resize((origHeight * thumbWidth) / origWidth, thumbWidth).into(thumb);
         }
-        return null;
     }
 
     private void updateDetailsView() {
@@ -235,7 +232,7 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         if (resultCode == Activity.RESULT_OK) {
             Bundle bundle = data.getExtras();
             Uri fileUri = Uri.parse(bundle.getString("IMAGE_FILE_NAME"));
-//            Toast.makeText(getActivity(), "Image saved to:"+ fileUri.getPath(), Toast.LENGTH_LONG).show();
+            Log.e("NewReportFragment", "Image saved to:" + fileUri.getPath());
 
             picPaths.add(fileUri.getPath());
 
