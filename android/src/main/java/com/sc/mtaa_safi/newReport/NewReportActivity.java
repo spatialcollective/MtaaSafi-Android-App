@@ -94,7 +94,7 @@ public class NewReportActivity extends BaseActivity {
         else
             newReport = new Report(frag.detailsText, frag.status, Utils.getUserName(this), Utils.getUserId(this), getLocation(), frag.picPaths);
 
-        Uri reportUri = newReport.save(this);
+        Uri reportUri = newReport.save(this, true);
 
         if (frag.tagsCompletionView.getObjects().size() != 0)
             saveTags(frag.tagsCompletionView.getObjects(), Integer.valueOf(reportUri.getLastPathSegment()));

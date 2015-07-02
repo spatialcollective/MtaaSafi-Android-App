@@ -4,8 +4,11 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentProviderClient;
+import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
@@ -13,11 +16,14 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.sc.mtaa_safi.R;
+import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.feed.MainActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class GcmIntentService extends IntentService {
     public static final int REPORT_UPDATE = 1, NEW_REPORT = 2, 
@@ -96,7 +102,10 @@ public class GcmIntentService extends IntentService {
     }
 
     private JSONObject updateNew(JSONObject msg_data) throws JSONException {
-        SyncUtils.AttemptRefresh(this);
+        //SyncUtils.AttemptRefresh(this);
+        Report report = new Report(msg_data.getJSONObject("data"), -1, new ArrayList<String>(), getBaseContext());
+        report.save(getBaseContext(), false);
+
         notificationType = NEW_REPORT;
         if (!new_message.isEmpty())
             new_message += " | ";

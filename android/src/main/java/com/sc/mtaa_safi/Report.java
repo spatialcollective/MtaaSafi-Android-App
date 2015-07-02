@@ -191,8 +191,9 @@ public class Report {
         }
     }
 
-    public Uri save(Context context) {
-        Utils.saveSavedReportCount(context, Utils.getSavedReportCount(context) + 1);
+    public Uri save(Context context, boolean created) {
+        if (created)
+            Utils.saveSavedReportCount(context, Utils.getSavedReportCount(context) + 1);
         Uri locUri = context.getContentResolver().insert(Contract.MtaaLocation.LOCATION_URI, getLocationContentValues());
         long locId = Integer.valueOf(locUri.getLastPathSegment());
         ContentValues cv = getContentValues();
