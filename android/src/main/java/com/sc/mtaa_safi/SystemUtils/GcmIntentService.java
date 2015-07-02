@@ -19,6 +19,7 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.feed.MainActivity;
+import com.sc.mtaa_safi.feed.comments.Comment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,8 +73,10 @@ public class GcmIntentService extends IntentService {
         if (!update_message.isEmpty())
             update_message += " | ";
         update_message += msg_data.getString("message");
-        if (msg_data.getString("type").trim().equals("comment"))
+        if (msg_data.getString("type").trim().equals("comment")) {
             numComments++;
+            new Comment(msg_data.getJSONObject("data"), msg_data.getInt("reportId"), getBaseContext()).save();
+        }
         if (msg_data.getString("type").trim().equals("upvote"))
             numUpvotes++;
         if (numComments + numUpvotes <= 1)
