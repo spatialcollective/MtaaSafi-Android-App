@@ -142,7 +142,10 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
         if (picPaths.get(i) != null) {
             ImageView thumb = (ImageView) ((LinearLayout) getView().findViewById(R.id.pic_previews)).getChildAt(i);
             thumb.setVisibility(View.VISIBLE);
-            setThumbnailImage(picPaths.get(i), thumb);
+            //setThumbnailImage(picPaths.get(i), thumb);
+            Bitmap bitmap = getThumbnail(picPaths.get(i));
+            if (bitmap != null)
+                thumb.setImageBitmap(bitmap);
         }
     }
 
@@ -169,6 +172,21 @@ public class NewReportFragment extends Fragment implements LoaderManager.LoaderC
             else
                 Picasso.with(getActivity()).load("file://"+picPath).resize((origHeight * thumbWidth) / origWidth, thumbWidth).into(thumb);
         }
+    }
+
+    private Bitmap getThumbnail(String picPath) {
+        int thumbWidth = Utils.getScreenWidth(getActivity())/3;
+        Bitmap bmp = BitmapFactory.decodeFile(picPath);
+        if (bmp != null) {
+            int origWidth = bmp.getWidth();
+            int origHeight = bmp.getHeight();
+            Log.i("NewReportFragment", "Width: "+origWidth+" Height: "+origHeight);
+            if (origWidth > origHeight)
+                return Bitmap.createScaledBitmap(bmp, thumbWidth, (origHeight * thumbWidth) / origWidth, false);
+            else
+                return Bitmap.createScaledBitmap(bmp, (origWidth * thumbWidth) / origHeight, thumbWidth, false);
+        }
+        return null;
     }
 
     private void updateDetailsView() {
