@@ -71,7 +71,9 @@
                 android:drawablePadding="8dp"
                 android:text="Report description that is "
                 android:textColor="@color/light_black"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:maxWidth="200dp"
+                android:singleLine="true" />
         </LinearLayout>
 
         <TextView android:id="@+id/itemLocation"
@@ -81,18 +83,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:maxWidth="150dp"
+            android:singleLine="true"/>
 
-            <!--<include layout="@layout/divider" />-->
+        <TextView android:id="@+id/itemDate"
+            android:text="Some Date"
+            android:textSize="14sp"
+            android:textColor="@color/DarkGray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:maxWidth="70dp"
+            android:singleLine="true"
+            />
 
-            <TextView android:id="@+id/itemDate"
-                android:text="Some Date"
-                android:textSize="14sp"
-                android:textColor="@color/DarkGray"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:ellipsize="end" />
+
         <!--<LinearLayout-->
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content"-->
