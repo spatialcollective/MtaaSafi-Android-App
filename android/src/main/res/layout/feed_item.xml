@@ -52,7 +52,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="24dp"
+            android:minHeight="21dp"
             android:orientation="horizontal">
 
             <ImageView android:id="@+id/itemStatus"
@@ -76,57 +76,73 @@
                 android:singleLine="true" />
         </LinearLayout>
 
-        <TextView android:id="@+id/itemLocation"
-            android:text="No Where Ville near Someplace"
-            android:textSize="14sp"
-            android:textColor="@color/DarkGray"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:maxWidth="150dp"
-            android:singleLine="true"/>
+            android:layout_height="wrap_content">
+            <TextView android:id="@+id/itemLocation"
+                android:text="No Where Ville near Someplace"
+                android:textSize="14sp"
+                android:textColor="@color/DarkGray"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:maxWidth="100dp"
+                android:singleLine="true"/>
 
-        <TextView android:id="@+id/itemDate"
-            android:text="Some Date"
-            android:textSize="14sp"
-            android:textColor="@color/DarkGray"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/"
+                android:textColor="@color/black"/>
+
+            <TextView android:id="@+id/itemDate"
+                android:text="Some Date"
+                android:textSize="14sp"
+                android:textColor="@color/DarkGray"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:maxWidth="100dp"
+                android:singleLine="true"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:maxWidth="70dp"
-            android:singleLine="true"
-            />
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:id="@+id/tag_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="2dp"
+                android:paddingRight="2dp"
+                android:paddingLeft="2dp"
+                android:text=""/>
+            <ImageView
+                android:id="@+id/tag_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more_grey900_24dp"/>
 
-        <!--<LinearLayout-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:minHeight="24dp"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:layout_marginBottom="8dp"-->
-            <!--android:orientation="horizontal" >-->
+            <TextView
+                android:id="@+id/comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="2dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="2dp"
+                android:text=""/>
 
-            <!--<TextView android:id="@+id/itemUser"-->
-                <!--android:text="Someone"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:minHeight="24dp"-->
-                <!--android:gravity="center_vertical"-->
-                <!--android:textSize="14sp"-->
-                <!--android:textColor="@color/DarkGray" />-->
+            <ImageView
+                android:id="@+id/comment_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_message_grey900_24dp" />
 
-            <!--<include layout="@layout/divider" />-->
-
-            <!--<TextView android:id="@+id/itemCommentCount"-->
-                <!--android:text="XX Comments"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:minHeight="24dp"-->
-                <!--android:gravity="center_vertical"-->
-                <!--android:textSize="14sp"-->
-                <!--android:textColor="@color/DarkGray" />-->
-        <!--</LinearLayout>-->
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

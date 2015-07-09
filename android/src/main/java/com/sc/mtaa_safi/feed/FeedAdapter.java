@@ -2,6 +2,7 @@ package com.sc.mtaa_safi.feed;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,11 @@ import com.sc.mtaa_safi.common.RecyclerViewCursorAdapter;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.database.ReportProvider;
+import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 
@@ -38,7 +43,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
     @Override
     public void onBindViewHolder(ViewHolder holder, Cursor c) {
         String title = c.getString(c.getColumnIndex(Contract.Entry.COLUMN_DESCRIPTION));
-        holder.mTitle.setText(title.substring(0,1).toUpperCase() + title.substring(1));
+        holder.mTitle.setText(title.substring(0, 1).toUpperCase() + title.substring(1));
         setStatus(holder.mStatus, c);
         holder.mLocation.setText(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_PLACE_DESCRIPT)));
         holder.mDate.setText(Utils.getElapsedTime(c.getLong(c.getColumnIndex(Contract.Entry.COLUMN_TIMESTAMP))));
@@ -47,7 +52,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
                 c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
-
+        setMetaData(holder, c);
         addImage(holder, c);
         setDistanceView(holder, c);
         addClick(holder, c);
@@ -93,6 +98,31 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             public void upvoteClick(VoteButton b) { upvoteList.add(b.mServerId); }; };
     }
 
+    private void setMetaData(ViewHolder holder, Cursor c){
+        int commentCount = getCommentCount(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
+        int tagCount = getTagCount(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
+        if (commentCount > 0){
+            holder.mCommentCount.setText(String.valueOf(commentCount));
+            holder.mCommentIcon.setImageResource(R.drawable.ic_message_grey600_24dp);
+        }
+        if (tagCount > 0){
+            holder.mTagCount.setText(String.valueOf(tagCount));
+            holder.mTagIcon.setImageResource(R.drawable.ic_more_grey600_24dp);
+        }
+    }
+
+    private int getCommentCount(int reportId){
+        Cursor cursor = getContext().getContentResolver().query(Contract.Comments.COMMENTS_URI, new String[]{"_id"}, Contract.Comments.COLUMN_REPORT_ID + " == " + reportId, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
+    private int getTagCount(int reportId){
+        JSONArray jsonArray = ReportTagJunction.getReportTags(getContext(), reportId);
+        return jsonArray.length();
+    }
+
     private void setDistanceView(ViewHolder holder, Cursor c) {
 //        Location currentLocation = ((MainActivity) getContext()).findLocation();
 //        if (currentLocation != null) {
@@ -113,8 +143,8 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ViewHolderClicks mListener;
-        public TextView mTitle, mLocation, mDate, mUser, mCommentCount;
-        public ImageView mLeadImage, mStatus;
+        public TextView mTitle, mLocation, mDate, mCommentCount, mTagCount;
+        public ImageView mLeadImage, mStatus, mCommentIcon, mTagIcon;
         public VoteButton mVoteButton;
 
         public static interface ViewHolderClicks {
@@ -128,10 +158,13 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             mVoteButton = (VoteButton) v.findViewById(R.id.voteInterface);
             mLocation = (TextView) v.findViewById(R.id.itemLocation);
             mDate = (TextView) v.findViewById(R.id.itemDate);
-//            mUser = (TextView) v.findViewById(R.id.itemUser);
-//            mCommentCount = (TextView) v.findViewById(R.id.itemCommentCount);
             mLeadImage = (ImageView) v.findViewById(R.id.leadImage);
             mStatus = (ImageView) v.findViewById(R.id.itemStatus);
+            mCommentCount = (TextView) v.findViewById(R.id.comment_count);
+            mTagCount = (TextView) v.findViewById(R.id.tag_count);
+            mCommentIcon = (ImageView) v.findViewById(R.id.comment_icon);
+            mTagIcon = (ImageView) v.findViewById(R.id.tag_icon);
+
             v.setOnClickListener(this);
             mVoteButton.setOnClickListener(this);
         }
