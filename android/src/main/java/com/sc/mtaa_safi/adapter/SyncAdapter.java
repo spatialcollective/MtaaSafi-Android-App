@@ -156,8 +156,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
     private boolean db_Is_Sane(SyncResult syncResult, JSONObject serverData) throws JSONException {
         long totalCount = syncResult.stats.numEntries + syncResult.stats.numInserts - syncResult.stats.numDeletes;
-        Log.v(TAG, "Cursor: " + totalCount + " Server Actual: " + serverData.getJSONObject("meta").getLong("actual_total"));
-        if (totalCount >= serverData.getJSONObject("meta").getLong("actual_total"))
+        if (!serverData.getJSONObject("meta").has("actual_total") || totalCount >= serverData.getJSONObject("meta").getLong("actual_total"))
             return true;
         return false;
     }

@@ -46,6 +46,7 @@ public class Comment {
         mServerId = c.getInt("id");
 
         mText = c.getString(Contract.Comments.COLUMN_CONTENT);
+        mUsername = c.getString(Contract.Comments.COLUMN_USERNAME);
         mReportId = c.getInt(Contract.Comments.COLUMN_REPORT_ID);
         mTimeStamp = c.getLong(Contract.Comments.COLUMN_TIMESTAMP);
         if (c.has("owner"))
@@ -97,17 +98,11 @@ public class Comment {
         return mContext.getContentResolver().insert(Contract.Comments.COMMENTS_URI, getContentValues());
     }
 
-    public Uri getUri(int id) {
-        return Uri.parse("content://com.sc.mtaa_safi/entries/" + id);
-//        return Contract.Comments.COMMENTS_URI.buildUpon().appendPath(Integer.toString(id)).build();
-    }
-
     public ContentValues getContentValues() {
         ContentValues commentValues = new ContentValues();
         commentValues.put(Contract.Comments.COLUMN_CONTENT, mText);
         commentValues.put(Contract.Comments.COLUMN_SERVER_ID, mServerId);
         commentValues.put(Contract.Comments.COLUMN_USERNAME, mUsername);
-        commentValues.put(Contract.Comments.COLUMN_CONTENT, mText);
         commentValues.put(Contract.Comments.COLUMN_TIMESTAMP, mTimeStamp);
         commentValues.put(Contract.Comments.COLUMN_REPORT_ID, mReportId);
         return commentValues;
@@ -133,14 +128,10 @@ public class Comment {
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
         c.moveToFirst();
         do {
-            int id = c.getInt(c.getColumnIndex(Contract.Comments._ID));
-            Comment match = map.get(id);
-            if (match != null) {
-                batch.add(ContentProviderOperation.newDelete(match.getUri(c.getInt(c.getColumnIndex(Contract.Comments._ID)))).build());
-                batch.add(ContentProviderOperation.newInsert(Contract.Comments.COMMENTS_URI).withValues(match.getContentValues()).build());
-            }
-        } while(c.moveToNext());
-        c.close();
+            Comment match = map.get(c.getInt(c.getColumnIndex(Contract.Comments._ID)));
+            if (match != null)
+                batch.add(ContentProviderOperation.newInsert(Contract.Comments.COMMENTS_URI).withValues(match.getContentValues()).build()); // This only works because of unique constraint in db
+        } while (c.moveToNext());
         context.getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
     }
 

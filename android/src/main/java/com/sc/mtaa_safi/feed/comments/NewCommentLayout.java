@@ -42,7 +42,7 @@ public class NewCommentLayout extends LinearLayout {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mComment.mText = s.toString();
+                mComment.mText = s.toString().trim();
                 if (mComment.mText.isEmpty())
                     mSendButton.setEnabled(false);
                 else
@@ -70,8 +70,15 @@ public class NewCommentLayout extends LinearLayout {
         mSendButton.setText("Sending");
         if (!mComment.mText.isEmpty())
             new AsyncUploader(getContext(), mComment).execute();
+        reset();
+    }
+
+    private void reset() {
         mSendButton.setEnabled(true);
         mSendButton.setText("Send");
+        int reportId = mComment.mReportId;
+        mComment = new Comment(mContext);
+        addData(reportId);
         mEditText.setText("");
     }
 }
