@@ -38,8 +38,10 @@ import com.sc.mtaa_safi.feed.comments.CommentLayoutManager;
 import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
 import com.sc.mtaa_safi.feed.history.HistoryListAdapter;
 import com.sc.mtaa_safi.feed.history.SyncHistory;
+import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -138,6 +140,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         updateDetails(view.findViewById(R.id.top_layout));
         addComments(view);
         addHistory(view);
+        addTags(view);
     }
 
     private void updateDetails(View view) {
@@ -220,6 +223,23 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
                 setUpHistoryListView(result);
             }
         }.execute();
+    }
+
+    private void addTags(View view){
+        TextView tagsTextView = (TextView) view.findViewById(R.id.tags);
+        JSONArray tags = ReportTagJunction.getReportTags(getActivity(), mReport.serverId);
+        if (tags.length() > 0){
+            tagsTextView.setVisibility(View.VISIBLE);
+            String tagsString = "";
+            for(int i = 0; i<tags.length(); i++){
+                try {
+                    tagsString += " #"+tags.get(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            tagsTextView.setText(tagsString);
+        }
     }
 
     @Override
