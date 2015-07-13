@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import com.sc.mtaa_safi.feed.comments.Comment;
+import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
+import com.sc.mtaa_safi.feed.tags.Tag;
 
 
 import org.json.JSONArray;
@@ -140,7 +143,7 @@ public class Report {
             media = gson.fromJson(c.getString(c.getColumnIndex(Contract.Entry.COLUMN_MEDIA)), type);
     }
 
-    public Report(JSONObject jsonData, int pending, ArrayList<String> voteList, Context context) throws JSONException {
+    public Report(JSONObject jsonData, int pending, ArrayList<String> voteList, Context context) throws JSONException, SQLiteConstraintException {
         getBasicData(jsonData);
         getUserData(jsonData);
         getUpvoteData(jsonData, voteList);
@@ -148,6 +151,7 @@ public class Report {
         pendingState = pending;
         addMedia(jsonData);
         addComments(jsonData, context);
+        addTags(jsonData, context);
     }
     private void getBasicData(JSONObject jsonData) throws JSONException {
         serverId = jsonData.getInt("id");
@@ -183,10 +187,17 @@ public class Report {
         for (int i = 0; i < mediaArray.length(); i++)
             media.add(mediaArray.getJSONObject(i).getInt("id") + "");
     }
-    private void addComments(JSONObject jsonData, Context context) throws JSONException {
-        if (jsonData.has("comment_set") && jsonData.getJSONArray("comment_set").length() > 0) {
-            for (int j = 0; j < jsonData.getJSONArray("comment_set").length(); j++) {
-                new Comment(jsonData.getJSONArray("comment_set").getJSONObject(j), serverId, context).save();
+    private void addComments(JSONObject jsonObject, Context context) throws JSONException {
+        if (jsonObject.has("comment_set") && jsonObject.getJSONArray("comment_set").length() > 0) {
+            for (int j = 0; j < jsonObject.getJSONArray("comment_set").length(); j++) {
+                new Comment(jsonObject.getJSONArray("comment_set").getJSONObject(j), serverId, context).save();
+            }
+        }
+    }
+    private void addTags(JSONObject jsonObject, Context context) throws JSONException, SQLiteConstraintException {
+        if (jsonObject.has("tags") && jsonObject.getJSONArray("tags").length() > 0){
+            for (int i = 0; i < jsonObject.getJSONArray("tags").length(); i++){
+                ReportTagJunction.save(context, serverId, jsonObject.getJSONArray("tags").getJSONObject(i).getInt("id"));
             }
         }
     }

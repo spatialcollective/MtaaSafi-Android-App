@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -86,7 +87,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public void updateLocalData(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult)
             throws IOException, XmlPullParserException, RemoteException,
-            OperationApplicationException, ParseException, JSONException {
+            OperationApplicationException, ParseException, JSONException, SQLiteConstraintException {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 
@@ -97,7 +98,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void updateReports(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult, ArrayList batch) throws
-            IOException, XmlPullParserException, RemoteException, OperationApplicationException, ParseException, JSONException {
+            IOException, XmlPullParserException, RemoteException, OperationApplicationException, ParseException, JSONException, SQLiteConstraintException {
 
         HashMap<Integer, Report> reportMap = createReportMap(serverData);
         Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection, createCursorFilter(serverData), null, null);
@@ -147,7 +148,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void sanityCheck(JSONObject serverData, ContentProviderClient provider, SyncResult syncResult) throws
             IOException, XmlPullParserException, RemoteException,
-            OperationApplicationException, ParseException, JSONException {
+            OperationApplicationException, ParseException, JSONException, SQLiteConstraintException {
         syncResult.stats.numDeletes =  syncResult.stats.numInserts = syncResult.stats.numUpdates = 0;
         if (!db_Is_Sane(syncResult, serverData))
             updateLocalData(downloadReports("all"), provider, syncResult);
@@ -172,7 +173,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         return false;
     }
 
-    private HashMap<Integer, Report> createReportMap(JSONObject serverData) throws JSONException {
+    private HashMap<Integer, Report> createReportMap(JSONObject serverData) throws JSONException, SQLiteConstraintException {
         JSONArray reports = serverData.getJSONArray("objects");
         String rawUpvoteList = "";
         if (serverData.getJSONObject("meta").has("user_upvotes"))
@@ -219,6 +220,8 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
             syncResult.databaseError = true;
             return;
         } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (SQLiteConstraintException e){
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();

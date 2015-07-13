@@ -52,6 +52,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         holder.mVoteButton.mReportUri = Report.getUri(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_ID)));
         holder.mVoteButton.setCheckedState(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_USER_UPVOTED)) > 0,
                 c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_UPVOTE_COUNT)), upvoteList);
+
         setMetaData(holder, c);
         addImage(holder, c);
         setDistanceView(holder, c);
@@ -101,26 +102,40 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
     private void setMetaData(ViewHolder holder, Cursor c){
         int commentCount = getCommentCount(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
         int tagCount = getTagCount(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
-        if (commentCount > 0){
-            holder.mCommentCount.setText(String.valueOf(commentCount));
+
+        if (commentCount > 0) {
             holder.mCommentIcon.setImageResource(R.drawable.ic_message_grey600_24dp);
+            holder.mCommentCount.setText(""+commentCount);
+        }else {
+            holder.mCommentIcon.setImageResource(R.drawable.ic_message_grey900_24dp);
+            holder.mCommentCount.setText("");
         }
-        if (tagCount > 0){
-            holder.mTagCount.setText(String.valueOf(tagCount));
+
+        if (tagCount > 0) {
             holder.mTagIcon.setImageResource(R.drawable.ic_more_grey600_24dp);
+            holder.mTagCount.setText(""+tagCount);
+        }else {
+            holder.mTagIcon.setImageResource(R.drawable.ic_more_grey900_24dp);
+            holder.mTagCount.setText("");
         }
     }
 
     private int getCommentCount(int reportId){
-        Cursor cursor = getContext().getContentResolver().query(Contract.Comments.COMMENTS_URI, new String[]{"_id"}, Contract.Comments.COLUMN_REPORT_ID + " == " + reportId, null, null);
+        Cursor cursor = getContext().getContentResolver().query(Contract.Comments.COMMENTS_URI,
+                new String[]{"_id"},
+                Contract.Comments.COLUMN_REPORT_ID + " == " + reportId, null, null);
         int count = cursor.getCount();
         cursor.close();
         return count;
     }
 
     private int getTagCount(int reportId){
-        JSONArray jsonArray = ReportTagJunction.getReportTags(getContext(), reportId);
-        return jsonArray.length();
+        Cursor cursor = getContext().getContentResolver().query(Contract.ReportTagJunction.REPORT_TAG_URI,
+                new String[]{ Contract.ReportTagJunction.COLUMN_FK_REPORT, Contract.Tag.COLUMN_NAME },
+                Contract.ReportTagJunction.COLUMN_FK_REPORT + " == " + reportId, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     private void setDistanceView(ViewHolder holder, Cursor c) {

@@ -78,6 +78,9 @@ public class ReportUploader extends AsyncTask<Integer, Integer, Integer> {
             report.put("tags", ReportTagJunction.getReportTags(mContext, pendingReport.dbId));
 
         JSONObject response = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.REPORT_POST_URL), "post", report);
+        Log.e("ReportUploader", "Report ID "+response.getInt("id"));
+
+        ReportTagJunction.updateReportId(mContext, pendingReport.dbId, response.getInt("id"));
         if (response.has("error"))
             cancelSession(NETWORK_ERROR);
         return response;

@@ -113,7 +113,7 @@ public class NewReportActivity extends BaseActivity {
                     e.printStackTrace();
                 }
             } else {
-                ReportTagJunction.save(this, reportId, tag.getId());
+                ReportTagJunction.save(this, reportId, tag.getServerId());
             }
         }
     }

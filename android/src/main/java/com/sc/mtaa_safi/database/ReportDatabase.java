@@ -89,7 +89,11 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.ReportTagJunction.TABLE_NAME + "("
             + Contract.ReportTagJunction._ID  + " integer primary key autoincrement, "
             + Contract.ReportTagJunction.COLUMN_FK_REPORT + " integer, "
-            + Contract.ReportTagJunction.COLUMN_FK_TAG + " integer "
+            + Contract.ReportTagJunction.COLUMN_FK_TAG + " integer, "
+            + " UNIQUE ( "
+                + Contract.ReportTagJunction.COLUMN_FK_REPORT + ", "
+                + Contract.ReportTagJunction.COLUMN_FK_TAG
+            + " ) ON CONFLICT REPLACE "
         +")";
             
     public ReportDatabase(Context context) {

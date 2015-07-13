@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
@@ -169,6 +170,7 @@ public class ReportProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
     }
+
     private Cursor buildQuery(Uri uri, SelectionBuilder builder, SQLiteDatabase db, String[] projection, String sortOrder) {
         Cursor cursor = builder.query(db, projection, sortOrder);
         Context context = getContext();
@@ -176,6 +178,7 @@ public class ReportProvider extends ContentProvider {
         cursor.setNotificationUri(context.getContentResolver(), uri);
         return cursor;
     }
+
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mDatabaseHelper.getWritableDatabase();
@@ -273,6 +276,11 @@ public class ReportProvider extends ContentProvider {
                         .where(selection, selectionArgs)
                         .update(db, values);
                 break;
+            case ROUTE_REPORT_TAGS:
+                count = builder.table(Contract.ReportTagJunction.TABLE_NAME)
+                        .where(selection, selectionArgs)
+                        .update(db, values);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -328,6 +336,7 @@ public class ReportProvider extends ContentProvider {
             default: // TODO: implement deleting comments .... eventually
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
+
         // Send broadcast to registered ContentObservers, to refresh UI.
         Context ctx = getContext();
         assert ctx != null;
