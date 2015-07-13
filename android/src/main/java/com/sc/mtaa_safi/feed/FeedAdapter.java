@@ -112,11 +112,9 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         }
 
         if (tagCount > 0) {
-            holder.mTagIcon.setImageResource(R.drawable.ic_more_grey600_24dp);
-            holder.mTagCount.setText(""+tagCount);
+            holder.mTagIcon.setImageResource(R.drawable.ic_hashtag600);
         }else {
-            holder.mTagIcon.setImageResource(R.drawable.ic_more_grey900_24dp);
-            holder.mTagCount.setText("");
+            holder.mTagIcon.setImageResource(R.drawable.ic_hashtag900);
         }
     }
 
@@ -158,7 +156,7 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public ViewHolderClicks mListener;
-        public TextView mTitle, mLocation, mDate, mCommentCount, mTagCount;
+        public TextView mTitle, mLocation, mDate, mCommentCount;
         public ImageView mLeadImage, mStatus, mCommentIcon, mTagIcon;
         public VoteButton mVoteButton;
 
@@ -176,7 +174,6 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
             mLeadImage = (ImageView) v.findViewById(R.id.leadImage);
             mStatus = (ImageView) v.findViewById(R.id.itemStatus);
             mCommentCount = (TextView) v.findViewById(R.id.comment_count);
-            mTagCount = (TextView) v.findViewById(R.id.tag_count);
             mCommentIcon = (ImageView) v.findViewById(R.id.comment_icon);
             mTagIcon = (ImageView) v.findViewById(R.id.tag_icon);
 
