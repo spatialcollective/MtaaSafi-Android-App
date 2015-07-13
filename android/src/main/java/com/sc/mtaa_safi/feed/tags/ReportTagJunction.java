@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.net.Uri;
+import android.util.Log;
 
 import com.sc.mtaa_safi.database.Contract;
 
@@ -28,7 +29,6 @@ public class ReportTagJunction {
     }
 
     public static JSONArray getReportTags(Context context, int fkReport){
-
         Cursor cursor = context.getContentResolver().query(
                 Contract.ReportTagJunction.REPORT_TAG_URI,
                 REPORT_TAG_PROJECTION,
@@ -37,5 +37,21 @@ public class ReportTagJunction {
         while (cursor.moveToNext())
             tags.put(cursor.getString(1));
         return  tags;
+    }
+
+    public static void updateReportId(Context context, int reportDbId, int reportServerId){
+        ContentValues updates = new ContentValues();
+
+        updates.put(Contract.ReportTagJunction.COLUMN_FK_REPORT, reportServerId);
+        String selectionClause = Contract.ReportTagJunction.COLUMN_FK_REPORT + " == ?";
+        String [] selectionArgs = {String.valueOf(reportDbId)};
+
+        int rowsUpdated = context.getContentResolver().update(Contract.ReportTagJunction.REPORT_TAG_URI,
+                updates,
+                selectionClause,
+                selectionArgs
+                );
+
+        Log.e("ReportTagJunction", "Rows updated "+rowsUpdated);
     }
 }

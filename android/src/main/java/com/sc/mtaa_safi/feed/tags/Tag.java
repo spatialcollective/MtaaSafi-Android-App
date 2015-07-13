@@ -46,6 +46,12 @@ public class Tag {
         this.serverId = 0;
     }
 
+    public Tag(String tagText, int serverId){
+        this.tagText = tagText;
+        this.serverId = serverId;
+
+    }
+
     public Tag(String tagText, int _id, int serverId){
         this.tagText = tagText;
         this.serverId = serverId;
@@ -69,7 +75,7 @@ public class Tag {
         return this.tagText;
     }
 
-    public Uri save(Context context) throws Exception {
+    public Uri save(Context context) throws SQLiteConstraintException {
         ContentValues contentValues = new ContentValues();
         contentValues.put(Contract.Tag.COLUMN_SERVER_ID, serverId);
         contentValues.put(Contract.Tag.COLUMN_NAME, tagText);

@@ -15,7 +15,7 @@ public final class URLConstants {
                                 UPVOTE_POST_URL = "post_upvotes/",
                                 LOCATION_GET_URL = "get_location_data/",
                                 SIGN_IN_URL = "sign_in_user/",
-                                TAG_GET_URL = "v1/tag/?format=json",
+                                TAG_GET_URL = "v1/tag/?format=json&limit=0",
                                 HISTORY_GET_URL = "get_report_history/";
 
     public static String buildURL(Context context, String endpoint){
