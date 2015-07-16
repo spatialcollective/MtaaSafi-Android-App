@@ -9,16 +9,21 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.AlertDialogFragment;
 import com.sc.mtaa_safi.SystemUtils.RegisterWithGcm;
 import com.sc.mtaa_safi.SystemUtils.Utils;
+import com.sc.mtaa_safi.settings.SettingsActivity;
 import com.sc.mtaa_safi.uploading.UploadingActivity;
 
 public abstract class BaseActivity extends ActionBarActivity implements AlertDialogFragment.AlertDialogListener {
@@ -47,6 +52,11 @@ public abstract class BaseActivity extends ActionBarActivity implements AlertDia
         bindService(new Intent(this, MtaaLocationService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+    }
     @Override
     protected void onStart() {
         super.onStart();

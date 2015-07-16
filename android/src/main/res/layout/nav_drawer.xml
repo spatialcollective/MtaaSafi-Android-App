@@ -46,7 +46,6 @@
             android:layout_alignParentEnd="true"
             layout="@layout/report_count"
             android:visibility="invisible" />
-
     </RelativeLayout>
 
     <ListView android:id="@+id/nav_list"
@@ -56,11 +55,11 @@
         android:divider="@color/transparent"
         android:choiceMode="singleChoice" />
 
-    <ImageView android:id="@+id/top_border"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/border"
-        android:visibility="invisible"/>
+    <View android:id="@+id/top_border"
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/ultraLightGrey"
+          android:visibility="invisible"/>
     
     <TextView android:id="@+id/places_toggle"
         android:layout_width="match_parent"
@@ -80,16 +79,29 @@
 
     <ListView android:id="@+id/places_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:divider="@color/transparent"
         android:choiceMode="singleChoice"
-        android:visibility="invisible" />
+        android:visibility="gone" />
 
-    <ImageView android:id="@+id/bottom_border"
+    <View android:id="@+id/bottom_border"
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/ultraLightGrey"
+          android:visibility="invisible"/>
+
+    <TextView android:id="@+id/settings_btn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/border"
-        android:visibility="invisible"/>
+        android:layout_height="48dp"
+        android:paddingLeft="16dp"
+        android:paddingEnd="16dp"
+        android:paddingRight="16dp"
+        android:text="@string/settings"
+        android:textColor="@color/textDark"
+        android:textSize="14sp"
+        android:gravity="center_vertical"
+        android:drawableLeft="@drawable/ic_settings"
+        android:drawablePadding="32dp"/>
 
 </LinearLayout>

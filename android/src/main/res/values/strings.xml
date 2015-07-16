@@ -49,6 +49,8 @@
     <string name="pull_refresh">"Pull down to refresh"</string>
     <string name="refresh_loc_fail">"Refresh failure, still retrieving location."</string>
     <string name="refresh_network_fail">"Refresh failure, no network."</string>
+    <string name="pref_notify_header">Notifications</string>
+    <string name="pref_notify">New Nearby Reports</string>
 
     <string-array name="nav_choices">
         <item>Feed</item>
@@ -66,6 +68,6 @@
     <string name="registerId">http://app.spatialcollective.com/gcm/v1/device/register/</string>
 
     <string name="title_activity_login">LoginActivity</string>
-    <string name="action_settings">Settings</string>
+    <string name="title_settings">Settings</string>
     <string name="title_activity_base">BaseActivity</string>
 </resources>

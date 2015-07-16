@@ -8,9 +8,11 @@ import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -20,6 +22,7 @@ import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.feed.MainActivity;
 import com.sc.mtaa_safi.feed.comments.Comment;
+import com.sc.mtaa_safi.settings.SettingsActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,11 +64,15 @@ public class GcmIntentService extends IntentService {
         else
             msg_data = updateUpdates(msg_data);
 
-        NotificationCompat.Builder mBuilder = buildNotification(msg_data);
-        mBuilder.setContentIntent(buildIntent(msg_data));
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        Boolean showNotifications = sharedPref.getBoolean("pref_notify_all", true);
+        if (showNotifications) {
+            NotificationCompat.Builder mBuilder = buildNotification(msg_data);
+            mBuilder.setContentIntent(buildIntent(msg_data));
 
-        mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(notificationType, mBuilder.build());
+            mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(notificationType, mBuilder.build());
+        }
     }
 
     private JSONObject updateUpdates(JSONObject msg_data) throws JSONException {
@@ -105,7 +112,6 @@ public class GcmIntentService extends IntentService {
     }
 
     private JSONObject updateNew(JSONObject msg_data) throws JSONException {
-        //SyncUtils.AttemptRefresh(this);
         Report report = new Report(msg_data.getJSONObject("data"), -1, new ArrayList<String>(), getBaseContext());
         report.save(getBaseContext(), false);
 

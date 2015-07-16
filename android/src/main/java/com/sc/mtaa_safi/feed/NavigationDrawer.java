@@ -2,6 +2,7 @@
 package com.sc.mtaa_safi.feed;
 
 import android.content.Context;
+import android.content.Intent;
 import android.opengl.Visibility;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
@@ -23,10 +24,11 @@ import com.sc.mtaa_safi.Feed;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.settings.SettingsActivity;
 
 import java.util.ArrayList;
 
-public class NavigationDrawer extends DrawerLayout implements View.OnClickListener{
+public class NavigationDrawer extends DrawerLayout implements View.OnClickListener {
     NewsFeedFragment frag;
     private NavArrayAdapter adapter;
     private ListView list;
@@ -44,6 +46,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         setDrawerListener(new ActionBarDrawerToggle(getActivity(), this, drawerToolbar, R.string.open, R.string.close));
         ((TextView) this.findViewById(R.id.user_name)).setText(Utils.getUserName(getActivity()));
         ((TextView) this.findViewById(R.id.user_email)).setText(Utils.getEmail(getActivity()));
+        this.findViewById(R.id.settings_btn).setOnClickListener(new SettingsListener());
 
         createNavList();
         addNavItems();
@@ -110,7 +113,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
     @Override
     public void onClick(View view) {
         if (VISIBLE == this.findViewById(R.id.places_list).getVisibility())
-            togglePlaces(INVISIBLE, R.drawable.ic_expand_more_grey, view);
+            togglePlaces(GONE, R.drawable.ic_expand_more_grey, view);
         else
             togglePlaces(VISIBLE, R.drawable.ic_expand_less_grey, view);
     }
@@ -171,5 +174,14 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         @Override public int getCount() { return items.size(); }
         @Override public Object getItem(int position) { return items.get(position); }
         @Override public long getItemId(int position) { return position; }
+    }
+
+    private class SettingsListener implements View.OnClickListener {
+        @Override public void onClick(View view) {
+            Intent intent = new Intent();
+            intent.setClass(getActivity(), SettingsActivity.class);
+            closeDrawer(GravityCompat.START);
+            getActivity().startActivity(intent);
+        }
     }
 }

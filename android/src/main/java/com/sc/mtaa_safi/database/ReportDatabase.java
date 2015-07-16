@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 31;
 
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "

@@ -22,6 +22,7 @@ import com.sc.mtaa_safi.login.GooglePlusActivity;
 import com.sc.mtaa_safi.login.LoginActivityListener;
 import com.sc.mtaa_safi.login.LoginManagerFragment;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
+import com.sc.mtaa_safi.settings.SettingsActivity;
 
 import io.fabric.sdk.android.Fabric;
 
