@@ -10,6 +10,9 @@ import android.widget.LinearLayout;
 import com.sc.mtaa_safi.R;
 
 public class SettingsActivity extends PreferenceActivity {
+    public static String NEW = "pref_notify_new", COMMENTS = "pref_notify_comments", VOTES = "pref_notify_votes";
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

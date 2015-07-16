@@ -4,8 +4,16 @@
         android:title="@string/pref_notify_header"
         android:key="pref_notify">
         <CheckBoxPreference
-            android:key="pref_notify_all"
-            android:title="@string/pref_notify"
+            android:key="pref_notify_new"
+            android:title="@string/pref_notify_new"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="pref_notify_comments"
+            android:title="@string/pref_notify_comments"
+            android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="pref_notify_votes"
+            android:title="@string/pref_notify_votes"
             android:defaultValue="true"/>
     </PreferenceCategory>
 </PreferenceScreen>

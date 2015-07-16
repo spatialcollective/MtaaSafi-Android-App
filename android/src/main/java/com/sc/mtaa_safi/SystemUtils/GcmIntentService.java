@@ -33,7 +33,8 @@ public class GcmIntentService extends IntentService {
     public static final int REPORT_UPDATE = 1, NEW_REPORT = 2, 
                             RESET_NEW = 3, RESET_UPDATE = 4, 
                             MULTIPLE_UPDATE = -2, MULTIPLE_NEW = -3;
-    private static final String NEW_COMMENT = " new comment", NEW_VOTE = " new upvote", YOURS = " on your reports";
+    private static final String NEW_COMMENT = " new comment", NEW_VOTE = " new upvote", YOURS = " on your reports",
+                                MSG= "msg", TYPE = "type", COMMENT = "comment", VOTE = "upvote", NEW = "new";
     private static int numComments = 0, numUpvotes = 0,  numNew = 0, notificationType = REPORT_UPDATE;
     private static String new_message = "", update_message = "";
     private NotificationManager mNotificationManager;
@@ -48,8 +49,8 @@ public class GcmIntentService extends IntentService {
         if (!extras.isEmpty()) { // has effect of unparcelling Bundle
             if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType))
                 try {
-                    if (extras.containsKey("msg") && !extras.getString("msg").isEmpty())
-                        sendNotification(extras.getString("msg"));
+                    if (extras.containsKey(MSG) && !extras.getString(MSG).isEmpty())
+                        handleNotification(extras.getString(MSG));
                 } catch (JSONException e) { e.printStackTrace(); }
 //            else if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType))
 //            else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType))
@@ -57,34 +58,44 @@ public class GcmIntentService extends IntentService {
         GcmBroadcastReceiver.completeWakefulIntent(intent); // Release the wake lock
     }
 
-    private void sendNotification(String msg) throws JSONException {
-        JSONObject msg_data  = new JSONObject(msg);
-        if (msg_data.has("type") && msg_data.getString("type").trim().equals("new"))
-            msg_data = updateNew(msg_data);
-        else
-            msg_data = updateUpdates(msg_data);
-
+    private void handleNotification(String msg) throws JSONException {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        Boolean showNotifications = sharedPref.getBoolean("pref_notify_all", true);
-        if (showNotifications) {
-            NotificationCompat.Builder mBuilder = buildNotification(msg_data);
-            mBuilder.setContentIntent(buildIntent(msg_data));
-
-            mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(notificationType, mBuilder.build());
+        JSONObject msg_data = new JSONObject(msg);
+        String type = "";
+        if (msg_data.has(TYPE))
+            type = msg_data.getString(TYPE).trim();
+        if (type.equals(NEW)) {
+            msg_data = updateNew(msg_data);
+            if (sharedPref.getBoolean(SettingsActivity.NEW, true))
+                sendNotification(msg_data);
+        } else {
+            msg_data = updateUpdates(msg_data, sharedPref);
+            if (type.equals(COMMENT) && sharedPref.getBoolean(SettingsActivity.COMMENTS, true))
+                sendNotification(msg_data);
+            if (type.equals(VOTE) && sharedPref.getBoolean(SettingsActivity.VOTES, true))
+                sendNotification(msg_data);
         }
     }
 
-    private JSONObject updateUpdates(JSONObject msg_data) throws JSONException {
+    private void sendNotification(JSONObject msg_data) throws JSONException {
+        NotificationCompat.Builder mBuilder = buildNotification(msg_data);
+        mBuilder.setContentIntent(buildIntent(msg_data));
+
+        mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(notificationType, mBuilder.build());
+    }
+
+    private JSONObject updateUpdates(JSONObject msg_data, SharedPreferences prefs) throws JSONException {
         notificationType = REPORT_UPDATE;
         if (!update_message.isEmpty())
             update_message += " | ";
         update_message += msg_data.getString("message");
-        if (msg_data.getString("type").trim().equals("comment")) {
-            numComments++;
+        if (msg_data.getString(TYPE).trim().equals(COMMENT)) {
+            if (prefs.getBoolean(SettingsActivity.COMMENTS, true))
+                numComments++;
             new Comment(msg_data.getJSONObject("data"), msg_data.getInt("reportId"), getBaseContext()).save();
         }
-        if (msg_data.getString("type").trim().equals("upvote"))
+        if (msg_data.getString(TYPE).trim().equals(VOTE) && prefs.getBoolean(SettingsActivity.COMMENTS, true))
             numUpvotes++;
         if (numComments + numUpvotes <= 1)
             return msg_data;
@@ -142,7 +153,7 @@ public class GcmIntentService extends IntentService {
 
     private NotificationCompat.Builder buildNotification(JSONObject msg_data) throws JSONException {
         int dismiss_type = RESET_UPDATE;
-        if (msg_data.getString("type").trim().equals("new"))
+        if (msg_data.getString(TYPE).trim().equals(NEW))
             dismiss_type = RESET_NEW;
         return new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.notification_logo)

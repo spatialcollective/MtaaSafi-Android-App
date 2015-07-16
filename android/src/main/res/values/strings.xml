@@ -50,7 +50,9 @@
     <string name="refresh_loc_fail">"Refresh failure, still retrieving location."</string>
     <string name="refresh_network_fail">"Refresh failure, no network."</string>
     <string name="pref_notify_header">Notifications</string>
-    <string name="pref_notify">New Nearby Reports</string>
+    <string name="pref_notify_new">New Nearby Reports</string>
+    <string name="pref_notify_comments">Comments on Your Reports</string>
+    <string name="pref_notify_votes">Votes on Your Reports</string>
 
     <string-array name="nav_choices">
         <item>Feed</item>
