@@ -26,6 +26,7 @@ public class Utils {
                                 LAT = "lat", LNG = "lon", LOCATION_TIMESTAMP = "loc_tstamp",
                                 COARSE_LAT = "c_lat", COARSE_LNG = "c_lon", COARSE_LOCATION_TIMESTAMP = "c_loc_tstamp",
                                 ADMIN = "admin", ADMIN_ID = "adminId", NEARBY_ADMINS = "nearby_admins", SAVED_REPORT_COUNT = "srcount",
+                                FEED_ERROR = "error",
                                 SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
                                 FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid",
                                 PROPERTY_REG_ID = "registration_id", PROPERTY_APP_VERSION = "appVersion",
@@ -195,6 +196,35 @@ public class Utils {
         editor.commit();
     }
 
+    public static String getFeedError(Context context) {
+        return getSharedPrefs(context).getString(FEED_ERROR, "");
+    }
+    public static void saveFeedError(Context context, String error) {
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putString(FEED_ERROR, error);
+        editor.commit();
+    }
+    public static void removeFeedError(Context context) {
+        getSharedPrefs(context).edit().remove(FEED_ERROR).commit();
+    }
+
+    public static String createCursorAdminList(String rawString) {
+        String[] adminArr = Utils.toStringArray(Utils.toStringList(rawString));
+        String sqlStatement = Contract.Entry.COLUMN_ADMIN_ID + " IN(";
+        for (int n = 0; n < adminArr.length - 1; n++)
+            sqlStatement += adminArr[n] + ", ";
+        sqlStatement += adminArr[adminArr.length - 1] + ")";
+        return sqlStatement;
+    }
+
+    public static ArrayList<String> toStringList(String rawStringOfList) {
+        String stringList  = rawStringOfList.replace("[", "").replace("]", "");
+        return new ArrayList<>(Arrays.asList(stringList.split(", ")));
+    }
+    public static String[] toStringArray(List<String> rawStringList) {
+        return rawStringList.toArray(new String[rawStringList.size()]);
+    }
+
     public static String getElapsedTime(Long timestamp) {
         return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp, new Date(timestamp));
     }
@@ -218,22 +248,5 @@ public class Utils {
         else if (timeElapsed > minute)
             return (long) Math.floor(timeElapsed/minute) + " min";
         return "just now";
-    }
-
-    public static String createCursorAdminList(String rawString) {
-        String[] adminArr = Utils.toStringArray(Utils.toStringList(rawString));
-        String sqlStatement = Contract.Entry.COLUMN_ADMIN_ID + " IN(";
-        for (int n = 0; n < adminArr.length - 1; n++)
-            sqlStatement += adminArr[n] + ", ";
-        sqlStatement += adminArr[adminArr.length - 1] + ")";
-        return sqlStatement;
-    }
-
-    public static ArrayList<String> toStringList(String rawStringOfList) {
-        String stringList  = rawStringOfList.replace("[", "").replace("]", "");
-        return new ArrayList<>(Arrays.asList(stringList.split(", ")));
-    }
-    public static String[] toStringArray(List<String> rawStringList) {
-        return rawStringList.toArray(new String[rawStringList.size()]);
     }
 }

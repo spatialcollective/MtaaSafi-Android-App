@@ -1,7 +1,6 @@
 package com.sc.mtaa_safi;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,6 +34,7 @@ public class Feed { // Singleton for keeping track of feed state
 
     private Feed(Context c) {
         title = c.getResources().getString(R.string.nearby);
+        feedContent += " AND " + Utils.createCursorAdminList(Utils.getNearbyAdmins(c));
     }
 
     public static Feed getInstance(Context c) {

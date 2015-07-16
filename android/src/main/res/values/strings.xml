@@ -46,13 +46,15 @@
 
     <string name="facebook_app_id">903751569639797</string>
     <string name="sorry_nothing">Sorry there are currently no reports in this location. You can create a new report or view reports from a different location.</string>
-    <string name="pull_refresh">"Pull down to refresh"</string>
     <string name="refresh_loc_fail">"Refresh failure, still retrieving location."</string>
     <string name="refresh_network_fail">"Refresh failure, no network."</string>
     <string name="pref_notify_header">Notifications</string>
     <string name="pref_notify_new">New Nearby Reports</string>
     <string name="pref_notify_comments">Comments on Your Reports</string>
     <string name="pref_notify_votes">Votes on Your Reports</string>
+
+    <string name="empty_no_nearby">No reports near you</string>
+    <string name="empty_pull_refresh">Swipe down to refresh</string>
 
     <string-array name="nav_choices">
         <item>Feed</item>

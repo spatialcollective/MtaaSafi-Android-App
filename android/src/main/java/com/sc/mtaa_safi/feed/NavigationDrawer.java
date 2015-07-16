@@ -87,7 +87,6 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
 
     private void updateFeedView(String title, long adminId) {
         mFeed.setLocation(title, adminId, getContext(), getRootView());
-        Log.e("Nav Drawer", "setting location: " + title + "-" + Utils.getSelectedAdminId(getContext()));
         closeDrawer(GravityCompat.START);
     }
 
@@ -118,7 +117,6 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
             togglePlaces(VISIBLE, R.drawable.ic_expand_less_grey, view);
     }
     private void togglePlaces(int visibility, int expandDrawable, View view) {
-        this.findViewById(R.id.bottom_border).setVisibility(visibility);
         this.findViewById(R.id.top_border).setVisibility(visibility);
         this.findViewById(R.id.places_list).setVisibility(visibility);
         ((TextView) view).setCompoundDrawablesWithIntrinsicBounds(

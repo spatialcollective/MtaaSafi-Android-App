@@ -61,7 +61,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void updateTags(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
-
         JSONObject responseJSON = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.TAG_GET_URL), "get", null);
         Tag.addTags(responseJSON, provider);
     }
@@ -91,10 +90,15 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 
-        updateReports(serverData, provider, syncResult, batch);
-        Log.i(TAG, "Merge solution ready. Applying batch update");
-        provider.applyBatch(batch);
-        sanityCheck(serverData, provider, syncResult);
+        if (!serverData.getJSONObject("meta").has("error")) {
+            if (Utils.getSelectedAdminId(this.getContext()) == -1)
+                Utils.removeFeedError(mContext);
+            updateReports(serverData, provider, syncResult, batch);
+            Log.i(TAG, "Merge solution ready. Applying batch update");
+            provider.applyBatch(batch);
+            sanityCheck(serverData, provider, syncResult);
+        } else if (serverData.getJSONObject("meta").getString("error").equals("nothing_nearby"))
+            Utils.saveFeedError(mContext, "nothing_nearby");
     }
 
     private void updateReports(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult, ArrayList batch) throws
@@ -122,16 +126,6 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         for (Report r : reportMap.values()) {
             batch = r.createContentProviderOperation(batch);
             syncResult.stats.numInserts++;
-        }
-    }
-    public void saveCommentsToDb(JSONObject commentsData) throws JSONException, RemoteException, OperationApplicationException {
-        JSONArray commentsArray = commentsData.getJSONArray(Contract.Comments.TABLE_NAME);
-        if (commentsArray != null) {
-            ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
-            for (int i = 0; i < commentsArray.length(); i++)
-                Comment.getContentProviderOp(commentsArray.getJSONObject(i), batch, mContext);
-            mContext.getContentResolver().applyBatch(Contract.CONTENT_AUTHORITY, batch);
-            mContext.getContentResolver().notifyChange(Contract.Comments.COMMENTS_URI, null, false);
         }
     }
     private String createCursorFilter(JSONObject serverData) throws JSONException {

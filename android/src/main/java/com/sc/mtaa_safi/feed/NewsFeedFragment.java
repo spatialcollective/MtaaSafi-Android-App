@@ -166,9 +166,9 @@ public class NewsFeedFragment extends Fragment implements
             if (view != null) {
                 ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(false);
                 if (cursor.getCount() == 0)
-                    view.findViewById(R.id.refreshNotice).setVisibility(View.VISIBLE);
+                    setEmptyState(view);
                 else
-                    view.findViewById(R.id.refreshNotice).setVisibility(View.GONE);
+                    view.findViewById(R.id.empty_state).setVisibility(View.GONE);
             }
         } else
             placeAdapter.swapCursor(cursor);
@@ -179,6 +179,18 @@ public class NewsFeedFragment extends Fragment implements
             ((FeedAdapter) mAdapter).swapCursor(null);
         else
             placeAdapter.swapCursor(null);
+    }
+
+    private void setEmptyState(View view) {
+        String error = Utils.getFeedError(getActivity());
+        if (!error.isEmpty()) {
+            view.findViewById(R.id.empty_refresh).setVisibility(View.GONE);
+            view.findViewById(R.id.empty_nearby).setVisibility(View.VISIBLE);
+        } else {
+            view.findViewById(R.id.empty_refresh).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.empty_nearby).setVisibility(View.GONE);
+        }
+        view.findViewById(R.id.empty_state).setVisibility(View.VISIBLE);
     }
 
     @Override

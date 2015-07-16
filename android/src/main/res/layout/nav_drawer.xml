@@ -58,6 +58,7 @@
     <View android:id="@+id/top_border"
           android:layout_width="match_parent"
           android:layout_height="1dp"
+          android:paddingTop="8dp"
           android:background="@color/ultraLightGrey"
           android:visibility="invisible"/>
     
@@ -88,8 +89,9 @@
     <View android:id="@+id/bottom_border"
           android:layout_width="match_parent"
           android:layout_height="1dp"
-          android:background="@color/ultraLightGrey"
-          android:visibility="invisible"/>
+          android:paddingTop="8dp"
+          android:paddingBottom="8dp"
+          android:background="@color/ultraLightGrey"/>
 
     <TextView android:id="@+id/settings_btn"
         android:layout_width="match_parent"
