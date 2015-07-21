@@ -1,4 +1,4 @@
-package com.sc.mtaa_safi.feed.history;
+package com.sc.mtaa_safi.feed.detail;
 
 import android.content.Context;
 import android.graphics.Typeface;

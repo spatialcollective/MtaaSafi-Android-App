@@ -4,24 +4,18 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentProviderClient;
-import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
-import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.feed.MainActivity;
-import com.sc.mtaa_safi.feed.comments.Comment;
+import com.sc.mtaa_safi.feed.detail.comments.Comment;
 import com.sc.mtaa_safi.settings.SettingsActivity;
 
 import org.json.JSONException;

@@ -15,6 +15,7 @@ import com.sc.mtaa_safi.SystemUtils.GcmIntentService;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.common.BaseActivity;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.detail.ReportDetailFragment;
 import com.sc.mtaa_safi.login.FacebookActivity;
 import com.sc.mtaa_safi.login.GooglePlusActivity;
 import com.sc.mtaa_safi.login.LoginActivityListener;

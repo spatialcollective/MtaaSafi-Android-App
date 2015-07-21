@@ -104,18 +104,18 @@ public class FeedAdapter extends RecyclerViewCursorAdapter<FeedAdapter.ViewHolde
         int tagCount = getTagCount(c.getInt(c.getColumnIndex(Contract.Entry.COLUMN_SERVER_ID)));
 
         if (commentCount > 0) {
-            holder.mCommentIcon.setImageResource(R.drawable.ic_message_grey600_24dp);
-            holder.mCommentCount.setText(""+commentCount);
-        }else {
-            holder.mCommentIcon.setImageResource(R.drawable.ic_message_grey900_24dp);
-            holder.mCommentCount.setText("");
+            holder.mCommentIcon.setVisibility(View.VISIBLE);
+            holder.mCommentCount.setText("" + commentCount);
+            holder.mCommentCount.setVisibility(View.VISIBLE);
+        } else {
+            holder.mCommentIcon.setVisibility(View.GONE);
+            holder.mCommentCount.setVisibility(View.GONE);
         }
 
-        if (tagCount > 0) {
-            holder.mTagIcon.setImageResource(R.drawable.ic_hashtag600);
-        }else {
-            holder.mTagIcon.setImageResource(R.drawable.ic_hashtag900);
-        }
+        if (tagCount > 0)
+            holder.mTagIcon.setVisibility(View.VISIBLE);
+        else
+            holder.mTagIcon.setVisibility(View.GONE);
     }
 
     private int getCommentCount(int reportId){

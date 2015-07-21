@@ -15,9 +15,8 @@ import com.google.gson.reflect.TypeToken;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
-import com.sc.mtaa_safi.feed.comments.Comment;
+import com.sc.mtaa_safi.feed.detail.comments.Comment;
 import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
-import com.sc.mtaa_safi.feed.tags.Tag;
 
 
 import org.json.JSONArray;

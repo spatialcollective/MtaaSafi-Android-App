@@ -15,13 +15,11 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.sc.mtaa_safi.Community;
-import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
-import com.sc.mtaa_safi.feed.comments.Comment;
 import com.sc.mtaa_safi.feed.tags.Tag;
 
 

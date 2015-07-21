@@ -1,4 +1,4 @@
-package com.sc.mtaa_safi.feed.comments;
+package com.sc.mtaa_safi.feed.detail.comments;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
@@ -7,17 +7,13 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.RemoteException;
-import android.util.Log;
 
-import com.sc.mtaa_safi.R;
-import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 

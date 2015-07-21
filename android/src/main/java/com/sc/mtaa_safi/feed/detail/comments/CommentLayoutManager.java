@@ -1,9 +1,8 @@
-package com.sc.mtaa_safi.feed.comments;
+package com.sc.mtaa_safi.feed.detail.comments;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
