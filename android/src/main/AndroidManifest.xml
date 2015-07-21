@@ -46,7 +46,7 @@
             android:value="AIzaSyBIuxVyqa2EFeMlqodhCpTlohGHQo8sh_0" />
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="6171000" />
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="6f93595b646ee4fdb2be81b10b3f4019e5d5fcd5" />
