@@ -3,7 +3,6 @@ package com.sc.mtaa_safi.feed;
 
 import android.content.Context;
 import android.content.Intent;
-import android.opengl.Visibility;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,7 +19,6 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.sc.mtaa_safi.Feed;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;

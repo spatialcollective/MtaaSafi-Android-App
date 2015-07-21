@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class Utils {
     public static final String  USERNAME = "username", SCREEN_WIDTH = "swidth",
@@ -225,18 +226,27 @@ public class Utils {
         return rawStringList.toArray(new String[rawStringList.size()]);
     }
 
+    public static String createHumanReadableTimestamp(long timeStamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd' '''yy' at 'HH:mm");
+        sdf.setTimeZone(TimeZone.getDefault());
+        return sdf.format(new java.util.Date(timeStamp));
+    }
     public static String getElapsedTime(Long timestamp) {
         return getHumanReadableTimeElapsed(System.currentTimeMillis() - timestamp, new Date(timestamp));
     }
-
     public static String getHumanReadableTimeElapsed(long timeElapsed, Date date) {
         long second = 1000, minute = 60 * second, hour = 60 * minute,
                 day = 24 * hour, week = 7 * day, year = 365 * day;
 
+        SimpleDateFormat sdf = new SimpleDateFormat("dd LLL");
+        SimpleDateFormat sdf_y = new SimpleDateFormat("dd LLL' '''yy");
+        sdf.setTimeZone(TimeZone.getDefault());
+        sdf_y.setTimeZone(TimeZone.getDefault());
+
         if (timeElapsed > year)
-            return new SimpleDateFormat("dd LLL' '''yy").format(date);
+            return sdf_y.format(date);
         else if (timeElapsed > week)
-            return new SimpleDateFormat("dd LLL").format(date);
+            return sdf.format(date);
         else if (timeElapsed > 2 * day)
             return (long) Math.floor(timeElapsed/day) + " days";
         else if (timeElapsed > day)

@@ -16,6 +16,5 @@
         android:padding="8dp"
         android:text="@string/empty_pull_refresh"
         android:textColor="@color/textDarkGray"
-        android:textStyle="bold"
         android:textSize="20sp" />
 </LinearLayout>
