@@ -46,7 +46,8 @@
             android:value="AIzaSyBIuxVyqa2EFeMlqodhCpTlohGHQo8sh_0" />
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+            tools:replace="android:value"
+            android:value="7571000" />
         <meta-data
             android:name="com.crashlytics.ApiKey"
             android:value="6f93595b646ee4fdb2be81b10b3f4019e5d5fcd5" />
@@ -69,6 +70,16 @@
             android:label="@string/new_report"
             android:parentActivityName=".feed.MainActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" >
+
+            <!-- Parent activity meta-data to support API level 4+ -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.sc.mtaa_safi.feed.MainActivity" />
+        </activity>
+        <activity
+            android:name=".onboarding.OnboardingActivity"
+            android:label="@string/onboarding"
+            android:parentActivityName=".feed.MainActivity" >
 
             <!-- Parent activity meta-data to support API level 4+ -->
             <meta-data

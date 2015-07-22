@@ -182,7 +182,7 @@ public class NewsFeedFragment extends Fragment implements
 
     private void setEmptyState(View view) {
         String error = Utils.getFeedError(getActivity());
-        if (!error.isEmpty()) {
+        if (!error.isEmpty() && Utils.getSelectedAdminId(getActivity()) == -1) {
             view.findViewById(R.id.empty_refresh).setVisibility(View.GONE);
             view.findViewById(R.id.empty_nearby).setVisibility(View.VISIBLE);
         } else {

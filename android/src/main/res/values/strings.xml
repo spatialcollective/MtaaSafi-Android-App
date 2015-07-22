@@ -17,6 +17,7 @@
     <string name="title_report_detail">Report Details</string>
     <string name="new_report">New Report</string>
     <string name="my_activity">My Reports</string>
+    <string name="onboarding">Onboarding</string>
     <string name="reports">reports</string>
     <string name="status">Status:</string>
     <string name="status_broken">Broken</string>
