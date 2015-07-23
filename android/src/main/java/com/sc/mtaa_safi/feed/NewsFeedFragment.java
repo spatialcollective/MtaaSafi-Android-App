@@ -258,8 +258,11 @@ public class NewsFeedFragment extends Fragment implements
     }
     public void setRefreshState(boolean refreshing) {
         View view = getView();
-        if (view != null)
+        if (view != null) {
             ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(refreshing);
+            if (!refreshing && mAdapter.getItemCount() == 0)
+                setEmptyState(view);
+        }
     }
     private SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
         @Override /** Callback invoked with the sync adapter status changes. */

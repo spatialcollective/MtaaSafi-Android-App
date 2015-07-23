@@ -53,7 +53,7 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
             goToFeed(savedInstanceState);
         else if (!Utils.isSignedIn(this))
             showLoginManager();
-        else if (!Utils.hasOnboarded(this))
+        if (!Utils.hasOnboarded(this))
             showOnboarding();
     }
 

@@ -5,9 +5,9 @@ import android.os.Bundle;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
-import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.feed.MainActivity;
+import com.sc.mtaa_safi.R;
 
 public class OnboardingActivity extends AppIntro {
 
@@ -22,20 +22,15 @@ public class OnboardingActivity extends AppIntro {
 
         // Instead of fragments, you can also use our default slide
         // Just set a title, description, background and image. AppIntro will do the rest
-        addSlide(AppIntroFragment.newInstance("Use Mtaa Safi to report about and discuss improvement of your local communtiy", "",
-                R.drawable.overview, R.color.mtaa_safi_blue));
-        addSlide(AppIntroFragment.newInstance("Create new reports by tapping the '+'<image> at the bottom", "",
-                R.drawable.new_report, R.color.mtaa_safi_blue));
-        addSlide(AppIntroFragment.newInstance("Tell people what's important to you by Up-Voting <image>", "",
-                R.drawable.voting, R.color.mtaa_safi_blue));
-        addSlide(AppIntroFragment.newInstance("View other communities by pressing '='<image> or swiping right", "",
-                R.drawable.nav, R.color.mtaa_safi_blue));
-        addSlide(AppIntroFragment.newInstance("Check for new reports by swiping down", "",
-                R.drawable.refresh, R.color.mtaa_safi_blue));
+        addSlide(OnboardingFragment.newInstance(R.layout.onboarding_overview));
+        addSlide(OnboardingFragment.newInstance(R.layout.onboarding_new_report));
+        addSlide(OnboardingFragment.newInstance(R.layout.onboarding_voting));
+        addSlide(OnboardingFragment.newInstance(R.layout.onboarding_nav));
+        addSlide(OnboardingFragment.newInstance(R.layout.onboarding_refresh));
 
         // OPTIONAL METHODS
         // Override bar/separator color
-        setBarColor(getResources().getColor(R.color.mtaa_safi_blue));
+        setBarColor(getResources().getColor(R.color.White));
 //        setSeparatorColor(Color.parseColor("#2196F3"));
 
         // Hide Skip/Done button
@@ -61,7 +56,7 @@ public class OnboardingActivity extends AppIntro {
 
     @Override
     public void onDonePressed() {
-        Utils.setHasOnboarded(this);
+//        Utils.setHasOnboarded(this);
         loadMainActivity();
     }
 }
