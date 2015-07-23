@@ -68,11 +68,9 @@
     </string-array>
 
     <string name="onboarding_overview">Use Mtaa Safi to report about and discuss improvement in your local community</string>
-    <string name="onboarding_new_report_1">Create new reports by tapping the </string>
-    <string name="onboarding_new_report_2"> at the bottom</string>
+    <string name="onboarding_new_report">Create new reports by tapping the orange plus at the bottom</string>
     <string name="onboarding_voting">Tell people what\'s important to you by Up-Voting </string>
-    <string name="onboarding_nav_1">View other communities by pressing </string>
-    <string name="onboarding_nav_2"> or swiping right</string>
+    <string name="onboarding_nav">View other communities by pressing the menu at the top or swiping right</string>
     <string name="onboarding_refresh">Check for new reports by swiping down</string>
 
     <!-- URLS -->

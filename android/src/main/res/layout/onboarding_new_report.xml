@@ -15,7 +15,7 @@
         android:textColor="#ffffff"
         android:paddingRight="32dp"
         android:textSize="28sp"
-        android:text="@string/onboarding_new_report_1"/>
+        android:text="@string/onboarding_new_report"/>
 
     <LinearLayout
         android:layout_width="fill_parent"

@@ -5,41 +5,17 @@
               android:background="@drawable/onboaring_gradient"
               android:layout_weight="10">
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:orientation="horizontal"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:layout_weight="4">
-
-        <TextView android:id="@+id/nav1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="32dp"
-            android:layout_weight="5"
-            android:textColor="#ffffff"
-            android:paddingRight="32dp"
-            android:textSize="28sp"
-            android:text="@string/onboarding_nav_1"/>
-
-        <ImageView android:id="@+id/nav_image"
-            android:src="@drawable/ic_menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignRight="@id/nav1"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="32dp"
-            android:layout_weight="5"
-            android:textColor="#ffffff"
-            android:paddingRight="32dp"
-            android:textSize="28sp"
-            android:text="@string/onboarding_nav_2"
-            android:layout_alignRight="@id/nav_image"
-            android:layout_alignBottom="@id/nav1"/>
-    </RelativeLayout>
+        android:paddingLeft="32dp"
+        android:layout_weight="5"
+        android:textColor="#ffffff"
+        android:paddingRight="32dp"
+        android:textSize="28sp"
+        android:text="@string/onboarding_nav"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -54,7 +30,7 @@
             android:layout_gravity="center"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:src="@drawable/onboarding_overview"/>
+            android:src="@drawable/onboarding_nav"/>
     </LinearLayout>
 
     <TextView
