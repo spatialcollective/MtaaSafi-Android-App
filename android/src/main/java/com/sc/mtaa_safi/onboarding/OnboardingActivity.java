@@ -30,7 +30,7 @@ public class OnboardingActivity extends AppIntro {
 
         // OPTIONAL METHODS
         // Override bar/separator color
-        setBarColor(getResources().getColor(R.color.White));
+        setBarColor(getResources().getColor(R.color.mtaa_safi_blue));
 //        setSeparatorColor(Color.parseColor("#2196F3"));
 
         // Hide Skip/Done button
@@ -56,7 +56,7 @@ public class OnboardingActivity extends AppIntro {
 
     @Override
     public void onDonePressed() {
-//        Utils.setHasOnboarded(this);
+        Utils.setHasOnboarded(this);
         loadMainActivity();
     }
 }
