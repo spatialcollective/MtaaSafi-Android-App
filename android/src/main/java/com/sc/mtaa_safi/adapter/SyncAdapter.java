@@ -88,15 +88,16 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         ArrayList<ContentProviderOperation> batch = new ArrayList<ContentProviderOperation>();
 
-        if (!serverData.getJSONObject("meta").has("error")) {
+        if (!serverData.getJSONObject("meta").has("error") || serverData.getJSONObject("meta").getString("error").equals("nothing_nearby")) {
             if (Utils.getSelectedAdminId(this.getContext()) == -1)
                 Utils.removeFeedError(mContext);
             updateReports(serverData, provider, syncResult, batch);
             Log.i(TAG, "Merge solution ready. Applying batch update");
             provider.applyBatch(batch);
-            sanityCheck(serverData, provider, syncResult);
-        } else if (serverData.getJSONObject("meta").getString("error").equals("nothing_nearby"))
+        }
+        if (serverData.getJSONObject("meta").has("error") && serverData.getJSONObject("meta").getString("error").equals("nothing_nearby"))
             Utils.saveFeedError(mContext, "nothing_nearby");
+        sanityCheck(serverData, provider, syncResult);
     }
 
     private void updateReports(JSONObject serverData, ContentProviderClient provider, final SyncResult syncResult, ArrayList batch) throws
@@ -141,7 +142,7 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void sanityCheck(JSONObject serverData, ContentProviderClient provider, SyncResult syncResult) throws
             IOException, XmlPullParserException, RemoteException,
             OperationApplicationException, ParseException, JSONException, SQLiteConstraintException {
-        syncResult.stats.numDeletes =  syncResult.stats.numInserts = syncResult.stats.numUpdates = 0;
+        syncResult.stats.numDeletes = syncResult.stats.numInserts = syncResult.stats.numUpdates = 0;
         if (!db_Is_Sane(syncResult, serverData))
             updateLocalData(downloadReports("all"), provider, syncResult);
         if (!userHasOwnReports(serverData, provider))
@@ -155,12 +156,10 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
     private boolean userHasOwnReports(JSONObject serverData, ContentProviderClient provider) throws JSONException, RemoteException {
         Cursor c = provider.query(Contract.Entry.CONTENT_URI, projection, Contract.Entry.COLUMN_USERID + " = " + Utils.getUserId(this.getContext()), null, null);
-        if (c.moveToFirst()) {
-            int userReportCount = c.getCount();
-            c.close();
-            if (!serverData.getJSONObject("meta").has("user_report_count") || serverData.getJSONObject("meta").getLong("user_report_count") <= userReportCount)
-                return true;
-        }
+        int userReportCount = c.getCount();
+        c.close();
+        if (!serverData.getJSONObject("meta").has("user_report_count") || serverData.getJSONObject("meta").getLong("user_report_count") <= userReportCount)
+            return true;
         return false;
     }
 
