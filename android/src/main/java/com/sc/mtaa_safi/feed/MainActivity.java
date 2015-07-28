@@ -15,11 +15,13 @@ import com.sc.mtaa_safi.SystemUtils.GcmIntentService;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.common.BaseActivity;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.feed.detail.ReportDetailFragment;
 import com.sc.mtaa_safi.login.FacebookActivity;
 import com.sc.mtaa_safi.login.GooglePlusActivity;
 import com.sc.mtaa_safi.login.LoginActivityListener;
 import com.sc.mtaa_safi.login.LoginManagerFragment;
 import com.sc.mtaa_safi.newReport.NewReportActivity;
+import com.sc.mtaa_safi.onboarding.OnboardingActivity;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -51,6 +53,8 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
             goToFeed(savedInstanceState);
         else if (!Utils.isSignedIn(this))
             showLoginManager();
+        if (!Utils.hasOnboarded(this))
+            showOnboarding();
     }
 
     public void goToFeed(Bundle savedInstanceState) {
@@ -165,5 +169,11 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
                 .beginTransaction()
                 .replace(R.id.fragment_container, loginManagerFragment, LOGIN_TAG)
                 .commit();
+    }
+
+    public void showOnboarding() {
+        Intent intent = new Intent();
+        intent.setClass(this, OnboardingActivity.class);
+        startActivity(intent);
     }
 }

@@ -1,4 +1,4 @@
-package com.sc.mtaa_safi.feed.comments;
+package com.sc.mtaa_safi.feed.detail.comments;
 
 import android.content.Context;
 import android.database.Cursor;

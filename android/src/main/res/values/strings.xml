@@ -17,6 +17,7 @@
     <string name="title_report_detail">Report Details</string>
     <string name="new_report">New Report</string>
     <string name="my_activity">My Reports</string>
+    <string name="onboarding">Onboarding</string>
     <string name="reports">reports</string>
     <string name="status">Status:</string>
     <string name="status_broken">Broken</string>
@@ -65,6 +66,12 @@
         <item>Newest</item>
         <item>Votes</item>
     </string-array>
+
+    <string name="onboarding_overview">Use Mtaa Safi to report about and discuss improvement in your local community</string>
+    <string name="onboarding_new_report">Create new reports by tapping the orange plus at the bottom</string>
+    <string name="onboarding_voting">Tell people what\'s important to you by Up-Voting </string>
+    <string name="onboarding_nav">View other communities by pressing the menu at the top or swiping right</string>
+    <string name="onboarding_refresh">Check for new reports by swiping down</string>
 
     <!-- URLS -->
     <string name="base_url">http://app.spatialcollective.com/mtaasafi/</string>

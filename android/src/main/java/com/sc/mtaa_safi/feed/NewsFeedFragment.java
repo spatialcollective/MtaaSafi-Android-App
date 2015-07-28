@@ -182,7 +182,7 @@ public class NewsFeedFragment extends Fragment implements
 
     private void setEmptyState(View view) {
         String error = Utils.getFeedError(getActivity());
-        if (!error.isEmpty()) {
+        if (!error.isEmpty() && Utils.getSelectedAdminId(getActivity()) == -1 && !mFeed.feedContent.equals(Feed.LOAD_USER)) {
             view.findViewById(R.id.empty_refresh).setVisibility(View.GONE);
             view.findViewById(R.id.empty_nearby).setVisibility(View.VISIBLE);
         } else {
@@ -258,8 +258,11 @@ public class NewsFeedFragment extends Fragment implements
     }
     public void setRefreshState(boolean refreshing) {
         View view = getView();
-        if (view != null)
+        if (view != null) {
             ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(refreshing);
+            if (!refreshing && mAdapter.getItemCount() == 0)
+                setEmptyState(view);
+        }
     }
     private SyncStatusObserver mSyncStatusObserver = new SyncStatusObserver() {
         @Override /** Callback invoked with the sync adapter status changes. */

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sc.mtaa_safi.feed.comments.NewCommentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sc.mtaa_safi.feed.detail.comments.NewCommentLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:id="@+id/new_comment_bar"
     android:orientation="horizontal"
@@ -33,4 +33,4 @@
             android:textColor="@color/disableable_button"
             android:enabled="false" />
 
-</com.sc.mtaa_safi.feed.comments.NewCommentLayout>
+</com.sc.mtaa_safi.feed.detail.comments.NewCommentLayout>

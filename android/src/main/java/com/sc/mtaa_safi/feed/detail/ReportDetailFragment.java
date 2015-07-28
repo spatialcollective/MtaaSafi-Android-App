@@ -1,4 +1,4 @@
-package com.sc.mtaa_safi.feed;
+package com.sc.mtaa_safi.feed.detail;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -32,12 +32,14 @@ import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.Report;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
-import com.sc.mtaa_safi.feed.comments.Comment;
-import com.sc.mtaa_safi.feed.comments.CommentAdapter;
-import com.sc.mtaa_safi.feed.comments.CommentLayoutManager;
-import com.sc.mtaa_safi.feed.comments.NewCommentLayout;
-import com.sc.mtaa_safi.feed.history.HistoryListAdapter;
-import com.sc.mtaa_safi.feed.history.SyncHistory;
+import com.sc.mtaa_safi.feed.MainActivity;
+import com.sc.mtaa_safi.feed.ReportUpdateListener;
+import com.sc.mtaa_safi.feed.VoteButton;
+import com.sc.mtaa_safi.feed.ZoomOutPageTransformer;
+import com.sc.mtaa_safi.feed.detail.comments.Comment;
+import com.sc.mtaa_safi.feed.detail.comments.CommentAdapter;
+import com.sc.mtaa_safi.feed.detail.comments.CommentLayoutManager;
+import com.sc.mtaa_safi.feed.detail.comments.NewCommentLayout;
 import com.sc.mtaa_safi.feed.tags.ReportTagJunction;
 import com.squareup.picasso.Picasso;
 
@@ -45,7 +47,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 
@@ -77,7 +78,7 @@ public class ReportDetailFragment extends Fragment implements LoaderManager.Load
         }
         Location cachedLocation = Utils.getLocation(getActivity());
         Button updateButton = (Button) view.findViewById(R.id.update_button);
-        updateButton.setOnClickListener(new View.OnClickListener(){
+        updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 reportUpdateListener.goToUpdateReport(mReport.serverId);

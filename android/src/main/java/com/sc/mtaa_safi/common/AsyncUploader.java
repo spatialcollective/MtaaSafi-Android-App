@@ -5,15 +5,13 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.RemoteException;
-import android.util.Log;
 
-import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.NetworkUtils;
 import com.sc.mtaa_safi.SystemUtils.URLConstants;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.Vote;
 import com.sc.mtaa_safi.database.Contract;
-import com.sc.mtaa_safi.feed.comments.Comment;
+import com.sc.mtaa_safi.feed.detail.comments.Comment;
 
 import org.json.JSONArray;
 import org.json.JSONException;

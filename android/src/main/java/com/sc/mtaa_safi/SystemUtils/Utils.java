@@ -1,8 +1,6 @@
 package com.sc.mtaa_safi.SystemUtils;
 
-import android.accounts.AccountManager;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -10,9 +8,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.util.Log;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.sc.mtaa_safi.database.Contract;
-import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.R;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +24,7 @@ public class Utils {
                                 COARSE_LAT = "c_lat", COARSE_LNG = "c_lon", COARSE_LOCATION_TIMESTAMP = "c_loc_tstamp",
                                 ADMIN = "admin", ADMIN_ID = "adminId", NEARBY_ADMINS = "nearby_admins", SAVED_REPORT_COUNT = "srcount",
                                 FEED_ERROR = "error",
-                                SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
+                                ONBOARD_STATUS = "onboard_status", SIGN_IN_STATUS="sign_in_status", USER_ID = "user_id", EMAIL="email",
                                 FACEBOOK_UUID="uuid", GOOGLE_PLUS_UUID="gplus_uuid",
                                 PROPERTY_REG_ID = "registration_id", PROPERTY_APP_VERSION = "appVersion",
                                 SENDER_ID = "46655663326";
@@ -36,6 +32,15 @@ public class Utils {
     public static SharedPreferences getSharedPrefs(Context context) {
         return context.getSharedPreferences(context.getPackageName() + "_preferences",
                 Context.MODE_MULTI_PROCESS);
+    }
+
+    public static Boolean hasOnboarded(Context context){
+        return getSharedPrefs(context).getBoolean(ONBOARD_STATUS, false);
+    }
+    public static void setHasOnboarded(Context context){
+        SharedPreferences.Editor editor = getSharedPrefs(context).edit();
+        editor.putBoolean(ONBOARD_STATUS, true);
+        editor.commit();
     }
 
     public static Boolean isSignedIn(Context context){
