@@ -55,6 +55,7 @@ public class NewsFeedFragment extends Fragment implements
         mFeed = Feed.getInstance(getActivity());
         mFeed.setListener(this);
         setHasOptionsMenu(true);
+        SyncUtils.AttemptRefresh(this.getActivity());
         super.onCreate(savedInstanceState);
     }
 
@@ -112,11 +113,6 @@ public class NewsFeedFragment extends Fragment implements
         spin.setOnItemSelectedListener(mFeed.new SortListener());
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        SyncUtils.CreateSyncAccount(activity);
-    }
     @Override
     public void onResume() {
         super.onResume();
@@ -260,6 +256,8 @@ public class NewsFeedFragment extends Fragment implements
         View view = getView();
         if (view != null) {
             ((SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh)).setRefreshing(refreshing);
+            if (mFeed.feedContent == Feed.LOAD_ALL && Utils.getNearbyAdmins(getActivity()) != "")
+                mFeed.setFeedToNearby(getActivity());
             if (!refreshing && mAdapter.getItemCount() == 0)
                 setEmptyState(view);
         }

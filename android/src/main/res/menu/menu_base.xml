@@ -3,7 +3,7 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.sc.mtaa_safi.common.BaseActivity">
     <item android:id="@+id/action_settings"
-          android:title="@string/action_settings"
+          android:title="@string/settings"
           android:orderInCategory="100"
           app:showAsAction="never"/>
 </menu>

@@ -21,7 +21,7 @@ android {
     signingConfigs {
         mtaa_safi {
             keyAlias 'mtaa_safi'
-            storeFile file('/home/kutalek/Desktop/mtaa_safi.jks')
+            storeFile file('/home/kutalek/Active/SpatialCollective/SoftwareExtras/mtaa_safi.jks')
             keyPassword 'safiproduction'
             storePassword 'mtaasafi'
         }
@@ -63,7 +63,7 @@ dependencies {
     compile 'com.github.ksoichiro:android-observablescrollview:1.5.0'
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     compile 'com.github.paolorotolo:appintro:3.1.0'
-    compile "com.splitwise:tokenautocomplete:2.0@aar"
+    compile 'com.splitwise:tokenautocomplete:2.0@aar'
     compile('com.crashlytics.sdk.android:crashlytics:2.0.0@aar') {
         transitive = true;
     }

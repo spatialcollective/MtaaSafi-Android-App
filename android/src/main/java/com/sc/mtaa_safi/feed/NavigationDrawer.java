@@ -77,8 +77,8 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         mFeed.feedContent = navItem.value;
         if (navItem.value == Feed.LOAD_USER)
             mFeed.feedContent += Utils.getUserId(getActivity());
-        else if (navItem.value == Feed.LOAD_ALL)
-            mFeed.feedContent += " AND " + Utils.createCursorAdminList(Utils.getNearbyAdmins(getActivity()));
+        else if (navItem.value == Feed.LOAD_ALL && Utils.getNearbyAdmins(getActivity()) != "")
+            mFeed.setFeedToNearby(getActivity());
         Log.e("Nav Drawer", "Feed Content: " + mFeed.feedContent);
         updateFeedView(navItem.name, -1);
     }

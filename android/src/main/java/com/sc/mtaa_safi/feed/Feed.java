@@ -35,7 +35,8 @@ public class Feed { // Singleton for keeping track of feed state
 
     private Feed(Context c) {
         title = c.getResources().getString(R.string.nearby);
-        feedContent += " AND " + Utils.createCursorAdminList(Utils.getNearbyAdmins(c));
+        if (Utils.getNearbyAdmins(c) != "")
+            setFeedToNearby(c);
     }
 
     public static Feed getInstance(Context c) {
@@ -66,6 +67,12 @@ public class Feed { // Singleton for keeping track of feed state
             sortOrder = sorting;
             listener.triggerReload();
         }
+    }
+
+    public String setFeedToNearby(Context c) {
+        feedContent = LOAD_ALL + " AND " + Utils.createCursorAdminList(Utils.getNearbyAdmins(c));
+        listener.triggerReload();
+        return feedContent;
     }
 
     public class SortListener implements AdapterView.OnItemSelectedListener {

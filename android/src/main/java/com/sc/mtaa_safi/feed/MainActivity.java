@@ -15,6 +15,7 @@ import com.sc.mtaa_safi.SystemUtils.GcmIntentService;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.common.BaseActivity;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.database.SyncUtils;
 import com.sc.mtaa_safi.feed.detail.ReportDetailFragment;
 import com.sc.mtaa_safi.login.FacebookActivity;
 import com.sc.mtaa_safi.login.GooglePlusActivity;
@@ -39,6 +40,7 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
         setContentView(R.layout.activity_main);
         Fabric.with(this, new Crashlytics());
         registerWithGcm();
+        SyncUtils.CreateSyncAccount(this);
 
         restoreFragment(savedInstanceState);
         if (getIntent().getExtras() != null )
@@ -53,8 +55,6 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
             goToFeed(savedInstanceState);
         else if (!Utils.isSignedIn(this))
             showLoginManager();
-        if (!Utils.hasOnboarded(this))
-            showOnboarding();
     }
 
     public void goToFeed(Bundle savedInstanceState) {
@@ -139,6 +139,8 @@ public class MainActivity extends BaseActivity implements LoginActivityListener,
             Toast.makeText(this, "Google+ user logged in", Toast.LENGTH_SHORT).show();
         if (resultCode == RESULT_OK) {
             registerWithGcm();
+            if (!Utils.hasOnboarded(this))
+                showOnboarding();
             goToFeed(null);
         } else
             showLoginManager();

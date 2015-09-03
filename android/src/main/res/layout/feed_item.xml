@@ -118,7 +118,8 @@
                 android:id="@+id/tag_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_hashtag900"/>
+                android:src="@drawable/ic_hashtag900"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/comment_count"

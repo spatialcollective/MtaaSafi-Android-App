@@ -180,7 +180,9 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             updatePlaces(provider);
             updateTags(provider);
-            JSONObject reports = downloadReports("normal");
+            JSONObject reports = null;
+            if (Utils.getUserId(this.getContext()) != -1)
+                reports = downloadReports("normal");
             if (reports != null)
                 updateLocalData(reports, provider, syncResult);
             else // TODO : handle null location errors, which will occur first time user opens app
