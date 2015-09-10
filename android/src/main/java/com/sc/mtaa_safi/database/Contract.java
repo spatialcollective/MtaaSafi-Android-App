@@ -16,9 +16,15 @@ public class Contract {
                                  PATH_ADMINS = "admins",
                                  PATH_LANDMARKS = "landmarks",
                                  PATH_TAGS = "tags",
-                                PATH_REPORT_TAGS = "reporttags";
+                                PATH_REPORT_TAGS = "reporttags",
+                                PATH_USERS = "users",
+                                PATH_GROUPS = "groups",
+                                PATH_GROUP_REPORTS = "groupreports",
+                                PATH_GROUP_USERS = "groupusers";
     public static String REPORTS_JOIN_LOCATIONS = "reports LEFT OUTER JOIN locations ON reports.location=locations.location_id";
-    public static String REPORTS_JOIN_TAGS = "reporttags LEFT OUTER JOIN tags on reporttags.fk_tag=tags._id ";
+    public static String REPORTS_JOIN_TAGS = "reporttags LEFT OUTER JOIN tags ON reporttags.fk_tag=tags._id ";
+    public static String GROUPS_JOIN_USERS = "groupusers LEFT OUTER JOIN users ON groupusers.fk_user=users._id";
+    public static String GROUP_JOIN_REPORTS = "groupreports LEFT OUTER JOIN entries ON groupreports.fk_report=entries._id";
 
     public static class Entry implements BaseColumns {
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
@@ -117,4 +123,43 @@ public class Contract {
                 COLUMN_FK_REPORT = "fk_report",
                 COLUMN_FK_TAG = "fk_tag";
     }
+
+    public static class User implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri USER_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build();
+        public static final String TABLE_NAME = "users",
+                COLUMN_SERVER_ID = "serverId",
+                COLUMN_NAME = "name";
+    }
+
+    public static class Group implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri GROUP_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GROUPS).build();
+        public static final String TABLE_NAME = "groups",
+                COLUMN_SERVER_ID = "serverId",
+                COLUMN_NAME = "name",
+                COLUMN_DESCRIPTION = "description";
+    }
+
+    public static class GroupUserJunction implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri GROUP_USER_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GROUP_USERS).build();
+        public static final String TABLE_NAME = "groupusers",
+                COLUMN_FK_USER = "fk_user",
+                COLUMN_FK_GROUP = "fk_group",
+                COLUMN_ADMIN = "is_admin";
+    }
+
+    public static class GroupReportJunction implements BaseColumns {
+        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.basicsyncadapter.entries";
+        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.basicsyncadapter.entry";
+        public static final Uri GROUP_REPORT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GROUP_REPORTS).build();
+        public static final String TABLE_NAME = "groupreports",
+                COLUMN_FK_REPORT = "fk_report",
+                COLUMN_FK_GROUP = "fk_group";
+    }
+
 }

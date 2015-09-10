@@ -20,7 +20,10 @@ public class ReportProvider extends ContentProvider {
                             ROUTE_ADMINS = 11, ROUTE_ADMINS_ID = 12,
                             ROUTE_LANDMARKS = 13, ROUTE_LANDMARKS_ID = 14,
                             ROUTE_TAGS = 15, ROUTE_TAGS_ID = 16,
-                            ROUTE_REPORT_TAGS = 17, ROUTE_REPORT_TAGS_ID = 18;
+                            ROUTE_REPORT_TAGS = 17, ROUTE_REPORT_TAGS_ID = 18,
+                            ROUTE_GROUPS = 19, ROUTE_GROUPS_ID = 20,
+                            ROUTE_GROUP_USERS = 21, ROUTE_GROUP_USERS_ID = 22,
+                            ROUTE_GROUP_REPORTS = 23, ROUTE_GROUP_REPORTS_ID = 24;
 
     @Override
     public boolean onCreate() {
@@ -46,6 +49,14 @@ public class ReportProvider extends ContentProvider {
             sUriMatcher.addURI(AUTHORITY, "tags/*", ROUTE_TAGS_ID);
             sUriMatcher.addURI(AUTHORITY, "reporttags", ROUTE_REPORT_TAGS);
             sUriMatcher.addURI(AUTHORITY, "reporttags/*", ROUTE_REPORT_TAGS_ID);
+            sUriMatcher.addURI(AUTHORITY, "users", ROUTE_USERS);
+            sUriMatcher.addURI(AUTHORITY, "users/*", ROUTE_USERS_ID);
+            sUriMatcher.addURI(AUTHORITY, "groups", ROUTE_GROUPS);
+            sUriMatcher.addURI(AUTHORITY, "groups/*", ROUTE_GROUPS_ID);
+            sUriMatcher.addURI(AUTHORITY, "groupusers", ROUTE_GROUP_USERS);
+            sUriMatcher.addURI(AUTHORITY, "groupusers/*", ROUTE_GROUP_USERS_ID);
+            sUriMatcher.addURI(AUTHORITY, "groupreports", ROUTE_GROUP_REPORTS);
+            sUriMatcher.addURI(AUTHORITY, "groupreports/*", ROUTE_GROUP_REPORTS_ID);
         }
 
     @Override
@@ -84,6 +95,22 @@ public class ReportProvider extends ContentProvider {
                 return Contract.ReportTagJunction.CONTENT_TYPE;
             case ROUTE_REPORT_TAGS_ID:
                 return Contract.ReportTagJunction.CONTENT_ITEM_TYPE;
+            case ROUTE_USERS:
+                return Contract.User.CONTENT_TYPE;
+            case ROUTE_USERS_ID:
+                return  Contract.User.CONTENT_ITEM_TYPE;
+            case ROUTE_GROUPS:
+                return Contract.Group.CONTENT_TYPE;
+            case ROUTE_GROUPS_ID:
+                return Contract.Group.CONTENT_ITEM_TYPE;
+            case ROUTE_GROUP_USERS:
+                return Contract.GroupUserJunction.CONTENT_TYPE;
+            case ROUTE_GROUP_USERS_ID:
+                return Contract.GroupUserJunction.CONTENT_ITEM_TYPE;
+            case ROUTE_GROUP_REPORTS:
+                return Contract.GroupReportJunction.CONTENT_TYPE;
+            case ROUTE_GROUP_REPORTS_ID:
+                return Contract.GroupReportJunction.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -166,6 +193,41 @@ public class ReportProvider extends ContentProvider {
                         .mapToTable(Contract.Tag.COLUMN_NAME, Contract.Tag.TABLE_NAME)
                         .where(selection, selectionArgs);
                 return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_USERS_ID:
+                String userId = uri.getLastPathSegment();
+                builder.where(Contract.User._ID + "=?", userId);
+            case ROUTE_USERS:
+                builder.table(Contract.User.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_GROUPS_ID:
+                String groupId = uri.getLastPathSegment();
+                builder.where(Contract.Group._ID + "=?", groupId);
+            case ROUTE_GROUPS:
+                builder.table(Contract.Group.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_GROUP_USERS_ID:
+                String groupUserId = uri.getLastPathSegment();
+                builder.table(Contract.GROUPS_JOIN_USERS)
+                        .mapToTable(Contract.User.COLUMN_NAME, Contract.User.TABLE_NAME)
+                        .where(Contract.GroupUserJunction._ID + "=?", groupUserId);
+            case ROUTE_GROUP_USERS:
+                builder.table(Contract.GROUPS_JOIN_USERS)
+                        .mapToTable(Contract.User.COLUMN_NAME, Contract.User.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+            case ROUTE_GROUP_REPORTS_ID:
+                String groupReportId = uri.getLastPathSegment();
+                builder.table(Contract.GROUP_JOIN_REPORTS)
+                        .mapToTable(Contract.Entry.COLUMN_DESCRIPTION, Contract.Entry.TABLE_NAME)
+                        .where(Contract.GroupUserJunction._ID + "=?", groupReportId);
+            case ROUTE_GROUP_REPORTS:
+                builder.table(Contract.GROUP_JOIN_REPORTS)
+                        .mapToTable(Contract.Entry.COLUMN_DESCRIPTION, Contract.Entry.TABLE_NAME)
+                        .where(selection, selectionArgs);
+                return buildQuery(uri, builder, db, projection, sortOrder);
+
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -233,6 +295,30 @@ public class ReportProvider extends ContentProvider {
                 result = Uri.parse(Contract.Entry.CONTENT_URI+"/"+reportTagId);
                 break;
             case ROUTE_REPORT_TAGS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+uri);
+            case ROUTE_USERS:
+                long userId = db.insertOrThrow(Contract.User.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI+"/"+userId);
+                break;
+            case ROUTE_USERS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+uri);
+            case ROUTE_GROUPS:
+                long groupId = db.insertOrThrow(Contract.Group.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI+"/"+groupId);
+                break;
+            case ROUTE_GROUPS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+uri);
+            case ROUTE_GROUP_USERS:
+                long groupUsersId = db.insertOrThrow(Contract.GroupUserJunction.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI+"/"+groupUsersId);
+                break;
+            case ROUTE_GROUP_USERS_ID:
+                throw new UnsupportedOperationException("Insert not supported on URI: "+uri);
+            case ROUTE_GROUP_REPORTS:
+                long groupReportsId = db.insertOrThrow(Contract.GroupReportJunction.TABLE_NAME, null, values);
+                result = Uri.parse(Contract.Entry.CONTENT_URI+"/"+groupReportsId);
+                break;
+            case ROUTE_GROUP_REPORTS_ID:
                 throw new UnsupportedOperationException("Insert not supported on URI: "+uri);
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

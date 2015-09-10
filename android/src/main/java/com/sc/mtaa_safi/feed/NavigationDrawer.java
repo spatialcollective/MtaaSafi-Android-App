@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.sc.mtaa_safi.R;
 import com.sc.mtaa_safi.SystemUtils.Utils;
 import com.sc.mtaa_safi.database.Contract;
+import com.sc.mtaa_safi.groups.GroupsActivity;
 import com.sc.mtaa_safi.settings.SettingsActivity;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         ((TextView) this.findViewById(R.id.user_name)).setText(Utils.getUserName(getActivity()));
         ((TextView) this.findViewById(R.id.user_email)).setText(Utils.getEmail(getActivity()));
         this.findViewById(R.id.settings_btn).setOnClickListener(new SettingsListener());
-
+        this.findViewById(R.id.groups_btn).setOnClickListener(new GroupsListener());
         createNavList();
         addNavItems();
     }
@@ -176,6 +177,16 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         @Override public void onClick(View view) {
             Intent intent = new Intent();
             intent.setClass(getActivity(), SettingsActivity.class);
+            closeDrawer(GravityCompat.START);
+            getActivity().startActivity(intent);
+        }
+    }
+
+    private class GroupsListener implements OnClickListener {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent();
+            intent.setClass(getActivity(), GroupsActivity.class);
             closeDrawer(GravityCompat.START);
             getActivity().startActivity(intent);
         }

@@ -63,6 +63,11 @@ class SyncAdapter extends AbstractThreadedSyncAdapter {
         Tag.addTags(responseJSON, provider);
     }
 
+    private void updateGroups(ContentProviderClient provider) throws IOException, JSONException, RemoteException, OperationApplicationException {
+        JSONObject responseJSON = NetworkUtils.makeRequest(URLConstants.buildURL(mContext, URLConstants.GROUP_GET_URL), "get", null);
+
+    }
+
     private JSONObject downloadReports(String type) throws IOException, JSONException {
         String args = "&userId=" + Utils.getUserId(this.getContext());
         if (type.equals("all"))

@@ -81,4 +81,9 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_settings">Settings</string>
     <string name="title_activity_base">BaseActivity</string>
+    <string name="groups">My Groups</string>
+    <string name="title_activity_groups">GroupsActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>

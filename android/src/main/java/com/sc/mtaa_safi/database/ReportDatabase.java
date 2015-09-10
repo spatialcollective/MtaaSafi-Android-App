@@ -7,7 +7,7 @@ import android.util.Log;
 
 public class ReportDatabase extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 32;
 
     private static final String DATABASE_NAME = "mtaasafi.db";
     private static final String REPORT_TABLE_CREATE = "create table "
@@ -95,7 +95,44 @@ public class ReportDatabase extends SQLiteOpenHelper {
                 + Contract.ReportTagJunction.COLUMN_FK_TAG
             + " ) ON CONFLICT REPLACE "
         +")";
-            
+
+    private static final String USER_TABLE_CREATE = "create table "
+            + Contract.User.TABLE_NAME + "("
+            + Contract.User._ID + " integer primary key autoincrement, "
+            + Contract.User.COLUMN_SERVER_ID + " integer, "
+            + Contract.User.COLUMN_NAME + " text unique "
+        +")";
+
+    private static final String GROUP_TABLE_CREATE = "create table "
+            + Contract.Group.TABLE_NAME + "("
+            + Contract.Group._ID + " integer primary key autoincrement, "
+            + Contract.Group.COLUMN_SERVER_ID + " integer, "
+            + Contract.Group.COLUMN_NAME + " text, "
+            + Contract.Group.COLUMN_DESCRIPTION + " text "
+        +")";
+
+    private static final String GROUP_USER_TABLE_CREATE = "create table "
+            + Contract.GroupUserJunction.TABLE_NAME + "("
+            + Contract.GroupUserJunction._ID  + " integer primary key autoincrement, "
+            + Contract.GroupUserJunction.COLUMN_FK_USER + " integer, "
+            + Contract.GroupUserJunction.COLUMN_FK_GROUP + " integer, "
+            + " UNIQUE ( "
+            + Contract.GroupUserJunction.COLUMN_FK_USER + ", "
+            + Contract.GroupUserJunction.COLUMN_FK_GROUP
+            + " ) ON CONFLICT REPLACE "
+            +")";
+
+    private static final String GROUP_REPORT_TABLE_CREATE = "create table "
+            + Contract.GroupReportJunction.TABLE_NAME + "("
+            + Contract.GroupReportJunction._ID  + " integer primary key autoincrement, "
+            + Contract.GroupReportJunction.COLUMN_FK_REPORT + " integer, "
+            + Contract.GroupReportJunction.COLUMN_FK_GROUP + " integer, "
+            + " UNIQUE ( "
+            + Contract.GroupReportJunction.COLUMN_FK_REPORT + ", "
+            + Contract.GroupReportJunction.COLUMN_FK_GROUP
+            + " ) ON CONFLICT REPLACE "
+            +")";
+
     public ReportDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -110,6 +147,10 @@ public class ReportDatabase extends SQLiteOpenHelper {
         database.execSQL(LANDMARKS_TABLE_CREATE);
         database.execSQL(TAGS_TABLE_CREATE);
         database.execSQL(REPORT_TAG_TABLE_CREATE);
+        database.execSQL(USER_TABLE_CREATE);
+        database.execSQL(GROUP_TABLE_CREATE);
+        database.execSQL(GROUP_USER_TABLE_CREATE);
+        database.execSQL(GROUP_REPORT_TABLE_CREATE);
     }
 
     @Override
@@ -123,6 +164,10 @@ public class ReportDatabase extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Landmark.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.Tag.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + Contract.ReportTagJunction.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.User.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.Group.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.GroupUserJunction.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + Contract.GroupReportJunction.TABLE_NAME);
         onCreate(db);
     }
 }

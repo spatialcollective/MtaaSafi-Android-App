@@ -16,7 +16,8 @@ public final class URLConstants {
                                 LOCATION_GET_URL = "get_location_data/",
                                 SIGN_IN_URL = "sign_in_user/",
                                 TAG_GET_URL = "v1/tag/?format=json&limit=0",
-                                HISTORY_GET_URL = "get_report_history/";
+                                HISTORY_GET_URL = "get_report_history/",
+                                GROUP_GET_URL = "v1/group/?format=json&limit=0";
 
     public static String buildURL(Context context, String endpoint){
         return context.getString(R.string.base_url) + endpoint;

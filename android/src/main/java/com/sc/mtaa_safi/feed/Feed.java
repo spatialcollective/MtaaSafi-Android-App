@@ -71,7 +71,8 @@ public class Feed { // Singleton for keeping track of feed state
 
     public String setFeedToNearby(Context c) {
         feedContent = LOAD_ALL + " AND " + Utils.createCursorAdminList(Utils.getNearbyAdmins(c));
-        listener.triggerReload();
+        if (listener != null)
+            listener.triggerReload();
         return feedContent;
     }
 
