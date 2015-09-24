@@ -100,7 +100,10 @@ public class ReportDatabase extends SQLiteOpenHelper {
             + Contract.User.TABLE_NAME + "("
             + Contract.User._ID + " integer primary key autoincrement, "
             + Contract.User.COLUMN_SERVER_ID + " integer, "
-            + Contract.User.COLUMN_NAME + " text unique "
+            + Contract.User.COLUMN_NAME + " text, "
+            + " UNIQUE ( "
+                + Contract.User.COLUMN_NAME
+            + " ) ON CONFLICT REPLACE "
         +")";
 
     private static final String GROUP_TABLE_CREATE = "create table "

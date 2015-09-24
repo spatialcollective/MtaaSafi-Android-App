@@ -46,7 +46,7 @@ public class NavigationDrawer extends DrawerLayout implements View.OnClickListen
         ((TextView) this.findViewById(R.id.user_name)).setText(Utils.getUserName(getActivity()));
         ((TextView) this.findViewById(R.id.user_email)).setText(Utils.getEmail(getActivity()));
         this.findViewById(R.id.settings_btn).setOnClickListener(new SettingsListener());
-        this.findViewById(R.id.groups_btn).setOnClickListener(new GroupsListener());
+        //this.findViewById(R.id.groups_btn).setOnClickListener(new GroupsListener());
         createNavList();
         addNavItems();
     }

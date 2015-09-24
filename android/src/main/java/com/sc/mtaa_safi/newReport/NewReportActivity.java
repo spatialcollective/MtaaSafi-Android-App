@@ -48,7 +48,6 @@ public class NewReportActivity extends BaseActivity {
             frag = new NewReportFragment();
         manager.beginTransaction()
                 .replace(android.R.id.content, frag, NEW_REPORT_TAG)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
     }
 
@@ -84,7 +83,9 @@ public class NewReportActivity extends BaseActivity {
             } else {
                 Toast.makeText(this, "Still retrieving location...", Toast.LENGTH_LONG).show();
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Uri saveNewReport(NewReportFragment frag) throws JSONException {
